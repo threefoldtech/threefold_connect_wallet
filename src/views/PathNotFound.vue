@@ -16,7 +16,7 @@
             </p>
             <div class="mt-6">
                 <RouterLink
-                    :to="{ name: 'home' }"
+                    :to="{ name: 'walletList' }"
                     class="
                         inline-flex
                         items-center

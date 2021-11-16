@@ -5,7 +5,8 @@
         "dev": "vite",
         "build": "vue-tsc --noEmit && vite build",
         "serve": "vite preview",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "test": "jest"
     },
     "dependencies": {
         "@headlessui/vue": "^1.4.1",
@@ -16,19 +17,23 @@
         "@tailwindcss/forms": "^0.3.4",
         "@tailwindcss/line-clamp": "^0.2.2",
         "@tailwindcss/typography": "^0.4.1",
+        "@types/jest": "^27.0.2",
         "@vueuse/core": "^6.6.2",
         "axios": "^0.24.0",
         "bip39": "^3.0.4",
         "buffer": "^6.0.3",
         "events": "^3.3.0",
         "flagsmith": "^1.6.10",
+        "jest": "^27.3.1",
         "libsodium-wrappers": "^0.7.9",
         "process": "^0.11.10",
         "stellar-sdk": "^9.0.1",
         "stream": "^0.0.2",
         "stream-browserify": "^3.0.0",
         "tailwindcss": "^2.2.17",
+        "ts-jest": "^27.0.7",
         "tweetnacl-util": "^0.15.1",
+        "vite-jest": "^0.0.4",
         "vue": "^3.2.20",
         "vue-router": "^4.0.12"
     },

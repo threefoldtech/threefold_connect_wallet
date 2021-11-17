@@ -10,6 +10,8 @@ import {
 } from '@jimber/stellar-crypto';
 import { Keypair } from 'stellar-sdk';
 import { getStellarClient } from '../src/service/stellarService';
+import { ApiPromise, WsProvider } from '@polkadot/api';
+import types from './types.json';
 
 beforeEach(() => {
     (<any>window).stellarServerUrl = 'https://horizon.stellar.org';
@@ -65,7 +67,7 @@ async function getBalanceForStellarAddress(publicKey: String) {
 }
 
 describe('Bridge', () => {
-    it('Transaction from Stellar to Substrate with funds', async () => {
+    it.skip('Transaction from Stellar to Substrate with funds', async () => {
         const appSeedPhrase =
             'uncle credit near awkward length summer clap patch script embark list fog amount marble warrior economy cross age cargo stuff tennis minimum index profit';
         const entropy = calculateWalletEntropyFromAccount(appSeedPhrase, 0);
@@ -76,66 +78,43 @@ describe('Bridge', () => {
 
         console.log('PUBLIC KEY: ', myKeypair.publicKey());
 
-        const myBTCProdSecret = 'SAYXQNUMTCARSXYQ2AWPLWIG67YECKMJJ4CJAGYHSNEA3RKBZZ6PBFBC';
-        const myBTCProdKeypair: Keypair = Keypair.fromSecret(myBTCProdSecret);
+        const myTestingSecret = 'SCYSPEAKVVLSFW72EFQ2ZL7FO772GWPCCFBLMRDWBAHJSMGETT6KFDC5';
+        const myTestingKeypair: Keypair = Keypair.fromSecret(myTestingSecret);
 
-        const balanceBeforeTransaction = await getBalanceForStellarAddress(myKeypair.publicKey());
+        const balanceBeforeTransaction = await getBalanceForStellarAddress(myTestingKeypair.publicKey());
         console.log('Balance before: ', balanceBeforeTransaction);
 
+        const amount = Number(5);
+
         const fundedTransaction = await buildFundedPaymentTransaction(
-            myBTCProdKeypair,
-            myKeypair.publicKey(),
-            new Number(1000),
+            myKeypair,
+            myTestingKeypair.publicKey(),
+            amount,
             'test',
             'TFT'
         );
 
-        const response = await submitFundedTransaction(fundedTransaction, myBTCProdKeypair);
+        const response = await submitFundedTransaction(fundedTransaction, myKeypair);
         expect(response.transactionhash).toBeTruthy();
 
-        const balanceAfterTransaction = await getBalanceForStellarAddress(myKeypair.publicKey());
+        const balanceAfterTransaction = await getBalanceForStellarAddress(myTestingKeypair.publicKey());
         console.log('Balance after: ', balanceAfterTransaction);
-    }, 30000);
 
-    // it("Transaction from Stellar to Substrate with funds", async () => {
-    //     const appSeedPhrase = "uncle credit near awkward length summer clap patch script embark list fog amount marble warrior economy cross age cargo stuff tennis minimum index profit";
-    //     const entropy = calculateWalletEntropyFromAccount(appSeedPhrase, 0);
-    //     const keyPair: Keypair = keypairFromAccount(entropy);
+        expect(balanceBeforeTransaction + amount).toEqual(balanceAfterTransaction);
+    }, 60000);
 
-    //     // const mySecret = "SBL24K2F5ZINC74YX6MFGOLRFRMVFVOZX3DHNWYJGEZQ23NDIZBXIC42";
-    //     // const myKeypair: Keypair = Keypair.fromSecret(mySecret);
+    it('Substrate things', async () => {
+        const provider = new WsProvider('wss://tfchain.test.threefold.io');
 
-    //     // const myBTCProdSecret = "SAYXQNUMTCARSXYQ2AWPLWIG67YECKMJJ4CJAGYHSNEA3RKBZZ6PBFBC";
-    //     // const myBTCProdKeypair: Keypair = Keypair.fromSecret(myBTCProdSecret);
+        const api = await ApiPromise.create({ provider, types });
 
-    //     const balanceBeforeTransaction = await getBalanceForStellarAddress(keyPair.publicKey());
-    //     console.log("Balance before: ", balanceBeforeTransaction);
+        const [chain, nodeName, nodeVersion] = await Promise.all([
+            api.rpc.system.chain(),
+            api.rpc.system.name(),
+            api.rpc.system.version(),
+        ]);
 
-    //     const fundedTransaction = await buildFundedPaymentTransaction(
-    //         keyPair,
-    //         keyPair.publicKey(),
-    //         new Number(1),
-    //         "",
-    //         "TFT"
-    //     );
-
-    //     const response = await submitFundedTransaction(fundedTransaction, keyPair);
-    //     expect(response.transactionhash).toBeTruthy()
-
-    //     const balanceAfterTransaction = await getBalanceForStellarAddress(keyPair.publicKey());
-    //     console.log("Balance after: ", balanceAfterTransaction);
-
-    // }, 30000);
-
-    // it("Transaction from Stellar to Substrate without funds", () => {
-    //     expect(false).toBe(true);
-    // });
-
-    // it("Transaction from Substrate to Stellar with funds", () => {
-    //     expect(false).toBe(true);
-    // });
-
-    // it("Transaction from Substrate to Stellar without funds", () => {
-    //     expect(false).toBe(true);
-    // });
+        console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+        console.log('api: ', api.genesisHash.toHex());
+    }, 60000);
 });

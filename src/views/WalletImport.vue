@@ -3,7 +3,7 @@
         <template #header>
             <PageHeader>
                 <template #before>
-                    <ArrowLeftIcon @click="$router.push({ name: 'walletList' })" />
+                    <ArrowLeftIcon @click="router.push({ name: 'walletList' })" />
                 </template>
                 <h1>Import wallet</h1>
             </PageHeader>

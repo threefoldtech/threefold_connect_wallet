@@ -1,6 +1,5 @@
 import process from 'process';
 import { Buffer } from 'buffer';
-import 'setimmediate';
 
 window.Buffer = Buffer;
 window.process = process;
@@ -13,8 +12,17 @@ import '@/components/global';
 import { registerGlobalComponent } from './components/global';
 import router from './router';
 
-const app = createApp(App);
-app.use(router);
-registerGlobalComponent(app);
+// declare const Buffer: BufferConstructor;
 
-app.mount('#app');
+const init = async () => {
+    const { Buffer } = await import('buffer');
+    window.Buffer = Buffer;
+
+    const app = createApp(App);
+    app.use(router);
+    registerGlobalComponent(app);
+
+    app.mount('#app');
+};
+
+init();

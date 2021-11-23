@@ -32,7 +32,7 @@
     console.log({ isDev });
 
     const seed = useLocalStorage('devSeed', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=');
-    if (isDev) {
+    if (true) {
         init('production.3bot', seed.value).then(() => {
             router.push({ name: 'walletList' }).catch(e => {
                 router.push({ name: 'error' });

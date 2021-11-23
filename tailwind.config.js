@@ -9,11 +9,24 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: colors.blue,
-                secondary: colors.gray,
+                primary: colors.red,
+                secondary: colors.amber,
             },
             screens: {
                 landscape: { raw: '(orientation: landscape) and (max-height: 480px)' },
+            },
+            keyframes: {
+                wiggle: {
+                    '0%, 100%': {
+                        transform: 'rotate(-3deg)',
+                    },
+                    '50%': {
+                        transform: 'rotate(3deg)',
+                    },
+                },
+            },
+            animation: {
+                wiggle: 'wiggle 0.2s ease-in-out',
             },
         },
         fontFamily: {

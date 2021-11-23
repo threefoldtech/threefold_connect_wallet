@@ -8,10 +8,11 @@ import PathNotFound from '@/views/PathNotFound.vue';
 import Init from '@/views/Init.vue';
 import TestView from '@/views/TestView.vue';
 import WalletImport from '@/views/WalletImport.vue';
-import Wallet from '@/views/Wallet.vue';
+import WalletShell from '@/views/wallet/WalletShell.vue';
 import Send from '@/views/transfer/Send.vue';
 import Receive from '@/views/transfer/Receive.vue';
 import FirstWalletInit from '@/views/FirstWalletInit.vue';
+import ConfirmSend from '@/views/transfer/ConfirmSend.vue';
 
 export const routes: RouteRecordRaw[] = [
     {
@@ -31,7 +32,7 @@ export const routes: RouteRecordRaw[] = [
     },
     {
         path: '/wallet/:wallet',
-        component: Wallet,
+        component: WalletShell,
         children: [
             {
                 path: '',
@@ -72,14 +73,21 @@ export const routes: RouteRecordRaw[] = [
         component: RouterView,
         children: [
             {
-                path: 'send/:from?',
+                path: 'send',
                 name: 'send',
                 component: Send,
+                props: true,
             },
             {
-                path: 'receive/:to?',
+                path: 'receive/',
                 name: 'receive',
                 component: Receive,
+                props: true,
+            },
+            {
+                path: 'confirm/send/:from/:to/:amount/:asset',
+                name: 'confirmSend',
+                component: ConfirmSend,
             },
         ],
     },
@@ -90,7 +98,7 @@ export const routes: RouteRecordRaw[] = [
         props: true,
     },
     {
-        path: '/firstWalletInit/:address',
+        path: '/firstWalletInit',
         name: 'firstWalletInit',
         component: FirstWalletInit,
         props: true,

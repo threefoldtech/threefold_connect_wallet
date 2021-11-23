@@ -10,6 +10,12 @@ export default defineConfig({
             '@': path.resolve(__dirname, '/src'),
             process: 'process/browser',
             stream: 'stream-browserify',
+            Buffer: 'safe-buffer',
+            util: path.resolve(__dirname, 'node_modules/util'),
         },
+    },
+    build: {
+        minify: false,
+        target: ['ESNext'],
     },
 });

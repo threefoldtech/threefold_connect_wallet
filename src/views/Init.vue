@@ -1,5 +1,5 @@
 <template>
-    <div class="h-full w-full flex items-center justify-center text-center">
+    <div :class="{ 'debug-screens': isDev }" class="h-full w-full flex items-center justify-center text-center">
         <div>
             <svg
                 class="animate-spin h-32 text-primary-600"
@@ -22,14 +22,23 @@
 <script lang="ts" setup>
     import { useRouter } from 'vue-router';
     import { init, loadingText } from '@/service/initializationService';
+    import { useLocalStorage } from '@vueuse/core';
 
     const router = useRouter();
 
-    init('testboy.3bot', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=').then(() => {
-        router.push({ name: 'walletList' }).catch(e => {
-            router.push({ name: 'error' });
+    //@ts-ignore
+    const isDev = import.meta.env.DEV;
+
+    console.log({ isDev });
+
+    const seed = useLocalStorage('devSeed', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=');
+    if (true) {
+        init('production.3bot', seed.value).then(() => {
+            router.push({ name: 'walletList' }).catch(e => {
+                router.push({ name: 'error' });
+            });
         });
-    });
+    }
 </script>
 
 <style scoped></style>

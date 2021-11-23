@@ -8,8 +8,12 @@
                 <h1>Send</h1>
             </PageHeader>
         </template>
-        <div class="p-4">
-            <Listbox v-model="selected" as="div">
+        <div class="p-4 flex flex-col h-full">
+            <div class="absolute right-4 flex items-center space-x-1" @click="scanQr">
+                <QrcodeIcon class="h-5" />
+                <p class="font-medium text-sm">SCAN QR</p>
+            </div>
+            <Listbox v-model="selectedWallet" as="div" class="mt-2">
                 <ListboxLabel class="block text-sm font-medium text-gray-700">From</ListboxLabel>
                 <div class="mt-1 relative">
                     <ListboxButton
@@ -25,13 +29,13 @@
                             py-2
                             text-left
                             cursor-default
-                            focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500
+                            focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500
                             sm:text-sm
                         "
                     >
                         <span class="w-full inline-flex truncate">
-                            <span class="truncate">{{ selected.name }}</span>
-                            <span class="ml-2 truncate text-gray-500">{{ selected.username }}</span>
+                            <span class="truncate flex-shrink-0">{{ selectedWallet?.name }}</span>
+                            <span class="ml-2 truncate text-gray-500">{{ selectedWallet?.keyPair.publicKey() }}</span>
                         </span>
                         <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                             <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />
@@ -62,31 +66,33 @@
                             "
                         >
                             <ListboxOption
-                                v-for="person in people"
-                                :key="person.username"
+                                v-for="wallet in wallets"
                                 v-slot="{ active, selected }"
-                                :value="person"
+                                :value="wallet"
                                 as="template"
                             >
                                 <li
                                     :class="[
-                                        active ? 'text-white bg-indigo-600' : 'text-gray-900',
+                                        active ? 'text-white bg-primary-600' : 'text-gray-900',
                                         'cursor-default select-none relative py-2 pl-3 pr-9',
                                     ]"
                                 >
                                     <div class="flex">
-                                        <span :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']">
-                                            {{ person.name }}
+                                        <span
+                                            :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']"
+                                            class="flex-shrink-0"
+                                        >
+                                            {{ wallet?.name }}
                                         </span>
-                                        <span :class="[active ? 'text-indigo-200' : 'text-gray-500', 'ml-2 truncate']">
-                                            {{ person.username }}
+                                        <span :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']">
+                                            {{ wallet?.keyPair.publicKey() }}
                                         </span>
                                     </div>
 
                                     <span
                                         v-if="selected"
                                         :class="[
-                                            active ? 'text-white' : 'text-indigo-600',
+                                            active ? 'text-white' : 'text-primary-600',
                                             'absolute inset-y-0 right-0 flex items-center pr-4',
                                         ]"
                                     >
@@ -99,23 +105,26 @@
                 </div>
             </Listbox>
             <div class="mt-4">
-                <label class="block text-sm font-medium text-gray-700" for="email">Search candidates</label>
+                <label class="block text-sm font-medium text-gray-700" for="to">To</label>
                 <div class="mt-1 flex rounded-md shadow-sm">
                     <div class="relative flex items-stretch flex-grow focus-within:z-10">
                         <input
-                            id="email"
+                            id="to"
+                            v-model="toAddress"
+                            :disabled="relevantAssets.length <= 0"
                             class="
-                                focus:ring-indigo-500 focus:border-indigo-500
+                                focus:ring-primary-500 focus:border-primary-500
                                 block
                                 w-full
                                 rounded-none rounded-l-md
                                 pl-3
                                 sm:text-sm
                                 border-gray-300
+                                disabled:border-gray-300 disabled:bg-gray-50
                             "
-                            name="email"
-                            placeholder="John Doe"
-                            type="email"
+                            name="to"
+                            placeholder="..."
+                            type="text"
                         />
                     </div>
                     <button
@@ -134,40 +143,44 @@
                             text-gray-700
                             bg-gray-50
                             hover:bg-gray-100
-                            focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500
+                            focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500
                         "
                         type="button"
                     >
-                        <UserIcon class="w-6 text-primary-600t"></UserIcon>
+                        <UserIcon class="w-6 text-primary-600"></UserIcon>
                     </button>
                 </div>
             </div>
             <div class="mt-4">
-                <label class="block text-sm font-medium text-gray-700" for="price">Price</label>
+                <label class="block text-sm font-medium text-gray-700" for="amount">Amount</label>
                 <div class="mt-1 relative rounded-md shadow-sm">
                     <input
-                        id="price"
+                        id="amount"
+                        v-model="amount"
+                        :disabled="relevantAssets.length <= 0"
+                        :placeholder="relevantAssets.length <= 0 ? 'no funds on this wallet' : '0.00'"
                         class="
-                            focus:ring-indigo-500 focus:border-indigo-500
+                            focus:ring-primary-500 focus:border-primary-500
                             block
                             w-full
                             pl-4
-                            pr-12
+                            pr-20
                             sm:text-sm
                             border-gray-300
                             rounded-md
+                            disabled:border-gray-300 disabled:bg-gray-50
                         "
-                        name="price"
-                        placeholder="0.00"
-                        type="text"
+                        name="amount"
+                        type="number"
                     />
                     <div class="absolute inset-y-0 right-0 flex items-center">
                         <label class="sr-only" for="currency">Currency</label>
                         <select
                             id="currency"
                             v-model="selectedAsset"
+                            :disabled="relevantAssets.length <= 0"
                             class="
-                                focus:ring-indigo-500 focus:border-indigo-500
+                                focus:ring-primary-500 focus:border-primary-500
                                 h-full
                                 py-0
                                 pl-2
@@ -180,10 +193,37 @@
                             "
                             name="currency"
                         >
-                            <option v-for="asset in allowedAssets">{{ asset }}</option>
+                            <option v-for="asset in relevantAssets">{{ asset }}</option>
                         </select>
                     </div>
                 </div>
+                <div class="flex mt-4 space-x-4">
+                    <button class="p-1 flex-1 border border-gray-300 rounded-md" @click="setAmount(0.25)">25%</button>
+                    <button class="p-1 flex-1 border border-gray-300 rounded-md" @click="setAmount(0.5)">50%</button>
+                    <button class="p-1 flex-1 border border-gray-300 rounded-md" @click="setAmount(0.75)">75%</button>
+                    <button class="p-1 flex-1 border border-gray-300 rounded-md" @click="setAmount(1)">100%</button>
+                </div>
+            </div>
+            <div class="mt-4">
+                <p>Fee {{ fee.toFixed(7) }} {{ selectedAsset }}</p>
+            </div>
+            <div class="flex-grow"></div>
+            <div class="mt-4 flex">
+                <button
+                    :disabled="!selectedWallet || !toAddress || !amount || amount <= 0 || !selectedAsset"
+                    class="
+                        px-4
+                        py-2
+                        text-white
+                        bg-blue-600
+                        rounded-md
+                        flex-1
+                        disabled:bg-gray-300 disabled:text-gray-600 disabled:hover:animate-wiggle
+                    "
+                    @click="goToConfirm"
+                >
+                    send tokens
+                </button>
             </div>
         </div>
     </MainLayout>
@@ -191,32 +231,85 @@
 
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
-    import ArrowLeftIcon from '@heroicons/vue/solid/ArrowLeftIcon';
-    import UserIcon from '@heroicons/vue/solid/UserIcon';
+    import { UserIcon, CheckIcon, SelectorIcon, ArrowLeftIcon, QrcodeIcon } from '@heroicons/vue/solid';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import { useRouter } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue';
-    import { CheckIcon, SelectorIcon } from '@heroicons/vue/solid';
-    import { ref } from 'vue';
+    import { computed, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
+    import { balances, Wallet, wallets } from '@/service/walletService';
 
     const router = useRouter();
     const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
 
-    const people = [
-        { name: 'Wade Cooper', username: '@wadecooper' },
-        { name: 'Arlene Mccoy', username: '@arlenemccoy' },
-        { name: 'Devon Webb', username: '@devonwebb' },
-        { name: 'Tom Cook', username: '@tomcook' },
-        { name: 'Tanya Fox', username: '@tanyafox' },
-        { name: 'Hellen Schmidt', username: '@hellenschmidt' },
-        { name: 'Caroline Schultz', username: '@carolineschultz' },
-        { name: 'Mason Heaney', username: '@masonheaney' },
-        { name: 'Claudie Smitham', username: '@claudiesmitham' },
-        { name: 'Emil Schaefer', username: '@emilschaefer' },
-    ];
-    const selected = ref(people[3]);
-    const selectedAsset = ref('BTC');
+    interface IProps {
+        from?: string;
+        to?: string;
+        amount?: number;
+        asset?: string;
+    }
+
+    const { from, to, amount: initialAmount, asset } = defineProps<IProps>();
+
+    const selectedWallet = ref<Wallet>(wallets.value?.find(w => w.keyPair.publicKey() === from) || wallets.value[0]);
+
+    const selectedBalance = computed(() =>
+        balances.value.find(t => t.id === selectedWallet?.value.keyPair.publicKey())
+    );
+
+    const relevantAssets = computed(() => {
+        return allowedAssets.filter(asset => {
+            return (selectedBalance.value?.assets.find(balance => balance.name === asset)?.amount || 0) > 0;
+        });
+    });
+
+    const selectedAsset = ref(asset || relevantAssets.value[0]);
+
+    watch(relevantAssets, (value: string[]) => {
+        if (value.findIndex(v => v === selectedAsset.value) !== -1) return;
+        selectedAsset.value = value[0];
+    });
+
+    const toAddress = ref(to);
+    const amount = ref(initialAmount);
+    const fee = Number(flagsmith.getValue('fee-amount'));
+
+    const setAmount = (multiplier: number) => {
+        console.log(Number());
+        const assetBalance = selectedBalance.value?.assets.find(a => a.name === selectedAsset.value)?.amount;
+
+        if (!assetBalance) return;
+
+        const availableBalanceWithoutfee = assetBalance - fee;
+        console.log(availableBalanceWithoutfee);
+        const newAmount = availableBalanceWithoutfee * multiplier;
+        if (newAmount <= 0) {
+            return;
+        }
+        amount.value = newAmount;
+    };
+
+    const goToConfirm = async () => {
+        await router.replace({
+            name: 'confirmSend',
+            params: {
+                from: selectedWallet.value.keyPair.publicKey(),
+                to: toAddress.value,
+                amount: Number(amount.value),
+                asset: selectedAsset.value,
+            },
+        });
+    };
+    const scanQr = async () => {
+        const code = await (<any>window).flutter_inappwebview?.callHandler('SCAN_QR');
+
+        const url = new URL(code);
+        const address = url.hostname === '' ? url.pathname.replace('//', '') : url.hostname;
+        const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0];
+
+        toAddress.value = address;
+        if (currency) selectedAsset.value = currency;
+    };
 </script>
 
 <style scoped></style>

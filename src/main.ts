@@ -1,3 +1,10 @@
+import process from 'process';
+import { Buffer } from 'buffer';
+import 'setimmediate';
+
+window.Buffer = Buffer;
+window.process = process;
+
 import { createApp } from 'vue';
 import App from './App.vue';
 import './index.css';

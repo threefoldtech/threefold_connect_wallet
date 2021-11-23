@@ -10,6 +10,10 @@ export default defineConfig({
             '@': path.resolve(__dirname, '/src'),
             process: 'process/browser',
             stream: 'stream-browserify',
+            Buffer: 'safe-buffer',
         },
+    },
+    build: {
+        minify: false,
     },
 });

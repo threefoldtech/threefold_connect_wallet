@@ -16,6 +16,18 @@
                 @click="router.push({ name: 'walletOverview', params: { wallet: wallet.keyPair.publicKey() } })"
             />
         </div>
+        <div
+            v-if="wallets.length === 0"
+            class="rounded-2xl border p-4 flex flex-col"
+            @click="router.push({ name: 'firstWalletInit' })"
+        >
+            <div class="">
+                <p class="font-semibold">Daily</p>
+            </div>
+            <div class="">
+                <button class="px-4 bg-primary-600 text-white py-2 rounded-md">create initial wallet</button>
+            </div>
+        </div>
     </MainLayout>
 </template>
 
@@ -23,18 +35,15 @@
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
     import FAB from '@/components/global/FAB.vue';
-    import { getBalance, handleAccountRecord, balances, Wallet, wallets } from '../service/walletService';
+    import { getBalance, handleAccountRecord, balances, Wallet, wallets } from '@/service/walletService';
     import { useRouter } from 'vue-router';
     import { onBeforeUnmount, ref } from 'vue';
-    import { Server } from 'stellar-sdk';
     import WalletCard from '../components/WalletCard.vue';
-    import flagsmith from 'flagsmith';
     import { getStellarClient } from '@/service/stellarService';
 
     const router = useRouter();
 
     const streams = ref<(() => void)[]>([]);
-
     wallets.value.forEach(async (wallet: Wallet) => {
         const result = await getBalance(wallet);
         handleAccountRecord(wallet, result);

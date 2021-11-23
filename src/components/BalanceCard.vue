@@ -1,7 +1,7 @@
 <template>
     <div class="rounded-2xl border p-4 flex justify-between">
         <div>{{ asset }}</div>
-        <div>{{ balance.toLocaleString() }}</div>
+        <div>{{ balance.toLocaleString(undefined, { maximumFractionDigits: 6, minimumSignificantDigits: 4 }) }}</div>
     </div>
 </template>
 

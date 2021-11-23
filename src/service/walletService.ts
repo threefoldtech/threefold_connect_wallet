@@ -1,26 +1,43 @@
 import { Ref, ref } from 'vue';
-import { Keypair } from 'stellar-base';
+import { Horizon, Keypair, ServerApi } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
-import { Horizon, Server, ServerApi } from 'stellar-sdk';
+import { getStellarClient } from '@/service/stellarService';
+import { PkidWalletTypes } from '@/service/initializationService';
+import { useLocalStorage } from '@vueuse/core';
 import AccountRecord = ServerApi.AccountRecord;
 import CollectionPage = ServerApi.CollectionPage;
-import TransactionRecord = ServerApi.TransactionRecord;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
 import OperationRecord = ServerApi.OperationRecord;
-import { getStellarClient } from '@/service/stellarService';
+import BalanceLine = Horizon.BalanceLine;
 
 export interface Wallet {
     name: string;
     keyPair: Keypair;
+
+    meta: {
+        position?: number;
+        chain: 'stellar';
+        type: PkidWalletTypes;
+        index?: number;
+    };
+}
+
+export interface AllowedAsset {
+    name: string; //asset name
+    type: 'stellar' | 'substrate';
+    asset_code: string;
+    issuer?: string;
 }
 
 export interface AssetBalance {
-    name: string;
+    name: string; //asset name
     amount: number;
+    type: 'stellar' | 'substrate';
+    issuer?: string;
 }
 
 export interface Balance {
-    id: string;
+    id: string; // walletId
     assets: AssetBalance[];
 }
 
@@ -31,9 +48,8 @@ export interface Operation {
 }
 
 export const wallets: Ref<Wallet[]> = ref<Wallet[]>([]);
-export const balances: Ref<Balance[]> = ref<Balance[]>([]);
-export const transactions: Ref<TransactionRecord[]> = ref<TransactionRecord[]>([]);
-export const operations: Ref<Operation[]> = ref<Operation[]>([]);
+export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', []);
+export const operations: Ref<Operation[]> = useLocalStorage<Operation[]>('operations_cache', []);
 
 export const getBalance = async (wallet: Wallet): Promise<AccountRecord> => {
     const server = getStellarClient();
@@ -48,19 +64,10 @@ export const getOperations = async (wallet: Wallet, cursor?: string): Promise<Co
 };
 
 export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
-    // res?.transactions().then((page: CollectionPage<TransactionRecord>) => {
-    //     page.records.forEach((transactionRecord: TransactionRecord) => {
-    //         const index = transactions.value.findIndex(t => t.id === transactionRecord.id);
-    //
-    //         index === -1
-    //             ? transactions.value.push(transactionRecord)
-    //             : transactions.value.splice(index, 1, transactionRecord);
-    //     });
-    // });
-    const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
+    const allowedAssets: AllowedAsset[] = JSON.parse(<string>flagsmith.getValue('currencies'));
 
-    const assets: { name: string; amount: number }[] = res.balances
-        .map(balance => {
+    const assets: AssetBalance[] = res.balances
+        .map((balance: BalanceLine): AssetBalance => {
             const assetCode =
                 balance.asset_type === 'native'
                     ? 'xlm'
@@ -69,9 +76,14 @@ export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
             return {
                 name: assetCode,
                 amount: Number(balance.balance),
+                type: 'stellar',
+                issuer: (<BalanceLineAsset<'credit_alphanum4'> | BalanceLineAsset<'credit_alphanum12'>>balance)
+                    ?.asset_issuer,
             };
         })
-        .filter(a => allowedAssets.indexOf(a.name) !== -1);
+        .filter(a =>
+            allowedAssets.find(allowedAsset => allowedAsset.asset_code === a.name && allowedAsset.issuer === a.issuer)
+        );
 
     const balance: Balance = {
         id: wallet.keyPair.publicKey(),

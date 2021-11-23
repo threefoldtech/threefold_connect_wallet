@@ -1,16 +1,10 @@
-<template>
-    <MainLayout>
-        <template #header></template>
-        <h1 class="">home</h1>
-        <template #navigation>
-            <BottomWalletNav />
-        </template>
-    </MainLayout>
-</template>
+<template>vesting</template>
 
 <script lang="ts" setup>
-    import MainLayout from '@/layouts/MainLayout.vue';
-    import BottomWalletNav from '@/components/nav/BottomWalletNav.vue';
+    import { Wallet } from '@/service/walletService';
+    import { inject } from 'vue';
+
+    const wallet: Wallet = <Wallet>inject('wallet');
 </script>
 
 <style scoped></style>

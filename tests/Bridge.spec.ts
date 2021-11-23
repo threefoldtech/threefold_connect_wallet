@@ -126,8 +126,7 @@ function getStellarClient() {
 }
 
 function getSubstrateApi() {
-    const provider = new WsProvider('wss://tfchain.test.threefold.io');
-
+    const provider = new WsProvider('wss://tfchain.test.grid.tf'); //
     // const api = await ApiPromise.create({ provider, types });
 
     // const [chain, nodeName, nodeVersion] = await Promise.all([
@@ -201,7 +200,7 @@ async function stellarTesting() {
 }
 
 describe('The wallet', () => {
-    it.skip('should be able to connect to the stellar network.', async () => {
+    it('should be able to connect to the stellar network.', async () => {
         const myTestingSecret = 'SCYSPEAKVVLSFW72EFQ2ZL7FO772GWPCCFBLMRDWBAHJSMGETT6KFDC5';
         const myTestingKeypair: Keypair = Keypair.fromSecret(myTestingSecret);
 
@@ -213,7 +212,7 @@ describe('The wallet', () => {
         expect(id).toBe(publicKey);
     }, 60000);
 
-    it.skip('should be able to connect to the substrate(TFChain) network.', async () => {
+    it('should be able to connect to the substrate(TFChain) network.', async () => {
         const api = await getSubstrateApi();
 
         const expectedGenesisHash = '0x0378abe88c21bd382106e7977902eef4f542bb2d3e67e8a318151e323b2d0660';
@@ -222,7 +221,7 @@ describe('The wallet', () => {
         expect(genesisHash).toBe(expectedGenesisHash);
     }, 60000);
 
-    it.skip('should be able to query the balance of a stellar wallet.', async () => {
+    it('should be able to query the balance of a stellar wallet.', async () => {
         const myTestingSecret = 'SCYSPEAKVVLSFW72EFQ2ZL7FO772GWPCCFBLMRDWBAHJSMGETT6KFDC5';
         const myTestingKeypair: Keypair = Keypair.fromSecret(myTestingSecret);
 
@@ -234,7 +233,7 @@ describe('The wallet', () => {
         expect(balance).toBeGreaterThanOrEqual(0);
     }, 60000);
 
-    it.skip('should be able to query the balance of a substrate(TFChain) wallet.', async () => {
+    it('should be able to query the balance of a substrate(TFChain) wallet.', async () => {
         const publicKey: string = '5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B';
         const balance = await getSubstrateBalance(publicKey);
 
@@ -242,7 +241,7 @@ describe('The wallet', () => {
         expect(balance).toBeGreaterThanOrEqual(0);
     }, 60000);
 
-    it('[Bridge] should transfer TFTs from stellar to substrate(TFChain)', async () => {
+    it.skip('[Bridge] should transfer TFTs from stellar to substrate(TFChain)', async () => {
         const currency = 'TFT';
 
         const stellarSeedPhrase =

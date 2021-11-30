@@ -12,6 +12,7 @@ import { Keypair } from 'stellar-sdk';
 import { getStellarClient as _getStellarClient } from '../src/service/stellarService';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import types from './types.json';
+import axios from 'axios';
 
 beforeEach(() => {
     var window = global;
@@ -199,8 +200,21 @@ async function stellarTesting() {
     // expect(balanceBeforeTransaction + amount).toEqual(balanceAfterTransaction);
 }
 
+async function activationServiceForSubstrate(id) {
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    const url = 'https://activation.test.grid.tf/activation/activate';
+    const data = { substrateAccountID: id };
+
+    const response = await axios.post(url, data, { headers });
+
+    return response;
+}
+
 describe('The wallet', () => {
-    it('should be able to connect to the stellar network.', async () => {
+    it.skip('should be able to connect to the stellar network.', async () => {
         const myTestingSecret = 'SCYSPEAKVVLSFW72EFQ2ZL7FO772GWPCCFBLMRDWBAHJSMGETT6KFDC5';
         const myTestingKeypair: Keypair = Keypair.fromSecret(myTestingSecret);
 
@@ -212,7 +226,7 @@ describe('The wallet', () => {
         expect(id).toBe(publicKey);
     }, 60000);
 
-    it('should be able to connect to the substrate(TFChain) network.', async () => {
+    it.skip('should be able to connect to the substrate(TFChain) network.', async () => {
         const api = await getSubstrateApi();
 
         const expectedGenesisHash = '0x0378abe88c21bd382106e7977902eef4f542bb2d3e67e8a318151e323b2d0660';
@@ -221,7 +235,7 @@ describe('The wallet', () => {
         expect(genesisHash).toBe(expectedGenesisHash);
     }, 60000);
 
-    it('should be able to query the balance of a stellar wallet.', async () => {
+    it.skip('should be able to query the balance of a stellar wallet.', async () => {
         const myTestingSecret = 'SCYSPEAKVVLSFW72EFQ2ZL7FO772GWPCCFBLMRDWBAHJSMGETT6KFDC5';
         const myTestingKeypair: Keypair = Keypair.fromSecret(myTestingSecret);
 
@@ -234,8 +248,11 @@ describe('The wallet', () => {
     }, 60000);
 
     it('should be able to query the balance of a substrate(TFChain) wallet.', async () => {
-        const publicKey: string = '5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B';
+        const publicKey: string = '5FAmpqUUiYHnvJFqcc4iqFpoou6uyceecHju1fSZc5QcdWvD'; // 5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B
         const balance = await getSubstrateBalance(publicKey);
+
+        console.log('BALANCE');
+        console.log(balance);
 
         expect(typeof balance).toBe('number');
         expect(balance).toBeGreaterThanOrEqual(0);
@@ -254,88 +271,156 @@ describe('The wallet', () => {
         // const substrateSecretTo = "N/A";
 
         const stellarPublicKeyFrom: string = stellarKeypairFrom.publicKey();
-        const substratePublicKeyTo: string = '5Dtq2zb31yLaZMLHtPofsZc4dzPA7yKmhixNYVrn2FgRywLd';
+        const substratePublicKeyTo: string = '5FAmpqUUiYHnvJFqcc4iqFpoou6uyceecHju1fSZc5QcdWvD'; // 5FAmpqUUiYHnvJFqcc4iqFpoou6uyceecHju1fSZc5QcdWvD
+        // const substratePublicKeyTo: string = '5Dtq2zb31yLaZMLHtPofsZc4dzPA7yKmhixNYVrn2FgRywLd'; // 5FAmpqUUiYHnvJFqcc4iqFpoou6uyceecHju1fSZc5QcdWvD
 
         const stellarPublicKeyBridge = 'GA2CWNBUHX7NZ3B5GR4I23FMU7VY5RPA77IUJTIXTTTGKYSKDSV6LUA4'; // Stellar wallet from threefold which does the actual transfer to TFChain.
         const substratePublicKeyBridge = 'N/A';
+
+        console.log('PUBLIC KEY');
+        console.log(stellarPublicKeyFrom);
 
         const stellarBalanceBeforeTransaction = await getBalanceForStellarAddress(stellarPublicKeyFrom);
         const substrateBalanceBeforeTransaction = await getSubstrateBalance(substratePublicKeyTo);
 
         console.log('stellarBalanceBeforeTransaction', stellarBalanceBeforeTransaction);
+        console.log('substrateBalanceBeforeTransaction', substrateBalanceBeforeTransaction);
 
         const api = await getSubstrateApi();
 
-        const keyring = new Keyring({ type: 'sr25519' });
+        const keyring = new Keyring({ type: 'ed25519' });
         const substrateSeedPhrase =
             'uncle credit near awkward length summer clap patch script embark list fog amount marble warrior economy cross age cargo stuff tennis minimum index profit';
         const key = keyring.addFromUri(substrateSeedPhrase);
 
         console.log('Key: ', key.address);
 
+        // console.log('Trying to activate the substrate account');
+        // const activationResponse = await activationServiceForSubstrate(substratePublicKeyTo);
+        // console.log({ activationResponse });
+
         const target = substratePublicKeyTo; // Could be the wrong value.
         const name = 'jimbermathy.3bot';
-        const country = 'N/A';
-        const city = 'N/A';
-        const signature = await createEntitySign(key, name, country, city);
 
-        console.log('signature: ', signature);
         // console.log('tx.tfgridModule: ', api.tx.tfgridModule);
         // console.log('query.tfgridModule: ', api.query.tfgridModule);
 
-        const callback = (result, extra) => {
-            console.log('Callback from signAndSend.');
-            console.log(result);
-            console.log(extra);
-        };
+        // const callback = (result, extra) => {
+        //     console.log('Callback from signAndSend.');
+        //     console.log(result);
+        //     console.log(extra);
+        // };
 
         let entityId = await getEntityIDByName(api, name);
 
+        console.log('entityId');
+        console.log(entityId);
+
         if (entityId === 0) {
+            const country = '0';
+            const city = '0';
+            const signature = await createEntitySign(key, name, country, city);
+
+            console.log('signature: ', signature);
+
             console.log('Trying to create the entity');
+            console.log('target');
+            console.log(target);
+            console.log('name');
+            console.log(name);
+            console.log('country');
+            console.log(country);
+            console.log('city');
+            console.log(city);
+            console.log('signature');
+            console.log(signature);
+
             const entity = await api.tx.tfgridModule.createEntity(target, name, country, city, signature);
             const nonce = await api.rpc.system.accountNextIndex(substratePublicKeyTo);
 
             console.log('signAndSend');
+            console.log('entity');
+            console.log(entity);
+            console.log('nonce');
+            console.log(nonce);
+
+            const callback = async res => {
+                console.log('Callback from signAndSend.');
+
+                if (res instanceof Error) {
+                    console.log(res);
+                    process.exit(1);
+                }
+                const { events = [], status } = res;
+                console.log(`Current status is ${status.type}`);
+
+                if (status.isFinalized) {
+                    console.log(`Transaction included at blockHash ${status.asFinalized}`);
+
+                    // Loop through Vec<EventRecord> to display all events
+                    events.forEach(({ phase, event: { data, method, section } }) => {
+                        console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
+                    });
+
+                    entityId = await getEntityIDByName(api, name);
+                    console.log('We found entityId: ', entityId);
+
+                    const entity = await getEntity(api, entityId);
+                    console.log(entity);
+                    // process.exit(1);
+                }
+            };
+
             await entity.signAndSend(key, { nonce }, callback);
 
-            console.log('entity: ', entity);
-            entityId = await getEntityIDByName(api, name);
+            setTimeout(() => {
+                console.log('Waiting 20 seconds, jobs done.');
+            }, 20000);
         }
-        console.log('We found entityId: ', entityId);
-
-        const entity = await getEntity(api, entityId);
-
-        console.log(entity);
 
         const amountToTransfer = Number(5);
-        const memoToIncludeWithTransaction = 'N/A';
+        const memoToIncludeWithTransaction = 'entity_' + entityId;
 
-        // const fundedTransaction = await buildFundedPaymentTransaction(
-        //     stellarKeypairFrom,
-        //     stellarPublicKeyBridge,
-        //     amountToTransfer,
-        //     memoToIncludeWithTransaction,
-        //     currency
+        console.log('buildFundedPaymentTransaction');
+
+        const fundedTransaction = await buildFundedPaymentTransaction(
+            stellarKeypairFrom,
+            stellarPublicKeyBridge,
+            amountToTransfer,
+            memoToIncludeWithTransaction,
+            currency
+        );
+
+        // const _stellarKeypairFrom: Keypair = keypairFromAccount(stellarEntropy);
+
+        // const _fundedTransaction = await buildFundedPaymentTransaction(
+        //     _stellarKeypairFrom,
+        //     "GA2CWNBUHX7NZ3B5GR4I23FMU7VY5RPA77IUJTIXTTTGKYSKDSV6LUA4",
+        //     5,
+        //     "N/A",
+        //     "TFT"
         // );
 
-        // const fundedTransactionResponse = await submitFundedTransaction(fundedTransaction, stellarKeypairFrom);
+        console.log('submitFundedTransaction');
 
+        const fundedTransactionResponse = await submitFundedTransaction(fundedTransaction, stellarKeypairFrom);
+
+        console.log('woooo');
         const stellarBalanceAfterTransaction = await getBalanceForStellarAddress(stellarPublicKeyFrom);
         const substrateBalanceAfterTransaction = await getSubstrateBalance(substratePublicKeyTo);
 
-        // console.log('TransactionHash', fundedTransactionResponse.transactionhash);
+        console.log('TransactionHash', fundedTransactionResponse.transactionhash);
 
         console.log('stellarBalanceBeforeTransaction', stellarBalanceBeforeTransaction);
         console.log('stellarBalanceAfterTransaction', stellarBalanceAfterTransaction);
         console.log('substrateBalanceBeforeTransaction', substrateBalanceBeforeTransaction);
         console.log('substrateBalanceAfterTransaction', substrateBalanceAfterTransaction);
 
-        // expect(fundedTransactionResponse.transactionhash).toBeTruthy();
+        expect(fundedTransactionResponse.transactionhash).toBeTruthy();
         expect(stellarBalanceBeforeTransaction).toBeTruthy();
         expect(stellarBalanceAfterTransaction).toBeTruthy();
 
-        expect(false).toBe(true);
+        // expect(false).toBe(true);
     }, 60000);
 
     it.skip('[Bridge] should transfer TFTs from substrate(TFChain) to stellar', async () => {

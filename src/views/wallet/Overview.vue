@@ -66,7 +66,7 @@
     import MainLayout from '@/layouts/MainLayout.vue';
     import BottomWalletNav from '@/components/nav/BottomWalletNav.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import ArrowLeftIcon from '@heroicons/vue/solid/ArrowLeftIcon';
+    import ArrowLeftIcon from '@heroicons/vue/outline/ArrowLeftIcon';
     import BalanceCard from '@/components/BalanceCard.vue';
     import { useRoute, useRouter } from 'vue-router';
     import { AssetBalance, balances, Wallet, wallets } from '@/service/walletService';

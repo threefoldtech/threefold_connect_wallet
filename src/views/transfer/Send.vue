@@ -231,7 +231,7 @@
 
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
-    import { UserIcon, CheckIcon, SelectorIcon, ArrowLeftIcon, QrcodeIcon } from '@heroicons/vue/solid';
+    import { UserIcon, CheckIcon, SelectorIcon, ArrowLeftIcon, QrcodeIcon } from '@heroicons/vue/outline';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRoute, useRouter } from 'vue-router';
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue';

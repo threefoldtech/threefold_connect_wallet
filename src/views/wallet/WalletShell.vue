@@ -21,7 +21,7 @@
     import { onBeforeUnmount, provide, ref } from 'vue';
     import { useRoute } from 'vue-router';
     import { getStellarClient } from '@/service/stellarService';
-    import { ArrowLeftIcon } from '@heroicons/vue/solid';
+    import { ArrowLeftIcon } from '@heroicons/vue/outline';
 
     import MainLayout from '@/layouts/MainLayout.vue';
     import BottomWalletNav from '@/components/nav/BottomWalletNav.vue';

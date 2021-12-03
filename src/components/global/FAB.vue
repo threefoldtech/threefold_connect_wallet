@@ -19,5 +19,5 @@
     </div>
 </template>
 <script lang="ts" setup>
-    import PlusIcon from '@heroicons/vue/solid/PlusIcon';
+    import PlusIcon from '@heroicons/vue/outline/PlusIcon';
 </script>

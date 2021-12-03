@@ -43,7 +43,7 @@
 <script lang="ts" setup>
     import { Wallet } from '@/service/walletService';
     import { Dialog } from '@headlessui/vue';
-    import { XIcon } from '@heroicons/vue/solid';
+    import { XIcon } from '@heroicons/vue/outline';
 
     import { ServerApi } from 'stellar-sdk';
     import OperationRecord = ServerApi.OperationRecord;

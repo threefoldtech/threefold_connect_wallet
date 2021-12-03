@@ -30,12 +30,12 @@
 
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
-    import ArrowLeftIcon from '@heroicons/vue/solid/ArrowLeftIcon';
-    import UserIcon from '@heroicons/vue/solid/UserIcon';
+    import ArrowLeftIcon from '@heroicons/vue/outline/ArrowLeftIcon';
+    import UserIcon from '@heroicons/vue/outline/UserIcon';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRoute, useRouter } from 'vue-router';
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue';
-    import { CheckIcon, SelectorIcon } from '@heroicons/vue/solid';
+    import { CheckIcon, SelectorIcon } from '@heroicons/vue/outline';
     import { computed, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
     import { balances, Wallet, wallets } from '@/service/walletService';

@@ -103,7 +103,7 @@
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import { ArrowLeftIcon, ChevronUpIcon } from '@heroicons/vue/solid';
+    import { ArrowLeftIcon, ChevronUpIcon } from '@heroicons/vue/outline';
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
     import { ref } from 'vue';
     import { useRouter } from 'vue-router';

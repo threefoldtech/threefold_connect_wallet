@@ -104,7 +104,7 @@
     } from '@/service/walletService';
     import { computed, ComputedRef, inject, ref } from 'vue';
     import { Listbox, ListboxLabel, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue';
-    import { CheckIcon, SelectorIcon } from '@heroicons/vue/solid';
+    import { CheckIcon, SelectorIcon } from '@heroicons/vue/outline';
     import flagsmith from 'flagsmith';
     import Operation from '@/components/Operation.vue';
 

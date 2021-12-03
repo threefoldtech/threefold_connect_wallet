@@ -21,20 +21,12 @@
 </template>
 <script lang="ts" setup>
     import { NavItem } from '@/types';
-
-    import { CashIcon, SwitchHorizontalIcon, InformationCircleIcon, TrendingUpIcon } from '@heroicons/vue/outline';
+    import { TableIcon } from '@heroicons/vue/outline';
     import { ref } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
 
-    const nav = ref<NavItem[]>([
-        { name: 'walletOverview', icon: CashIcon },
-        ...(flagsmith.hasFeature('transactionOverview')
-            ? [{ name: 'walletTransactions', icon: SwitchHorizontalIcon }]
-            : []),
-        { name: 'walletInfo', icon: InformationCircleIcon },
-        ...(flagsmith.hasFeature('vesting') ? [{ name: 'walletVesting', icon: TrendingUpIcon }] : []),
-    ]);
+    const nav = ref<NavItem[]>([{ name: 'devlogs', icon: TableIcon }]);
     const route = useRoute();
     const router = useRouter();
 </script>

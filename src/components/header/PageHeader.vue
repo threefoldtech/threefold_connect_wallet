@@ -14,6 +14,7 @@
                 overflow-auto
                 px-0
             "
+            @click="inc()"
         >
             <slot></slot>
         </div>
@@ -23,6 +24,18 @@
     </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+    import { useCounter } from '@vueuse/core';
+    import { watch } from 'vue';
+    import { useRouter } from 'vue-router';
+
+    const { count, inc } = useCounter();
+    const router = useRouter();
+
+    watch(count, newValue => {
+        if (newValue < 5) return;
+        router.push({ name: 'dev' });
+    });
+</script>
 
 <style scoped></style>

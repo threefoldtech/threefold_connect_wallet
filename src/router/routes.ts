@@ -10,6 +10,7 @@ import TestView from '@/views/TestView.vue';
 import WalletImport from '@/views/WalletImport.vue';
 import WalletShell from '@/views/wallet/WalletShell.vue';
 import Send from '@/views/transfer/Send.vue';
+import Dev from '@/views/Dev.vue';
 import Receive from '@/views/transfer/Receive.vue';
 import FirstWalletInit from '@/views/FirstWalletInit.vue';
 import ConfirmSend from '@/views/transfer/ConfirmSend.vue';
@@ -19,6 +20,11 @@ export const routes: RouteRecordRaw[] = [
         path: '/',
         name: 'walletList',
         component: WalletList,
+    },
+    {
+        path: '/dev',
+        name: 'dev',
+        component: Dev,
     },
     {
         path: '/listBalances',
@@ -39,7 +45,7 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletOverview',
                 component: Overview,
                 meta: {
-                    activeWalletNav: 'walletOverview',
+                    activeNav: 'walletOverview',
                 },
             },
             {
@@ -47,7 +53,7 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletTransactions',
                 component: Transactions,
                 meta: {
-                    activeWalletNav: 'walletTransactions',
+                    activeNav: 'walletTransactions',
                 },
             },
             {
@@ -55,7 +61,7 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletInfo',
                 component: Info,
                 meta: {
-                    activeWalletNav: 'walletInfo',
+                    activeNav: 'walletInfo',
                 },
             },
             {
@@ -63,7 +69,7 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletVesting',
                 component: Vesting,
                 meta: {
-                    activeWalletNav: 'walletVesting',
+                    activeNav: 'walletVesting',
                 },
             },
         ],

@@ -11,6 +11,7 @@ module.exports = {
             colors: {
                 primary: colors.red,
                 secondary: colors.amber,
+                orange: colors.orange,
             },
             screens: {
                 landscape: { raw: '(orientation: landscape) and (max-height: 480px)' },

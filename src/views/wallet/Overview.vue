@@ -21,7 +21,7 @@
                     Coins
                 </div>
             </RouterLink>
-            <RouterLink :to="{ name: 'receive', params: { to: wallet.keyPair.publicKey() } }">
+            <RouterLink :to="{ name: 'receive', params: { toAddress: wallet.keyPair.publicKey() } }">
                 <div class="bg-gray-200 w-16 h-16 border-2 border-gray-300 rounded-xl flex justify-center items-center">
                     <svg fill="none" height="30" viewBox="0 0 20 30" width="20" xmlns="http://www.w3.org/2000/svg">
                         <path

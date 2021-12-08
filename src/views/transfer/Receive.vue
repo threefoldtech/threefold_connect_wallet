@@ -6,6 +6,7 @@
                     <ArrowLeftIcon @click="router.back()" />
                 </template>
                 <h1>Receive</h1>
+                <h2>{{ qrValue }}</h2>
             </PageHeader>
         </template>
         <img v-if="imageUrl" :src="imageUrl" alt="qr-code" crossorigin="anonymous" />
@@ -24,22 +25,22 @@
     import QRCodeStyling from 'qrcode-vue3/src/core/QRCodeStyling';
 
     interface IProps {
-        assetCode: string;
+        assetCode?: string;
         toAddress: string;
         amount?: number;
         message?: string;
     }
 
     const { assetCode, toAddress } = defineProps<IProps>();
-    const qrValue = `${assetCode}:${toAddress}`;
+    const qrValue = `BTC:${toAddress}`;
 
     const imageUrl = ref();
 
     const qr = new QRCodeStyling({
         data: qrValue,
-        width: 300,
-        height: 300,
-        qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'M' },
+        width: 600,
+        height: 600,
+        qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'L' },
         imageOptions: { hideBackgroundDots: true, imageSize: 0.6, margin: 4 },
         dotsOptions: {
             type: 'dots',

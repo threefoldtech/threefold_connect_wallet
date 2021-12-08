@@ -14,6 +14,8 @@ import router from './router';
 import { overrideConsole } from '@/util/log';
 import axios from 'axios';
 
+import Vue3TouchEvents from 'vue3-touch-events';
+
 const init = async () => {
     // @ts-ignore
     globalThis.version = import.meta.env.VITE_VERSION;
@@ -38,6 +40,7 @@ const init = async () => {
         window.Buffer = Buffer;
 
         const app = createApp(App);
+        app.use(Vue3TouchEvents);
         app.use(router);
         registerGlobalComponent(app);
 

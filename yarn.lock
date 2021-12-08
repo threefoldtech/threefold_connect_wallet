@@ -181,6 +181,11 @@
   resolved "https://registry.yarnpkg.com/@types/libsodium-wrappers/-/libsodium-wrappers-0.7.9.tgz#89c3ad2156d5143e64bce86cfeb0045a983aeccc"
   integrity sha512-LisgKLlYQk19baQwjkBZZXdJL0KbeTpdEnrAfz5hQACbklCY0gVFnsKUyjfNWF1UQsCSjw93Sj5jSbiO8RPfdw==
 
+"@types/lodash@^4.14.177":
+  version "4.14.177"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.177.tgz#f70c0d19c30fab101cad46b52be60363c43c4578"
+  integrity sha512-0fDwydE2clKe9MNfvXHBHF9WEahRuj+msTuQqOmAApNORFvhMYZKNGGJdCzuhheVjMps/ti0Ak/iJPACMaevvw==
+
 "@types/minimatch@^3.0.3":
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.5.tgz#1001cc5e6a3704b83c236027e77f2f58ea010f40"
@@ -3111,6 +3116,11 @@ vue-tsc@^0.29.6:
   dependencies:
     "@volar/shared" "0.29.6"
     vscode-vue-languageservice "0.29.6"
+
+vue3-touch-events@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/vue3-touch-events/-/vue3-touch-events-4.1.0.tgz#053500d1e9ab4870efcd5de29530641064d0a7d5"
+  integrity sha512-fZKusOiBJzDPsY34tXYl/Wo9c2ONzBuQmF0+oHqVWr+TDbf90CgMWLHZsTv1KaShXjt+oeLow7BDVBpXW6lfXQ==
 
 vue@^3.2.20:
   version "3.2.22"

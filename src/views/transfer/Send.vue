@@ -237,10 +237,13 @@
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue';
     import { computed, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
-    import { balances, Wallet, wallets } from '@/service/walletService';
+    import { AssetBalance, Balance, balances, Wallet, wallets } from '@/service/walletService';
+    import uniq from 'lodash/uniq';
 
     const router = useRouter();
-    const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
+    const allowedAssets: string[] = uniq(
+        JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code)
+    );
 
     interface IProps {
         from?: string;
@@ -308,7 +311,25 @@
         const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0];
 
         toAddress.value = address;
-        if (currency) selectedAsset.value = currency;
+        if (currency && relevantAssets.value.indexOf(currency.toUpperCase()) !== -1) {
+            selectedAsset.value = currency.toUpperCase();
+        }
+
+        if (currency && relevantAssets.value.indexOf(currency.toUpperCase()) === -1) {
+            const firstBalance = balances.value.find((b: Balance) =>
+                b.assets.find((a: AssetBalance) => a.name === currency.toUpperCase() && a.amount > 0)
+            );
+
+            selectedWallet.value =
+                wallets.value.find(w => w.keyPair.publicKey() === firstBalance?.id) || selectedWallet.value;
+            selectedAsset.value = currency.toUpperCase();
+        }
+
+        if (selectedBalance.value?.assets.find(a => a.name === selectedAsset.value)?.amount === 0) {
+            alert(`no wallets with balance for ${selectedAsset.value}`); /// @todo: change to notification
+        }
+
+        alert(`Scanned ${currency} address: ${address}`);
     };
 </script>
 

@@ -14,6 +14,8 @@ import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import types from './types.json';
 import axios from 'axios';
 
+import { web3FromAddress } from '@polkadot/extension-dapp';
+
 beforeEach(() => {
     var window = global;
 
@@ -243,11 +245,14 @@ describe('The wallet', () => {
 
         const balance = await getBalanceForStellarAddress(publicKey);
 
+        console.log('BALANCE');
+        console.log(balance);
+
         expect(typeof balance).toBe('number');
         expect(balance).toBeGreaterThanOrEqual(0);
     }, 60000);
 
-    it('should be able to query the balance of a substrate(TFChain) wallet.', async () => {
+    it.skip('should be able to query the balance of a substrate(TFChain) wallet.', async () => {
         const publicKey: string = '5FAmpqUUiYHnvJFqcc4iqFpoou6uyceecHju1fSZc5QcdWvD'; // 5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B
         const balance = await getSubstrateBalance(publicKey);
 
@@ -432,6 +437,36 @@ describe('The wallet', () => {
     }, 60000);
 
     it.skip('should transfer TFTs from substrate(TFChain) to substrate(TFChain)', async () => {
+        // const publicKey: string = '5FAmpqUUiYHnvJFqcc4iqFpoou6uyceecHju1fSZc5QcdWvD'; // 5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B
+        // const balance = await getSubstrateBalance(publicKey);
+
+        // console.log('BALANCE');
+        // console.log(balance);
+
+        // expect(typeof balance).toBe('number');
+        // expect(balance).toBeGreaterThanOrEqual(0);
+
+        const myTestingSecret = 'SCYSPEAKVVLSFW72EFQ2ZL7FO772GWPCCFBLMRDWBAHJSMGETT6KFDC5';
+        const myTestingKeypair: Keypair = Keypair.fromSecret(myTestingSecret);
+
+        const publicKey = myTestingKeypair.publicKey();
+
+        const api = await getSubstrateApi();
+
+        const x = await api.query.system.account();
+
+        const address: string = publicKey;
+        const target: string = '';
+        const amount: number = 5;
+
+        const callback = () => {};
+
+        const injector = await web3FromAddress(address);
+
+        await api.tx.tftBridgeModule
+            .swapToStellar(target, amount * 1e7)
+            .signAndSend(address, { signer: injector.signer }, callback);
+
         expect(false).toBe(true);
     }, 60000);
 });

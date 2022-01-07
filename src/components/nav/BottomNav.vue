@@ -25,5 +25,6 @@
     const route = useRoute();
     const router = useRouter();
 
-    const nav: NavItem[] = <NavItem[]>route.meta?.bottomNav ?? [];
+    const bottomNav: (() => NavItem[]) | NavItem[] = <(() => NavItem[]) | NavItem[]>route.meta?.bottomNav;
+    const nav: NavItem[] = typeof bottomNav === 'function' ? bottomNav() : bottomNav ?? [];
 </script>

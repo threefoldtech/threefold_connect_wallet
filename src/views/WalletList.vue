@@ -19,9 +19,14 @@
             <WalletCard
                 v-for="wallet in sortedWallets"
                 v-touch:hold="enableMove"
-                :balance="balances.find(t => t.id === wallet.keyPair.publicKey())"
+                :balance="balances.find(t => t.id === wallet.keyPair.getStellarKeyPair().publicKey())"
                 :name="wallet.name"
-                @click="router.push({ name: 'walletOverview', params: { wallet: wallet.keyPair.publicKey() } })"
+                @click="
+                    router.push({
+                        name: 'walletOverview',
+                        params: { wallet: wallet.keyPair.getStellarKeyPair().publicKey() },
+                    })
+                "
             />
         </div>
         <div v-if="showMove" class="p-4 space-y-2 flex flex-col">
@@ -66,17 +71,26 @@
     import { computed, onBeforeUnmount, ref } from 'vue';
     import WalletCard from '../components/WalletCard.vue';
     import { getStellarClient } from '@/service/stellarService';
+    import { ServerApi } from 'stellar-sdk';
+    import AccountRecord = ServerApi.AccountRecord;
+    import { NetworkError } from 'stellar-sdk/lib/errors';
 
     const router = useRouter();
 
     const streams = ref<(() => void)[]>([]);
     wallets.value.forEach(async (wallet: Wallet) => {
-        const result = await getBalance(wallet);
+        let result: AccountRecord;
+        try {
+            result = await getBalance(wallet);
+        } catch (error) {
+            if ((<NetworkError>error)?.response?.status === 404) return;
+            throw error;
+        }
         handleAccountRecord(wallet, result);
         const server = getStellarClient();
         const closeHandler = server
             .accounts()
-            .accountId(wallet.keyPair.publicKey())
+            .accountId(wallet.keyPair.getStellarKeyPair().publicKey())
             // .join('transactions')
             .stream({
                 onmessage: res => handleAccountRecord(wallet, res),

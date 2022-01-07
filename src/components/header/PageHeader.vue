@@ -1,24 +1,15 @@
 <template>
     <div class="h-full flex">
-        <div class="h-16 w-16 p-4 grid place-items-center flex-shrink-0">
+        <div class="h-16 w-16 p-4 grid place-items-center shrink-0">
             <slot name="before"></slot>
         </div>
         <div
-            class="
-                flex-grow flex flex-col
-                justify-center
-                items-center
-                font-semibold
-                leading-tight
-                text-lg
-                overflow-auto
-                px-0
-            "
+            class="grow flex flex-col justify-center items-center font-semibold leading-tight text-lg overflow-auto px-0"
             @click="inc()"
         >
             <slot></slot>
         </div>
-        <div class="h-16 w-16 p-4 grid place-items-center flex-shrink-0">
+        <div class="h-16 w-16 p-4 grid place-items-center shrink-0">
             <slot name="after"></slot>
         </div>
     </div>
@@ -33,8 +24,8 @@
     const router = useRouter();
 
     watch(count, newValue => {
-        if (newValue < 5) return;
-        router.push({ name: 'dev' });
+        if (newValue < 2) return;
+        router.push({ name: 'devLogs' });
     });
 </script>
 

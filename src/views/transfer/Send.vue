@@ -17,25 +17,13 @@
                 <ListboxLabel class="block text-sm font-medium text-gray-700">From</ListboxLabel>
                 <div class="mt-1 relative">
                     <ListboxButton
-                        class="
-                            relative
-                            w-full
-                            bg-white
-                            border border-gray-300
-                            rounded-md
-                            shadow-sm
-                            pl-3
-                            pr-10
-                            py-2
-                            text-left
-                            cursor-default
-                            focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500
-                            sm:text-sm
-                        "
+                        class="relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                     >
                         <span class="w-full inline-flex truncate">
-                            <span class="truncate flex-shrink-0">{{ selectedWallet?.name }}</span>
-                            <span class="ml-2 truncate text-gray-500">{{ selectedWallet?.keyPair.publicKey() }}</span>
+                            <span class="truncate shrink-0">{{ selectedWallet?.name }}</span>
+                            <span class="ml-2 truncate text-gray-500">{{
+                                selectedWallet?.keyPair.getStellarKeyPair().publicKey()
+                            }}</span>
                         </span>
                         <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                             <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />
@@ -48,22 +36,7 @@
                         leave-to-class="opacity-0"
                     >
                         <ListboxOptions
-                            class="
-                                absolute
-                                z-10
-                                mt-1
-                                w-full
-                                bg-white
-                                shadow-lg
-                                max-h-60
-                                rounded-md
-                                py-1
-                                text-base
-                                ring-1 ring-black ring-opacity-5
-                                overflow-auto
-                                focus:outline-none
-                                sm:text-sm
-                            "
+                            class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
                         >
                             <ListboxOption
                                 v-for="wallet in wallets"
@@ -80,12 +53,12 @@
                                     <div class="flex">
                                         <span
                                             :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']"
-                                            class="flex-shrink-0"
+                                            class="shrink-0"
                                         >
                                             {{ wallet?.name }}
                                         </span>
                                         <span :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']">
-                                            {{ wallet?.keyPair.publicKey() }}
+                                            {{ wallet?.keyPair.getStellarKeyPair().publicKey() }}
                                         </span>
                                     </div>
 
@@ -107,44 +80,19 @@
             <div class="mt-4">
                 <label class="block text-sm font-medium text-gray-700" for="to">To</label>
                 <div class="mt-1 flex rounded-md shadow-sm">
-                    <div class="relative flex items-stretch flex-grow focus-within:z-10">
+                    <div class="relative flex items-stretch grow focus-within:z-10">
                         <input
                             id="to"
                             v-model="toAddress"
                             :disabled="relevantAssets.length <= 0"
-                            class="
-                                focus:ring-primary-500 focus:border-primary-500
-                                block
-                                w-full
-                                rounded-none rounded-l-md
-                                pl-3
-                                sm:text-sm
-                                border-gray-300
-                                disabled:border-gray-300 disabled:bg-gray-50
-                            "
+                            class="focus:ring-primary-500 focus:border-primary-500 block w-full rounded-none rounded-l-md pl-3 sm:text-sm border-gray-300 disabled:border-gray-300 disabled:bg-gray-50"
                             name="to"
                             placeholder="..."
                             type="text"
                         />
                     </div>
                     <button
-                        class="
-                            -ml-px
-                            relative
-                            inline-flex
-                            items-center
-                            space-x-2
-                            px-2
-                            py-2
-                            border border-gray-300
-                            text-sm
-                            font-medium
-                            rounded-r-md
-                            text-gray-700
-                            bg-gray-50
-                            hover:bg-gray-100
-                            focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500
-                        "
+                        class="-ml-px relative inline-flex items-center space-x-2 px-2 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                         type="button"
                     >
                         <UserIcon class="w-6 text-primary-600"></UserIcon>
@@ -159,17 +107,7 @@
                         v-model="amount"
                         :disabled="relevantAssets.length <= 0"
                         :placeholder="relevantAssets.length <= 0 ? 'no funds on this wallet' : '0.00'"
-                        class="
-                            focus:ring-primary-500 focus:border-primary-500
-                            block
-                            w-full
-                            pl-4
-                            pr-20
-                            sm:text-sm
-                            border-gray-300
-                            rounded-md
-                            disabled:border-gray-300 disabled:bg-gray-50
-                        "
+                        class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-4 pr-20 sm:text-sm border-gray-300 rounded-md disabled:border-gray-300 disabled:bg-gray-50"
                         name="amount"
                         type="number"
                     />
@@ -179,18 +117,7 @@
                             id="currency"
                             v-model="selectedAsset"
                             :disabled="relevantAssets.length <= 0"
-                            class="
-                                focus:ring-primary-500 focus:border-primary-500
-                                h-full
-                                py-0
-                                pl-2
-                                pr-7
-                                border-transparent
-                                bg-transparent
-                                text-gray-500
-                                sm:text-sm
-                                rounded-md
-                            "
+                            class="focus:ring-primary-500 focus:border-primary-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md"
                             name="currency"
                         >
                             <option v-for="asset in relevantAssets">{{ asset }}</option>
@@ -207,19 +134,11 @@
             <div class="mt-4">
                 <p>Fee {{ fee.toFixed(7) }} {{ selectedAsset }}</p>
             </div>
-            <div class="flex-grow"></div>
+            <div class="grow"></div>
             <div class="mt-4 flex">
                 <button
                     :disabled="!selectedWallet || !toAddress || !amount || amount <= 0 || !selectedAsset"
-                    class="
-                        px-4
-                        py-2
-                        text-white
-                        bg-blue-600
-                        rounded-md
-                        flex-1
-                        disabled:bg-gray-300 disabled:text-gray-600 disabled:hover:animate-wiggle
-                    "
+                    class="px-4 py-2 text-white bg-blue-600 rounded-md flex-1 disabled:bg-gray-300 disabled:text-gray-600 disabled:hover:animate-wiggle"
                     @click="goToConfirm"
                 >
                     send tokens
@@ -254,10 +173,12 @@
 
     const { from, to, amount: initialAmount, asset } = defineProps<IProps>();
 
-    const selectedWallet = ref<Wallet>(wallets.value?.find(w => w.keyPair.publicKey() === from) || wallets.value[0]);
+    const selectedWallet = ref<Wallet>(
+        wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0]
+    );
 
     const selectedBalance = computed(() =>
-        balances.value.find(t => t.id === selectedWallet?.value.keyPair.publicKey())
+        balances.value.find(t => t.id === selectedWallet?.value.keyPair.getStellarKeyPair().publicKey())
     );
 
     const relevantAssets = computed(() => {
@@ -296,7 +217,7 @@
         await router.replace({
             name: 'confirmSend',
             params: {
-                from: selectedWallet.value.keyPair.publicKey(),
+                from: selectedWallet.value.keyPair.getStellarKeyPair().publicKey(),
                 to: toAddress.value,
                 amount: Number(amount.value),
                 asset: selectedAsset.value,
@@ -321,7 +242,8 @@
             );
 
             selectedWallet.value =
-                wallets.value.find(w => w.keyPair.publicKey() === firstBalance?.id) || selectedWallet.value;
+                wallets.value.find(w => w.keyPair.getStellarKeyPair().publicKey() === firstBalance?.id) ||
+                selectedWallet.value;
             selectedAsset.value = currency.toUpperCase();
         }
 

@@ -23,12 +23,14 @@
         <div class="text-red-600">{{ operation.type }}</div>
         <div v-if="operation.type === 'payment'">
             <div class="break-all">
-                {{ operation?.from === wallet.keyPair.publicKey() ? operation?.to : operation?.from }}
+                {{
+                    operation?.from === wallet.keyPair.getStellarKeyPair().publicKey() ? operation?.to : operation?.from
+                }}
             </div>
             <div
                 :class="{
-                    'text-green-600': operation?.from !== wallet.keyPair.publicKey(),
-                    'text-red-600': operation?.from === wallet.keyPair.publicKey(),
+                    'text-green-600': operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
+                    'text-red-600': operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                 }"
             >
                 {{ operation?.asset_code }} {{ Number(operation?.amount).toLocaleString() }}

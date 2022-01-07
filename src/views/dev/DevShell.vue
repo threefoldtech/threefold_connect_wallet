@@ -12,9 +12,9 @@
                 </template>
             </PageHeader>
         </template>
-        <Logs />
+        <RouterView :key="$route.fullPath" />
         <template #navigation>
-            <bottomDevNav />
+            <BottomNav />
         </template>
     </MainLayout>
 </template>
@@ -22,11 +22,10 @@
 <script lang="ts" setup>
     import { ArrowLeftIcon, HomeIcon } from '@heroicons/vue/outline';
 
-    import Logs from '@/components/Logs.vue';
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import BottomDevNav from '@/components/nav/BottomDevNav.vue';
     import { useRouter } from 'vue-router';
+    import BottomNav from '@/components/nav/BottomNav.vue';
 
     const router = useRouter();
 </script>

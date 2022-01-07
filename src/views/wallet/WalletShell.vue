@@ -11,7 +11,7 @@
         </template>
         <RouterView :key="$route.fullPath" />
         <template #navigation>
-            <BottomWalletNav />
+            <BottomNav />
         </template>
     </MainLayout>
 </template>
@@ -24,27 +24,37 @@
     import { ArrowLeftIcon } from '@heroicons/vue/outline';
 
     import MainLayout from '@/layouts/MainLayout.vue';
-    import BottomWalletNav from '@/components/nav/BottomWalletNav.vue';
+    import BottomNav from '@/components/nav/BottomNav.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { userInitialized } from '@/service/cryptoService';
+    import { ServerApi } from 'stellar-sdk';
+    import { NetworkError } from 'stellar-sdk/lib/errors';
 
     const route = useRoute();
-    const wallet: Wallet = <Wallet>wallets.value.find(w => w.keyPair.publicKey() === route.params.wallet);
+    const wallet: Wallet = <Wallet>(
+        wallets.value.find(w => w.keyPair.getStellarKeyPair().publicKey() === route.params.wallet)
+    );
     const stream = ref();
 
     provide('wallet', wallet);
 
     const init = async () => {
-        const result = await getBalance(wallet);
+        let result: ServerApi.AccountRecord;
+        try {
+            result = await getBalance(wallet);
+        } catch (error) {
+            if ((<NetworkError>error)?.response?.status === 404) return;
+            throw error;
+        }
         handleAccountRecord(wallet, result);
-
         const server = getStellarClient();
         stream.value = server
             .accounts()
-            .accountId(wallet.keyPair.publicKey())
+            .accountId(wallet.keyPair.getStellarKeyPair().publicKey())
             // .join('transactions')
             .stream({
                 onmessage: res => handleAccountRecord(wallet, res),
+                onerror: err => console.log(err),
             });
     };
 

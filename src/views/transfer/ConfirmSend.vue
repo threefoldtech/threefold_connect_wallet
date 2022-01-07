@@ -12,7 +12,7 @@
             <div class="mt-4 break-words">
                 <p>transaction</p>
                 <p>from</p>
-                <p>{{ fromWallet?.keyPair.publicKey() }}</p>
+                <p>{{ fromWallet?.keyPair.getStellarKeyPair().publicKey() }}</p>
                 <p>to</p>
                 <p>{{ toAddress }}</p>
                 <p>amount</p>
@@ -47,7 +47,7 @@
 
     const route = useRoute();
 
-    const fromWallet = wallets.value?.find(w => w.keyPair.publicKey() === route.params.from);
+    const fromWallet = wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === route.params.from);
     const toAddress = <string>route.params.to;
     const amount = route.params.amount;
     const asset = <string>route.params.asset;
@@ -56,7 +56,7 @@
     const sendTokens = async () => {
         if (!fromWallet || !toAddress || !amount || !asset) return router.push({ name: 'error' });
         const fundedTransaction = await buildFundedPaymentTransaction(
-            fromWallet.keyPair,
+            fromWallet.keyPair.getStellarKeyPair(),
             toAddress,
             Number(amount),
             undefined,
@@ -64,7 +64,7 @@
         );
         console.log(fundedTransaction);
 
-        const res = await submitFundedTransaction(fundedTransaction, fromWallet.keyPair);
+        const res = await submitFundedTransaction(fundedTransaction, fromWallet.keyPair.getStellarKeyPair());
 
         console.log(res);
         await router.push({ name: 'walletList' });

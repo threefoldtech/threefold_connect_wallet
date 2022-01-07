@@ -27,14 +27,8 @@
     import { useRoute, useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
 
-    const nav = ref<NavItem[]>([
-        { name: 'walletOverview', icon: CashIcon },
-        ...(flagsmith.hasFeature('transactionOverview')
-            ? [{ name: 'walletTransactions', icon: SwitchHorizontalIcon }]
-            : []),
-        { name: 'walletInfo', icon: InformationCircleIcon },
-        ...(flagsmith.hasFeature('vesting') ? [{ name: 'walletVesting', icon: TrendingUpIcon }] : []),
-    ]);
     const route = useRoute();
     const router = useRouter();
+    const bottomNav: (() => NavItem[]) | NavItem[] = <(() => NavItem[]) | NavItem[]>route.meta?.bottomNav;
+    const nav: NavItem[] = typeof bottomNav === 'function' ? bottomNav() : bottomNav ?? [];
 </script>

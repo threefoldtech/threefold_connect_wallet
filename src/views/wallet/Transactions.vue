@@ -5,26 +5,7 @@
             <Listbox v-model="selectedAsset">
                 <div class="relative mt-1">
                     <ListboxButton
-                        class="
-                            relative
-                            w-full
-                            py-2
-                            pl-3
-                            pr-10
-                            text-left
-                            bg-white
-                            rounded-lg
-                            border-2 border-gray-200
-                            cursor-default
-                            focus:outline-none
-                            focus-visible:ring-2
-                            focus-visible:ring-opacity-75
-                            focus-visible:ring-white
-                            focus-visible:ring-offset-orange-300
-                            focus-visible:ring-offset-2
-                            focus-visible:border-indigo-500
-                            sm:text-sm
-                        "
+                        class="relative w-full py-2 pl-3 pr-10 text-left bg-white rounded-lg border-2 border-gray-200 cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-orange-300 focus-visible:ring-offset-2 focus-visible:border-indigo-500 sm:text-sm"
                     >
                         <span class="block truncate">{{ selectedAsset }}</span>
                         <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -38,21 +19,7 @@
                         leave-to-class="opacity-0"
                     >
                         <ListboxOptions
-                            class="
-                                absolute
-                                w-full
-                                py-1
-                                mt-1
-                                overflow-auto
-                                text-base
-                                bg-white
-                                rounded-md
-                                max-h-60
-                                border-2 border-gray-50
-                                shadow-lg
-                                focus:outline-none
-                                sm:text-sm
-                            "
+                            class="absolute w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md max-h-60 border-2 border-gray-50 shadow-lg focus:outline-none sm:text-sm"
                         >
                             <ListboxOption
                                 v-for="asset in assets"
@@ -107,13 +74,15 @@
     import { CheckIcon, SelectorIcon } from '@heroicons/vue/outline';
     import flagsmith from 'flagsmith';
     import Operation from '@/components/Operation.vue';
+    import { ServerApi } from 'stellar-sdk';
+    import { NetworkError } from 'stellar-sdk/lib/errors';
 
     const router = useRouter();
     const route = useRoute();
 
     const wallet: Wallet = <Wallet>inject('wallet');
     const balance: ComputedRef<Balance | undefined> = computed(() =>
-        balances.value.find(b => b.id === wallet.keyPair.publicKey())
+        balances.value.find(b => b.id === wallet.keyPair.getStellarKeyPair().publicKey())
     );
 
     const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
@@ -125,13 +94,23 @@
     const selectedAsset = ref(assets.value.find(a => a === route.params?.assetCode) || assets.value[0]);
 
     const init = async () => {
-        const page = await getOperations(wallet);
+        let page: ServerApi.CollectionPage<ServerApi.OperationRecord>;
+
+        try {
+            page = await getOperations(wallet);
+        } catch (error) {
+            if ((<NetworkError>error)?.response?.status === 404) {
+                return;
+            }
+            throw error;
+        }
+
         handleOperationRecordPage(page, wallet);
     };
     const computedOperations = computed(() => {
         return (
             operations.value
-                .find(o => o.id === wallet.keyPair.publicKey())
+                .find(o => o.id === wallet.keyPair.getStellarKeyPair().publicKey())
                 ?.operations.filter(o => {
                     return selectedAsset.value === 'All' || (<any>o)?.asset_code === selectedAsset.value;
                 })

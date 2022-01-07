@@ -15,15 +15,7 @@
                     <input
                         id="Wallet Name"
                         v-model="name"
-                        class="
-                            shadow-sm
-                            focus:ring-primary-500 focus:border-primary-500
-                            block
-                            w-full
-                            sm:text-sm
-                            border-gray-300
-                            rounded-md
-                        "
+                        class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
                         name="Wallet Name"
                         type="text"
                     />
@@ -35,16 +27,7 @@
                     <textarea
                         id="secret"
                         v-model="secret"
-                        class="
-                            shadow-sm
-                            focus:ring-primary-500 focus:border-primary-500
-                            block
-                            w-full
-                            border-gray-300
-                            rounded-md
-                            resize-none
-                            text-lg
-                        "
+                        class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full border-gray-300 rounded-md resize-none text-lg"
                         name="secret"
                         rows="4"
                     />
@@ -52,18 +35,7 @@
             </div>
             <Disclosure v-slot="{ open }">
                 <DisclosureButton
-                    class="
-                        px-0
-                        flex
-                        justify-between
-                        w-full
-                        py-2
-                        text-sm
-                        font-medium
-                        text-left text-primary-500
-                        focus:outline-none
-                        mt-4
-                    "
+                    class="px-0 flex justify-between w-full py-2 text-sm font-medium text-left text-primary-500 focus:outline-none mt-4"
                 >
                     <span>Advanced</span>
                     <ChevronUpIcon :class="open ? '' : 'transform rotate-180'" class="w-5 h-5" />
@@ -75,15 +47,7 @@
                             <input
                                 id="walletindex"
                                 v-model="walletIndex"
-                                class="
-                                    shadow-sm
-                                    focus:ring-primary-500 focus:border-primary-500
-                                    block
-                                    w-full
-                                    sm:text-sm
-                                    border-gray-300
-                                    rounded-md
-                                "
+                                class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
                                 name="walletindex"
                                 type="number"
                             />
@@ -112,6 +76,7 @@
     import { getPkidClient, PkidWallet } from '@/service/pkidService';
     import { PkidWalletTypes } from '@/service/initializationService';
     import { bytesToHex } from '@/util/crypto';
+    import { WalletKeyPair } from '@/lib/WalletKeyPair';
 
     const walletIndex = ref(0);
 
@@ -123,7 +88,7 @@
     const importWallet = async () => {
         const importedKeypair = Keypair.fromSecret(secret.value);
         wallets.value.push({
-            keyPair: importedKeypair,
+            keyPair: new WalletKeyPair(bytesToHex(importedKeypair.rawSecretKey())),
             name: name.value,
             meta: {
                 index: -1,
@@ -137,7 +102,7 @@
                 type: wallet.meta.type,
                 name: wallet.name,
                 index: wallet.meta.index,
-                seed: bytesToHex(wallet.keyPair.rawSecretKey()),
+                seed: bytesToHex(wallet.keyPair.getStellarKeyPair().rawSecretKey()),
                 chain: 'stellar',
             })
         );

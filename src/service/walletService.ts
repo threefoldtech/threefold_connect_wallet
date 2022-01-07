@@ -1,4 +1,4 @@
-import { Ref, ref } from 'vue';
+import { Ref, ref, UnwrapRef } from 'vue';
 import { Horizon, Keypair, ServerApi } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
 import { getStellarClient } from '@/service/stellarService';
@@ -9,10 +9,11 @@ import CollectionPage = ServerApi.CollectionPage;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
 import OperationRecord = ServerApi.OperationRecord;
 import BalanceLine = Horizon.BalanceLine;
+import { WalletKeyPair } from '@/lib/WalletKeyPair';
 
 export interface Wallet {
     name: string;
-    keyPair: Keypair;
+    keyPair: WalletKeyPair;
 
     meta: {
         position?: number;
@@ -47,17 +48,17 @@ export interface Operation {
     cursor?: string;
 }
 
-export const wallets: Ref<Wallet[]> = ref<Wallet[]>([]);
+export const wallets: Ref<Wallet[]> = <Ref<Wallet[]>>ref<Wallet[]>([]);
 export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', []);
 export const operations: Ref<Operation[]> = useLocalStorage<Operation[]>('operations_cache', []);
 
 export const getBalance = async (wallet: Wallet): Promise<AccountRecord> => {
     const server = getStellarClient();
-    return await server.accounts().accountId(wallet.keyPair.publicKey()).call();
+    return await server.accounts().accountId(wallet.keyPair.getStellarKeyPair().publicKey()).call();
 };
 export const getOperations = async (wallet: Wallet, cursor?: string): Promise<CollectionPage<OperationRecord>> => {
     const server = getStellarClient();
-    const callBuilder = server.operations().forAccount(wallet.keyPair.publicKey());
+    const callBuilder = server.operations().forAccount(wallet.keyPair.getStellarKeyPair().publicKey());
     if (cursor) callBuilder.cursor(cursor);
 
     return await callBuilder.call();
@@ -86,7 +87,7 @@ export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
         );
 
     const balance: Balance = {
-        id: wallet.keyPair.publicKey(),
+        id: wallet.keyPair.getStellarKeyPair().publicKey(),
         assets,
     };
     const index = balances.value.findIndex(lb => lb.id === balance.id);
@@ -95,7 +96,7 @@ export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
 };
 
 export const handleOperationRecordPage = (page: CollectionPage<OperationRecord>, wallet: Wallet) => {
-    const publicKey = wallet.keyPair.publicKey();
+    const publicKey = wallet.keyPair.getStellarKeyPair().publicKey();
     const operation: Operation = operations.value.find(o => o.id === publicKey) || { operations: [], id: publicKey };
     const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
 

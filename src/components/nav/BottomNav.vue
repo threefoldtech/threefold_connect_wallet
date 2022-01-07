@@ -21,14 +21,10 @@
 </template>
 <script lang="ts" setup>
     import { NavItem } from '@/types';
-
-    import { CashIcon, SwitchHorizontalIcon, InformationCircleIcon, TrendingUpIcon } from '@heroicons/vue/outline';
-    import { ref } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import flagsmith from 'flagsmith';
-
     const route = useRoute();
     const router = useRouter();
+
     const bottomNav: (() => NavItem[]) | NavItem[] = <(() => NavItem[]) | NavItem[]>route.meta?.bottomNav;
     const nav: NavItem[] = typeof bottomNav === 'function' ? bottomNav() : bottomNav ?? [];
 </script>

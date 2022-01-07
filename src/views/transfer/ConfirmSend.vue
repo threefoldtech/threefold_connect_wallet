@@ -12,7 +12,7 @@
             <div class="mt-4 break-words">
                 <p>transaction</p>
                 <p>from</p>
-                <p>{{ fromWallet?.keyPair.publicKey() }}</p>
+                <p>{{ fromWallet?.keyPair.getStellarKeyPair().publicKey() }}</p>
                 <p>to</p>
                 <p>{{ toAddress }}</p>
                 <p>amount</p>
@@ -30,12 +30,12 @@
 
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
-    import ArrowLeftIcon from '@heroicons/vue/solid/ArrowLeftIcon';
-    import UserIcon from '@heroicons/vue/solid/UserIcon';
+    import ArrowLeftIcon from '@heroicons/vue/outline/ArrowLeftIcon';
+    import UserIcon from '@heroicons/vue/outline/UserIcon';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRoute, useRouter } from 'vue-router';
     import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue';
-    import { CheckIcon, SelectorIcon } from '@heroicons/vue/solid';
+    import { CheckIcon, SelectorIcon } from '@heroicons/vue/outline';
     import { computed, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
     import { balances, Wallet, wallets } from '@/service/walletService';
@@ -47,7 +47,7 @@
 
     const route = useRoute();
 
-    const fromWallet = wallets.value?.find(w => w.keyPair.publicKey() === route.params.from);
+    const fromWallet = wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === route.params.from);
     const toAddress = <string>route.params.to;
     const amount = route.params.amount;
     const asset = <string>route.params.asset;
@@ -56,7 +56,7 @@
     const sendTokens = async () => {
         if (!fromWallet || !toAddress || !amount || !asset) return router.push({ name: 'error' });
         const fundedTransaction = await buildFundedPaymentTransaction(
-            fromWallet.keyPair,
+            fromWallet.keyPair.getStellarKeyPair(),
             toAddress,
             Number(amount),
             undefined,
@@ -64,7 +64,7 @@
         );
         console.log(fundedTransaction);
 
-        const res = await submitFundedTransaction(fundedTransaction, fromWallet.keyPair);
+        const res = await submitFundedTransaction(fundedTransaction, fromWallet.keyPair.getStellarKeyPair());
 
         console.log(res);
         await router.push({ name: 'walletList' });

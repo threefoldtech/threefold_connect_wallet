@@ -1,7 +1,7 @@
 <template>
     <div class="p-4 space-y-2">
         <div class="flex justify-around border-b">
-            <RouterLink :to="{ name: 'send', params: { from: wallet.keyPair.publicKey() } }">
+            <RouterLink :to="{ name: 'send', params: { from: wallet.keyPair.getStellarKeyPair().publicKey() } }">
                 <div class="bg-gray-200 w-16 h-16 border-2 border-gray-300 rounded-xl flex justify-center items-center">
                     <svg fill="none" height="30" viewBox="0 0 20 30" width="20" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -21,7 +21,9 @@
                     Coins
                 </div>
             </RouterLink>
-            <RouterLink :to="{ name: 'receive', params: { to: wallet.keyPair.publicKey() } }">
+            <RouterLink
+                :to="{ name: 'receive', params: { toAddress: wallet.keyPair.getStellarKeyPair().publicKey() } }"
+            >
                 <div class="bg-gray-200 w-16 h-16 border-2 border-gray-300 rounded-xl flex justify-center items-center">
                     <svg fill="none" height="30" viewBox="0 0 20 30" width="20" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -57,6 +59,11 @@
                         @click="router.push({ name: 'walletTransactions', params: { assetCode: assetBalance.name } })"
                     />
                 </template>
+                <template v-if="assets.length === 0">
+                    <div class="text-center">
+                        <p class="text-gray-600">No assets found</p>
+                    </div>
+                </template>
             </div>
         </div>
     </div>
@@ -66,7 +73,7 @@
     import MainLayout from '@/layouts/MainLayout.vue';
     import BottomWalletNav from '@/components/nav/BottomWalletNav.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import ArrowLeftIcon from '@heroicons/vue/solid/ArrowLeftIcon';
+    import ArrowLeftIcon from '@heroicons/vue/outline/ArrowLeftIcon';
     import BalanceCard from '@/components/BalanceCard.vue';
     import { useRoute, useRouter } from 'vue-router';
     import { AssetBalance, balances, Wallet, wallets } from '@/service/walletService';
@@ -79,7 +86,7 @@
     const wallet: Wallet = <Wallet>inject('wallet');
 
     const assets = computed<AssetBalance[]>(() => {
-        const publicKey = wallet.keyPair.publicKey();
+        const publicKey = wallet.keyPair.getStellarKeyPair().publicKey();
         const balance = balances.value?.find(t => t.id === publicKey);
         return balance?.assets || [];
     });

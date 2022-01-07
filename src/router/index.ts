@@ -1,9 +1,9 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { routes } from './routes';
 import { userInitialized } from '@/service/cryptoService';
 
 const router = createRouter({
-    routes,
+    routes: <RouteRecordRaw[]>routes,
     history: createWebHistory(),
 });
 

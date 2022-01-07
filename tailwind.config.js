@@ -4,13 +4,13 @@ const plugin = require('tailwindcss/plugin');
 
 /** @type {import("@types/tailwindcss/tailwind-config").TailwindConfig } */
 module.exports = {
-    mode: 'jit',
-    purge: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+    content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
     theme: {
         extend: {
             colors: {
                 primary: colors.red,
                 secondary: colors.amber,
+                orange: colors.orange,
             },
             screens: {
                 landscape: { raw: '(orientation: landscape) and (max-height: 480px)' },

@@ -14,6 +14,7 @@ import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/service/cryptoService';
 import { getStellarClient } from '@/service/stellarService';
 import { bytesToHex, hexToBytes } from '@/util/crypto';
+import { WalletKeyPair } from '@/lib/WalletKeyPair';
 type LoadingText = {
     title: string;
     subtitle?: string;
@@ -65,7 +66,7 @@ export const initFirstWallet = async () => {
         await pkid.setDoc('purse', [initialWallet], true);
         wallets.value = [
             {
-                keyPair,
+                keyPair: new WalletKeyPair(bytesToHex(keyPair.rawSecretKey())),
                 name: initialWallet.name,
                 meta: {
                     index: initialWallet.index,
@@ -97,7 +98,7 @@ export const initFirstWallet = async () => {
     }
     wallets.value = [
         {
-            keyPair,
+            keyPair: new WalletKeyPair(bytesToHex(keyPair.rawSecretKey())),
             name: initialWallet.name,
             meta: {
                 index: initialWallet.index,
@@ -173,7 +174,7 @@ export const init = async (name: string, seedString: string) => {
         const keyPair = Keypair.fromRawEd25519Seed(<Buffer>hexToBytes(wallet.seed));
 
         return {
-            keyPair,
+            keyPair: new WalletKeyPair(wallet.seed),
             name: wallet.name,
             meta: {
                 index: wallet.index,

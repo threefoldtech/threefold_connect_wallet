@@ -2,19 +2,49 @@
     <MainLayout>
         <template #header>
             <PageHeader>
+                <template #before>
+                    <XIcon v-if="showMove" class="text-orange-600" @click="showMove = false" />
+                </template>
                 <h1>wallets</h1>
+                <h2 v-if="showMove">moving</h2>
+                <template #after>
+                    <SaveIcon v-if="showMove" class="text-green-600" @click="showMove = false" />
+                </template>
             </PageHeader>
         </template>
         <template #fab>
             <FAB @click="router.push({ name: 'walletImport' })" />
         </template>
-        <div class="p-4 space-y-2 flex flex-col">
+        <div v-if="!showMove" class="p-4 space-y-2 flex flex-col">
             <WalletCard
-                v-for="wallet in wallets"
-                :balance="balances.find(t => t.id === wallet.keyPair.publicKey())"
+                v-for="wallet in sortedWallets"
+                v-touch:hold="enableMove"
+                :balance="balances.find(t => t.id === wallet.keyPair.getStellarKeyPair().publicKey())"
                 :name="wallet.name"
-                @click="router.push({ name: 'walletOverview', params: { wallet: wallet.keyPair.publicKey() } })"
+                @click="
+                    router.push({
+                        name: 'walletOverview',
+                        params: { wallet: wallet.keyPair.getStellarKeyPair().publicKey() },
+                    })
+                "
             />
+        </div>
+        <div v-if="showMove" class="p-4 space-y-2 flex flex-col">
+            <div v-for="(wallet, index) in sortedWallets">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <h3>{{ wallet.name }} {{ index }}</h3>
+                    </div>
+                    <div class="flex-1 text-right">
+                        <button v-if="index !== 0">
+                            <ArrowUpIcon class="h-6 w-6" />
+                        </button>
+                        <button v-if="index !== wallets.length - 1">
+                            <ArrowDownIcon class="h-6 w-6" />
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div
             v-if="wallets.length === 0"
@@ -35,24 +65,34 @@
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
     import FAB from '@/components/global/FAB.vue';
+    import { SaveIcon, XIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/vue/outline';
     import { getBalance, handleAccountRecord, balances, Wallet, wallets } from '@/service/walletService';
     import { useRouter } from 'vue-router';
-    import { onBeforeUnmount, ref } from 'vue';
+    import { computed, onBeforeUnmount, ref } from 'vue';
     import WalletCard from '../components/WalletCard.vue';
     import { getStellarClient } from '@/service/stellarService';
     import { ApiPromise, WsProvider } from '@polkadot/api';
     import types from './types.json';
+    import { ServerApi } from 'stellar-sdk';
+    import AccountRecord = ServerApi.AccountRecord;
+    import { NetworkError } from 'stellar-sdk/lib/errors';
 
     const router = useRouter();
 
     const streams = ref<(() => void)[]>([]);
     wallets.value.forEach(async (wallet: Wallet) => {
-        const result = await getBalance(wallet);
+        let result: AccountRecord;
+        try {
+            result = await getBalance(wallet);
+        } catch (error) {
+            if ((<NetworkError>error)?.response?.status === 404) return;
+            throw error;
+        }
         handleAccountRecord(wallet, result);
         const server = getStellarClient();
         const closeHandler = server
             .accounts()
-            .accountId(wallet.keyPair.publicKey())
+            .accountId(wallet.keyPair.getStellarKeyPair().publicKey())
             // .join('transactions')
             .stream({
                 onmessage: res => handleAccountRecord(wallet, res),
@@ -76,6 +116,19 @@
     // ]);
 
     // console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+    const showMove = ref(false);
+    const enableMove = () => {
+        if (wallets.value.length <= 1) return;
+        showMove.value = true;
+    };
+
+    const sortedWallets = computed(() => {
+        return wallets.value.sort((a, b) => {
+            if (a.name < b.name) return -1;
+            if (a.name > b.name) return 1;
+            return 0;
+        });
+    });
 </script>
 
 <style scoped></style>

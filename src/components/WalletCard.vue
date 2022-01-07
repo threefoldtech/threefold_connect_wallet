@@ -12,8 +12,8 @@
 </template>
 
 <script lang="ts" setup>
-    import ArrowUpIcon from '@heroicons/vue/solid/ArrowUpIcon';
-    import ArrowDownIcon from '@heroicons/vue/solid/ArrowDownIcon';
+    import ArrowUpIcon from '@heroicons/vue/outline/ArrowUpIcon';
+    import ArrowDownIcon from '@heroicons/vue/outline/ArrowDownIcon';
     import { Balance } from '../service/walletService';
 
     interface IProps {

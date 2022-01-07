@@ -1,4 +1,4 @@
-import { RouteRecordRaw, RouterView } from 'vue-router';
+import { _RouteRecordBase, RouteComponent, RouteLocationNormalized, RouteRecordRaw, RouterView } from 'vue-router';
 import WalletList from '@/views/WalletList.vue';
 import Overview from '@/views/wallet/Overview.vue';
 import Info from '@/views/wallet/Info.vue';
@@ -10,15 +10,67 @@ import TestView from '@/views/TestView.vue';
 import WalletImport from '@/views/WalletImport.vue';
 import WalletShell from '@/views/wallet/WalletShell.vue';
 import Send from '@/views/transfer/Send.vue';
+import DevShell from '@/views/dev/DevShell.vue';
+import Logs from '@/views/dev/Logs.vue';
+import Actions from '@/views/dev/Actions.vue';
 import Receive from '@/views/transfer/Receive.vue';
 import FirstWalletInit from '@/views/FirstWalletInit.vue';
 import ConfirmSend from '@/views/transfer/ConfirmSend.vue';
+import {
+    BeakerIcon,
+    CashIcon,
+    InformationCircleIcon,
+    SwitchHorizontalIcon,
+    TableIcon,
+    TrendingUpIcon,
+} from '@heroicons/vue/outline';
+import flagsmith from 'flagsmith';
+import { NavItem } from '@/types';
 
-export const routes: RouteRecordRaw[] = [
+interface Route extends _RouteRecordBase {
+    component?: RouteComponent | (() => Promise<RouteComponent>);
+    props?: boolean | Record<string, any> | ((to: RouteLocationNormalized) => Record<string, any>);
+    meta?: {
+        activeNav?: string;
+        bottomNav?: NavItem[] | (() => NavItem[]);
+        [key: string]: any;
+    };
+}
+
+export const routes: Route[] = [
     {
         path: '/',
         name: 'walletList',
         component: WalletList,
+    },
+    {
+        path: '/dev',
+        name: 'dev',
+        component: DevShell,
+        children: [
+            {
+                path: '',
+                name: 'devLogs',
+                component: Logs,
+                meta: {
+                    activeNav: 'devLogs',
+                },
+            },
+            {
+                path: '',
+                name: 'devActions',
+                component: Actions,
+                meta: {
+                    activeNav: 'devActions',
+                },
+            },
+        ],
+        meta: {
+            bottomNav: [
+                { name: 'devLogs', icon: TableIcon },
+                { name: 'devActions', icon: BeakerIcon },
+            ],
+        },
     },
     {
         path: '/listBalances',
@@ -39,7 +91,7 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletOverview',
                 component: Overview,
                 meta: {
-                    activeWalletNav: 'walletOverview',
+                    activeNav: 'walletOverview',
                 },
             },
             {
@@ -47,7 +99,7 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletTransactions',
                 component: Transactions,
                 meta: {
-                    activeWalletNav: 'walletTransactions',
+                    activeNav: 'walletTransactions',
                 },
             },
             {
@@ -55,7 +107,7 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletInfo',
                 component: Info,
                 meta: {
-                    activeWalletNav: 'walletInfo',
+                    activeNav: 'walletInfo',
                 },
             },
             {
@@ -63,10 +115,20 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletVesting',
                 component: Vesting,
                 meta: {
-                    activeWalletNav: 'walletVesting',
+                    activeNav: 'walletVesting',
                 },
             },
         ],
+        meta: {
+            bottomNav: () => [
+                { name: 'walletOverview', icon: CashIcon },
+                ...(flagsmith.hasFeature('transactionOverview')
+                    ? [{ name: 'walletTransactions', icon: SwitchHorizontalIcon }]
+                    : []),
+                { name: 'walletInfo', icon: InformationCircleIcon },
+                ...(flagsmith.hasFeature('vesting') ? [{ name: 'walletVesting', icon: TrendingUpIcon }] : []),
+            ],
+        },
     },
     {
         path: '/transfer',

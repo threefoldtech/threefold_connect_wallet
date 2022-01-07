@@ -1,5 +1,6 @@
 import { App, defineAsyncComponent } from 'vue';
 
+// @ts-ignore
 const modules = import.meta.globEager('./*.vue');
 
 export const registerGlobalComponent = (app: App<Element>) => {

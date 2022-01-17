@@ -2,9 +2,13 @@
 ![Logo](https://sp-ao.shortpixel.ai/client/q_glossy,ret_img/https://jimber.io/wp-content/uploads/2020/10/logo.png)
 
     
-# Frontend BoilerPlate
+# Wallet
+Project to manage cryptographic currency from **[Threefold](https://threefold.io/)** on the [Stellar blockchain](https://www.stellar.org/) and the substrate blockchain.
 
-
+Useful sources:
+* https://github.com/threefoldtech/rivine/blob/master/doc/transactions/light_wallet.md
+* https://github.com/threefoldfoundation/tfchain/blob/master/doc/light_wallet.md
+* https://faucet.testnet.threefoldtoken.com/
 
 ## Run Locally
 

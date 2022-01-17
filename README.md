@@ -15,7 +15,7 @@ Useful sources:
 Clone the project
 
 ```bash
-  git clone git@github.com:jimbertools/frontend-boilerplate.git
+  git clone git@github.com:threefoldtech/wallet-next.git
 ```
 
 Go to the project directory

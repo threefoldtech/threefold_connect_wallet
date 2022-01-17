@@ -1,6 +1,6 @@
 <template>
     <div class="p-4 space-y-2">
-        <div class="flex justify-around border-b">
+        <div class="flex justify-around">
             <RouterLink :to="{ name: 'send', params: { from: wallet.keyPair.getStellarKeyPair().publicKey() } }">
                 <div class="bg-gray-200 w-16 h-16 border-2 border-gray-300 rounded-xl flex justify-center items-center">
                     <svg fill="none" height="30" viewBox="0 0 20 30" width="20" xmlns="http://www.w3.org/2000/svg">
@@ -46,18 +46,26 @@
                 </div>
             </RouterLink>
         </div>
+        <hr />
         <div class="py-2">
             <h2>Assets</h2>
             <div class="space-y-2 mt-4">
                 <template v-for="assetBalance in assets">
-                    <pre>{{ assetBalance }}</pre>
                     <BalanceCard
-                        :asset="assetBalance.name"
-                        :balance="assetBalance.amount"
-                        :change="5.4"
-                        :name="assetBalance.name"
+                        :balance="assetBalance"
                         @click="router.push({ name: 'walletTransactions', params: { assetCode: assetBalance.name } })"
-                    />
+                    >
+                        <template v-if="assetBalance.type === 'substrate' && assetBalance.name === 'TFT'" #actions>
+                            <button
+                                type="button"
+                                class="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                                @click.stop="$router.push('/devLogs')"
+                            >
+                                Transfer with stellar
+                                <SwitchHorizontalIcon class="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
+                            </button>
+                        </template>
+                    </BalanceCard>
                 </template>
                 <template v-if="assets.length === 0">
                     <div class="text-center">
@@ -70,26 +78,17 @@
 </template>
 
 <script lang="ts" setup>
-    import MainLayout from '@/layouts/MainLayout.vue';
-    import BottomWalletNav from '@/components/nav/BottomWalletNav.vue';
-    import PageHeader from '@/components/header/PageHeader.vue';
-    import ArrowLeftIcon from '@heroicons/vue/outline/ArrowLeftIcon';
     import BalanceCard from '@/components/BalanceCard.vue';
-    import { useRoute, useRouter } from 'vue-router';
-    import { AssetBalance, balances, Wallet, wallets } from '@/service/walletService';
-    import { computed, inject } from 'vue';
-    import { userInitialized } from '@/service/cryptoService';
+    import { useRouter } from 'vue-router';
+    import { Wallet } from '@/service/walletService';
+    import { inject } from 'vue';
+    import { useAssets } from '@/util/useAssets';
+    import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
 
     const router = useRouter();
-
-    const route = useRoute();
     const wallet: Wallet = <Wallet>inject('wallet');
 
-    const assets = computed<AssetBalance[]>(() => {
-        const publicKey = wallet.keyPair.getStellarKeyPair().publicKey();
-        const balance = balances.value?.find(t => t.id === publicKey);
-        return balance?.assets || [];
-    });
+    const assets = useAssets(wallet);
 </script>
 
 <style scoped></style>

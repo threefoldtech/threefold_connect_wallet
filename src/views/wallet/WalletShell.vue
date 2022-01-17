@@ -9,7 +9,7 @@
                 <h2 class="text-xs font-normal text-gray-500">{{ wallet.name }}@{{ userInitialized }}</h2>
             </PageHeader>
         </template>
-        <RouterView :key="$route.fullPath" />
+        <RouterView :key="`${$route.fullPath}`" />
         <template #navigation>
             <BottomNav />
         </template>
@@ -17,54 +17,26 @@
 </template>
 
 <script lang="ts" setup>
-    import { getBalance, handleAccountRecord, Wallet, wallets } from '@/service/walletService';
-    import { onBeforeUnmount, provide, ref } from 'vue';
+    import { Wallet, wallets } from '@/service/walletService';
+    import { computed, provide } from 'vue';
     import { useRoute } from 'vue-router';
-    import { getStellarClient } from '@/service/stellarService';
     import { ArrowLeftIcon } from '@heroicons/vue/outline';
 
     import MainLayout from '@/layouts/MainLayout.vue';
     import BottomNav from '@/components/nav/BottomNav.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { userInitialized } from '@/service/cryptoService';
-    import { ServerApi } from 'stellar-sdk';
-    import { NetworkError } from 'stellar-sdk/lib/errors';
+    import { useDynamicBalance } from '@/util/useDynamicBalance';
 
     const route = useRoute();
     const wallet: Wallet = <Wallet>(
         wallets.value.find(w => w.keyPair.getStellarKeyPair().publicKey() === route.params.wallet)
     );
-    const stream = ref();
+    console.log('loading wallet');
 
     provide('wallet', wallet);
 
-    const init = async () => {
-        let result: ServerApi.AccountRecord;
-        try {
-            result = await getBalance(wallet);
-        } catch (error) {
-            if ((<NetworkError>error)?.response?.status === 404) return;
-            throw error;
-        }
-        handleAccountRecord(wallet, result);
-        const server = getStellarClient();
-        stream.value = server
-            .accounts()
-            .accountId(wallet.keyPair.getStellarKeyPair().publicKey())
-            // .join('transactions')
-            .stream({
-                onmessage: res => handleAccountRecord(wallet, res),
-                onerror: err => console.log(err),
-            });
-    };
-
-    init();
-
-    onBeforeUnmount(() => {
-        const closeHandle = stream.value;
-        if (!closeHandle) return;
-        closeHandle();
-    });
+    useDynamicBalance(wallet);
 </script>
 
 <style scoped></style>

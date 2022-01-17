@@ -119,8 +119,11 @@
                             :disabled="relevantAssets.length <= 0"
                             class="focus:ring-primary-500 focus:border-primary-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md"
                             name="currency"
+                            :key="`${selectedAsset.asset_code}-${selectedAsset.type}`"
                         >
-                            <option v-for="asset in relevantAssets">{{ asset }}</option>
+                            <optgroup v-for="asset in relevantAssets" :label="asset.type">
+                                <option :value="asset">{{ asset.asset_code }}</option>
+                            </optgroup>
                         </select>
                     </div>
                 </div>
@@ -132,7 +135,7 @@
                 </div>
             </div>
             <div class="mt-4">
-                <p>Fee {{ fee.toFixed(7) }} {{ selectedAsset }}</p>
+                <p>Fee {{ fee.toFixed(7) }} {{ asset?.asset_code }}</p>
             </div>
             <div class="grow"></div>
             <div class="mt-4 flex">
@@ -160,15 +163,19 @@
     import uniq from 'lodash/uniq';
 
     const router = useRouter();
-    const allowedAssets: string[] = uniq(
-        JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code)
+    type Asset = { asset_code: string; type: string };
+    const allowedAssets: Asset[] = uniq<Asset>(
+        <any[]>JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => ({
+            asset_code: a.asset_code,
+            type: a.type,
+        }))
     );
 
     interface IProps {
         from?: string;
         to?: string;
         amount?: number;
-        asset?: string;
+        asset?: Asset;
     }
 
     const { from, to, amount: initialAmount, asset } = defineProps<IProps>();
@@ -183,14 +190,19 @@
 
     const relevantAssets = computed(() => {
         return allowedAssets.filter(asset => {
-            return (selectedBalance.value?.assets.find(balance => balance.name === asset)?.amount || 0) > 0;
+            return (selectedBalance.value?.assets.find(balance => balance.name === asset.asset_code)?.amount || 0) > 0;
         });
     });
 
     const selectedAsset = ref(asset || relevantAssets.value[0]);
 
-    watch(relevantAssets, (value: string[]) => {
-        if (value.findIndex(v => v === selectedAsset.value) !== -1) return;
+    watch(relevantAssets, (value: Asset[]) => {
+        if (
+            value.findIndex(v => v.type === selectedAsset.value.type && v.asset_code === selectedAsset.value.type) !==
+            -1
+        ) {
+            return;
+        }
         selectedAsset.value = value[0];
     });
 
@@ -200,7 +212,9 @@
 
     const setAmount = (multiplier: number) => {
         console.log(Number());
-        const assetBalance = selectedBalance.value?.assets.find(a => a.name === selectedAsset.value)?.amount;
+        const assetBalance = selectedBalance.value?.assets.find(
+            a => a.name === selectedAsset.value.asset_code && a.type === selectedAsset.value.type
+        )?.amount;
 
         if (!assetBalance) return;
 
@@ -220,7 +234,7 @@
                 from: selectedWallet.value.keyPair.getStellarKeyPair().publicKey(),
                 to: toAddress.value,
                 amount: Number(amount.value),
-                asset: selectedAsset.value,
+                asset: selectedAsset.value.asset_code,
             },
         });
     };
@@ -232,22 +246,21 @@
         const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0];
 
         toAddress.value = address;
-        if (currency && relevantAssets.value.indexOf(currency.toUpperCase()) !== -1) {
-            selectedAsset.value = currency.toUpperCase();
+        if (currency && relevantAssets.value.findIndex(ra => ra.asset_code === currency) !== -1) {
+            selectedAsset.value.asset_code = currency.toUpperCase();
         }
 
-        if (currency && relevantAssets.value.indexOf(currency.toUpperCase()) === -1) {
+        if (currency && relevantAssets.value.findIndex(ra => ra.asset_code === currency) === -1) {
             const firstBalance = balances.value.find((b: Balance) =>
-                b.assets.find((a: AssetBalance) => a.name === currency.toUpperCase() && a.amount > 0)
+                b.assets.find((a: AssetBalance) => a.name === currency?.toUpperCase() && a.amount > 0)
             );
 
             selectedWallet.value =
-                wallets.value.find(w => w.keyPair.getStellarKeyPair().publicKey() === firstBalance?.id) ||
-                selectedWallet.value;
-            selectedAsset.value = currency.toUpperCase();
+                wallets.value.find(w => w.keyPair.getBasePublicKey() === firstBalance?.id) || selectedWallet.value;
+            selectedAsset.value = { asset_code: currency.toUpperCase(), type: 'stellar' };
         }
 
-        if (selectedBalance.value?.assets.find(a => a.name === selectedAsset.value)?.amount === 0) {
+        if (selectedBalance.value?.assets.find(a => a.name === selectedAsset.value.asset_code)?.amount === 0) {
             alert(`no wallets with balance for ${selectedAsset.value}`); /// @todo: change to notification
         }
 

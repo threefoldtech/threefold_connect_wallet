@@ -29,11 +29,8 @@
     //@ts-ignore
     const isDev = import.meta.env.DEV;
 
-    console.log({ isDev });
-
     const seed = useLocalStorage('devSeed', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=');
     const overrideIsDev = useLocalStorage('override', false);
-    console.log({ seed, overrideIsDev });
     if (isDev || overrideIsDev.value) {
         init('testseed.3bot', seed.value).then(() => {
             router.push({ name: 'walletList' }).catch(e => {

@@ -82,7 +82,7 @@
 
     const wallet: Wallet = <Wallet>inject('wallet');
     const balance: ComputedRef<Balance | undefined> = computed(() =>
-        balances.value.find(b => b.id === wallet.keyPair.getStellarKeyPair().publicKey())
+        balances.value.find(b => b.id === wallet.keyPair.getBasePublicKey())
     );
 
     const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);

@@ -6,11 +6,36 @@
                     <ArrowLeftIcon @click="router.back()" />
                 </template>
                 <h1>Receive</h1>
-                <h2>{{ qrValue }}</h2>
             </PageHeader>
         </template>
-        <img v-if="imageUrl" :src="imageUrl" alt="qr-code" crossorigin="anonymous" />
+        <img
+            v-if="imageUrl"
+            :src="imageUrl"
+            alt="qr-code"
+            crossorigin="anonymous"
+            @click="showImage = true"
+            :class="{ blur: showImage }"
+        />
     </MainLayout>
+
+    <Dialog as="div" class="fixed z-10 inset-0 overflow-y-auto" v-if="showImage" open>
+        <div class="flex min-h-screen text-center md:block md:px-2 lg:px-4 bg-white" @click="showImage = false">
+            <span class="hidden md:inline-block md:align-middle md:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="p-4 flex flex-col justify-center w-screen h-screen">
+                <img
+                    class="object-contain z-50 h-full w-full"
+                    v-if="imageUrl"
+                    :src="imageUrl"
+                    alt="qr-code"
+                    crossorigin="anonymous"
+                    @click="showImage = true"
+                />
+            </div>
+        </div>
+        <div class="fixed top-2 right-2">
+            <XIcon class="w-12 h-12 text-gray-800" @click="showImage = false" />
+        </div>
+    </Dialog>
 </template>
 
 <script lang="ts" setup>
@@ -19,10 +44,14 @@
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRouter } from 'vue-router';
     import { defineAsyncComponent, ref } from 'vue';
+    import { TransitionChild, Dialog, TransitionRoot } from '@headlessui/vue';
+    import { XIcon } from '@heroicons/vue/solid';
 
     const router = useRouter();
 
     import QRCodeStyling from 'qrcode-vue3/src/core/QRCodeStyling';
+    import { useToggle } from '@vueuse/core';
+    import FAB from '@/components/global/FAB.vue';
 
     interface IProps {
         assetCode?: string;
@@ -53,6 +82,8 @@
     });
 
     qr.getImageUrl('png').then(url => (imageUrl.value = url));
+
+    const showImage = ref(false);
 </script>
 
 <style scoped></style>

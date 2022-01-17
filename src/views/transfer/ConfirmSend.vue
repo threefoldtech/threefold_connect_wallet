@@ -19,7 +19,7 @@
                 <p>{{ amount }} {{ asset }}</p>
             </div>
             <div class="mt-4">
-                <p>fee {{ fee.toFixed(7) }} asset</p>
+                <small>fee {{ fee.toFixed(7) }} {{ asset }}</small>
             </div>
             <div class="mt-4 flex">
                 <button class="px-4 py-2 text-white bg-blue-600 rounded-md flex-1" @click="sendTokens">Confirm</button>
@@ -31,14 +31,10 @@
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
     import ArrowLeftIcon from '@heroicons/vue/outline/ArrowLeftIcon';
-    import UserIcon from '@heroicons/vue/outline/UserIcon';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRoute, useRouter } from 'vue-router';
-    import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue';
-    import { CheckIcon, SelectorIcon } from '@heroicons/vue/outline';
-    import { computed, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
-    import { balances, Wallet, wallets } from '@/service/walletService';
+    import { wallets } from '@/service/walletService';
 
     import { buildFundedPaymentTransaction, submitFundedTransaction } from '@jimber/stellar-crypto';
 

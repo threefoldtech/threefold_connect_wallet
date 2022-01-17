@@ -9,4 +9,6 @@ export const initFlags = async (name: string) => {
 
     await flagsmith.identify(name);
     await flagsmith.getFlags();
+
+    console.table({ flags: flagsmith.getAllFlags() });
 };

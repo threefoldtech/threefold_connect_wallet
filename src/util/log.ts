@@ -7,7 +7,15 @@ export const overrideConsole = () => {
     if (!console) {
         return;
     }
-    const logFnNames = ['log', 'info', 'warn', 'error', 'debug', 'trace', 'table'];
+    const logFnNames = [
+        'log',
+        'info',
+        // 'warn',
+        'error',
+        'debug',
+        'trace',
+        'table',
+    ];
     const originalFns = logFnNames.reduce((acc: { [key: string]: any }, name) => {
         acc[name] = console[name];
         return acc;

@@ -15,8 +15,10 @@ import { overrideConsole } from '@/util/log';
 import axios from 'axios';
 
 import Vue3TouchEvents from 'vue3-touch-events';
+import sodium from 'libsodium-wrappers';
 
 const init = async () => {
+    await sodium.ready;
     // @ts-ignore
     globalThis.version = import.meta.env.VITE_VERSION;
 
@@ -24,18 +26,11 @@ const init = async () => {
         overrideConsole();
         // @ts-ignore
         console.info(`running version: ${globalThis.version}`);
-        axios.interceptors.response.use(
-            value => {
-                console.log(value);
-            },
-            error => {
-                console.error(
-                    error?.config
-                        ? `${error.message}: ${error?.config?.method.toUpperCase()} ${error?.config?.url}`
-                        : error
-                );
-            }
-        );
+        axios.interceptors.response.use(undefined, error => {
+            console.error(
+                error?.config ? `${error.message}: ${error?.config?.method.toUpperCase()} ${error?.config?.url}` : error
+            );
+        });
         const { Buffer } = await import('buffer');
         window.Buffer = Buffer;
 
@@ -45,13 +40,6 @@ const init = async () => {
         registerGlobalComponent(app);
 
         app.mount('#app');
-
-        axios.get('https://api.github.com/_private/browser/stats').then(res => {
-            console.log(res);
-        });
-        axios.get('https://618934abd0821900178d7870.mockapi.io/test').then(res => {
-            console.log(res);
-        });
     } catch (e) {
         console.error(e);
         throw e;

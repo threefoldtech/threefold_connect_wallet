@@ -169,7 +169,7 @@ export const init = async (name: string, seedString: string) => {
 
     const pkidPurseWallets: PkidWallet[] = purseDoc.data;
 
-    console.table(pkidPurseWallets);
+    console.table(pkidPurseWallets.map(wallet => ({ ...wallet, seed: '*********************' })));
     wallets.value = pkidPurseWallets.map(wallet => {
         const keyPair = Keypair.fromRawEd25519Seed(<Buffer>hexToBytes(wallet.seed));
 

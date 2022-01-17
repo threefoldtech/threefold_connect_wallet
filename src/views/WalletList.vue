@@ -13,13 +13,25 @@
             </PageHeader>
         </template>
         <template #fab>
-            <FAB @click="router.push({ name: 'walletImport' })" />
+            <div v-touch:hold="enableHint" @click="showHint = false">
+                <div class="absolute bottom-8 right-7">
+                    <span
+                        :class="{
+                            hidden: !showHint,
+                        }"
+                        class="inline-flex items-center px-3 py-1 rounded-full rounded-br-none text-xs font-medium bg-blue-100 text-blue-800"
+                    >
+                        Import Wallet
+                    </span>
+                </div>
+                <FAB title="Import wallet" @click="router.push({ name: 'walletImport' })" />
+            </div>
         </template>
         <div v-if="!showMove" class="p-4 space-y-2 flex flex-col">
             <WalletCard
                 v-for="wallet in sortedWallets"
                 v-touch:hold="enableMove"
-                :balance="balances.find(t => t.id === wallet.keyPair.getStellarKeyPair().publicKey())"
+                :balance="balances.find(t => t.id === wallet.keyPair.getBasePublicKey())"
                 :name="wallet.name"
                 @click="
                     router.push({
@@ -66,58 +78,35 @@
     import PageHeader from '@/components/header/PageHeader.vue';
     import FAB from '@/components/global/FAB.vue';
     import { SaveIcon, XIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/vue/outline';
-    import { getBalance, handleAccountRecord, balances, Wallet, wallets } from '@/service/walletService';
+    import { balances, Wallet, wallets } from '@/service/walletService';
     import { useRouter } from 'vue-router';
-    import { computed, onBeforeUnmount, ref } from 'vue';
+    import { computed, ref } from 'vue';
     import WalletCard from '../components/WalletCard.vue';
-    import { getStellarClient } from '@/service/stellarService';
-    import { ApiPromise, WsProvider } from '@polkadot/api';
-    import types from './types.json';
-    import { ServerApi } from 'stellar-sdk';
-    import AccountRecord = ServerApi.AccountRecord;
-    import { NetworkError } from 'stellar-sdk/lib/errors';
+
+    import { getSubstrateAssetBalances } from '@/service/substrateService';
+    import { useDynamicBalance } from '@/util/useDynamicBalance';
+    import flagsmith from 'flagsmith';
+    import { useLocalStorage, useToggle } from '@vueuse/core';
 
     const router = useRouter();
 
-    const streams = ref<(() => void)[]>([]);
+    wallets.value.forEach((wallet: Wallet) => useDynamicBalance(wallet));
+
     wallets.value.forEach(async (wallet: Wallet) => {
-        let result: AccountRecord;
-        try {
-            result = await getBalance(wallet);
-        } catch (error) {
-            if ((<NetworkError>error)?.response?.status === 404) return;
-            throw error;
-        }
-        handleAccountRecord(wallet, result);
-        const server = getStellarClient();
-        const closeHandler = server
-            .accounts()
-            .accountId(wallet.keyPair.getStellarKeyPair().publicKey())
-            // .join('transactions')
-            .stream({
-                onmessage: res => handleAccountRecord(wallet, res),
-            });
-        streams.value.push(closeHandler);
+        const assetBalances = await getSubstrateAssetBalances(wallet.keyPair.getSubstrateKeyring().address);
+
+        console.log(assetBalances);
     });
-    onBeforeUnmount(() => {
-        streams.value.forEach(closeHandler => closeHandler());
-    });
-
-    // console.log('hi?');
-
-    // const provider = new WsProvider('wss://tfchain.test.threefold.io');
-
-    // const api = await ApiPromise.create({ provider, types });
-
-    // const [chain, nodeName, nodeVersion] = await Promise.all([
-    //     api.rpc.system.chain(),
-    //     api.rpc.system.name(),
-    //     api.rpc.system.version(),
-    // ]);
-
-    // console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
     const showMove = ref(false);
+
+    const showHint = useLocalStorage('show-import-wallet-hint', true);
+    const enableHint = () => {
+        showHint.value = true;
+    };
+
     const enableMove = () => {
+        if (!flagsmith.hasFeature('can-move-wallets')) return;
+
         if (wallets.value.length <= 1) return;
         showMove.value = true;
     };

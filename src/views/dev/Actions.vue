@@ -6,12 +6,11 @@
 </template>
 
 <script lang="ts" setup>
-    import { Wallet, wallets } from '@/service/walletService';
+    import { saveWallets, Wallet, wallets } from '@/service/walletService';
     import { PkidWalletTypes } from '@/service/initializationService';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import { bytesToHex } from '@/util/crypto';
     import { Keypair } from 'stellar-sdk';
-    import { getPkidClient, PkidWallet } from '@/service/pkidService';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
@@ -21,20 +20,9 @@
             name: 'etstset',
         };
         wallets.value.push(wallet);
-
-        const pkidWallets: PkidWallet[] = wallets.value.map(
-            (wallet: Wallet): PkidWallet => ({
-                type: wallet.meta.type,
-                name: wallet.name,
-                index: wallet.meta.index,
-                seed: bytesToHex(wallet.keyPair.getStellarKeyPair().rawSecretKey()),
-                chain: 'stellar',
-            })
-        );
-
-        const pkid = getPkidClient();
-        await pkid.setDoc('purse', pkidWallets, true);
+        await saveWallets();
     };
+    const addNotification = () => {};
 </script>
 
 <style scoped></style>

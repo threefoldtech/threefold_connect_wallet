@@ -183,6 +183,6 @@ export const routes: Route[] = [
     },
     {
         path: '/:pathMatch(.*)',
-        redirect: '404',
+        redirect: '/404',
     },
 ];

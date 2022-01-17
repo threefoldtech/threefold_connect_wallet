@@ -10,5 +10,3 @@ export const usePromise = <T>(promise: Promise<T>) => {
 
     return { data, isLoading };
 };
-
-export default usePromise;

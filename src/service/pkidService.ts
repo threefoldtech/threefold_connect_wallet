@@ -1,9 +1,19 @@
 import flagsmith from 'flagsmith';
 // @ts-ignore
 import Pkid from '@jimber/pkid';
-import { appKeyPair, appSeed } from '@/service/cryptoService';
+import { appKeyPair } from '@/service/cryptoService';
+import { PkidWalletTypes } from '@/service/initializationService';
 
-type PkidClient = {
+export interface PkidWallet {
+    name: string;
+    position?: number;
+    seed: string; //@TODO: should add seed instead of this
+    chain: 'stellar';
+    type: PkidWalletTypes;
+    index?: number;
+}
+
+export type PkidClient = {
     getDoc: (
         signPk: Uint8Array,
         key: string

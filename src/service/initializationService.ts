@@ -1,40 +1,29 @@
 import { initFlags } from './flagService';
-import { Ref, ref } from 'vue';
+import { ref } from 'vue';
 import { decodeBase64 } from 'tweetnacl-util';
-import { entropyToMnemonic } from 'bip39';
+// @ts-ignore
+import { entropyToMnemonic } from '@jimber/simple-bip39';
 // @ts-ignore
 import Pkid from '@jimber/pkid';
 import flagsmith from 'flagsmith';
 import sodium from 'libsodium-wrappers';
-// @ts-ignore
 import { calculateWalletEntropyFromAccount, keypairFromAccount, generateActivationCode } from '@jimber/stellar-crypto';
 import { wallets } from '@/service/walletService';
-import { getPkidClient } from '@/service/pkidService';
-import { Keypair } from 'stellar-base';
+import { getPkidClient, PkidWallet } from '@/service/pkidService';
+import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/service/cryptoService';
 import { getStellarClient } from '@/service/stellarService';
-
-export type InitCallback = (value?: unknown) => void;
-export const firstWalletInitCallback: Ref<InitCallback> = ref<InitCallback>() as Ref<InitCallback>;
-
+import { bytesToHex, hexToBytes } from '@/util/crypto';
+import { WalletKeyPair } from '@/lib/WalletKeyPair';
 type LoadingText = {
     title: string;
     subtitle?: string;
 };
 export const loadingText = ref<LoadingText>({ title: 'loading...' });
 
-enum PkidWalletTypes {
+export enum PkidWalletTypes {
     Native = 'NATIVE',
     Imported = 'IMPORTED',
-}
-
-interface PkidWallet {
-    name: string;
-    position?: number;
-    secret: string;
-    chain: 'stellar';
-    type: PkidWalletTypes;
-    index?: number;
 }
 
 interface PkidV2AppWallet {
@@ -54,20 +43,19 @@ interface PkidV2ImportedWallet {
     walletName: string;
 }
 
-const firstInit = async () => {
+export const initFirstWallet = async () => {
     const entropy = calculateWalletEntropyFromAccount(appSeedPhrase.value, 0);
     const keyPair: Keypair = keypairFromAccount(entropy);
 
     const server = getStellarClient();
     const pkid = getPkidClient();
 
-    //@todo: save to purse
     const initialWallet: PkidWallet = {
         chain: 'stellar',
         index: 0,
         name: 'Daily',
         position: 0,
-        secret: keyPair.secret(),
+        seed: bytesToHex(keyPair.rawSecretKey()),
         type: PkidWalletTypes.Native,
     };
 
@@ -76,6 +64,19 @@ const firstInit = async () => {
     try {
         await server.loadAccount(keyPair.publicKey());
         await pkid.setDoc('purse', [initialWallet], true);
+        wallets.value = [
+            {
+                keyPair: new WalletKeyPair(bytesToHex(keyPair.rawSecretKey())),
+                name: initialWallet.name,
+                meta: {
+                    index: initialWallet.index,
+                    type: initialWallet.type,
+                    position: initialWallet.position,
+                    chain: initialWallet.chain,
+                },
+            },
+        ];
+        return;
     } catch (e) {
         console.log('no acc found');
     }
@@ -95,6 +96,18 @@ const firstInit = async () => {
     } catch (e) {
         throw e;
     }
+    wallets.value = [
+        {
+            keyPair: new WalletKeyPair(bytesToHex(keyPair.rawSecretKey())),
+            name: initialWallet.name,
+            meta: {
+                index: initialWallet.index,
+                type: initialWallet.type,
+                position: initialWallet.position,
+                chain: initialWallet.chain,
+            },
+        },
+    ];
 };
 
 const initKeys = (seedString: string) => {
@@ -143,26 +156,32 @@ export const init = async (name: string, seedString: string) => {
         : purseDocToCheckMigration;
 
     if (!purseDocToCheckFirstWalletInit?.success) {
-        await firstInit();
+        await pkid.setDoc('purse', [], true);
     }
 
     const purseDoc = !purseDocToCheckFirstWalletInit?.success
         ? await pkid.getDoc(appKeyPair.value.publicKey, 'purse')
         : purseDocToCheckFirstWalletInit;
-    console.log(purseDoc);
 
-    if (!purseDocToCheckFirstWalletInit?.success || purseDoc?.data?.length <= 0) {
+    if (!purseDocToCheckFirstWalletInit?.success) {
         throw new Error('Critical Initialization error: no purseDoc');
     }
 
     const pkidPurseWallets: PkidWallet[] = purseDoc.data;
 
+    console.table(pkidPurseWallets.map(wallet => ({ ...wallet, seed: '*********************' })));
     wallets.value = pkidPurseWallets.map(wallet => {
-        const keyPair = Keypair.fromSecret(wallet.secret);
+        const keyPair = Keypair.fromRawEd25519Seed(<Buffer>hexToBytes(wallet.seed));
 
         return {
-            keyPair,
+            keyPair: new WalletKeyPair(wallet.seed),
             name: wallet.name,
+            meta: {
+                index: wallet.index,
+                type: wallet.type,
+                position: wallet.position,
+                chain: wallet.chain,
+            },
         };
     });
 
@@ -175,14 +194,13 @@ const mapV2toV3PkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet): Pk
 
     const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, wallet.index);
     const walletKeypair: Keypair = keypairFromAccount(walletEntropy);
-    const secret = walletKeypair.secret();
 
     return {
         chain: 'stellar',
         index: wallet.index,
         name: wallet.walletName,
         position: wallet.position,
-        secret: secret,
+        seed: bytesToHex(walletKeypair.rawSecretKey()),
         type: isImported ? PkidWalletTypes.Imported : PkidWalletTypes.Native,
     };
 };

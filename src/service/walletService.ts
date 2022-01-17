@@ -1,26 +1,46 @@
 import { Ref, ref } from 'vue';
-import { Keypair } from 'stellar-base';
+import { Horizon, ServerApi } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
-import { Horizon, Server, ServerApi } from 'stellar-sdk';
+import { getStellarClient } from '@/service/stellarService';
+import { PkidWalletTypes } from '@/service/initializationService';
+import { useLocalStorage } from '@vueuse/core';
+import { WalletKeyPair } from '@/lib/WalletKeyPair';
+import { bytesToHex } from '@/util/crypto';
+import { getPkidClient, PkidWallet } from '@/service/pkidService';
 import AccountRecord = ServerApi.AccountRecord;
 import CollectionPage = ServerApi.CollectionPage;
-import TransactionRecord = ServerApi.TransactionRecord;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
 import OperationRecord = ServerApi.OperationRecord;
-import { getStellarClient } from '@/service/stellarService';
+import BalanceLine = Horizon.BalanceLine;
 
 export interface Wallet {
     name: string;
-    keyPair: Keypair;
+    keyPair: WalletKeyPair;
+
+    meta: {
+        position?: number;
+        chain: 'stellar';
+        type: PkidWalletTypes;
+        index?: number;
+    };
+}
+
+export interface AllowedAsset {
+    name: string; //asset name
+    type: 'stellar' | 'substrate';
+    asset_code: string;
+    issuer?: string;
 }
 
 export interface AssetBalance {
-    name: string;
+    name: string; //asset name
     amount: number;
+    type: 'stellar' | 'substrate';
+    issuer?: string;
 }
 
 export interface Balance {
-    id: string;
+    id: string; // walletId
     assets: AssetBalance[];
 }
 
@@ -30,37 +50,31 @@ export interface Operation {
     cursor?: string;
 }
 
-export const wallets: Ref<Wallet[]> = ref<Wallet[]>([]);
-export const balances: Ref<Balance[]> = ref<Balance[]>([]);
-export const transactions: Ref<TransactionRecord[]> = ref<TransactionRecord[]>([]);
-export const operations: Ref<Operation[]> = ref<Operation[]>([]);
+export const wallets: Ref<Wallet[]> = <Ref<Wallet[]>>ref<Wallet[]>([]);
+export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', []);
+export const operations: Ref<Operation[]> = useLocalStorage<Operation[]>('operations_cache', []);
 
-export const getBalance = async (wallet: Wallet): Promise<AccountRecord> => {
+export const getStellarBalance = async (wallet: Wallet): Promise<AccountRecord> => {
     const server = getStellarClient();
-    return await server.accounts().accountId(wallet.keyPair.publicKey()).call();
+    return await server.accounts().accountId(wallet.keyPair.getStellarKeyPair().publicKey()).call();
 };
 export const getOperations = async (wallet: Wallet, cursor?: string): Promise<CollectionPage<OperationRecord>> => {
     const server = getStellarClient();
-    const callBuilder = server.operations().forAccount(wallet.keyPair.publicKey());
+    const callBuilder = server.operations().forAccount(wallet.keyPair.getStellarKeyPair().publicKey());
     if (cursor) callBuilder.cursor(cursor);
 
     return await callBuilder.call();
 };
 
 export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
-    // res?.transactions().then((page: CollectionPage<TransactionRecord>) => {
-    //     page.records.forEach((transactionRecord: TransactionRecord) => {
-    //         const index = transactions.value.findIndex(t => t.id === transactionRecord.id);
-    //
-    //         index === -1
-    //             ? transactions.value.push(transactionRecord)
-    //             : transactions.value.splice(index, 1, transactionRecord);
-    //     });
-    // });
-    const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
+    const allowedAssets: AllowedAsset[] = JSON.parse(<string>flagsmith.getValue('currencies'));
 
-    const assets: { name: string; amount: number }[] = res.balances
-        .map(balance => {
+    const balance: Balance = balances.value.find(value => value.id === wallet.keyPair.getBasePublicKey()) || {
+        id: wallet.keyPair.getBasePublicKey(),
+        assets: [],
+    };
+    const stellarAssets: AssetBalance[] = res.balances
+        .map((balance: BalanceLine): AssetBalance => {
             const assetCode =
                 balance.asset_type === 'native'
                     ? 'xlm'
@@ -69,21 +83,37 @@ export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
             return {
                 name: assetCode,
                 amount: Number(balance.balance),
+                type: 'stellar',
+                issuer: (<BalanceLineAsset<'credit_alphanum4'> | BalanceLineAsset<'credit_alphanum12'>>balance)
+                    ?.asset_issuer,
             };
         })
-        .filter(a => allowedAssets.indexOf(a.name) !== -1);
+        .filter(a =>
+            allowedAssets.find(allowedAsset => allowedAsset.asset_code === a.name && allowedAsset.issuer === a.issuer)
+        );
 
-    const balance: Balance = {
-        id: wallet.keyPair.publicKey(),
-        assets,
-    };
+    balance.assets = mergeAssets(...stellarAssets, ...balance.assets);
     const index = balances.value.findIndex(lb => lb.id === balance.id);
 
     index === -1 ? balances.value.push(balance) : balances.value.splice(index, 1, balance);
 };
 
+//@todo: make this better
+export const mergeAssets = (...assets: AssetBalance[]) => {
+    return assets
+        .filter(
+            (value, index, self) =>
+                self.findIndex(v => v.name === value.name && v.issuer === value.issuer && v.type === v.type) === index
+        )
+        .sort((a, b) => {
+            if (a.name === b.name) return b.type.localeCompare(a.type);
+
+            return b.name.localeCompare(a.name);
+        });
+};
+
 export const handleOperationRecordPage = (page: CollectionPage<OperationRecord>, wallet: Wallet) => {
-    const publicKey = wallet.keyPair.publicKey();
+    const publicKey = wallet.keyPair.getStellarKeyPair().publicKey();
     const operation: Operation = operations.value.find(o => o.id === publicKey) || { operations: [], id: publicKey };
     const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
 
@@ -103,4 +133,27 @@ export const handleOperationRecordPage = (page: CollectionPage<OperationRecord>,
     const index = operations.value.findIndex(t => t.id === operation.id);
 
     index === -1 ? operations.value.push(operation) : operations.value.splice(index, 1, operation);
+};
+export const saveWallets = async () => {
+    const pkidWallets: PkidWallet[] = wallets.value.map(
+        (wallet: Wallet): PkidWallet => ({
+            type: wallet.meta.type,
+            name: wallet.name,
+            index: wallet.meta.index,
+            seed: bytesToHex(wallet.keyPair.getStellarKeyPair().rawSecretKey()),
+            chain: 'stellar',
+        })
+    );
+
+    const pkid = getPkidClient();
+    await pkid.setDoc('purse', pkidWallets, true);
+};
+export const addOrUpdateWallet = (wallet: Wallet) => {
+    const index = wallets.value.findIndex(w => w.keyPair.getBasePublicKey() === wallet.keyPair.getBasePublicKey());
+
+    if (index === -1) {
+        wallets.value.push(wallet);
+        return;
+    }
+    wallets.value = [...wallets.value.slice(0, index), wallet, ...wallets.value.slice(index + 1)];
 };

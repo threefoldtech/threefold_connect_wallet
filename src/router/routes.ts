@@ -1,4 +1,4 @@
-import { RouteRecordRaw, RouterView } from 'vue-router';
+import { _RouteRecordBase, RouteComponent, RouteLocationNormalized, RouteRecordRaw, RouterView } from 'vue-router';
 import WalletList from '@/views/WalletList.vue';
 import Overview from '@/views/wallet/Overview.vue';
 import Info from '@/views/wallet/Info.vue';
@@ -8,16 +8,69 @@ import PathNotFound from '@/views/PathNotFound.vue';
 import Init from '@/views/Init.vue';
 import TestView from '@/views/TestView.vue';
 import WalletImport from '@/views/WalletImport.vue';
-import Wallet from '@/views/Wallet.vue';
+import WalletShell from '@/views/wallet/WalletShell.vue';
 import Send from '@/views/transfer/Send.vue';
+import DevShell from '@/views/dev/DevShell.vue';
+import Logs from '@/views/dev/Logs.vue';
+import Actions from '@/views/dev/Actions.vue';
 import Receive from '@/views/transfer/Receive.vue';
 import FirstWalletInit from '@/views/FirstWalletInit.vue';
+import ConfirmSend from '@/views/transfer/ConfirmSend.vue';
+import {
+    BeakerIcon,
+    CashIcon,
+    InformationCircleIcon,
+    SwitchHorizontalIcon,
+    TableIcon,
+    TrendingUpIcon,
+} from '@heroicons/vue/outline';
+import flagsmith from 'flagsmith';
+import { NavItem } from '@/types';
 
-export const routes: RouteRecordRaw[] = [
+interface Route extends _RouteRecordBase {
+    component?: RouteComponent | (() => Promise<RouteComponent>);
+    props?: boolean | Record<string, any> | ((to: RouteLocationNormalized) => Record<string, any>);
+    meta?: {
+        activeNav?: string;
+        bottomNav?: NavItem[] | (() => NavItem[]);
+        [key: string]: any;
+    };
+}
+
+export const routes: Route[] = [
     {
         path: '/',
         name: 'walletList',
         component: WalletList,
+    },
+    {
+        path: '/dev',
+        name: 'dev',
+        component: DevShell,
+        children: [
+            {
+                path: '',
+                name: 'devLogs',
+                component: Logs,
+                meta: {
+                    activeNav: 'devLogs',
+                },
+            },
+            {
+                path: '',
+                name: 'devActions',
+                component: Actions,
+                meta: {
+                    activeNav: 'devActions',
+                },
+            },
+        ],
+        meta: {
+            bottomNav: [
+                { name: 'devLogs', icon: TableIcon },
+                { name: 'devActions', icon: BeakerIcon },
+            ],
+        },
     },
     {
         path: '/listBalances',
@@ -31,14 +84,14 @@ export const routes: RouteRecordRaw[] = [
     },
     {
         path: '/wallet/:wallet',
-        component: Wallet,
+        component: WalletShell,
         children: [
             {
                 path: '',
                 name: 'walletOverview',
                 component: Overview,
                 meta: {
-                    activeWalletNav: 'walletOverview',
+                    activeNav: 'walletOverview',
                 },
             },
             {
@@ -46,7 +99,7 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletTransactions',
                 component: Transactions,
                 meta: {
-                    activeWalletNav: 'walletTransactions',
+                    activeNav: 'walletTransactions',
                 },
             },
             {
@@ -54,7 +107,7 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletInfo',
                 component: Info,
                 meta: {
-                    activeWalletNav: 'walletInfo',
+                    activeNav: 'walletInfo',
                 },
             },
             {
@@ -62,24 +115,41 @@ export const routes: RouteRecordRaw[] = [
                 name: 'walletVesting',
                 component: Vesting,
                 meta: {
-                    activeWalletNav: 'walletVesting',
+                    activeNav: 'walletVesting',
                 },
             },
         ],
+        meta: {
+            bottomNav: () => [
+                { name: 'walletOverview', icon: CashIcon },
+                ...(flagsmith.hasFeature('transactionOverview')
+                    ? [{ name: 'walletTransactions', icon: SwitchHorizontalIcon }]
+                    : []),
+                { name: 'walletInfo', icon: InformationCircleIcon },
+                ...(flagsmith.hasFeature('vesting') ? [{ name: 'walletVesting', icon: TrendingUpIcon }] : []),
+            ],
+        },
     },
     {
         path: '/transfer',
         component: RouterView,
         children: [
             {
-                path: 'send/:from?',
+                path: 'send',
                 name: 'send',
                 component: Send,
+                props: true,
             },
             {
-                path: 'receive/:to?',
+                path: 'receive/',
                 name: 'receive',
                 component: Receive,
+                props: true,
+            },
+            {
+                path: 'confirm/send/:from/:to/:amount/:asset',
+                name: 'confirmSend',
+                component: ConfirmSend,
             },
         ],
     },
@@ -90,7 +160,7 @@ export const routes: RouteRecordRaw[] = [
         props: true,
     },
     {
-        path: '/firstWalletInit/:address',
+        path: '/firstWalletInit',
         name: 'firstWalletInit',
         component: FirstWalletInit,
         props: true,
@@ -113,6 +183,6 @@ export const routes: RouteRecordRaw[] = [
     },
     {
         path: '/:pathMatch(.*)',
-        redirect: '404',
+        redirect: '/404',
     },
 ];

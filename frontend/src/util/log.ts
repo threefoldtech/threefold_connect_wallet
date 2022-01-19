@@ -27,6 +27,9 @@ export const overrideConsole = () => {
             if (typeof args[0] === 'string') {
                 args[0] = `[${name.toUpperCase()}] ${args[0]}`;
             }
+            if (args[0]?.toString() === '[object ErrorEvent]') {
+                args[0] = `[${name.toUpperCase()}] ${args[0].message}`;
+            }
             logs.value.push({ level: name, args, timestamp: new Date().toISOString() });
 
             originalFns[name].apply(console, args);

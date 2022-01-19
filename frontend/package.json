@@ -7,7 +7,7 @@
         "build": "vue-tsc --noEmit && vite build",
         "serve": "vite preview",
         "prepare": "cd .. && husky install frontend/.husky",
-        "postinstall": "find ./node_modules/@polkadot -type f -name 'packageInfo.js' | xargs sed -i 's/, import.meta.url)/)/'",
+        "prebuild": "find ./node_modules/@polkadot -type f -name 'packageInfo.js' | xargs sed -i 's/, import.meta.url)/)/'",
         "upgrade-project": "ncu",
         "tests": "jest"
     },

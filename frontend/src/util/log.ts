@@ -36,7 +36,9 @@ export const overrideConsole = () => {
         };
     });
 
-    window.addEventListener('error', (e: ErrorEvent) => console.error(e));
+    window.addEventListener('error', (e: ErrorEvent) => {
+        console.error({ message: e.message, type: e?.type, stack: e?.error?.stack, line: e?.lineno, column: e?.colno });
+    });
     window.addEventListener('unhandledrejection', (e: PromiseRejectionEvent) => {
         console.error(e.reason.toString());
 

@@ -116,10 +116,10 @@
                         <select
                             id="currency"
                             v-model="selectedAsset"
-                            :disabled="relevantAssets.length <= 0"
+                            :disabled="relevantAssets.length === 0"
                             class="focus:ring-primary-500 focus:border-primary-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md"
                             name="currency"
-                            :key="`${selectedAsset.asset_code}-${selectedAsset.type}`"
+                            :key="`${selectedAsset?.asset_code}-${selectedAsset?.type}`"
                         >
                             <optgroup v-for="asset in relevantAssets" :label="asset.type">
                                 <option :value="asset">{{ asset.asset_code }}</option>
@@ -180,9 +180,9 @@
 
     const { from, to, amount: initialAmount, asset } = defineProps<IProps>();
 
-    const selectedWallet = ref<Wallet>(
-        wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0]
-    );
+    const selectedWallet = ref<Wallet>();
+    selectedWallet.value =
+        wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0];
 
     const selectedBalance = computed(() =>
         balances.value.find(t => t.id === selectedWallet?.value.keyPair.getStellarKeyPair().publicKey())

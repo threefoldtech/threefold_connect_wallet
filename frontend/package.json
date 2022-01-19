@@ -7,7 +7,8 @@
         "build": "vue-tsc --noEmit && vite build",
         "serve": "vite preview",
         "prepare": "cd .. && husky install frontend/.husky",
-        "prebuild": "find ./node_modules/@polkadot -type f -name 'packageInfo.js' | xargs sed -i 's/, import.meta.url)/)/'",
+        "prebuild": "find ./node_modules/@polkadot -type f -name 'packageInfo.js' | xargs sed -i \"s/URL('.', import.meta.url).pathname,/URL('.').pathname,/\"",
+        "postbuild": "find ./node_modules/@polkadot -type f -name 'packageInfo.js' | xargs sed -i \"s/URL('.').pathname,/URL('.', import.meta.url).pathname,/\"",
         "upgrade-project": "ncu",
         "tests": "jest"
     },

@@ -24,7 +24,7 @@
     const router = useRouter();
 
     watch(count, newValue => {
-        if (newValue < 2) return;
+        if (newValue < 5) return;
         router.push({ name: 'devLogs' });
     });
 </script>

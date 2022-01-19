@@ -6,6 +6,7 @@
         "build": "vue-tsc --noEmit && vite build",
         "serve": "vite preview",
         "prepare": "husky install",
+        "postinstall": "find ./node_modules/@polkadot -type f -name 'packageInfo.js' | xargs sed -i 's/, import.meta.url)/)/'",
         "upgrade-project": "ncu",
         "tests": "jest"
     },

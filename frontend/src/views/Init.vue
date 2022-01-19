@@ -42,38 +42,40 @@
 
     const seed = useLocalStorage('devSeed', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=');
     const overrideIsDev = useLocalStorage('override', false);
-    // if (isDev || overrideIsDev.value) {
-    //     init('testseed.3bot', seed.value)
-    //         .then(() => {
-    //             router.push({ name: 'walletList' }).catch(e => {
-    //                 console.error(e);
-    //                 router.push({ name: 'error' });
-    //             });
-    //         })
-    //         .catch((e: any) => {
-    //             console.error(e);
-    //             router.push({ name: 'error' });
-    //         });
-    // }
-    //
-    // if (!isDev && !overrideIsDev.value) {
-    //     //@ts-ignore
-    //     globalThis.init = (name: string, seedString: string) => {
-    //         init(name, seedString)
-    //             .then(() => {
-    //                 router.push({ name: 'walletList' }).catch(e => {
-    //                     console.error(e);
-    //                     router.push({ name: 'error' });
-    //                 });
-    //             })
-    //             .catch((e: any) => {
-    //                 console.error(e);
-    //                 router.push({ name: 'error' });
-    //             });
-    //     };
-    //     //@ts-ignore
-    //     globalThis?.flutter_inappwebview?.callHandler('VUE_INITIALIZED');
-    // }
+    if (isDev || overrideIsDev.value) {
+        init('testseed.3bot', seed.value)
+            .then(() => {
+                router.push({ name: 'walletList' }).catch(e => {
+                    console.error(e);
+                    router.push({ name: 'error' });
+                });
+            })
+            .catch((e: any) => {
+                console.error(e);
+                router.push({ name: 'error' });
+            });
+    }
+
+    if (!isDev && !overrideIsDev.value) {
+        //@ts-ignore
+        globalThis.init = (name: string, seedString: string) => {
+            console.table({ name, seedString }); //@todo: remove this
+
+            init(name, seedString)
+                .then(() => {
+                    router.push({ name: 'walletList' }).catch(e => {
+                        console.error(e);
+                        router.push({ name: 'error' });
+                    });
+                })
+                .catch((e: any) => {
+                    console.error(e);
+                    router.push({ name: 'error' });
+                });
+        };
+        //@ts-ignore
+        globalThis?.flutter_inappwebview?.callHandler('VUE_INITIALIZED');
+    }
 </script>
 
 <style scoped></style>

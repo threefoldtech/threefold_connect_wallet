@@ -13,7 +13,7 @@
     import { watch } from 'vue';
 
     //@ts-ignore
-    const version = 'v3.0.0' || globalThis.version;
+    const version = globalThis.version;
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();

@@ -94,8 +94,6 @@
 
     wallets.value.forEach(async (wallet: Wallet) => {
         const assetBalances = await getSubstrateAssetBalances(wallet.keyPair.getSubstrateKeyring().address);
-
-        console.log(assetBalances);
     });
     const showMove = ref(false);
 

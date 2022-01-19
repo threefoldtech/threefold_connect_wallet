@@ -1,53 +1,93 @@
 `
 <template>
-    <div class="break-words">
-        {{ wallet.name }} <br />
+    <div class="break-words p-2">
         <div>
-            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+            <label class="block text-sm font-medium text-gray-700" for="name">Name</label>
             <div class="mt-1">
                 <input
-                    type="text"
-                    name="name"
                     id="name"
-                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                     :value="wallet.name"
+                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    name="name"
+                    type="text"
                     @change="updateWalletName"
                 />
             </div>
         </div>
-        {{ wallet.keyPair.getStellarKeyPair().publicKey() }} <br />
-        {{ wallet.keyPair.getSubstrateKeyring().address }} <br />
-        <Disclosure v-slot="{ open }">
+        <div class="mt-2">
+            <code class="block p-2 border-2 border-slate-500">{{
+                wallet.keyPair.getStellarKeyPair().publicKey()
+            }}</code>
+            <code class="block p-2 border-2 border-slate-500 mt-2">{{
+                wallet.keyPair.getSubstrateKeyring().address
+            }}</code>
+        </div>
+        <Disclosure v-slot="{ open }" as="div" class="flex flex-col">
             <DisclosureButton
-                class="px-4 py-2 flex justify-between py-2 text-sm font-medium text-left text-primary-500 focus:outline-none mt-4 bg-primary-100"
+                class="px-4 py-2 flex grow py-2 text-sm font-medium rounded-md text-left text-primary-500 focus:outline-none mt-2 bg-primary-100"
             >
+                <ChevronUpIcon v-if="open" class="-ml-1 mr-2 h-5 w-5" />
+                <ChevronDownIcon v-if="!open" class="-ml-1 mr-2 h-5 w-5" />
                 <span>Show Stellar Secret</span>
             </DisclosureButton>
-            <DisclosurePanel class="pt-4 pb-2">
+            <DisclosurePanel class="block p-2 border-2 border-slate-500 mt-2" as="code">
                 {{ wallet.keyPair.getStellarKeyPair().secret() }} <br
             /></DisclosurePanel>
         </Disclosure>
-        <Disclosure v-slot="{ open }">
+        <Disclosure v-slot="{ open }" as="div" class="flex flex-col">
             <DisclosureButton
-                class="px-4 py-2 flex justify-between py-2 text-sm font-medium text-left text-primary-500 focus:outline-none mt-4 bg-primary-100"
+                class="px-4 py-2 flex grow py-2 text-sm font-medium rounded-md text-left text-primary-500 focus:outline-none mt-2 bg-primary-100"
             >
+                <ChevronUpIcon v-if="open" class="-ml-1 mr-2 h-5 w-5" />
+                <ChevronDownIcon v-if="!open" class="-ml-1 mr-2 h-5 w-5" />
                 <span>Show entropy in hex</span>
             </DisclosureButton>
-            <DisclosurePanel class="pt-4 pb-2">
-                {{ bytesToHex(wallet.keyPair.getStellarKeyPair().rawSecretKey()) }} <br />
-                {{ wallet.keyPair.getSeed() }} <br />
-            </DisclosurePanel>
+            <DisclosurePanel class="block p-2 border-2 border-slate-500 mt-2" as="code">
+                {{ wallet.keyPair.getSeed() }} <br
+            /></DisclosurePanel>
         </Disclosure>
+
+        <div class="mt-2 flex">
+            <button
+                v-if="!showDeleteWalletConfirmation"
+                :disabled="wallet.meta.type === PkidWalletTypes.Native"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:disabled:ring-0 disabled:bg-gray-500"
+                type="button"
+                @click="showDeleteWalletConfirmation = true"
+            >
+                <TrashIcon aria-hidden="true" class="-ml-1 mr-2 h-5 w-5" />
+                Delete
+            </button>
+            <button
+                v-if="showDeleteWalletConfirmation"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-800 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-700"
+                type="button"
+                @click="deleteWallet"
+            >
+                I agree to delete my wallet
+            </button>
+            <button
+                v-if="showDeleteWalletConfirmation"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 flex-1 justify-center"
+                type="button"
+                @click="showDeleteWalletConfirmation = false"
+            >
+                Cancel
+            </button>
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-    import { saveWallets, addOrUpdateWallet, Wallet } from '@/service/walletService';
+    import { addOrUpdateWallet, saveWallets, Wallet } from '@/service/walletService';
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
-    import { bytesToHex } from '@/util/crypto';
     import { computed, inject, ref } from 'vue';
     import { getSubstrateApi } from '@/service/substrateService';
+    import { TrashIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/solid';
+    import { PkidWalletTypes } from '@/service/initializationService';
+    import { addNotification, NotificationType } from '../../service/notificationService';
 
+    const showDeleteWalletConfirmation = ref(false);
     const wallet: Wallet = <Wallet>inject('wallet');
 
     const test = computed(async () => {
@@ -75,10 +115,14 @@
 
         const newName = newRawName.trim();
 
-        wallet.name = newName;
+        wallet.name = `${newName}`;
         addOrUpdateWallet(wallet);
 
         saveWallets();
+    };
+
+    const deleteWallet = () => {
+        addNotification('not implemented yet', NotificationType.error, 2000);
     };
 </script>
 

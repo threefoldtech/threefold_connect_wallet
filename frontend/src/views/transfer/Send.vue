@@ -13,6 +13,37 @@
                 <QrcodeIcon class="h-5" />
                 <p class="font-medium text-sm">SCAN QR</p>
             </div>
+
+            <div class="mt-1">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-medium text-gray-900">Chain</h2>
+                </div>
+                <RadioGroup class="mt-2" v-model="selectedChain">
+                    <div class="flex gap-3">
+                        <RadioGroupOption
+                            as="template"
+                            v-for="option in ['stellar', 'substrate']"
+                            :key="option"
+                            :value="option"
+                            v-slot="{ active, checked }"
+                        >
+                            <div
+                                :class="[
+                                    active ? 'ring-2 ring-offset-2 ring-primary-500' : '',
+                                    checked
+                                        ? 'bg-primary-600 border-transparent text-white hover:bg-primary-700'
+                                        : 'bg-white border-gray-200 text-gray-900 hover:bg-gray-50',
+                                    'border rounded-md py-3 px-3 flex items-center justify-center text-sm font-medium uppercase flex-1',
+                                ]"
+                            >
+                                <RadioGroupLabel as="p">
+                                    {{ option }}
+                                </RadioGroupLabel>
+                            </div>
+                        </RadioGroupOption>
+                    </div>
+                </RadioGroup>
+            </div>
             <Listbox v-model="selectedWallet" as="div" class="mt-2">
                 <ListboxLabel class="block text-sm font-medium text-gray-700">From</ListboxLabel>
                 <div class="mt-1 relative">
@@ -21,8 +52,11 @@
                     >
                         <span class="w-full inline-flex truncate">
                             <span class="truncate shrink-0">{{ selectedWallet?.name }}</span>
-                            <span class="ml-2 truncate text-gray-500">{{
+                            <span v-if="selectedChain === 'stellar'" class="ml-2 truncate text-gray-500">{{
                                 selectedWallet?.keyPair.getStellarKeyPair().publicKey()
+                            }}</span>
+                            <span v-if="selectedChain === 'substrate'" class="ml-2 truncate text-gray-500">{{
+                                selectedWallet?.keyPair.getSubstrateKeyring().address
                             }}</span>
                         </span>
                         <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -57,8 +91,18 @@
                                         >
                                             {{ wallet?.name }}
                                         </span>
-                                        <span :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']">
+                                        <span
+                                            v-if="selectedChain === 'stellar'"
+                                            :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']"
+                                        >
                                             {{ wallet?.keyPair.getStellarKeyPair().publicKey() }}
+                                        </span>
+
+                                        <span
+                                            v-if="selectedChain === 'substrate'"
+                                            :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']"
+                                        >
+                                            {{ wallet?.keyPair.getSubstrateKeyring().address }}
                                         </span>
                                     </div>
 
@@ -85,18 +129,18 @@
                             id="to"
                             v-model="toAddress"
                             :disabled="relevantAssets.length <= 0"
-                            class="focus:ring-primary-500 focus:border-primary-500 block w-full rounded-none rounded-l-md pl-3 sm:text-sm border-gray-300 disabled:border-gray-300 disabled:bg-gray-50"
+                            class="focus:ring-primary-500 focus:border-primary-500 block w-full rounded-md pl-3 sm:text-sm border-gray-300 disabled:border-gray-300 disabled:bg-gray-50"
                             name="to"
                             placeholder="..."
                             type="text"
                         />
                     </div>
-                    <button
+                    <!--<button
                         class="-ml-px relative inline-flex items-center space-x-2 px-2 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                         type="button"
                     >
                         <UserIcon class="w-6 text-primary-600"></UserIcon>
-                    </button>
+                    </button>-->
                 </div>
             </div>
             <div class="mt-4">
@@ -121,9 +165,7 @@
                             name="currency"
                             :key="`${selectedAsset?.asset_code}-${selectedAsset?.type}`"
                         >
-                            <optgroup v-for="asset in relevantAssets" :label="asset.type">
-                                <option :value="asset">{{ asset.asset_code }}</option>
-                            </optgroup>
+                            <option v-for="asset in relevantAssets" :value="asset">{{ asset.asset_code }}</option>
                         </select>
                     </div>
                 </div>
@@ -156,7 +198,16 @@
     import { UserIcon, CheckIcon, SelectorIcon, ArrowLeftIcon, QrcodeIcon } from '@heroicons/vue/outline';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRoute, useRouter } from 'vue-router';
-    import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue';
+    import {
+        Listbox,
+        ListboxButton,
+        ListboxLabel,
+        ListboxOption,
+        ListboxOptions,
+        RadioGroup,
+        RadioGroupLabel,
+        RadioGroupOption,
+    } from '@headlessui/vue';
     import { computed, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
     import { AssetBalance, Balance, balances, Wallet, wallets } from '@/service/walletService';
@@ -188,17 +239,28 @@
         balances.value.find(t => t.id === selectedWallet?.value.keyPair.getStellarKeyPair().publicKey())
     );
 
+    const selectedChain = ref('stellar');
+
     const relevantAssets = computed(() => {
-        return allowedAssets.filter(asset => {
-            return (selectedBalance.value?.assets.find(balance => balance.name === asset.asset_code)?.amount || 0) > 0;
-        });
+        return allowedAssets
+            .filter(asset => {
+                return (
+                    (selectedBalance.value?.assets.find(balance => balance.name === asset.asset_code)?.amount || 0) > 0
+                );
+            })
+            .filter(asset => {
+                return asset.type === selectedChain.value;
+            });
     });
 
     const selectedAsset = ref(asset || relevantAssets.value[0]);
 
     watch(relevantAssets, (value: Asset[]) => {
+        if (value.length === 0) {
+            return;
+        }
         if (
-            value.findIndex(v => v.type === selectedAsset.value.type && v.asset_code === selectedAsset.value.type) !==
+            value.findIndex(v => v.type === selectedAsset.value?.type && v.asset_code === selectedAsset?.value.type) !==
             -1
         ) {
             return;
@@ -239,6 +301,8 @@
         });
     };
     const scanQr = async () => {
+        if (!(<any>window).flutter_inappwebview) alert('not supported in this browser');
+
         const code = await (<any>window).flutter_inappwebview?.callHandler('SCAN_QR');
 
         const url = new URL(code);

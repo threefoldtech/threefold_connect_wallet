@@ -1,6 +1,4 @@
-<!-- This example requires Tailwind CSS v2.0+ -->
 <template>
-    <!-- Global notification live region, render this permanently at the end of the document -->
     <Portal>
         <div
             aria-live="assertive"
@@ -23,7 +21,29 @@
                             <div class="p-4">
                                 <div class="flex items-start">
                                     <div class="shrink-0">
-                                        <CheckCircleIcon aria-hidden="true" class="h-6 w-6 text-green-400" />
+                                        <CheckCircleIcon
+                                            v-if="notification.type === NotificationType.success"
+                                            aria-hidden="true"
+                                            class="h-6 w-6 text-green-400"
+                                        />
+
+                                        <XCircleIcon
+                                            v-else-if="notification.type === NotificationType.error"
+                                            aria-hidden="true"
+                                            class="h-6 w-6 text-red-400"
+                                        />
+
+                                        <InformationCircleIcon
+                                            v-else-if="notification.type === NotificationType.warning"
+                                            aria-hidden="true"
+                                            class="h-6 w-6 text-amber-400"
+                                        />
+
+                                        <InformationCircleIcon
+                                            v-else
+                                            aria-hidden="true"
+                                            class="h-6 w-6 text-blue-400"
+                                        />
                                     </div>
                                     <div class="ml-3 w-0 flex-1 pt-0.5">
                                         <p class="text-sm font-medium text-gray-900">{{ notification.message }}</p>
@@ -48,8 +68,9 @@
 </template>
 
 <script lang="ts" setup>
-    import { CheckCircleIcon } from '@heroicons/vue/outline';
+    import { CheckCircleIcon, XCircleIcon, InformationCircleIcon } from '@heroicons/vue/outline';
     import { XIcon } from '@heroicons/vue/solid';
     import { notifications } from '@/service/notificationService';
     import { Portal } from '@headlessui/vue';
+    import { NotificationType } from '@/service/notificationService';
 </script>

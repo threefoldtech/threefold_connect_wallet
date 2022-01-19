@@ -156,6 +156,8 @@ export const init = async (name: string, seedString: string) => {
         : purseDocToCheckMigration;
 
     if (!purseDocToCheckFirstWalletInit?.success) {
+        console.info('first wallet init');
+        loadingText.value = { title: 'no data yet', subtitle: 'is this your first time?' };
         await pkid.setDoc('purse', [], true);
     }
 
@@ -163,7 +165,7 @@ export const init = async (name: string, seedString: string) => {
         ? await pkid.getDoc(appKeyPair.value.publicKey, 'purse')
         : purseDocToCheckFirstWalletInit;
 
-    if (!purseDocToCheckFirstWalletInit?.success) {
+    if (!purseDoc?.success) {
         throw new Error('Critical Initialization error: no purseDoc');
     }
 

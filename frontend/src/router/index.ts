@@ -8,6 +8,11 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+    if (to.name === 'dev' || to.name === 'devLogs' || to.name === 'devActions') {
+        next();
+        return;
+    }
+
     if (to.name !== 'init' && !userInitialized.value) {
         next({ name: 'init' });
         return;

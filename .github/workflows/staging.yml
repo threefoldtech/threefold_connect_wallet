@@ -1,0 +1,28 @@
+name: staging
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Log into GitHub Container Registry
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Building wallet-next for production
+        run: docker build . -t threefoldjimber/wallet-next:${{ github.sha }}
+      - name: Push the Docker image
+        run: docker push threefoldjimber/wallet-next:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: jimber-staging-server
+    steps:
+      - name: Pull the Docker image
+        run: docker pull threefoldjimber/wallet-next:${{ github.sha }}
+      - name: Killing old docker
+        run: docker rm -f wallet-next || true
+      - name: Deploy wallet-next
+        run: docker run -d -it --restart=always --network proxy --name wallet-next --env FLAGSMITH_ENVIROMENT_KEY=${{ secrets.FLAGSMITH_ENV_STAGING }} threefoldjimber/wallet-next:${{ github.sha }}

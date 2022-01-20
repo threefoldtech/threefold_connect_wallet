@@ -15,5 +15,5 @@
         },
         "lib": ["esnext", "dom"]
     },
-    "include": ["frontend/src/**/*.ts", "frontend/src/**/*.d.ts", "frontend/src/**/*.tsx", "frontend/src/**/*.vue"]
+    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

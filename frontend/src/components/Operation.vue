@@ -12,7 +12,7 @@
                             </template>
                         </PageHeader>
                     </template>
-                    <div>
+                    <div class="p-4">
                         <pre class="text-sm break-all whitespace-pre-wrap">{{ operation }}</pre>
                     </div>
                 </MainLayout>
@@ -20,25 +20,45 @@
         </div>
     </Dialog>
     <div class="py-2 text-sm tracking-tight group" @click="isOpen = true">
-        <div class="text-red-600">{{ operation.type }}</div>
-        <div v-if="operation.type === 'payment'">
-            <div class="break-all">
-                {{
-                    operation?.from === wallet.keyPair.getStellarKeyPair().publicKey() ? operation?.to : operation?.from
-                }}
-            </div>
+        <div v-if="operation.type === 'payment'" class="flex items-center justify-between gap-4">
             <div
+                class="w-8 h-8 rounded-full shrink-0"
                 :class="{
-                    'text-green-600': operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
-                    'text-red-600': operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
+                    'bg-green-600': operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
+                    'bg-red-600': operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                 }"
-            >
-                {{ operation?.asset_code }} {{ Number(operation?.amount).toLocaleString() }}
+            ></div>
+            <div class="flex flex-col flex-1 overflow-hidden">
+                <div class="overflow-hidden overflow-ellipsis text-ellipsis">
+                    {{
+                        operation?.from === wallet.keyPair.getStellarKeyPair().publicKey()
+                            ? operation?.to
+                            : operation?.from
+                    }}
+                </div>
+                <div
+                    :class="{
+                        'text-green-600': operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
+                        'text-red-600': operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
+                    }"
+                >
+                    {{ operation?.asset_code }} {{ Number(operation?.amount).toLocaleString() }}
+                </div>
             </div>
-            <div>{{ operation?.created_at }}</div>
+            <div class="shrink-0">
+                {{ formatTime(operation.created_at) }}
+            </div>
         </div>
-        <div v-else-if="operation.type === 'change_trust'">{{ operation.asset_code }} asset added</div>
-        <div v-else-if="operation.type === 'create_account'">account created</div>
+        <div v-else-if="operation.type === 'change_trust'" class="flex items-center justify-between gap-4">
+            <div class="w-8 h-8 bg-blue-600 rounded-full shrink-0"></div>
+            <div class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                {{ operation.asset_code }} asset added
+            </div>
+            <div>
+                {{ formatTime(operation.created_at) }}
+            </div>
+        </div>
+        <div class="shrink-0" v-else-if="operation.type === 'create_account'">account created</div>
     </div>
 </template>
 
@@ -52,6 +72,7 @@
     import { ref } from 'vue';
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
+    import { formatTime } from '../util/time';
 
     interface IProps {
         operation: OperationRecord;

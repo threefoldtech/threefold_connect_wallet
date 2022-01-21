@@ -24,6 +24,7 @@ export class WalletKeyPair {
         const keyring = new Keyring({ type: 'ed25519' });
         this.substrateKeyring = keyring.addFromSeed(bytes);
     }
+
     getStellarKeyPair(): StellarKeypair {
         return this.stellarKeyPair;
     }
@@ -38,5 +39,9 @@ export class WalletKeyPair {
 
     getBasePublicKey(): string {
         return this.basePublicKey;
+    }
+    static random(): WalletKeyPair {
+        const seed = bytesToHex(libsodium.randombytes_buf(32));
+        return new WalletKeyPair(seed);
     }
 }

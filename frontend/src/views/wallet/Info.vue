@@ -75,6 +75,10 @@
                 Cancel
             </button>
         </div>
+
+        <div class="mt-2">
+            <button class="bg-blue-200 rounded-md px-4 py-2" @click="testSend">test</button>
+        </div>
     </div>
 </template>
 
@@ -86,6 +90,7 @@
     import { TrashIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/solid';
     import { PkidWalletTypes } from '@/service/initializationService';
     import { addNotification, NotificationType } from '../../service/notificationService';
+    import { sendTokens } from '../../service/substrateService';
 
     const showDeleteWalletConfirmation = ref(false);
     const wallet: Wallet = <Wallet>inject('wallet');
@@ -123,6 +128,11 @@
 
     const deleteWallet = () => {
         addNotification('not implemented yet', NotificationType.error, 2000);
+    };
+
+    const testSend = () => {
+        console.log(wallet);
+        sendTokens(wallet.keyPair.getSubstrateKeyring(), '5DiwPcPzCmj3i4TFFUtXfb4wUk8h5YapMuz6qnqzDL914EbL');
     };
 </script>
 

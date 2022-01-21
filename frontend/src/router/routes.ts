@@ -6,6 +6,8 @@ import Transactions from '@/views/wallet/Transactions.vue';
 import Vesting from '@/views/wallet/Vesting.vue';
 import PathNotFound from '@/views/PathNotFound.vue';
 import Init from '@/views/Init.vue';
+import FarmerInit from '@/views/FarmerInit.vue';
+import Farmer from '@/views/Farmer.vue';
 import TestView from '@/views/TestView.vue';
 import WalletImport from '@/views/WalletImport.vue';
 import WalletShell from '@/views/wallet/WalletShell.vue';
@@ -37,12 +39,21 @@ interface Route extends _RouteRecordBase {
     };
 }
 
+const farmerOnly = true;
+
 export const routes: Route[] = [
+    {
+        path: '/farmer',
+        name: 'farmer',
+        component: Farmer,
+    },
+    /*
     {
         path: '/',
         name: 'walletList',
         component: WalletList,
     },
+    */
     {
         path: '/dev',
         name: 'dev',
@@ -72,6 +83,7 @@ export const routes: Route[] = [
             ],
         },
     },
+    /*
     {
         path: '/listBalances',
         name: 'test',
@@ -153,18 +165,21 @@ export const routes: Route[] = [
             },
         ],
     },
+    */
     {
         path: '/init',
         name: 'init',
-        component: Init,
+        component: farmerOnly ? FarmerInit : Init,
         props: true,
     },
+    /*
     {
         path: '/firstWalletInit',
         name: 'firstWalletInit',
         component: FirstWalletInit,
         props: true,
     },
+    */
     {
         path: '/404',
         name: '404',

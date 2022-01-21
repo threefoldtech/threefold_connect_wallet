@@ -2,7 +2,9 @@ import types from '@/lib/substrateTypes';
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { ref } from 'vue';
-import { AssetBalance, Balance, wallets } from '@/service/walletService';
+import { AssetBalance } from '@/service/walletService';
+import { IKeyringPair } from '@polkadot/types/types/interfaces';
+import { bin2String } from '@/util/crypto';
 
 //@todo: move to flagsmith
 const endpoint = 'wss://tfchain.test.grid.tf';
@@ -29,4 +31,47 @@ export const getSubstrateAssetBalances = async (publicKey: string): Promise<Asse
         type: 'substrate',
     };
     return [assetBalance];
+};
+
+export const sendTokens = async (keyring: IKeyringPair, address: string) => {
+    const api = await getSubstrateApi();
+
+    const submittableExtrinsic = api.tx.balances.transfer(address, 1);
+    const resHash = await submittableExtrinsic.signAndSend(keyring);
+
+    console.log(resHash);
+
+    return resHash;
+};
+export const hex2a = (hex: string) => {
+    let str = '';
+    for (let i = 0; i < hex.length; i += 2) {
+        const v = parseInt(hex.substr(i, 2), 16);
+        if (v) str += String.fromCharCode(v);
+    }
+    return str;
+};
+export const getTwinId = async (id: string) => {
+    const api = await getSubstrateApi();
+
+    const entity = await api.query.tfgridModule.twinIdByAccountID(id);
+
+    const res = <any>entity.toJSON();
+    return <number>res;
+};
+
+export const getUsersTermsAndConditions = async (
+    id: string
+): Promise<[{ document_link: string; account_id: string; document_hash: string; timestamp: number }]> => {
+    const api = await getSubstrateApi();
+    // @ts-ignore
+    const arr: any[] = await api.query.tfgridModule.usersTermsAndConditions(id);
+    return <any>arr.map((term: any) => {
+        const newTerm = JSON.parse(JSON.stringify(term));
+        //@ts-ignore
+        newTerm.document_link = bin2String(term.document_link);
+        //@ts-ignore
+        newTerm.document_hash = bin2String(term.document_hash);
+        return newTerm;
+    });
 };

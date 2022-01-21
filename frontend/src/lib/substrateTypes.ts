@@ -45,6 +45,7 @@ export default {
         created: 'u64',
         farming_policy_id: 'u32',
         interfaces: 'Vec<Interface>',
+        certification_type: 'CertificationType',
     },
     PublicConfig: {
         ipv4: 'Vec<u8>',
@@ -130,7 +131,13 @@ export default {
         amount_unbilled: 'u64',
     },
     ContractState: {
-        _enum: ['Created', 'Deleted', 'OutOfFunds'],
+        _enum: {
+            Created: null,
+            Deleted: 'Cause',
+        },
+    },
+    Cause: {
+        _enum: ['CanceledByUser', 'OutOfFunds'],
     },
     Consumption: {
         contract_id: 'u64',
@@ -166,8 +173,11 @@ export default {
         discount_level: 'DiscountLevel',
         amount_billed: 'u128',
     },
+    PalletStorageVersion: {
+        _enum: ['V1', 'V2', 'V3'],
+    },
     StorageVersion: {
-        _enum: ['V1Struct', 'V2Struct'],
+        _enum: ['V1Struct', 'V2Struct', 'V3Struct'],
     },
     Address: 'MultiAddress',
     LookupSource: 'MultiAddress',
@@ -217,5 +227,17 @@ export default {
         block: 'BlockNumber',
         message: 'Vec<u8>',
     },
+    ValueStruct: {
+        value: 'U16F16',
+    },
     AccountInfo: 'AccountInfoWithProviders',
+    Keys: 'SessionKeys2',
+    SessionKeys1: '(AccountId)',
+    SessionKeys2: '(AccountId, AccountId)',
+    TermsAndConditions: {
+        account_id: 'AccountId',
+        timestamp: 'u64',
+        document_link: 'Vec<u8>',
+        document_hash: 'Vec<u8>',
+    },
 };

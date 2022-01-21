@@ -51,8 +51,11 @@
             </Listbox>
         </div>
         <div>
-            <div class="divide-y-2">
-                <Operation v-for="operation in computedOperations" :operation="operation" :wallet="wallet" />
+            <div>
+                <template v-for="(operation, index) in computedOperations">
+                    <div class="ml-4 w-0.5 h-4 bg-slate-200" v-if="index !== 0"></div>
+                    <Operation :operation="operation" :wallet="wallet" />
+                </template>
             </div>
         </div>
     </div>

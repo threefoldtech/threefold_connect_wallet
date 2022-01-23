@@ -39,7 +39,7 @@ interface Route extends _RouteRecordBase {
     };
 }
 
-const farmerOnly = true;
+const farmerOnly = true; //@todo: remove this for wallet
 
 export const routes: Route[] = [
     {
@@ -47,13 +47,11 @@ export const routes: Route[] = [
         name: 'farmer',
         component: Farmer,
     },
-    /*
     {
         path: '/',
         name: 'walletList',
         component: WalletList,
     },
-    */
     {
         path: '/dev',
         name: 'dev',
@@ -83,7 +81,6 @@ export const routes: Route[] = [
             ],
         },
     },
-    /*
     {
         path: '/listBalances',
         name: 'test',
@@ -165,21 +162,18 @@ export const routes: Route[] = [
             },
         ],
     },
-    */
     {
         path: '/init',
         name: 'init',
         component: farmerOnly ? FarmerInit : Init,
         props: true,
     },
-    /*
     {
         path: '/firstWalletInit',
         name: 'firstWalletInit',
         component: FirstWalletInit,
         props: true,
     },
-    */
     {
         path: '/404',
         name: '404',

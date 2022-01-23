@@ -3,7 +3,7 @@
         <template #header>
             <PageHeader>
                 <h1>Farmer</h1>
-                <template #after>
+                <template #after v-if="canCreateWallet">
                     <PlusCircleIcon class="h-8 text-gray-600 cursor-pointer" @click="createWallet()" />
                 </template>
             </PageHeader>
@@ -20,12 +20,15 @@
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { saveWallets, wallets } from '@/service/walletService';
-    import FarmerWalletCard from '@/views/FarmerWalletCard.vue';
+    import FarmerWalletCard from '@/components/FarmerWalletCard.vue';
 
     import { PlusCircleIcon } from '@heroicons/vue/outline';
     import { nanoid } from 'nanoid';
     import { PkidWalletTypes } from '@/service/initializationService';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
+    import flagsmith from 'flagsmith';
+
+    const canCreateWallet = flagsmith.hasFeature('can_create_wallet_for_farmer');
 
     const createWallet = async () => {
         const walletKeyPair = WalletKeyPair.random();

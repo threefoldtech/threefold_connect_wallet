@@ -1,5 +1,5 @@
 <template>
-    <Dialog :open="true" as="div" class="fixed inset-0 z-50">
+    <Dialog :open="true" as="div" class="fixed inset-0 z-30">
         <MainLayout>
             <template #header>
                 <PageHeader>

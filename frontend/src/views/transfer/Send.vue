@@ -236,7 +236,7 @@
         wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0];
 
     const selectedBalance = computed(() =>
-        balances.value.find(t => t.id === selectedWallet?.value.keyPair.getStellarKeyPair().publicKey())
+        balances.value.find(t => t.id === selectedWallet?.value?.keyPair.getStellarKeyPair().publicKey())
     );
 
     const selectedChain = ref('stellar');
@@ -293,7 +293,7 @@
         await router.replace({
             name: 'confirmSend',
             params: {
-                from: selectedWallet.value.keyPair.getStellarKeyPair().publicKey(),
+                from: selectedWallet.value?.keyPair.getStellarKeyPair().publicKey(),
                 to: toAddress.value,
                 amount: Number(amount.value),
                 asset: selectedAsset.value.asset_code,

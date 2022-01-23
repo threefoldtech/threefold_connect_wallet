@@ -558,7 +558,7 @@
             'Content-Type': 'application/json',
         };
 
-        const url = 'https://activation.test.grid.tf/activation/activate';
+        const url = `${flagsmith.getValue('tfchain_activation_base_url')}/activation/activate`;
         const data = { substrateAccountID: id };
 
         const response = await axios.post(url, data, { headers });

@@ -5,15 +5,14 @@ import { ref } from 'vue';
 import { AssetBalance } from '@/service/walletService';
 import { IKeyringPair } from '@polkadot/types/types/interfaces';
 import { bin2String } from '@/util/crypto';
-
-//@todo: move to flagsmith
-const endpoint = 'wss://tfchain.test.grid.tf';
+import flagsmith from 'flagsmith';
 
 const apiCache = ref<Promise<ApiPromise>>();
 
 export const getSubstrateApi = async (): Promise<ApiPromise> => {
     if (apiCache.value) return apiCache.value;
 
+    const endpoint = <string>flagsmith.getValue('tfchain_endpoint');
     const provider = new WsProvider(endpoint);
     apiCache.value = ApiPromise.create({ provider, types });
     return apiCache.value;

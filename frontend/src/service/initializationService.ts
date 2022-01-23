@@ -192,7 +192,14 @@ export const init = async (name: string, seedString: string) => {
 
 const mapV2toV3PkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet): PkidWallet => {
     const isImported = wallet.index === -1;
-    const seedPhrase = isImported ? entropyToMnemonic((wallet as PkidV2ImportedWallet).seed) : appSeedPhrase.value;
+    let entropyInput = new Uint8Array((wallet as PkidV2ImportedWallet).seed?.data);
+    if (entropyInput.length === 0) {
+        entropyInput = (wallet as PkidV2ImportedWallet).seed;
+    }
+    if (entropyInput.length === 0) {
+        throw new Error('no entropy input');
+    }
+    const seedPhrase = isImported ? entropyToMnemonic(entropyInput) : appSeedPhrase.value;
 
     const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, wallet.index);
     const walletKeypair: Keypair = keypairFromAccount(walletEntropy);

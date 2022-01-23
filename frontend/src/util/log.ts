@@ -3,7 +3,6 @@ import { ref } from 'vue';
 export const logs = ref<any[]>([]);
 
 export const overrideConsole = () => {
-    return;
     const console: any = window.console;
     if (!console) {
         return;

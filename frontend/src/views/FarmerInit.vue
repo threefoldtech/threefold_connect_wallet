@@ -57,10 +57,6 @@
             });
     }
 
-    getSubstrateApi().then(api => {
-        console.log(api.tx.tfgridModule.createTwin);
-    });
-
     if (!isDev && !overrideIsDev.value) {
         //@ts-ignore
         globalThis.init = (name: string, seedString: string) => {

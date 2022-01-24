@@ -1,6 +1,6 @@
 <template>
     <div
-        class="rounded-full bg-primary-600 h-10 text-white text-2xl font-semibold flex items-center justify-center cursor-pointer active:bg-primary-400"
+        class="flex h-10 cursor-pointer items-center justify-center rounded-full bg-primary-600 text-2xl font-semibold text-white active:bg-primary-400"
     >
         <slot>
             <PlusIcon class="h-6" />

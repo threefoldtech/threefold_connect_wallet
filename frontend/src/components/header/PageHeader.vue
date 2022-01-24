@@ -1,15 +1,15 @@
 <template>
-    <div class="h-full flex">
-        <div class="h-16 w-16 p-4 grid place-items-center shrink-0">
+    <div class="flex h-full">
+        <div class="grid h-16 w-16 shrink-0 place-items-center p-4">
             <slot name="before"></slot>
         </div>
         <div
-            class="grow flex flex-col justify-center items-center font-semibold leading-tight text-lg overflow-auto px-0"
+            class="flex grow flex-col items-center justify-center overflow-auto px-0 text-lg font-semibold leading-tight"
             @click="inc()"
         >
             <slot></slot>
         </div>
-        <div class="h-16 w-16 p-4 grid place-items-center shrink-0">
+        <div class="grid h-16 w-16 shrink-0 place-items-center p-4">
             <slot name="after"></slot>
         </div>
     </div>

@@ -1,8 +1,8 @@
 <template>
-    <div :class="{ 'debug-screens': isDev }" class="h-full w-full flex items-center justify-center text-center">
+    <div :class="{ 'debug-screens': isDev }" class="flex h-full w-full items-center justify-center text-center">
         <div>
             <svg
-                class="animate-spin h-32 text-primary-600"
+                class="h-32 animate-spin text-primary-600"
                 fill="none"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"

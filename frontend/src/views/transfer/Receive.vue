@@ -18,12 +18,12 @@
         />
     </MainLayout>
 
-    <Dialog as="div" class="fixed z-10 inset-0 overflow-y-auto" v-if="showImage" open>
-        <div class="flex min-h-screen text-center md:block md:px-2 lg:px-4 bg-white" @click="showImage = false">
-            <span class="hidden md:inline-block md:align-middle md:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="p-4 flex flex-col justify-center w-screen h-screen">
+    <Dialog as="div" class="fixed inset-0 z-10 overflow-y-auto" v-if="showImage" open>
+        <div class="flex min-h-screen bg-white text-center md:block md:px-2 lg:px-4" @click="showImage = false">
+            <span class="hidden md:inline-block md:h-screen md:align-middle" aria-hidden="true">&#8203;</span>
+            <div class="flex h-screen w-screen flex-col justify-center p-4">
                 <img
-                    class="object-contain z-50 h-full w-full"
+                    class="z-50 h-full w-full object-contain"
                     v-if="imageUrl"
                     :src="imageUrl"
                     alt="qr-code"
@@ -33,7 +33,7 @@
             </div>
         </div>
         <div class="fixed top-2 right-2">
-            <XIcon class="w-12 h-12 text-gray-800" @click="showImage = false" />
+            <XIcon class="h-12 w-12 text-gray-800" @click="showImage = false" />
         </div>
     </Dialog>
 </template>

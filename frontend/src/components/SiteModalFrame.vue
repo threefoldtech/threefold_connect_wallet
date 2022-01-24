@@ -6,7 +6,7 @@
                     <h1>{{ title }}</h1>
 
                     <template #after>
-                        <XIcon class="h-8 text-gray-600 cursor-pointer" @click="$emit('close')" />
+                        <XIcon class="h-8 cursor-pointer text-gray-600" @click="$emit('close')" />
                     </template>
                 </PageHeader>
             </template>

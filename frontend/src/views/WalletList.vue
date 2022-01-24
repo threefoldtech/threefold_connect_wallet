@@ -19,7 +19,7 @@
                         :class="{
                             hidden: !showHint,
                         }"
-                        class="inline-flex items-center px-3 py-1 rounded-full rounded-br-none text-xs font-medium bg-blue-100 text-blue-800"
+                        class="inline-flex items-center rounded-full rounded-br-none bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800"
                     >
                         Import Wallet
                     </span>
@@ -27,7 +27,7 @@
                 <FAB title="Import wallet" @click="router.push({ name: 'walletImport' })" />
             </div>
         </template>
-        <div v-if="!showMove" class="p-4 space-y-2 flex flex-col">
+        <div v-if="!showMove" class="flex flex-col space-y-2 p-4">
             <WalletCard
                 v-for="wallet in sortedWallets"
                 v-touch:hold="enableMove"
@@ -41,7 +41,7 @@
                 "
             />
         </div>
-        <div v-if="showMove" class="p-4 space-y-2 flex flex-col">
+        <div v-if="showMove" class="flex flex-col space-y-2 p-4">
             <div v-for="(wallet, index) in sortedWallets">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
@@ -60,14 +60,14 @@
         </div>
         <div
             v-if="wallets.length === 0"
-            class="rounded-2xl border p-4 flex flex-col"
+            class="flex flex-col rounded-2xl border p-4"
             @click="router.push({ name: 'firstWalletInit' })"
         >
             <div class="">
                 <p class="font-semibold">Daily</p>
             </div>
             <div class="">
-                <button class="px-4 bg-primary-600 text-white py-2 rounded-md">create initial wallet</button>
+                <button class="rounded-md bg-primary-600 px-4 py-2 text-white">create initial wallet</button>
             </div>
         </div>
     </MainLayout>

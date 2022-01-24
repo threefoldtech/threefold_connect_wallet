@@ -15,7 +15,7 @@
                     <input
                         id="Wallet Name"
                         v-model="name"
-                        class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                         name="Wallet Name"
                         type="text"
                     />
@@ -27,7 +27,7 @@
                     <textarea
                         id="secret"
                         v-model="secret"
-                        class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full border-gray-300 rounded-md resize-none text-lg"
+                        class="block w-full resize-none rounded-md border-gray-300 text-lg shadow-sm focus:border-primary-500 focus:ring-primary-500"
                         name="secret"
                         rows="4"
                     />
@@ -35,10 +35,10 @@
             </div>
             <Disclosure v-slot="{ open }">
                 <DisclosureButton
-                    class="px-0 flex justify-between w-full py-2 text-sm font-medium text-left text-primary-500 focus:outline-none mt-4"
+                    class="mt-4 flex w-full justify-between px-0 py-2 text-left text-sm font-medium text-primary-500 focus:outline-none"
                 >
                     <span>Advanced</span>
-                    <ChevronUpIcon :class="open ? '' : 'transform rotate-180'" class="w-5 h-5" />
+                    <ChevronUpIcon :class="open ? '' : 'rotate-180 transform'" class="h-5 w-5" />
                 </DisclosureButton>
                 <DisclosurePanel class="pt-4 pb-2">
                     <div>
@@ -47,7 +47,7 @@
                             <input
                                 id="walletindex"
                                 v-model="walletIndex"
-                                class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                                 name="walletindex"
                                 type="number"
                             />
@@ -56,7 +56,7 @@
                 </DisclosurePanel>
             </Disclosure>
             <div class="mt-4 flex">
-                <button class="px-4 py-2 text-white bg-blue-600 rounded-md flex-1" @click="importWallet">
+                <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white" @click="importWallet">
                     Import Wallet
                 </button>
             </div>

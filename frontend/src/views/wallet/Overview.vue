@@ -1,8 +1,8 @@
 <template>
-    <div class="p-4 space-y-2">
+    <div class="space-y-2 p-4">
         <div class="flex justify-around">
             <RouterLink :to="{ name: 'send', params: { from: wallet.keyPair.getStellarKeyPair().publicKey() } }">
-                <div class="bg-gray-200 w-16 h-16 border-2 border-gray-300 rounded-xl flex justify-center items-center">
+                <div class="flex h-16 w-16 items-center justify-center rounded-xl border-2 border-gray-300 bg-gray-200">
                     <svg fill="none" height="30" viewBox="0 0 20 30" width="20" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M9.40452 0.271386L6.2431 3.71681C5.91718 4.0708 5.91718 4.64897 6.25396 5.00295C6.57988 5.35693 7.11222 5.35693 7.43814 5.00295L9.16552 3.11504L9.16552 9.66347C9.16552 10.1255 9.54004 10.5 10.002 10.5C10.464 10.5 10.8386 10.1255 10.8386 9.66347L10.8386 3.11504L12.566 5.00295C12.8919 5.35693 13.4242 5.35693 13.7501 5.00295C13.9131 4.82596 14 4.58997 14 4.35398C14 4.12979 13.9131 3.8938 13.7501 3.71681L10.5887 0.271386C10.4366 0.0943945 10.2193 -1.84433e-07 10.002 -1.74935e-07C9.7739 -1.64962e-07 9.56748 0.0943945 9.40452 0.271386Z"
@@ -16,7 +16,7 @@
                         />
                     </svg>
                 </div>
-                <div class="font-semibold font-sm text-gray-600 tracking-wide text-center mt-2">
+                <div class="font-sm mt-2 text-center font-semibold tracking-wide text-gray-600">
                     Send <br />
                     Coins
                 </div>
@@ -24,7 +24,7 @@
             <RouterLink
                 :to="{ name: 'receive', params: { toAddress: wallet.keyPair.getStellarKeyPair().publicKey() } }"
             >
-                <div class="bg-gray-200 w-16 h-16 border-2 border-gray-300 rounded-xl flex justify-center items-center">
+                <div class="flex h-16 w-16 items-center justify-center rounded-xl border-2 border-gray-300 bg-gray-200">
                     <svg fill="none" height="30" viewBox="0 0 20 30" width="20" xmlns="http://www.w3.org/2000/svg">
                         <path
                             clip-rule="evenodd"
@@ -38,7 +38,7 @@
                         />
                     </svg>
                 </div>
-                <div class="font-semibold font-sm text-gray-600 tracking-wide text-center mt-2">
+                <div class="font-sm mt-2 text-center font-semibold tracking-wide text-gray-600">
                     <p>
                         Receive <br />
                         Coins
@@ -49,7 +49,7 @@
         <hr />
         <div class="py-2">
             <h2>Assets</h2>
-            <div class="space-y-2 mt-4">
+            <div class="mt-4 space-y-2">
                 <template v-for="assetBalance in assets">
                     <BalanceCard
                         :balance="assetBalance"
@@ -58,7 +58,7 @@
                         <template v-if="assetBalance.type === 'substrate' && assetBalance.name === 'TFT'" #actions>
                             <button
                                 type="button"
-                                class="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                                class="inline-flex items-center rounded-md border border-transparent bg-primary-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                                 @click.stop="$router.push('/devLogs')"
                             >
                                 Transfer with stellar

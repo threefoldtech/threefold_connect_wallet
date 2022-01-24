@@ -1,5 +1,5 @@
 <template>
-    <div class="rounded-2xl border p-4 flex flex-col">
+    <div class="flex flex-col rounded-2xl border p-4">
         <div class="">
             <p class="font-semibold">{{ name }}</p>
             <small v-if="balance && balance.assets && balance?.assets.filter(a => a.amount > 0).length === 0"
@@ -7,7 +7,7 @@
             >
         </div>
         <hr
-            class="border-gray-300 my-2"
+            class="my-2 border-gray-300"
             v-if="balance && balance.assets && balance?.assets.filter(asset => asset.amount > 0)?.length >= 1"
         />
         <div>

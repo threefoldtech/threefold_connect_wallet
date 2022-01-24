@@ -4,23 +4,23 @@
             <PageHeader>
                 <h1>Farmer</h1>
                 <template #after v-if="canCreateWallet">
-                    <PlusCircleIcon class="h-8 text-gray-600 cursor-pointer" @click="createWallet()" />
+                    <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createWallet()" />
                 </template>
             </PageHeader>
         </template>
-        <div class="p-4 bg-gray-200 min-h-full" v-if="grid2Wallets.length > 0">
-            <h2 class="font-medium py-2">Wallets found with farms in Gridv2</h2>
+        <div class="min-h-full bg-gray-200 p-4" v-if="grid2Wallets.length > 0">
+            <h2 class="py-2 font-medium">Wallets found with farms in Gridv2</h2>
             <ul role="list" class="grid grid-cols-1 gap-6">
                 <FarmerWalletCard :wallet="wallet" v-for="wallet in grid2Wallets" />
             </ul>
             <hr class="my-4 border-primary-400" />
-            <h2 class="font-medium py-2">Rest Wallets</h2>
+            <h2 class="py-2 font-medium">Rest Wallets</h2>
             <ul role="list" class="grid grid-cols-1 gap-6">
                 <FarmerWalletCard :wallet="wallet" v-for="wallet in restWallets" />
             </ul>
         </div>
-        <div class="p-4 bg-gray-200 min-h-full" v-else>
-            <h2 class="font-medium py-2">No wallets found with farms in Gridv2</h2>
+        <div class="min-h-full bg-gray-200 p-4" v-else>
+            <h2 class="py-2 font-medium">No wallets found with farms in Gridv2</h2>
             <ul role="list" class="grid grid-cols-1 gap-6">
                 <FarmerWalletCard :wallet="wallet" v-for="wallet in wallets" />
             </ul>

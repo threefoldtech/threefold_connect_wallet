@@ -4,15 +4,15 @@
             <h2 class="text-lg font-bold uppercase">logs</h2>
             <button
                 @click="copyToClipboard(logs)"
-                class="flex items-center justify-between px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                class="flex items-center justify-between rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
-                <ClipboardCopyIcon class="h-6 mr-2" />
+                <ClipboardCopyIcon class="mr-2 h-6" />
                 <span class="block text-sm">copy all logs</span>
             </button>
             <hr class="mt-3 border-primary-500" />
             <div>
                 <dl
-                    class="mt-3 grid grid-cols-1 rounded-lg bg-white overflow-hidden divide-y divide-gray-200 md:divide-y-0 md:divide-x"
+                    class="mt-3 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white md:divide-y-0 md:divide-x"
                 >
                     <div
                         v-for="(log, index) in logs"
@@ -34,23 +34,23 @@
                             'bg-gray-100': log.level === 'log' && index % 2 === 1,
                             'bg-gray-300': log.level === 'log' && index % 2 === 0,
                         }"
-                        class="px-4 py-5 sm:p-6 relative"
+                        class="relative px-4 py-5 sm:p-6"
                     >
                         <dt class="text-base font-normal">
                             {{ log.level }}
                         </dt>
                         <span class="text-sm font-medium text-gray-500"> from {{ log.timestamp }} </span>
 
-                        <dd class="mt-1 flex justify-between logs-baseline md:block lg:flex">
-                            <div class="flex logs-baseline text-sm font-semibold overflow-auto">
+                        <dd class="logs-baseline mt-1 flex justify-between md:block lg:flex">
+                            <div class="logs-baseline flex overflow-auto text-sm font-semibold">
                                 <pre class="whitespace-pre-wrap">{{ log.args }}</pre>
                             </div>
                         </dd>
                         <button
                             @click="copyToClipboard(log)"
-                            class="absolute right-2 top-2 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                            class="absolute right-2 top-2 inline-flex items-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                         >
-                            <ClipboardCopyIcon class="h-6 mr-2" />
+                            <ClipboardCopyIcon class="mr-2 h-6" />
                             <span class="block text-sm">copy</span>
                         </button>
                     </div>

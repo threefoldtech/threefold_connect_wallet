@@ -7,7 +7,7 @@
                 <input
                     id="name"
                     :value="wallet.name"
-                    class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                     name="name"
                     type="text"
                     @change="updateWalletName"
@@ -15,34 +15,34 @@
             </div>
         </div>
         <div class="mt-2">
-            <code class="block p-2 border-2 border-slate-500">{{
+            <code class="block border-2 border-slate-500 p-2">{{
                 wallet.keyPair.getStellarKeyPair().publicKey()
             }}</code>
-            <code class="block p-2 border-2 border-slate-500 mt-2">{{
+            <code class="mt-2 block border-2 border-slate-500 p-2">{{
                 wallet.keyPair.getSubstrateKeyring().address
             }}</code>
         </div>
         <Disclosure v-slot="{ open }" as="div" class="flex flex-col">
             <DisclosureButton
-                class="px-4 py-2 flex grow py-2 text-sm font-medium rounded-md text-left text-primary-500 focus:outline-none mt-2 bg-primary-100"
+                class="mt-2 flex grow rounded-md bg-primary-100 px-4 py-2 py-2 text-left text-sm font-medium text-primary-500 focus:outline-none"
             >
                 <ChevronUpIcon v-if="open" class="-ml-1 mr-2 h-5 w-5" />
                 <ChevronDownIcon v-if="!open" class="-ml-1 mr-2 h-5 w-5" />
                 <span>Show Stellar Secret</span>
             </DisclosureButton>
-            <DisclosurePanel class="block p-2 border-2 border-slate-500 mt-2" as="code">
+            <DisclosurePanel class="mt-2 block border-2 border-slate-500 p-2" as="code">
                 {{ wallet.keyPair.getStellarKeyPair().secret() }} <br
             /></DisclosurePanel>
         </Disclosure>
         <Disclosure v-slot="{ open }" as="div" class="flex flex-col">
             <DisclosureButton
-                class="px-4 py-2 flex grow py-2 text-sm font-medium rounded-md text-left text-primary-500 focus:outline-none mt-2 bg-primary-100"
+                class="mt-2 flex grow rounded-md bg-primary-100 px-4 py-2 py-2 text-left text-sm font-medium text-primary-500 focus:outline-none"
             >
                 <ChevronUpIcon v-if="open" class="-ml-1 mr-2 h-5 w-5" />
                 <ChevronDownIcon v-if="!open" class="-ml-1 mr-2 h-5 w-5" />
                 <span>Show entropy in hex</span>
             </DisclosureButton>
-            <DisclosurePanel class="block p-2 border-2 border-slate-500 mt-2" as="code">
+            <DisclosurePanel class="mt-2 block border-2 border-slate-500 p-2" as="code">
                 {{ wallet.keyPair.getSeed() }} <br
             /></DisclosurePanel>
         </Disclosure>
@@ -51,7 +51,7 @@
             <button
                 v-if="!showDeleteWalletConfirmation"
                 :disabled="wallet.meta.type === PkidWalletTypes.Native"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:disabled:ring-0 disabled:bg-gray-500"
+                class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-500 focus:disabled:ring-0"
                 type="button"
                 @click="showDeleteWalletConfirmation = true"
             >
@@ -60,7 +60,7 @@
             </button>
             <button
                 v-if="showDeleteWalletConfirmation"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-800 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-700"
+                class="inline-flex items-center rounded-md border border-transparent bg-red-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-700 focus:ring-offset-2"
                 type="button"
                 @click="deleteWallet"
             >
@@ -68,7 +68,7 @@
             </button>
             <button
                 v-if="showDeleteWalletConfirmation"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 flex-1 justify-center"
+                class="inline-flex flex-1 items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2"
                 type="button"
                 @click="showDeleteWalletConfirmation = false"
             >
@@ -77,7 +77,7 @@
         </div>
 
         <div class="mt-2">
-            <button class="bg-blue-200 rounded-md px-4 py-2" @click="testSend">test</button>
+            <button class="rounded-md bg-blue-200 px-4 py-2" @click="testSend">test</button>
         </div>
     </div>
 </template>

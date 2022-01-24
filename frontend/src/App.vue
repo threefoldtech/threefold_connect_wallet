@@ -1,7 +1,7 @@
 <template>
     <RouterView />
     <Notifications />
-    <div class="fixed top-2 right-2 text-gray-300 text-xs font-light select-none z-50" @click="inc()">
+    <div class="fixed top-2 right-2 z-50 select-none text-xs font-light text-gray-300" @click="inc()">
         {{ version }}
     </div>
 </template>

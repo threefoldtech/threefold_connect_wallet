@@ -1,15 +1,15 @@
 <template>
-    <div class="p-4 space-y-2">
+    <div class="space-y-2 p-4">
         <div>
             <p>Filter by currency</p>
             <Listbox v-model="selectedAsset">
                 <div class="relative mt-1">
                     <ListboxButton
-                        class="relative w-full py-2 pl-3 pr-10 text-left bg-white rounded-lg border-2 border-gray-200 cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-orange-300 focus-visible:ring-offset-2 focus-visible:border-primary-500 sm:text-sm"
+                        class="relative w-full cursor-default rounded-lg border-2 border-gray-200 bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
                     >
                         <span class="block truncate">{{ selectedAsset }}</span>
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                            <SelectorIcon aria-hidden="true" class="w-5 h-5 text-gray-400" />
+                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                            <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />
                         </span>
                     </ListboxButton>
 
@@ -19,7 +19,7 @@
                         leave-to-class="opacity-0"
                     >
                         <ListboxOptions
-                            class="absolute w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md max-h-60 border-2 border-gray-50 shadow-lg focus:outline-none sm:text-sm"
+                            class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md border-2 border-gray-50 bg-white py-1 text-base shadow-lg focus:outline-none sm:text-sm"
                         >
                             <ListboxOption
                                 v-for="asset in assets"
@@ -30,8 +30,8 @@
                             >
                                 <li
                                     :class="[
-                                        active ? 'text-amber-900 bg-amber-100' : 'text-gray-900',
-                                        'cursor-default select-none relative py-2 pl-10 pr-4',
+                                        active ? 'bg-amber-100 text-amber-900' : 'text-gray-900',
+                                        'relative cursor-default select-none py-2 pl-10 pr-4',
                                     ]"
                                 >
                                     <span :class="[selected ? 'font-medium' : 'font-normal', 'block truncate']">{{
@@ -41,7 +41,7 @@
                                         v-if="selected"
                                         class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600"
                                     >
-                                        <CheckIcon aria-hidden="true" class="w-5 h-5" />
+                                        <CheckIcon aria-hidden="true" class="h-5 w-5" />
                                     </span>
                                 </li>
                             </ListboxOption>
@@ -53,7 +53,7 @@
         <div>
             <div>
                 <template v-for="(operation, index) in computedOperations">
-                    <div class="ml-4 w-0.5 h-4 bg-slate-200" v-if="index !== 0"></div>
+                    <div class="ml-4 h-4 w-0.5 bg-slate-200" v-if="index !== 0"></div>
                     <Operation :operation="operation" :wallet="wallet" />
                 </template>
             </div>

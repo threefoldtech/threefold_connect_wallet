@@ -1,8 +1,8 @@
 <template>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-        <div class="max-w-3xl mx-auto flex justify-center items-center h-full">
-            <div class="text-center space-y-4 flex flex-col justify-center items-center">
-                <div class="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-secondary-600"></div>
+    <div class="mx-auto h-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto flex h-full max-w-3xl items-center justify-center">
+            <div class="flex flex-col items-center justify-center space-y-4 text-center">
+                <div class="h-16 w-16 animate-spin rounded-full border-4 border-dashed border-secondary-600"></div>
                 <div>initializing your first wallet</div>
             </div>
         </div>

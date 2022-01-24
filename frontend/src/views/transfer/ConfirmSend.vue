@@ -22,7 +22,7 @@
                 <small>fee {{ fee.toFixed(7) }} {{ asset }}</small>
             </div>
             <div class="mt-4 flex">
-                <button class="px-4 py-2 text-white bg-blue-600 rounded-md flex-1" @click="sendTokens">Confirm</button>
+                <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white" @click="sendTokens">Confirm</button>
             </div>
         </div>
     </MainLayout>

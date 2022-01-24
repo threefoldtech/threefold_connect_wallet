@@ -8,27 +8,27 @@
                             <h1>Operation info</h1>
 
                             <template #after>
-                                <XIcon class="h-8 text-gray-600 cursor-pointer" @click="isOpen = false" />
+                                <XIcon class="h-8 cursor-pointer text-gray-600" @click="isOpen = false" />
                             </template>
                         </PageHeader>
                     </template>
                     <div class="p-4">
-                        <pre class="text-sm break-all whitespace-pre-wrap">{{ operation }}</pre>
+                        <pre class="whitespace-pre-wrap break-all text-sm">{{ operation }}</pre>
                     </div>
                 </MainLayout>
             </div>
         </div>
     </Dialog>
-    <div class="py-2 text-sm tracking-tight group" @click="isOpen = true">
+    <div class="group py-2 text-sm tracking-tight" @click="isOpen = true">
         <div v-if="operation.type === 'payment'" class="flex items-center justify-between gap-4">
             <div
-                class="w-8 h-8 rounded-full shrink-0"
+                class="h-8 w-8 shrink-0 rounded-full"
                 :class="{
                     'bg-green-600': operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
                     'bg-red-600': operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                 }"
             ></div>
-            <div class="flex flex-col flex-1 overflow-hidden">
+            <div class="flex flex-1 flex-col overflow-hidden">
                 <div class="overflow-hidden overflow-ellipsis text-ellipsis">
                     {{
                         operation?.from === wallet.keyPair.getStellarKeyPair().publicKey()
@@ -50,7 +50,7 @@
             </div>
         </div>
         <div v-else-if="operation.type === 'change_trust'" class="flex items-center justify-between gap-4">
-            <div class="w-8 h-8 bg-blue-600 rounded-full shrink-0"></div>
+            <div class="h-8 w-8 shrink-0 rounded-full bg-blue-600"></div>
             <div class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                 {{ operation.asset_code }} asset added
             </div>

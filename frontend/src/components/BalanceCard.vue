@@ -1,7 +1,7 @@
 <template>
     <div class="rounded-2xl border p-4">
-        <div class="flex justify-between items-center">
-            <div class="flex gap-2 items-center">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
                 <AssetIcon :name="balance.name" />
 
                 <div class="shrink-0">

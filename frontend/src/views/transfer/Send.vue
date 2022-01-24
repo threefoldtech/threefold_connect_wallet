@@ -8,10 +8,10 @@
                 <h1>Send</h1>
             </PageHeader>
         </template>
-        <div class="p-4 flex flex-col h-full">
+        <div class="flex h-full flex-col p-4">
             <div class="absolute right-4 flex items-center space-x-1" @click="scanQr">
                 <QrcodeIcon class="h-5" />
-                <p class="font-medium text-sm">SCAN QR</p>
+                <p class="text-sm font-medium">SCAN QR</p>
             </div>
 
             <div class="mt-1">
@@ -29,11 +29,11 @@
                         >
                             <div
                                 :class="[
-                                    active ? 'ring-2 ring-offset-2 ring-primary-500' : '',
+                                    active ? 'ring-2 ring-primary-500 ring-offset-2' : '',
                                     checked
-                                        ? 'bg-primary-600 border-transparent text-white hover:bg-primary-700'
-                                        : 'bg-white border-gray-200 text-gray-900 hover:bg-gray-50',
-                                    'border rounded-md py-3 px-3 flex items-center justify-center text-sm font-medium uppercase flex-1',
+                                        ? 'border-transparent bg-primary-600 text-white hover:bg-primary-700'
+                                        : 'border-gray-200 bg-white text-gray-900 hover:bg-gray-50',
+                                    'flex flex-1 items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase',
                                 ]"
                             >
                                 <RadioGroupLabel as="p">
@@ -46,12 +46,12 @@
             </div>
             <Listbox v-model="selectedWallet" as="div" class="mt-2">
                 <ListboxLabel class="block text-sm font-medium text-gray-700">From</ListboxLabel>
-                <div class="mt-1 relative">
+                <div class="relative mt-1">
                     <ListboxButton
-                        class="relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        class="relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 sm:text-sm"
                     >
-                        <span class="w-full inline-flex truncate">
-                            <span class="truncate shrink-0">{{ selectedWallet?.name }}</span>
+                        <span class="inline-flex w-full truncate">
+                            <span class="shrink-0 truncate">{{ selectedWallet?.name }}</span>
                             <span v-if="selectedChain === 'stellar'" class="ml-2 truncate text-gray-500">{{
                                 selectedWallet?.keyPair.getStellarKeyPair().publicKey()
                             }}</span>
@@ -59,7 +59,7 @@
                                 selectedWallet?.keyPair.getSubstrateKeyring().address
                             }}</span>
                         </span>
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                             <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />
                         </span>
                     </ListboxButton>
@@ -70,7 +70,7 @@
                         leave-to-class="opacity-0"
                     >
                         <ListboxOptions
-                            class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                         >
                             <ListboxOption
                                 v-for="wallet in wallets"
@@ -80,8 +80,8 @@
                             >
                                 <li
                                     :class="[
-                                        active ? 'text-white bg-primary-600' : 'text-gray-900',
-                                        'cursor-default select-none relative py-2 pl-3 pr-9',
+                                        active ? 'bg-primary-600 text-white' : 'text-gray-900',
+                                        'relative cursor-default select-none py-2 pl-3 pr-9',
                                     ]"
                                 >
                                     <div class="flex">
@@ -124,12 +124,12 @@
             <div class="mt-4">
                 <label class="block text-sm font-medium text-gray-700" for="to">To</label>
                 <div class="mt-1 flex rounded-md shadow-sm">
-                    <div class="relative flex items-stretch grow focus-within:z-10">
+                    <div class="relative flex grow items-stretch focus-within:z-10">
                         <input
                             id="to"
                             v-model="toAddress"
                             :disabled="relevantAssets.length <= 0"
-                            class="focus:ring-primary-500 focus:border-primary-500 block w-full rounded-md pl-3 sm:text-sm border-gray-300 disabled:border-gray-300 disabled:bg-gray-50"
+                            class="block w-full rounded-md border-gray-300 pl-3 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
                             name="to"
                             placeholder="..."
                             type="text"
@@ -145,13 +145,13 @@
             </div>
             <div class="mt-4">
                 <label class="block text-sm font-medium text-gray-700" for="amount">Amount</label>
-                <div class="mt-1 relative rounded-md shadow-sm">
+                <div class="relative mt-1 rounded-md shadow-sm">
                     <input
                         id="amount"
                         v-model="amount"
                         :disabled="relevantAssets.length <= 0"
                         :placeholder="relevantAssets.length <= 0 ? 'no funds on this wallet' : '0.00'"
-                        class="focus:ring-primary-500 focus:border-primary-500 block w-full pl-4 pr-20 sm:text-sm border-gray-300 rounded-md disabled:border-gray-300 disabled:bg-gray-50"
+                        class="block w-full rounded-md border-gray-300 pl-4 pr-20 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
                         name="amount"
                         type="number"
                     />
@@ -161,7 +161,7 @@
                             id="currency"
                             v-model="selectedAsset"
                             :disabled="relevantAssets.length === 0"
-                            class="focus:ring-primary-500 focus:border-primary-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md"
+                            class="h-full rounded-md border-transparent bg-transparent py-0 pl-2 pr-7 text-gray-500 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                             name="currency"
                             :key="`${selectedAsset?.asset_code}-${selectedAsset?.type}`"
                         >
@@ -169,11 +169,11 @@
                         </select>
                     </div>
                 </div>
-                <div class="flex mt-4 space-x-4">
-                    <button class="p-1 flex-1 border border-gray-300 rounded-md" @click="setAmount(0.25)">25%</button>
-                    <button class="p-1 flex-1 border border-gray-300 rounded-md" @click="setAmount(0.5)">50%</button>
-                    <button class="p-1 flex-1 border border-gray-300 rounded-md" @click="setAmount(0.75)">75%</button>
-                    <button class="p-1 flex-1 border border-gray-300 rounded-md" @click="setAmount(1)">100%</button>
+                <div class="mt-4 flex space-x-4">
+                    <button class="flex-1 rounded-md border border-gray-300 p-1" @click="setAmount(0.25)">25%</button>
+                    <button class="flex-1 rounded-md border border-gray-300 p-1" @click="setAmount(0.5)">50%</button>
+                    <button class="flex-1 rounded-md border border-gray-300 p-1" @click="setAmount(0.75)">75%</button>
+                    <button class="flex-1 rounded-md border border-gray-300 p-1" @click="setAmount(1)">100%</button>
                 </div>
             </div>
             <div class="mt-4">
@@ -183,7 +183,7 @@
             <div class="mt-4 flex">
                 <button
                     :disabled="!selectedWallet || !toAddress || !amount || amount <= 0 || !selectedAsset"
-                    class="px-4 py-2 text-white bg-blue-600 rounded-md flex-1 disabled:bg-gray-300 disabled:text-gray-600 disabled:hover:animate-wiggle"
+                    class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:hover:animate-wiggle"
                     @click="goToConfirm"
                 >
                     send tokens

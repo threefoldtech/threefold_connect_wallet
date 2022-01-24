@@ -1,6 +1,6 @@
 <template>
-    <div class="h-screen bg-white flex flex-col">
-        <header v-if="$slots['header']" class="h-16 border-b shrink-0">
+    <div class="flex h-screen flex-col bg-white">
+        <header v-if="$slots['header']" class="h-16 shrink-0 border-b">
             <slot name="header" />
         </header>
         <main class="grow overflow-auto">

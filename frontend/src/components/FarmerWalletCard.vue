@@ -27,55 +27,78 @@
         </div>
         <div
             v-if="!loading && termsAndConditions.length === 0"
-            class="bg-white absolute rounded-lg inset-0 z-20 flex flex-col text-2xl p-4"
+            class="bg-white absolute rounded-lg inset-0 z-20 flex flex-col p-4"
         >
-            <div class="flex flex-col gap-2">
-                <div class="text-black">
-                    {{ wallet.name }}
-                </div>
-                <hr class="border-gray-300" />
-                <h2 class="mt-4">You have to accept to the terms and conditions</h2>
-                <SwitchGroup as="div" class="flex items-center justify-between">
-                    <span class="flex-grow flex flex-col">
-                        <SwitchLabel as="span" class="text-sm font-medium text-gray-900"
-                            >Terms & Conditions</SwitchLabel
-                        >
-                        <SwitchDescription as="span" class="text-sm text-gray-500"
-                            >I have read and accept the
-                            <a
-                                class="inline underline decoration-primary-600 decoration-2 focus:outline-none focus:text-primary-600 focus:font-semibold"
-                                tabindex="0"
-                                @click.stop.prevent="showTerms()"
+            <form @submit.prevent.stop="createFarmFormSubmit">
+                <div class="flex flex-col gap-2">
+                    <div class="text-black text-2xl">
+                        {{ wallet.name }}
+                    </div>
+                    <hr class="border-gray-300" />
+                    <label>
+                        <p class="block text-sm font-medium text-gray-700">Farm name</p>
+                        <div class="mt-1">
+                            <input
+                                type="text"
+                                name="farmName"
+                                id="email"
+                                class="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                :class="{ 'border-red-500': farmFormErrors.farmName }"
+                                placeholder="Enter Farm Name"
+                                v-model="farmNameToValidate"
+                                required
+                            />
+                        </div>
+
+                        <p class="mt-2 text-sm text-red-600" v-if="farmFormErrors.farmName">
+                            {{ farmFormErrors.farmName }}
+                        </p>
+                        <p class="mt-2 text-sm text-gray-500" v-if="!farmFormErrors.farmName">
+                            No spaces or special characters
+                        </p>
+                    </label>
+
+                    <p class="mt-4">You have to accept to the terms and conditions</p>
+                    <SwitchGroup as="div" class="flex items-center justify-between">
+                        <span class="flex-grow flex flex-col">
+                            <SwitchLabel as="span" class="text-sm font-medium text-gray-900"
+                                >Terms & Conditions</SwitchLabel
                             >
-                                terms and conditions
-                            </a>
-                        </SwitchDescription>
-                    </span>
-                    <Switch
-                        v-model="termsAndConditionsIsAccepted"
-                        :class="[
-                            termsAndConditionsIsAccepted ? 'bg-primary-600' : 'bg-gray-200',
-                            'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500',
-                        ]"
-                    >
-                        <span
+                            <SwitchDescription as="span" class="text-sm text-gray-500"
+                                >I have read and accept the
+                                <a
+                                    class="inline underline decoration-primary-600 decoration-2 focus:outline-none focus:text-primary-600 focus:font-semibold"
+                                    tabindex="0"
+                                    @click.stop.prevent="showTerms()"
+                                >
+                                    terms and conditions
+                                </a>
+                            </SwitchDescription>
+                        </span>
+                        <Switch
+                            v-model="termsAndConditionsIsAccepted"
                             :class="[
-                                termsAndConditionsIsAccepted ? 'translate-x-5' : 'translate-x-0',
-                                'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200',
+                                termsAndConditionsIsAccepted ? 'bg-primary-600' : 'bg-gray-200',
+                                'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500',
                             ]"
-                            aria-hidden="true"
-                        />
-                    </Switch>
-                </SwitchGroup>
-                <button
-                    :disabled="!termsAndConditionsIsAccepted"
-                    class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-gray-500"
-                    type="button"
-                    @click="acceptTermsAndConditions()"
-                >
-                    Confirm
-                </button>
-            </div>
+                        >
+                            <span
+                                :class="[
+                                    termsAndConditionsIsAccepted ? 'translate-x-5' : 'translate-x-0',
+                                    'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200',
+                                ]"
+                                aria-hidden="true"
+                            />
+                        </Switch>
+                    </SwitchGroup>
+                    <input
+                        type="submit"
+                        :disabled="!termsAndConditionsIsAccepted"
+                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-gray-500"
+                        value="Create Farm"
+                    />
+                </div>
+            </form>
         </div>
 
         <div class="w-full flex items-center justify-between p-4 space-x-6">
@@ -91,109 +114,65 @@
                 </div>
                 <div class="mt-4">
                     <h2 class="">Stellar address</h2>
-                    <div class="text-gray-500 text-sm break-all whitespace-normal">
+                    <div
+                        class="text-gray-500 text-sm break-all whitespace-normal"
+                        @click="copyToClipboard(wallet.keyPair.getStellarKeyPair().publicKey())"
+                    >
                         {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
                     </div>
                 </div>
                 <div class="mt-4">
-                    <h2 class="">Substrate address</h2>
-                    <span class="text-gray-500 text-sm break-all whitespace-normal">{{
-                        wallet.keyPair.getSubstrateKeyring().address
-                    }}</span>
+                    <h2 class="">TFChain address</h2>
+                    <span
+                        class="text-gray-500 text-sm break-all whitespace-normal"
+                        @click="wallet.keyPair.getSubstrateKeyring().address"
+                        >{{ wallet.keyPair.getSubstrateKeyring().address }}</span
+                    >
                 </div>
             </div>
         </div>
         <div class="p-4">
-            <h2>Status:</h2>
             <div class="space-y-2">
-                <div class="p-2">
-                    Terms and conditions <span class="font-light">previously accepted</span>:
-                    <ul role="list" class="divide-y divide-gray-200 space-y-2 mt-2">
-                        <li v-for="(entry, index) in termsAndConditions" :key="entry.timestamp">
-                            <a href="#" class="block bg-primary-100 rounded-md">
-                                <div class="px-4 py-4 sm:px-6">
-                                    <div class="flex items-center justify-between">
-                                        <p class="text-sm font-medium text-primary-600 truncate">
-                                            {{ entry.document_link }}
-                                        </p>
-                                        <div class="ml-2 flex-shrink-0 flex">
-                                            <p
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
-                                            >
-                                                {{ entry.document_hash }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2 sm:flex sm:justify-between">
-                                        <div class="sm:flex">
-                                            <p class="flex items-center text-sm text-gray-500 truncate">
-                                                <UsersIcon
-                                                    class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                                                    aria-hidden="true"
-                                                />
-                                                {{ entry.account_id }}
-                                            </p>
-                                        </div>
-                                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                            <CalendarIcon
-                                                class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                                                aria-hidden="true"
-                                            />
-                                            <p>
-                                                <time :datetime="entry.timestamp">{{
-                                                    formatTime(entry.timestamp)
-                                                }}</time>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div v-if="isNumeric(twinId)" class="p-2">
-                    Twin Id:
-                    <span class="font-bold text-primary-600" v-if="twinId !== 0">{{ twinId }}</span>
-                    <span class="font-bold text-primary-600" v-if="twinId === 0">
-                        no twin id yet (created with farm)</span
-                    >
-                </div>
-                <div class="p-2">
-                    Farms:
-                    <ul role="list" class="space-y-2 sm:px-6 sm:space-y-4 lg:px-8">
+                <div class="py-2">
+                    {{ farms.length === 0 ? 'No farms' : farms.length === 1 ? 'Farm:' : `Farms:` }}
+                    <div role="list" class="sm:px-6 space-y-4 lg:px-8">
                         <template v-for="(farm, index) in farms">
-                            <li class="bg-white px-2 py-4 bg-primary-100 rounded-lg">
-                                <div class="sm:flex sm:justify-between sm:items-baseline">
-                                    <h3 class="text-base font-medium">
-                                        <span class="text-gray-900">{{ farm.name }}</span>
-                                        <span
-                                            class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary-100 text-secondary-800"
-                                        >
-                                            id: {{ farm.id }}
-                                        </span>
-                                    </h3>
-                                    <p class="mt-1 text-sm text-gray-600 whitespace-nowrap sm:mt-0 sm:ml-3">
-                                        Twin Id: {{ farm.twin_id }}
-                                    </p>
-                                </div>
-                                <div class="mt-4 space-y-6 text-sm text-gray-800" v-if="farm.public_ips.length === 0">
-                                    <p>no public ips configured</p>
-                                </div>
-                                <div class="mt-4 space-y-6 text-sm text-gray-800" v-else>
-                                    <template v-for="(public_ip, index) in farm.public_ips">
-                                        <p>
-                                            <span class="text-gray-900">{{ public_ip.ip }}</span>
-                                            <span
-                                                class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary-100 text-secondary-800"
-                                            >
-                                                gateway: {{ public_ip.gateway }}
-                                            </span>
+                            <Disclosure v-slot="{ open }">
+                                <DisclosureButton
+                                    class="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-primary-900 bg-primary-100 rounded-lg hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"
+                                >
+                                    {{ farm.name }}
+                                    <ChevronUpIcon
+                                        :class="open ? 'transform rotate-180' : ''"
+                                        class="w-5 h-5 text-primary-500"
+                                    />
+                                </DisclosureButton>
+                                <DisclosurePanel class="bg-white px-2 py-4 bg-primary-100 rounded-lg ml-4">
+                                    <div class="sm:flex sm:justify-between sm:items-baseline space-y-1">
+                                        <h3 class="">
+                                            <span class="text-gray-600">Farm id: {{ farm.id }}</span>
+                                        </h3>
+                                        <p class="mt-1 text-gray-600 whitespace-nowrap sm:mt-0 sm:ml-3">
+                                            Twin Id: {{ farm.twin_id }}
                                         </p>
-                                    </template>
-                                </div>
-                            </li>
+                                        <hr class="border-primary-300" />
+                                        <p
+                                            class="mt-1 text-gray-600 whitespace-nowrap sm:mt-0 sm:ml-3"
+                                            v-if="nodes.length > 0"
+                                        >
+                                            node Ids: {{ nodes.map(node => node.id).join(', ') }}
+                                        </p>
+                                        <p
+                                            class="mt-1 text-sm text-gray-600 whitespace-nowrap sm:mt-0 sm:ml-3"
+                                            v-if="nodes.length === 0"
+                                        >
+                                            No nodes connected with this farm
+                                        </p>
+                                    </div>
+                                </DisclosurePanel>
+                            </Disclosure>
                         </template>
-                    </ul>
+                    </div>
                 </div>
                 <div class="p-2">
                     Balance:
@@ -203,18 +182,6 @@
                             :balance="assetBalance"
                         ></BalanceCard>
                     </div>
-                </div>
-                <div>
-                    nodes
-                    <span
-                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary-100 text-secondary-800"
-                    >
-                        Raw data
-                    </span>
-                    :
-                    <pre class="whitespace-pre-wrap break-all font-mono text-gray-800 p-2 bg-gray-100 rounded-md">{{
-                        nodes
-                    }}</pre>
                 </div>
             </div>
         </div>
@@ -388,10 +355,18 @@
 </template>
 <script lang="ts" setup>
     import { AssetBalance, balances, Wallet } from '@/service/walletService';
-    import { Switch, SwitchDescription, SwitchGroup, SwitchLabel } from '@headlessui/vue';
+    import {
+        Disclosure,
+        DisclosureButton,
+        DisclosurePanel,
+        Switch,
+        SwitchDescription,
+        SwitchGroup,
+        SwitchLabel,
+    } from '@headlessui/vue';
     import { DocumentAddIcon } from '@heroicons/vue/outline';
-    import { CalendarIcon, UsersIcon, XIcon, PlusIcon } from '@heroicons/vue/solid';
-    import { computed, ref } from 'vue';
+    import { CalendarIcon, UsersIcon, XIcon, PlusIcon, ChevronUpIcon } from '@heroicons/vue/solid';
+    import { computed, ref, watch } from 'vue';
     import { Dialog } from '@headlessui/vue';
     import {
         getSubstrateApi,
@@ -412,6 +387,7 @@
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useDynamicBalance } from '@/util/useDynamicBalance';
+    import v2farms from '@/data/farms.json';
 
     interface IProps {
         wallet: Wallet;
@@ -422,12 +398,40 @@
     const loading = ref(true);
     const twinId = ref();
     const ipAmount = ref(1);
+    const farmNameToValidate = ref('jonasawesomefarm01');
+    const farmFormErrors = ref({});
     const termsAndConditionsIsAccepted = ref(false);
     const termsAndConditions = ref<any[]>([]);
     const showTermsAndConditions = ref(false);
     const showFarmDialog = ref(false);
     const farms = ref<any>([]);
     const subtitle = ref<string | undefined>();
+
+    watch(farmNameToValidate, value => {
+        const wasFound = v2farms.find(farm => farm.name === value);
+
+        if (wasFound && wasFound.stellar_wallet_addres === wallet.keyPair.getStellarKeyPair().publicKey()) {
+            farmFormErrors.value = {
+                farmName: undefined,
+            };
+            return;
+        }
+
+        if (wasFound) {
+            farmFormErrors.value = {
+                name: 'This name is already taken',
+            };
+            return;
+        }
+
+        //should be alphanumeric no spaces and should be at least 3 characters but no more than 20
+        farmFormErrors.value = {
+            farmName:
+                !value || value.length < 0 || value.length > 50
+                    ? 'Farm name must be less than 50 characters'
+                    : undefined,
+        };
+    });
 
     const farmFormSubmit = (evt: Event) => {
         showFarmDialog.value = false;
@@ -571,7 +575,55 @@
 
     const substrateBalance = ref();
     const stellarBalance = ref();
+
     const nodes = ref();
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+    };
+
+    const createFarmFormSubmit = async (evt: Event) => {
+        if (!termsAndConditionsIsAccepted.value) return;
+
+        const formData = new FormData(evt.target as HTMLFormElement);
+        const value = <string>formData.get('farmName');
+
+        const wasFound = v2farms.find(farm => farm.name === value);
+
+        if (wasFound && wasFound.stellar_wallet_addres === wallet.keyPair.getStellarKeyPair().publicKey()) {
+            farmFormErrors.value = {
+                farmName: undefined,
+            };
+            return;
+        }
+
+        if (wasFound) {
+            farmFormErrors.value = {
+                name: 'This name is already taken',
+            };
+            return;
+        }
+
+        //should be alphanumeric no spaces and should be at least 3 characters but no more than 20
+        farmFormErrors.value = {
+            farmName:
+                !value || value.length < 0 || value.length > 50
+                    ? 'Farm name must be less than 50 characters'
+                    : undefined,
+        };
+        //@ts-ignore
+        if (farmFormErrors.value?.farmName) return;
+
+        loading.value = true;
+        subtitle.value = 'starting creation of farm';
+
+        await acceptTermsAndConditions();
+
+        await addFarm(value, []);
+
+        await init();
+    };
+
     const init = async () => {
         const address = wallet.keyPair.getSubstrateKeyring().address;
 

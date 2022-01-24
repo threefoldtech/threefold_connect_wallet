@@ -13,13 +13,14 @@
     import { Keypair } from 'stellar-sdk';
     import { getPkidClient } from '@/service/pkidService';
     import router from '@/router';
+    import { nanoid } from 'nanoid';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
         const wallet: Wallet = {
             keyPair: new WalletKeyPair(bytesToHex(keyPair.rawSecretKey())),
             meta: { chain: 'stellar', type: PkidWalletTypes.Native },
-            name: 'etstset',
+            name: `testWallet-${nanoid()}`,
         };
         wallets.value.push(wallet);
         await saveWallets();

@@ -104,7 +104,7 @@
         <div class="w-full flex items-center justify-between p-4 space-x-6">
             <div class="flex-1 truncate">
                 <div class="flex items-center space-x-3">
-                    <h3 class="text-gray-900 text-sm font-medium truncate font-semibold uppercase">
+                    <h3 class="text-gray-900 text-sm font-medium overflow-x-auto font-semibold uppercase">
                         {{ wallet.name }}
                     </h3>
                     <span
@@ -115,7 +115,7 @@
                 <div class="mt-4">
                     <h2 class="">Stellar address</h2>
                     <div
-                        class="text-gray-500 text-sm break-all whitespace-normal"
+                        class="text-gray-500 text-sm overflow-x-auto no-scrollbar whitespace-normal"
                         @click="copyToClipboard(wallet.keyPair.getStellarKeyPair().publicKey())"
                     >
                         {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
@@ -124,7 +124,7 @@
                 <div class="mt-4">
                     <h2 class="">TFChain address</h2>
                     <span
-                        class="text-gray-500 text-sm break-all whitespace-normal"
+                        class="text-gray-500 text-sm overflow-x-auto no-scrollbar whitespace-normal"
                         @click="wallet.keyPair.getSubstrateKeyring().address"
                         >{{ wallet.keyPair.getSubstrateKeyring().address }}</span
                     >
@@ -139,7 +139,7 @@
                         <template v-for="(farm, index) in farms">
                             <Disclosure v-slot="{ open }">
                                 <DisclosureButton
-                                    class="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-primary-900 bg-primary-100 rounded-lg hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"
+                                    class="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-primary-900 bg-primary-100 rounded-lg hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75 overflow-x-auto no-scrollbar"
                                 >
                                     {{ farm.name }}
                                     <ChevronUpIcon
@@ -356,6 +356,7 @@
 <script lang="ts" setup>
     import { AssetBalance, balances, Wallet } from '@/service/walletService';
     import {
+        Dialog,
         Disclosure,
         DisclosureButton,
         DisclosurePanel,
@@ -365,9 +366,8 @@
         SwitchLabel,
     } from '@headlessui/vue';
     import { DocumentAddIcon } from '@heroicons/vue/outline';
-    import { CalendarIcon, UsersIcon, XIcon, PlusIcon, ChevronUpIcon } from '@heroicons/vue/solid';
+    import { ChevronUpIcon, PlusIcon, XIcon } from '@heroicons/vue/solid';
     import { computed, ref, watch } from 'vue';
-    import { Dialog } from '@headlessui/vue';
     import {
         getSubstrateApi,
         getSubstrateAssetBalances,
@@ -375,20 +375,21 @@
         getUsersTermsAndConditions,
     } from '@/service/substrateService';
     import axios from 'axios';
-    import { nanoid } from 'nanoid';
     import SiteModalFrame from '@/components/SiteModalFrame.vue';
     import flagsmith from 'flagsmith';
     import { bin2String } from '@/util/crypto';
     import { Horizon } from 'stellar-sdk';
-    import AssetBalances = Horizon.AssetBalances;
-    import { values } from 'lodash';
-    import { formatTime } from '@/util/time';
     import BalanceCard from '@/components/BalanceCard.vue';
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useDynamicBalance } from '@/util/useDynamicBalance';
-    import v2farms from '@/data/farms.json';
+    import { addNotification, NotificationType } from '@/service/notificationService';
 
+    const v2farms: {
+        id: number;
+        name: string;
+        stellar_wallet_addres: string;
+    }[] = [];
     interface IProps {
         wallet: Wallet;
     }
@@ -496,18 +497,48 @@
 
     const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
     const addFarm = async (farmName: string, publicIps: string[]) => {
-        await addTwin();
+        if (twinId.value === 0) {
+            await addTwin();
+        }
         loading.value = true;
         subtitle.value = 'creating farm';
 
         const currentAmountOfFarms = farms.value.length;
         const api = await getSubstrateApi();
         const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, publicIps);
-        const result = await submittableExtrinsic.signAndSend(wallet.keyPair.getSubstrateKeyring());
+        const promise = new Promise((resolve, reject) => {
+            submittableExtrinsic.signAndSend(wallet.keyPair.getSubstrateKeyring(), result => {
+                if (result.status.isFinalized) {
+                    resolve(null);
+                }
+                if (result.dispatchError) {
+                    reject();
+                }
+            });
+        });
+
+        try {
+            await promise;
+        } catch (e) {
+            loading.value = false;
+            subtitle.value = undefined;
+            addNotification(
+                NotificationType.error,
+                'Could not create farm (name already in use)',
+                'Try again with diffrent name.'
+            );
+            throw e;
+        }
 
         //while no substrateBalance is available we wait
 
+        let i = 0;
         while (true) {
+            // break after 20 seconds
+            if (i > 20) {
+                throw new Error('Timeout');
+            }
+            i++;
             const allFarms = await api.query.tfgridModule.farms.entries();
             //@ts-ignore
             const tempFarm = allFarms.filter(([, farm]) => farm.twin_id.words[0] === twinId.value);

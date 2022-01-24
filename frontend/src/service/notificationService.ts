@@ -12,17 +12,24 @@ export interface Notification {
     duration?: number;
     type: NotificationType;
     message: string;
+    subtitle?: string;
 }
 
 export const notifications = ref<Notification[]>([]);
 
-export const addNotification = (message: string, type: NotificationType = NotificationType.info, duration?: number) => {
+export const addNotification = (
+    type: NotificationType = NotificationType.info,
+    message: string,
+    subtitle?: string,
+    duration?: number
+) => {
     const notification: Notification = {
         duration,
         // @ts-ignore
         id: globalThis.crypto.randomUUID(),
         message,
         type,
+        subtitle,
     };
 
     notifications.value.push(notification);

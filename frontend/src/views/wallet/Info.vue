@@ -127,7 +127,7 @@
     };
 
     const deleteWallet = () => {
-        addNotification('not implemented yet', NotificationType.error, 2000);
+        addNotification(NotificationType.error, 'not implemented yet', undefined, 2000);
     };
 
     const testSend = () => {

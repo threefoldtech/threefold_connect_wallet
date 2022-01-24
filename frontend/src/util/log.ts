@@ -3,6 +3,8 @@ import { ref } from 'vue';
 export const logs = ref<any[]>([]);
 
 export const overrideConsole = () => {
+    // @ts-ignore
+    if (import.meta.env.DEV) return;
     const console: any = window.console;
     if (!console) {
         return;

@@ -40,7 +40,11 @@
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import flagsmith from 'flagsmith';
     import { computed } from 'vue';
-    import farms from '@/data/farms.json';
+    const farms: {
+        id: number;
+        name: string;
+        stellar_wallet_addres: string;
+    }[] = [];
 
     //@ts-ignore
     const canCreateWallet = import.meta.env.DEV || flagsmith.hasFeature('can_create_wallet_for_farmer');

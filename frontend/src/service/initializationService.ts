@@ -7,7 +7,7 @@ import { entropyToMnemonic } from '@jimber/simple-bip39';
 import Pkid from '@jimber/pkid';
 import flagsmith from 'flagsmith';
 import sodium from 'libsodium-wrappers';
-import { calculateWalletEntropyFromAccount, keypairFromAccount, generateActivationCode } from '@jimber/stellar-crypto';
+import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from '@jimber/stellar-crypto';
 import { wallets } from '@/service/walletService';
 import { getPkidClient, PkidWallet } from '@/service/pkidService';
 import { Keypair } from 'stellar-sdk';
@@ -15,6 +15,7 @@ import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/service/c
 import { getStellarClient } from '@/service/stellarService';
 import { bytesToHex, hexToBytes } from '@/util/crypto';
 import { WalletKeyPair } from '@/lib/WalletKeyPair';
+
 type LoadingText = {
     title: string;
     subtitle?: string;
@@ -146,14 +147,16 @@ export const init = async (name: string, seedString: string) => {
     const pkid = getPkidClient();
 
     const purseDocToCheckMigration = await pkid.getDoc(appKeyPair.value.publicKey, 'purse');
-    if (!purseDocToCheckMigration?.success) {
+    // checking not only if the purse is empty, but also if it is a valid purse see actions.vue
+    if (!purseDocToCheckMigration?.success || !purseDocToCheckMigration?.data) {
         loadingText.value = { title: 'starting update' };
         await migratePkid2_xTo3_x();
     }
 
-    const purseDocToCheckFirstWalletInit = !purseDocToCheckMigration?.success
-        ? await pkid.getDoc(appKeyPair.value.publicKey, 'purse')
-        : purseDocToCheckMigration;
+    const purseDocToCheckFirstWalletInit =
+        !purseDocToCheckMigration?.success || !purseDocToCheckMigration?.data
+            ? await pkid.getDoc(appKeyPair.value.publicKey, 'purse')
+            : purseDocToCheckMigration;
 
     if (!purseDocToCheckFirstWalletInit?.success) {
         console.info('first wallet init');
@@ -190,8 +193,14 @@ export const init = async (name: string, seedString: string) => {
     userInitialized.value = name.slice(0, -5);
 };
 
-const mapV2toV3PkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet): PkidWallet => {
+//@todo: make this prettier/more readable/better
+const getSeedphraseFromPkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet) => {
     const isImported = wallet.index === -1;
+
+    if (!isImported) {
+        return appSeedPhrase.value;
+    }
+
     // @ts-ignore
     let entropyInput = new Uint8Array((wallet as PkidV2ImportedWallet).seed?.data);
     if (entropyInput.length === 0) {
@@ -200,7 +209,12 @@ const mapV2toV3PkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet): Pk
     if (entropyInput.length === 0) {
         throw new Error('no entropy input');
     }
-    const seedPhrase = isImported ? entropyToMnemonic(entropyInput) : appSeedPhrase.value;
+    return isImported ? entropyToMnemonic(entropyInput) : appSeedPhrase.value;
+};
+
+const mapV2toV3PkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet): PkidWallet => {
+    const isImported = wallet.index === -1;
+    const seedPhrase = getSeedphraseFromPkidWallet(wallet);
 
     const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, wallet.index);
     const walletKeypair: Keypair = keypairFromAccount(walletEntropy);
@@ -225,7 +239,6 @@ const migratePkid2_xTo3_x = async () => {
 
     if (pkidAppWalletsDoc?.success) {
         const pkid2_xAppWallets: PkidV2AppWallet[] = pkidAppWalletsDoc.data;
-        console.log(pkid2_xAppWallets);
         const pkid2_xAppWalletsToMigrate: PkidWallet[] = pkid2_xAppWallets.map(mapV2toV3PkidWallet);
 
         walletsToMigrate.push(...pkid2_xAppWalletsToMigrate);

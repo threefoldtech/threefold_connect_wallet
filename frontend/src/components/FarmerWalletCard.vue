@@ -153,7 +153,10 @@
                 </div>
                 <div v-if="isNumeric(twinId)" class="p-2">
                     Twin Id:
-                    <span class="font-bold text-primary-600">{{ twinId }}</span>
+                    <span class="font-bold text-primary-600" v-if="twinId !== 0">{{ twinId }}</span>
+                    <span class="font-bold text-primary-600" v-if="twinId === 0">
+                        no twin id yet (created with farm)</span
+                    >
                 </div>
                 <div class="p-2">
                     Farms:
@@ -438,7 +441,7 @@
     };
 
     const acceptTermsAndConditions = async () => {
-        subtitle.value = 'could take up to 10 seconds to go through';
+        subtitle.value = 'could take some time to go through';
         loading.value = true;
 
         const id = wallet.keyPair.getSubstrateKeyring().address;

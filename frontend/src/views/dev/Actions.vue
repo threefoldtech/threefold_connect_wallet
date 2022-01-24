@@ -1,7 +1,7 @@
 <template>
-    <div class="p-4">
+    <div class="p-4 flex flex-col gap-2">
         <CTA @click="addWallet()"> add Wallet</CTA>
-        <CTA @click="addNotification()"> add Wallet</CTA>
+        <CTA @click="clearPkidPurse()"> clear PkidPurse</CTA>
     </div>
 </template>
 
@@ -11,6 +11,8 @@
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import { bytesToHex } from '@/util/crypto';
     import { Keypair } from 'stellar-sdk';
+    import { getPkidClient } from '@/service/pkidService';
+    import router from '@/router';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
@@ -22,7 +24,11 @@
         wallets.value.push(wallet);
         await saveWallets();
     };
-    const addNotification = () => {};
+    const clearPkidPurse = async () => {
+        const pkid = getPkidClient();
+        await pkid.setDoc('purse', false, true);
+        window.location.assign('/');
+    };
 </script>
 
 <style scoped></style>

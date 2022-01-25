@@ -1182,10 +1182,10 @@
   dependencies:
     sha256-uint8array "^0.10.3"
 
-"@jimber/stellar-crypto@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@jimber/stellar-crypto/-/stellar-crypto-2.0.3.tgz#a6f7e91fd6aa661e5d5444da8b38b0b204886b26"
-  integrity sha512-f/R6Dex/EXzSj8QlwsBOVoJybtkpqQDKAz8D0JXhRCo16xQ0pJ3E3vYx6e2Nz+ipaOM9sFNQv0nWfbgY+JdgDQ==
+"@jimber/stellar-crypto@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@jimber/stellar-crypto/-/stellar-crypto-2.0.4.tgz#e0f0c710aae6856a773235f24ba2af8a74267fb3"
+  integrity sha512-ZmHEYs6QER30b0mOvF003dnBl8Xt29gZkLhH8JuPcRnR8/VYLe/QmwmiLIvhq7GbOUgq8HOkcZnik8ilTy1pRg==
   dependencies:
     "@jimber/simple-bip39" "^1.0.0"
     "@waves/ts-lib-crypto" "^1.4.3"

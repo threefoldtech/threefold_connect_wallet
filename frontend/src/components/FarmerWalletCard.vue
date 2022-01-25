@@ -57,6 +57,34 @@
                             No spaces or special characters
                         </p>
                     </label>
+                    <Menu as="div" class="relative inline-block text-left" v-if="possibleNames.length > 1">
+                        <div>
+                            <MenuButton
+                                class="inline-flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                            >
+                                Other Possibilities
+                                <ChevronDownIcon
+                                    class="ml-2 -mr-1 h-5 w-5 text-primary-200 hover:text-primary-100"
+                                    aria-hidden="true"
+                                />
+                            </MenuButton>
+                        </div>
+
+                        <MenuItems
+                            class="absolute right-0 z-50 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                        >
+                            <div class="divide-y divide-primary-300 px-1 py-2">
+                                <MenuItem v-for="name in possibleNames" v-slot="{ active }">
+                                    <button
+                                        class="group flex w-full items-center px-2 py-2 text-sm text-gray-800 hover:bg-primary-200"
+                                        @click="farmNameToValidate = name"
+                                    >
+                                        {{ name }}
+                                    </button>
+                                </MenuItem>
+                            </div>
+                        </MenuItems>
+                    </Menu>
 
                     <p class="mt-4">You have to accept to the terms and conditions</p>
                     <SwitchGroup as="div" class="flex items-center justify-between">
@@ -275,6 +303,38 @@
                                                     </p>
                                                 </div>
                                             </div>
+                                            <Menu
+                                                as="div"
+                                                class="relative mt-2 inline-block text-left"
+                                                v-if="possibleNames.length > 1"
+                                            >
+                                                <div>
+                                                    <MenuButton
+                                                        class="inline-flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                                                    >
+                                                        Other Possibilities
+                                                        <ChevronDownIcon
+                                                            class="ml-2 -mr-1 h-5 w-5 text-primary-200 hover:text-primary-100"
+                                                            aria-hidden="true"
+                                                        />
+                                                    </MenuButton>
+                                                </div>
+
+                                                <MenuItems
+                                                    class="absolute left-0 z-50 mt-2 w-56 origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                                >
+                                                    <div class="divide-y divide-primary-300 px-1 py-2">
+                                                        <MenuItem v-for="name in possibleNames" v-slot="{ active }">
+                                                            <button
+                                                                class="group flex w-full items-center px-2 py-2 text-sm text-gray-800 hover:bg-primary-200"
+                                                                @click="farmNameToValidate = name"
+                                                            >
+                                                                {{ name }}
+                                                            </button>
+                                                        </MenuItem>
+                                                    </div>
+                                                </MenuItems>
+                                            </Menu>
                                         </div>
 
                                         <div class="pt-8" v-if="false">
@@ -368,9 +428,13 @@
         SwitchDescription,
         SwitchGroup,
         SwitchLabel,
+        Menu,
+        MenuButton,
+        MenuItems,
+        MenuItem,
     } from '@headlessui/vue';
     import { DocumentAddIcon } from '@heroicons/vue/outline';
-    import { ChevronUpIcon, PlusIcon, XIcon } from '@heroicons/vue/solid';
+    import { ChevronUpIcon, PlusIcon, XIcon, ChevronDownIcon } from '@heroicons/vue/solid';
     import { computed, ref, watch } from 'vue';
     import {
         allFarmNames,
@@ -398,13 +462,14 @@
     interface IProps {
         wallet: Wallet;
     }
+    const possibleNames = ref<string[]>([]);
 
     const { wallet } = defineProps<IProps>();
 
     const loading = ref(true);
     const twinId = ref();
     const ipAmount = ref(1);
-    const farmNameToValidate = ref('jonasawesomefarm01');
+    const farmNameToValidate = ref();
     const farmFormErrors = ref<any>({});
     const termsAndConditionsIsAccepted = ref(false);
     const termsAndConditions = ref<any[]>([]);
@@ -413,7 +478,7 @@
     const farms = ref<any>([]);
     const subtitle = ref<string | undefined>();
 
-    const validateFarmName = (value: string) => {
+    const validateFarmName = async (value: string, myStellarAddress: string) => {
         const wasFound = v2farms.find(farm => farm.name === value);
 
         if (wasFound && wasFound.stellar_wallet_addres === wallet.keyPair.getStellarKeyPair().publicKey()) {
@@ -458,24 +523,43 @@
             return;
         }
 
+        try {
+            const res = await axios.get(`/api/v1/farms/${encodeURIComponent(value)}/${myStellarAddress}`);
+
+            console.log(res.data?.canuse);
+            if (res.data?.canuse !== true) {
+                farmFormErrors.value = {
+                    ...farmFormErrors.value,
+                    farmName: 'This name is already taken',
+                };
+                return;
+            }
+        } catch (e) {
+            farmFormErrors.value = {
+                ...farmFormErrors.value,
+                farmName: 'Try again later',
+            };
+            return;
+        }
+
         delete farmFormErrors.value.farmName;
     };
 
     watch(farmNameToValidate, value => {
-        validateFarmName(value);
+        validateFarmName(value, wallet.keyPair.getStellarKeyPair().publicKey());
     });
 
-    const farmFormSubmit = (evt: Event) => {
+    const farmFormSubmit = async (evt: Event) => {
         showFarmDialog.value = false;
 
         const formData = new FormData(evt.target as HTMLFormElement);
 
         const farmName = <string>formData.get('farmName');
-        validateFarmName(farmName);
+        await validateFarmName(farmName, wallet.keyPair.getStellarKeyPair().publicKey());
         if (farmFormErrors.value?.farmName) return;
         const publicIps = <string[]>formData.getAll('publicIP') || [];
 
-        addFarm(farmName, publicIps);
+        await addFarm(farmName, publicIps);
     };
 
     const acceptTermsAndConditions = async () => {
@@ -646,7 +730,7 @@
         const formData = new FormData(evt.target as HTMLFormElement);
         const value = <string>formData.get('farmName');
 
-        validateFarmName(value);
+        await validateFarmName(value, wallet.keyPair.getStellarKeyPair().publicKey());
         if (farmFormErrors.value?.farmName) return;
 
         loading.value = true;
@@ -661,6 +745,14 @@
 
     const init = async () => {
         const address = wallet.keyPair.getSubstrateKeyring().address;
+
+        const stellarAddress = wallet.keyPair.getStellarKeyPair().publicKey();
+        const res = await axios.get(`/api/v1/farms/address/${stellarAddress}`);
+
+        if (res?.data.length > 0) {
+            farmNameToValidate.value = res.data[0];
+            possibleNames.value = res.data;
+        }
 
         substrateBalance.value = await getSubstrateAssetBalances(address);
         await useDynamicBalance(wallet);

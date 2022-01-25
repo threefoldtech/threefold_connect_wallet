@@ -2,7 +2,7 @@ const { request } = require("http");
 const fs = require("fs");
 const fastify = require("fastify")();
 
-let farms = JSON.parse(fs.readFileSync("./src/farms.json"));
+let farms = [...JSON.parse(fs.readFileSync("./src/farms.json"))];
 
 fastify.get("/api/v1/env", () => {
   return { flagsmith: process.env.FLAGSMITH_ENVIROMENT_KEY || "dev" };
@@ -57,20 +57,20 @@ fastify.get("/api/v1/farms/name/:name", (request, reply) => {
 });
 
 fastify.get("/api/v1/farms/:name/:stellar_wallet_address", (request, reply) => {
-  const _farms = farms.filter(
-    (farm) =>
-      farm.name == decodeURI(request.params.name) &&
-      farm.stellar_wallet_addres == request.params.stellar_wallet_address
-  );
+  const farm = farms.find((f) => f.name == decodeURI(request.params.name));
 
-  if (_farms.length === 0) {
-    reply.code(404).type("text/html").send();
-  }
-
-  reply.code(200).type("text/json").send();
+  reply
+    .code(200)
+    .type("text/json")
+    .send({
+      canuse:
+        !farm ||
+        farm.stellar_wallet_addres === request.params.stellar_wallet_address,
+    });
 });
 
 fastify.listen(5000, function (err, address) {
+  console.log(`server listening on ${address}`);
   if (err) {
     fastify.log.error(err);
     process.exit(1);

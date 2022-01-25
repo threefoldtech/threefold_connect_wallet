@@ -15,6 +15,14 @@ export default defineConfig({
             util: path.resolve(__dirname, 'node_modules/util'),
         },
     },
+    server: {
+        proxy: {
+            '/api/v1': {
+                target: 'http://localhost:5000',
+            },
+        },
+    },
+
     build: {
         minify: false,
         target: ['ESNext'],

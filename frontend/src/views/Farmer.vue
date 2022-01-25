@@ -8,22 +8,29 @@
                 </template>
             </PageHeader>
         </template>
-        <div class="min-h-full bg-gray-200 p-4" v-if="grid2Wallets.length > 0">
-            <h2 class="py-2 font-medium">Wallets found with farms in Gridv2</h2>
-            <ul role="list" class="grid grid-cols-1 gap-6">
-                <FarmerWalletCard :wallet="wallet" v-for="wallet in grid2Wallets" />
-            </ul>
-            <hr class="my-4 border-primary-400" />
-            <h2 class="py-2 font-medium">Rest Wallets</h2>
-            <ul role="list" class="grid grid-cols-1 gap-6">
-                <FarmerWalletCard :wallet="wallet" v-for="wallet in restWallets" />
-            </ul>
+        <div v-if="!isLoading" class="min-h-full bg-gray-200 p-4">
+            <div v-if="grid2Wallets.length > 0">
+                <h2 class="py-2 font-medium">Wallets found with farms in Gridv2</h2>
+                <ul role="list" class="grid grid-cols-1 gap-6">
+                    <FarmerWalletCard :wallet="wallet" v-for="wallet in grid2Wallets" />
+                </ul>
+                <hr class="my-4 border-primary-400" />
+                <h2 class="py-2 font-medium">Rest Wallets</h2>
+                <ul role="list" class="grid grid-cols-1 gap-6">
+                    <FarmerWalletCard :wallet="wallet" v-for="wallet in restWallets" />
+                </ul>
+            </div>
+            <div v-else>
+                <h2 class="py-2 font-medium">No wallets found with farms in Gridv2</h2>
+                <ul role="list" class="grid grid-cols-1 gap-6">
+                    <FarmerWalletCard :wallet="wallet" v-for="wallet in wallets" />
+                </ul>
+            </div>
         </div>
-        <div class="min-h-full bg-gray-200 p-4" v-else>
-            <h2 class="py-2 font-medium">No wallets found with farms in Gridv2</h2>
-            <ul role="list" class="grid grid-cols-1 gap-6">
-                <FarmerWalletCard :wallet="wallet" v-for="wallet in wallets" />
-            </ul>
+        <div v-else class="min-h-full bg-gray-200 p-4">
+            <div>
+                <h2 class="py-2 font-medium">Loading...</h2>
+            </div>
         </div>
     </MainLayout>
 </template>
@@ -39,7 +46,9 @@
     import { PkidWalletTypes } from '@/service/initializationService';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import flagsmith from 'flagsmith';
-    import { computed } from 'vue';
+    import { computed, onBeforeUnmount } from 'vue';
+    import { fetchAllFarms } from '@/service/substrateService';
+    import { usePromise } from '@/util/usePromise';
     const farms: {
         id: number;
         name: string;
@@ -73,6 +82,13 @@
             return !grid2Wallets.value.find(grid2Wallet => grid2Wallet.keyPair.getBasePublicKey() === id);
         });
     });
+
+    const { isLoading } = usePromise(fetchAllFarms());
+
+    const intervalPointer = setInterval(async () => {
+        await fetchAllFarms();
+    }, 3000);
+    onBeforeUnmount(() => clearInterval(intervalPointer));
 </script>
 
 <style scoped></style>

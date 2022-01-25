@@ -222,7 +222,7 @@
                     >
                         <DocumentAddIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />
                         <span class="ml-3" v-if="farms.length === 0">Add initial farm</span>
-                        <span class="ml-3" v-if="farms.length > 0">addFarm</span>
+                        <span class="ml-3" v-if="farms.length > 0">Add farm</span>
                     </button>
 
                     <Dialog v-if="showFarmDialog" :open="true" as="div" class="fixed inset-0 z-30">
@@ -267,8 +267,12 @@
                                                             name="farmName"
                                                             id="farmName"
                                                             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                                            v-model="farmNameToValidate"
                                                         />
                                                     </div>
+                                                    <p class="mt-2 text-sm text-red-600" v-if="farmFormErrors.farmName">
+                                                        {{ farmFormErrors.farmName }}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -369,6 +373,8 @@
     import { ChevronUpIcon, PlusIcon, XIcon } from '@heroicons/vue/solid';
     import { computed, ref, watch } from 'vue';
     import {
+        allFarmNames,
+        allFarms,
         getSubstrateApi,
         getSubstrateAssetBalances,
         getTwinId,
@@ -377,13 +383,12 @@
     import axios from 'axios';
     import SiteModalFrame from '@/components/SiteModalFrame.vue';
     import flagsmith from 'flagsmith';
-    import { bin2String } from '@/util/crypto';
-    import { Horizon } from 'stellar-sdk';
     import BalanceCard from '@/components/BalanceCard.vue';
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useDynamicBalance } from '@/util/useDynamicBalance';
     import { addNotification, NotificationType } from '@/service/notificationService';
+    import { toNumber } from 'lodash';
 
     const v2farms: {
         id: number;
@@ -408,30 +413,56 @@
     const farms = ref<any>([]);
     const subtitle = ref<string | undefined>();
 
-    watch(farmNameToValidate, value => {
+    const validateFarmName = (value: string) => {
         const wasFound = v2farms.find(farm => farm.name === value);
 
         if (wasFound && wasFound.stellar_wallet_addres === wallet.keyPair.getStellarKeyPair().publicKey()) {
-            farmFormErrors.value = {
-                farmName: undefined,
-            };
+            delete farmFormErrors.value.farmName;
             return;
         }
 
         if (wasFound) {
             farmFormErrors.value = {
-                name: 'This name is already taken',
+                ...farmFormErrors.value,
+
+                farmName: 'This name is already taken',
             };
             return;
         }
 
-        //should be alphanumeric no spaces and should be at least 3 characters but no more than 20
-        farmFormErrors.value = {
-            farmName:
-                !value || value.length < 0 || value.length > 50
-                    ? 'Farm name must be less than 50 characters'
-                    : undefined,
-        };
+        if (!value) {
+            farmFormErrors.value = {
+                ...farmFormErrors.value,
+
+                farmName: 'Farm name is required',
+            };
+            return;
+        }
+
+        if (value.length > 50) {
+            farmFormErrors.value = {
+                ...farmFormErrors.value,
+
+                farmName: 'Farm name must be less than 50 characters',
+            };
+            return;
+        }
+
+        // if name found in all farms show error
+        if (allFarmNames.value.includes(value)) {
+            farmFormErrors.value = {
+                ...farmFormErrors.value,
+
+                farmName: 'This name is already taken',
+            };
+            return;
+        }
+
+        delete farmFormErrors.value.farmName;
+    };
+
+    watch(farmNameToValidate, value => {
+        validateFarmName(value);
     });
 
     const farmFormSubmit = (evt: Event) => {
@@ -440,6 +471,8 @@
         const formData = new FormData(evt.target as HTMLFormElement);
 
         const farmName = <string>formData.get('farmName');
+        validateFarmName(farmName);
+        if (farmFormErrors.value?.farmName) return;
         const publicIps = <string[]>formData.getAll('publicIP') || [];
 
         addFarm(farmName, publicIps);
@@ -539,16 +572,10 @@
                 throw new Error('Timeout');
             }
             i++;
-            const allFarms = await api.query.tfgridModule.farms.entries();
             //@ts-ignore
-            const tempFarm = allFarms.filter(([, farm]) => farm.twin_id.words[0] === twinId.value);
-            //@ts-ignore
-            farms.value = tempFarm.map(([, farm]) => {
-                const newFarm = JSON.parse(JSON.stringify(farm));
-                //@ts-ignore
-                newFarm.name = bin2String(farm.name);
-                return newFarm;
-            });
+
+            farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === twinId.value);
+
             if (farms.value.length > currentAmountOfFarms) {
                 console.log('farm created');
                 break;
@@ -619,30 +646,7 @@
         const formData = new FormData(evt.target as HTMLFormElement);
         const value = <string>formData.get('farmName');
 
-        const wasFound = v2farms.find(farm => farm.name === value);
-
-        if (wasFound && wasFound.stellar_wallet_addres === wallet.keyPair.getStellarKeyPair().publicKey()) {
-            farmFormErrors.value = {
-                farmName: undefined,
-            };
-            return;
-        }
-
-        if (wasFound) {
-            farmFormErrors.value = {
-                name: 'This name is already taken',
-            };
-            return;
-        }
-
-        //should be alphanumeric no spaces and should be at least 3 characters but no more than 20
-        farmFormErrors.value = {
-            farmName:
-                !value || value.length < 0 || value.length > 50
-                    ? 'Farm name must be less than 50 characters'
-                    : undefined,
-        };
-        //@ts-ignore
+        validateFarmName(value);
         if (farmFormErrors.value?.farmName) return;
 
         loading.value = true;
@@ -664,28 +668,11 @@
         const api = await getSubstrateApi();
 
         termsAndConditions.value = await getUsersTermsAndConditions(address);
-
-        const allFarms = await api.query.tfgridModule.farms.entries(); // @TODO: optimize by moving this to Farmer
-
         // termsAndConditions.value = await api.query.tfgridModule.usersTermsAndConditions(address);
 
         twinId.value = await getTwinId(address);
         //@ts-ignore
-        const tempFarm = allFarms.filter(([, farm]) => farm.twin_id.words[0] === twinId.value);
-        //@ts-ignore
-        farms.value = tempFarm.map(([, farm]) => {
-            const newFarm = JSON.parse(JSON.stringify(farm));
-            //@ts-ignore
-            newFarm.name = bin2String(farm.name);
-            //@ts-ignore
-            newFarm.public_ips = farm.public_ips.map(ip => {
-                const newIp = JSON.parse(JSON.stringify(ip));
-                newIp.ip = bin2String(ip.ip);
-                newIp.gateway = bin2String(ip.gateway);
-                return newIp;
-            });
-            return newFarm;
-        });
+        farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === twinId.value);
 
         // get array of id's from farms
         const farmIds = JSON.parse(JSON.stringify(farms.value.map((farm: any) => farm.id)));
@@ -695,12 +682,7 @@
         nodes.value = allNodes
             //@ts-ignore
             .filter(([, node]) => farmIds.includes(node.farm_id.words[0]))
-            .map(([, node]) => {
-                const newNode = JSON.parse(JSON.stringify(node));
-                //@ts-ignore
-                newNode.name = bin2String(node.name);
-                return newNode;
-            });
+            .map(([, node]) => node.toHuman(true));
 
         loading.value = false;
         subtitle.value = undefined;

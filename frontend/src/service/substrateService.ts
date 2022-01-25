@@ -74,3 +74,11 @@ export const getUsersTermsAndConditions = async (
         return newTerm;
     });
 };
+export const allFarms = ref<any>([]);
+export const allFarmNames = ref<string[]>([]);
+
+export const fetchAllFarms = async () => {
+    const api = await getSubstrateApi();
+    allFarms.value = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm.toHuman(true));
+    allFarmNames.value = allFarms.value.map((farm: any) => farm.name);
+};

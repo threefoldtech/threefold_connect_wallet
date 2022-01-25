@@ -60,8 +60,6 @@
     if (!isDev && !overrideIsDev.value) {
         //@ts-ignore
         globalThis.init = (name: string, seedString: string) => {
-            console.table({ name, seedString }); //@todo: remove this
-
             init(name, seedString)
                 .then(() => {
                     router.replace({ name: 'farmer' }).catch(e => {

@@ -36,7 +36,7 @@ interface PkidV2AppWallet {
 }
 
 interface PkidV2ImportedWallet {
-    index: -1;
+    index: number;
     isConverted: boolean;
     position?: number;
     seed: Buffer;
@@ -146,9 +146,10 @@ export const init = async (name: string, seedString: string) => {
 
     const pkid = getPkidClient();
 
+    const alwaysMigratePkid = flagsmith.hasFeature('always-migrate-pkid');
     const purseDocToCheckMigration = await pkid.getDoc(appKeyPair.value.publicKey, 'purse');
     // checking not only if the purse is empty, but also if it is a valid purse see actions.vue
-    if (!purseDocToCheckMigration?.success || !purseDocToCheckMigration?.data) {
+    if (alwaysMigratePkid || !purseDocToCheckMigration?.success || !purseDocToCheckMigration?.data) {
         loadingText.value = { title: 'starting update' };
         await migratePkid2_xTo3_x();
     }
@@ -195,7 +196,7 @@ export const init = async (name: string, seedString: string) => {
 
 //@todo: make this prettier/more readable/better
 const getSeedphraseFromPkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet) => {
-    const isImported = wallet.index === -1;
+    const isImported = 'seed' in wallet;
 
     if (!isImported) {
         return appSeedPhrase.value;
@@ -213,7 +214,7 @@ const getSeedphraseFromPkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWal
 };
 
 const mapV2toV3PkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet): PkidWallet => {
-    const isImported = wallet.index === -1;
+    const isImported = 'seed' in wallet;
     const seedPhrase = getSeedphraseFromPkidWallet(wallet);
 
     const walletEntropy = calculateWalletEntropyFromAccount(seedPhrase, wallet.index);

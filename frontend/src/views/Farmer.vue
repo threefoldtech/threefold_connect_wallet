@@ -2,7 +2,13 @@
     <MainLayout>
         <template #header>
             <PageHeader>
-                <h1>Farmer</h1>
+                <!--                <template #before v-if="canCreateWallet">-->
+                <!--                    <div>-->
+                <!--                        <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createWallet()" />-->
+                <!--                        Sync with your wallet-->
+                <!--                    </div>-->
+                <!--                </template>-->
+                <h1>Farms</h1>
                 <template #after v-if="canCreateWallet">
                     <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createWallet()" />
                 </template>

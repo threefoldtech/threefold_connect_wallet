@@ -42,7 +42,9 @@ fastify.get(
 );
 
 fastify.get("/api/v1/farms/name/:name", (request, reply) => {
-  const _farms = farms.filter((farm) => farm.name == request.params.name);
+  const _farms = farms.filter(
+    (farm) => farm.name == decodeURI(request.params.name)
+  );
 
   if (_farms.length === 0) {
     reply.code(404).type("text/html").send();
@@ -52,6 +54,20 @@ fastify.get("/api/v1/farms/name/:name", (request, reply) => {
     .code(200)
     .type("text/json")
     .send(_farms.map((farm) => farm.stellar_wallet_addres));
+});
+
+fastify.get("/api/v1/farms/:name/:stellar_wallet_address", (request, reply) => {
+  const _farms = farms.filter(
+    (farm) =>
+      farm.name == decodeURI(request.params.name) &&
+      farm.stellar_wallet_addres == request.params.stellar_wallet_address
+  );
+
+  if (_farms.length === 0) {
+    reply.code(404).type("text/html").send();
+  }
+
+  reply.code(200).type("text/json").send();
 });
 
 fastify.listen(5000, function (err, address) {

@@ -1,8 +1,11 @@
 const { request } = require("http");
 const fs = require("fs");
 const fastify = require("fastify")();
+const path = require("path");
 
-const farms = [...JSON.parse(fs.readFileSync("./src/farms.json"))];
+const farms = [
+  ...JSON.parse(fs.readFileSync(path.join(__dirname, "./src/farms.json"))),
+];
 const farmStellarAdresses = farms
   .map((farm) => farm.stellar_wallet_addres)
   .filter((value, index, self) => self.indexOf(value) === index);

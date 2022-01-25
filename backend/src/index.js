@@ -2,7 +2,10 @@ const { request } = require("http");
 const fs = require("fs");
 const fastify = require("fastify")();
 
-let farms = [...JSON.parse(fs.readFileSync("./src/farms.json"))];
+const farms = [...JSON.parse(fs.readFileSync("./src/farms.json"))];
+const farmStellarAdresses = farms
+  .map((farm) => farm.stellar_wallet_addres)
+  .filter((value, index, self) => self.indexOf(value) === index);
 
 fastify.get("/api/v1/env", () => {
   return { flagsmith: process.env.FLAGSMITH_ENVIROMENT_KEY || "dev" };
@@ -10,6 +13,9 @@ fastify.get("/api/v1/env", () => {
 
 fastify.get("/api/v1/farms", async () => {
   return farms;
+});
+fastify.get("/api/v1/farms/addresses", async () => {
+  return farmStellarAdresses;
 });
 
 fastify.get("/api/v1/farms/id/:id", (request, reply) => {

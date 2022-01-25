@@ -8,7 +8,7 @@
                 </template>
             </PageHeader>
         </template>
-        <div v-if="!isLoading" class="min-h-full bg-gray-200 p-4">
+        <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
             <div v-if="grid2Wallets.length > 0">
                 <h2 class="py-2 font-medium">Wallets found with farms in Gridv2</h2>
                 <ul role="list" class="grid grid-cols-1 gap-6">
@@ -43,17 +43,14 @@
 
     import { PlusCircleIcon } from '@heroicons/vue/outline';
     import { nanoid } from 'nanoid';
-    import { PkidWalletTypes } from '@/service/initializationService';
+    import { init, PkidWalletTypes } from '@/service/initializationService';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import flagsmith from 'flagsmith';
-    import { computed, onBeforeUnmount } from 'vue';
+    import { computed, onBeforeUnmount, ref } from 'vue';
     import { fetchAllFarms } from '@/service/substrateService';
     import { usePromise } from '@/util/usePromise';
-    const farms: {
-        id: number;
-        name: string;
-        stellar_wallet_addres: string;
-    }[] = [];
+    import axios from 'axios';
+    import { useAxios } from '@vueuse/integrations';
 
     //@ts-ignore
     const canCreateWallet = import.meta.env.DEV || flagsmith.hasFeature('can_create_wallet_for_farmer');
@@ -68,11 +65,12 @@
         });
         await saveWallets();
     };
+    const { isLoading: addressesIsLoading, data } = useAxios<string[]>('/api/v1/farms/addresses', axios);
 
     const grid2Wallets = computed(() => {
         return wallets.value.filter(wallet => {
             const stellarKeyPair = wallet.keyPair.getStellarKeyPair().publicKey();
-            return farms.find(farm => farm.stellar_wallet_addres === stellarKeyPair);
+            return data.value?.find(farm => farm === stellarKeyPair);
         });
     });
 
@@ -83,7 +81,7 @@
         });
     });
 
-    const { isLoading } = usePromise(fetchAllFarms());
+    const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
 
     const intervalPointer = setInterval(async () => {
         await fetchAllFarms();

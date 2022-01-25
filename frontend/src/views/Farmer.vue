@@ -50,7 +50,6 @@
     import { fetchAllFarms } from '@/service/substrateService';
     import { usePromise } from '@/util/usePromise';
     import axios from 'axios';
-    import { useAxios } from '@vueuse/integrations';
 
     //@ts-ignore
     const canCreateWallet = import.meta.env.DEV || flagsmith.hasFeature('can_create_wallet_for_farmer');
@@ -65,12 +64,23 @@
         });
         await saveWallets();
     };
-    const { isLoading: addressesIsLoading, data } = useAxios<string[]>('/api/v1/farms/addresses', axios);
+
+    const addressesIsLoading = ref(true);
+    const adressess = ref<string[]>([]);
+    const initAddresses = async () => {
+        addressesIsLoading.value = true;
+        const result = await axios.get('/api/v1/farms/addresses');
+        if (result?.data) {
+            adressess.value = result.data;
+        }
+        addressesIsLoading.value = false;
+    };
+    initAddresses();
 
     const grid2Wallets = computed(() => {
         return wallets.value.filter(wallet => {
             const stellarKeyPair = wallet.keyPair.getStellarKeyPair().publicKey();
-            return data.value?.find(farm => farm === stellarKeyPair);
+            return adressess.value?.find(farm => farm === stellarKeyPair);
         });
     });
 

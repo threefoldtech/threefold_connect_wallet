@@ -526,7 +526,6 @@
         try {
             const res = await axios.get(`/api/v1/farms/${encodeURIComponent(value)}/${myStellarAddress}`);
 
-            console.log(res.data?.canuse);
             if (res.data?.canuse !== true) {
                 farmFormErrors.value = {
                     ...farmFormErrors.value,

@@ -4,7 +4,7 @@ const fastify = require("fastify")();
 const path = require("path");
 
 const farms = [
-  ...JSON.parse(fs.readFileSync(path.join(__dirname, "./src/farms.json"))),
+  ...JSON.parse(fs.readFileSync(path.join(__dirname, "./farms.json"))),
 ];
 const farmStellarAdresses = farms
   .map((farm) => farm.stellar_wallet_addres)

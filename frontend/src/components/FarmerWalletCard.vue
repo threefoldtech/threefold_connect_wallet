@@ -158,6 +158,27 @@
                         >{{ wallet.keyPair.getSubstrateKeyring().address }}</span
                     >
                 </div>
+                <div class="mt-4">
+                    <h2 class="">TFChain secret</h2>
+                    <Disclosure v-slot="{ open }">
+                        <DisclosureButton
+                            class="no-scrollbar flex w-full justify-between overflow-x-auto rounded-lg bg-primary-100 px-4 py-2 text-left text-sm font-medium text-primary-900 hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"
+                        >
+                            show
+                            <ChevronUpIcon
+                                :class="open ? 'rotate-180 transform' : ''"
+                                class="h-5 w-5 text-primary-500"
+                            />
+                        </DisclosureButton>
+                        <DisclosurePanel class="mt-2 ml-4 rounded-lg bg-white bg-primary-100 px-2 py-4">
+                            <div class="space-y-1 sm:flex sm:items-baseline sm:justify-between">
+                                <p class="mt-1 whitespace-nowrap text-gray-600 sm:mt-0 sm:ml-3">
+                                    0x{{ wallet.keyPair.getSeed() }}
+                                </p>
+                            </div>
+                        </DisclosurePanel>
+                    </Disclosure>
+                </div>
             </div>
         </div>
         <div class="p-4">
@@ -664,6 +685,28 @@
                 console.log('farm created');
                 break;
             }
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        // TODO: make tis for the right farm not just the first one
+        const submittableExtrinsic1 = api.tx.tfgridModule.addStellarPayoutV2address(
+            farms.value[0]?.id,
+            wallet.keyPair.getStellarKeyPair().publicKey()
+        );
+
+        const res = await submittableExtrinsic1.signAndSend(wallet.keyPair.getSubstrateKeyring());
+
+        let j = 0;
+        while (true) {
+            // break after 20 seconds
+            if (j > 20) {
+                break;
+                throw new Error('Timeout');
+            }
+            j++;
+            //@ts-ignore
+            const value = await api.query.tfgridModule.farmPayoutV2AddressByFarmID(farms.value[0].id);
+
+            if (!!value) break;
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 

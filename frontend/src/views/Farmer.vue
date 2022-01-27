@@ -21,7 +21,7 @@
                     <FarmerWalletCard :wallet="wallet" v-for="wallet in grid2Wallets" />
                 </ul>
                 <hr class="my-4 border-primary-400" />
-                <h2 class="py-2 font-medium">Rest Wallets</h2>
+                <h2 class="py-2 font-medium">Wallets with no existing farms on Grid v2</h2>
                 <ul role="list" class="grid grid-cols-1 gap-6">
                     <FarmerWalletCard :wallet="wallet" v-for="wallet in restWallets" />
                 </ul>

@@ -142,21 +142,28 @@
                     >
                 </div>
                 <div class="mt-4">
-                    <h2 class="">Stellar address</h2>
-                    <div
-                        class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500"
-                        @click="copyToClipboard(wallet.keyPair.getStellarKeyPair().publicKey())"
-                    >
+                    <div class="flex flex-row items-center">
+                        <h2 class="">Stellar address</h2>
+                        <ClipboardCopyIcon
+                            @click="copyToClipboard(wallet.keyPair.getStellarKeyPair().publicKey())"
+                            class="ml-2 h-4 text-black"
+                        />
+                    </div>
+                    <div class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">
                         {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
                     </div>
                 </div>
                 <div class="mt-4">
-                    <h2 class="">TFChain address</h2>
-                    <span
-                        class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500"
-                        @click="copyToClipboard(wallet.keyPair.getSubstrateKeyring().address)"
-                        >{{ wallet.keyPair.getSubstrateKeyring().address }}</span
-                    >
+                    <div class="flex flex-row items-center">
+                        <h2 class="">TFChain address</h2>
+                        <ClipboardCopyIcon
+                            @click="copyToClipboard(wallet.keyPair.getSubstrateKeyring().address)"
+                            class="ml-2 h-4 text-black"
+                        />
+                    </div>
+                    <span class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">{{
+                        wallet.keyPair.getSubstrateKeyring().address
+                    }}</span>
                 </div>
                 <div class="mt-4">
                     <h2 class="">TFChain secret</h2>
@@ -475,6 +482,7 @@
     import { useDynamicBalance } from '@/util/useDynamicBalance';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { toNumber } from 'lodash';
+    import { ClipboardCopyIcon } from '@heroicons/vue/solid';
 
     const v2farms: {
         id: number;

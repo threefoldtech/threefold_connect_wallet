@@ -16,7 +16,7 @@
         </template>
         <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
             <div v-if="grid2Wallets.length > 0">
-                <h2 class="py-2 font-medium">Wallets found with farms in Gridv2</h2>
+                <h2 class="py-2 font-medium">Wallets connected to existing farms in TF Grid v2</h2>
                 <ul role="list" class="grid grid-cols-1 gap-6">
                     <FarmerWalletCard :wallet="wallet" v-for="wallet in grid2Wallets" />
                 </ul>
@@ -27,7 +27,7 @@
                 </ul>
             </div>
             <div v-else>
-                <h2 class="py-2 font-medium">No wallets found with farms in Gridv2</h2>
+                <h2 class="py-2 font-medium">No wallets found with farms in TF Grid v2</h2>
                 <ul role="list" class="grid grid-cols-1 gap-6">
                     <FarmerWalletCard :wallet="wallet" v-for="wallet in wallets" />
                 </ul>

@@ -29,7 +29,7 @@
             v-if="!loading && termsAndConditions.length === 0"
             class="absolute inset-0 z-20 flex flex-col rounded-lg bg-white p-4"
         >
-            <form @submit.prevent.stop="createFarmFormSubmit">
+            <form @submit.prevent.stop="validateFarmNameForm">
                 <div class="flex flex-col gap-2">
                     <div class="text-2xl text-black">
                         {{ wallet.name }}
@@ -86,45 +86,68 @@
                         </MenuItems>
                     </Menu>
 
-                    <p class="mt-4">You have to accept to the terms and conditions</p>
-                    <SwitchGroup as="div" class="flex items-center justify-between">
-                        <span class="flex flex-grow flex-col">
-                            <SwitchLabel as="span" class="text-sm font-medium text-gray-900"
-                                >Terms & Conditions</SwitchLabel
-                            >
-                            <SwitchDescription as="span" class="text-sm text-gray-500"
-                                >I have read and accept the
-                                <a
-                                    class="inline underline decoration-primary-600 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
-                                    tabindex="0"
-                                    @click.stop.prevent="showTerms()"
-                                >
-                                    terms and conditions
-                                </a>
-                            </SwitchDescription>
-                        </span>
-                        <Switch
-                            v-model="termsAndConditionsIsAccepted"
-                            :class="[
-                                termsAndConditionsIsAccepted ? 'bg-primary-600' : 'bg-gray-200',
-                                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-                            ]"
-                        >
-                            <span
-                                :class="[
-                                    termsAndConditionsIsAccepted ? 'translate-x-5' : 'translate-x-0',
-                                    'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-                                ]"
-                                aria-hidden="true"
-                            />
-                        </Switch>
-                    </SwitchGroup>
                     <input
                         type="submit"
-                        :disabled="!termsAndConditionsIsAccepted"
+                        value="Submit"
                         class="inline-flex items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
-                        value="Create Farm"
                     />
+
+                    <modal
+                        v-if="showTermsAndConditionsModal"
+                        @close="showTermsAndConditionsModal = false"
+                        :action="true"
+                    >
+                        <template #header> You have to accept the terms and conditions </template>
+                        <template #content>
+                            <SwitchGroup as="div" class="flex items-center justify-between px-4">
+                                <span class="flex flex-grow flex-col">
+                                    <SwitchLabel as="span" class="text-sm font-medium text-gray-900"
+                                        >Terms & Conditions</SwitchLabel
+                                    >
+                                    <SwitchDescription as="span" class="text-sm text-gray-500"
+                                        >I have read and accept the
+                                        <a
+                                            class="inline underline decoration-primary-600 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
+                                            tabindex="0"
+                                            @click.stop.prevent="showTerms()"
+                                        >
+                                            terms and conditions
+                                        </a>
+                                    </SwitchDescription>
+                                </span>
+                                <Switch
+                                    v-model="termsAndConditionsIsAccepted"
+                                    :class="[
+                                        termsAndConditionsIsAccepted ? 'bg-primary-600' : 'bg-gray-200',
+                                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+                                    ]"
+                                >
+                                    <span
+                                        :class="[
+                                            termsAndConditionsIsAccepted ? 'translate-x-5' : 'translate-x-0',
+                                            'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                                        ]"
+                                        aria-hidden="true"
+                                    />
+                                </Switch>
+                            </SwitchGroup>
+                        </template>
+                        <template #actions>
+                            <button
+                                @click="createFarmFormSubmit"
+                                :disabled="!termsAndConditionsIsAccepted"
+                                class="rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
+                            >
+                                Create farm
+                            </button>
+                            <button
+                                @click="showTermsAndConditionsModal = false"
+                                class="border-1 mr-2 rounded-md border border-primary-600 bg-white px-4 py-2"
+                            >
+                                Cancel
+                            </button>
+                        </template>
+                    </modal>
                 </div>
             </form>
         </div>
@@ -465,6 +488,7 @@
         MenuButton,
         MenuItems,
         MenuItem,
+        DialogTitle,
     } from '@headlessui/vue';
     import { DocumentAddIcon } from '@heroicons/vue/outline';
     import { ChevronUpIcon, PlusIcon, XIcon, ChevronDownIcon } from '@heroicons/vue/solid';
@@ -487,6 +511,7 @@
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { toNumber } from 'lodash';
     import { ClipboardCopyIcon } from '@heroicons/vue/solid';
+    import Modal from '@/components/global/Modal.vue';
 
     const v2farms: {
         id: number;
@@ -511,6 +536,19 @@
     const showFarmDialog = ref(false);
     const farms = ref<any>([]);
     const subtitle = ref<string | undefined>();
+    const showTermsAndConditionsModal = ref<boolean>(false);
+
+    const validateFarmNameForm = async (evt: Event) => {
+        showFarmDialog.value = false;
+
+        const formData = new FormData(evt.target as HTMLFormElement);
+
+        const farmName = <string>formData.get('farmName');
+        await validateFarmName(farmName, wallet.keyPair.getStellarKeyPair().publicKey());
+        if (farmFormErrors.value?.farmName) return;
+
+        showTermsAndConditionsModal.value = true;
+    };
 
     const validateFarmName = async (value: string, myStellarAddress: string) => {
         const wasFound = v2farms.find(farm => farm.name === value);
@@ -779,21 +817,22 @@
         navigator.clipboard.writeText(text);
     };
 
-    const createFarmFormSubmit = async (evt: Event) => {
+    const createFarmFormSubmit = async () => {
+        // Double check if the terms and conditions are checked
         if (!termsAndConditionsIsAccepted.value) return;
 
-        const formData = new FormData(evt.target as HTMLFormElement);
-        const value = <string>formData.get('farmName');
+        // Farm name has already been validated, but double check to be 100% sure
+        const farmName: string = farmNameToValidate.value;
+        await validateFarmName(farmName, wallet.keyPair.getStellarKeyPair().publicKey());
 
-        await validateFarmName(value, wallet.keyPair.getStellarKeyPair().publicKey());
         if (farmFormErrors.value?.farmName) return;
 
         loading.value = true;
-        subtitle.value = 'starting creation of farm';
+        subtitle.value = 'Starting creation of farm';
 
         await acceptTermsAndConditions();
 
-        await addFarm(value, []);
+        await addFarm(farmName, []);
 
         await init();
     };

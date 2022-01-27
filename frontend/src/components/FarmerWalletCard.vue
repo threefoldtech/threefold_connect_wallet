@@ -178,10 +178,14 @@
                             />
                         </DisclosureButton>
                         <DisclosurePanel class="mt-2 ml-4 rounded-lg bg-white bg-primary-100 px-2 py-4">
-                            <div class="space-y-1 sm:flex sm:items-baseline sm:justify-between">
-                                <p class="mt-1 whitespace-nowrap text-gray-600 sm:mt-0 sm:ml-3">
+                            <div class="flex items-center justify-between space-y-1">
+                                <p class="mt-1 truncate text-gray-600 sm:mt-0 sm:ml-3">
                                     0x{{ wallet.keyPair.getSeed() }}
                                 </p>
+                                <ClipboardCopyIcon
+                                    @click="copyToClipboard(`0x${wallet.keyPair.getSeed()}`)"
+                                    class="ml-2 h-8 text-black"
+                                />
                             </div>
                         </DisclosurePanel>
                     </Disclosure>

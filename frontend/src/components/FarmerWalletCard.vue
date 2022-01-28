@@ -9,7 +9,7 @@
         >
             <div class="flex flex-col items-center justify-center text-center">
                 <svg
-                    class="h-32 animate-spin text-white"
+                    class="h-8 animate-spin text-white text-primary-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
@@ -21,14 +21,11 @@
                         fill="currentColor"
                     ></path>
                 </svg>
-                <h2 class="mt-4">loading</h2>
+                <h2 class="mt-4 text-sm">Loading ...</h2>
                 <h3 class="text-sm" v-if="subtitle">{{ subtitle }}</h3>
             </div>
         </div>
-        <div
-            v-if="!loading && termsAndConditions.length === 0"
-            class="absolute inset-0 z-20 flex flex-col rounded-lg bg-white p-4"
-        >
+        <div v-if="!loading && termsAndConditions.length === 0" class="absolute z-20 w-full rounded-lg bg-white p-4">
             <form @submit.prevent.stop="validateFarmNameForm">
                 <div class="flex flex-col gap-2">
                     <div class="text-2xl text-black">
@@ -142,7 +139,7 @@
                             </button>
                             <button
                                 @click="showTermsAndConditionsModal = false"
-                                class="border-1 mr-2 rounded-md border border-primary-600 bg-white px-4 py-2"
+                                class="rounded-md bg-white py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                             >
                                 Cancel
                             </button>
@@ -152,119 +149,127 @@
             </form>
         </div>
 
-        <div class="flex w-full items-center justify-between space-x-6 p-4">
-            <div class="flex-1 truncate">
-                <div class="flex items-center space-x-3">
-                    <h3 class="overflow-x-auto text-sm font-medium font-semibold uppercase text-gray-900">
-                        {{ wallet.name }}
-                    </h3>
-                    <span
-                        class="inline-block flex-shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
-                        v-if="wallet.meta.type !== 'NATIVE'"
-                        >{{ wallet.meta.type }}</span
-                    >
-                </div>
-                <div class="mt-4">
-                    <div class="flex flex-row items-center">
-                        <h2 class="">Stellar address</h2>
-                        <ClipboardCopyIcon
-                            @click="copyToClipboard(wallet.keyPair.getStellarKeyPair().publicKey())"
-                            class="ml-2 h-4 text-black"
-                        />
-                    </div>
-                    <div class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">
-                        {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <div class="flex flex-row items-center">
-                        <h2 class="">TFChain address</h2>
-                        <ClipboardCopyIcon
-                            @click="copyToClipboard(wallet.keyPair.getSubstrateKeyring().address)"
-                            class="ml-2 h-4 text-black"
-                        />
-                    </div>
-                    <span class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">{{
-                        wallet.keyPair.getSubstrateKeyring().address
-                    }}</span>
-                </div>
-                <div class="mt-4">
-                    <h2 class="">TFChain secret</h2>
-                    <Disclosure v-slot="{ open }">
-                        <DisclosureButton
-                            class="no-scrollbar flex w-full justify-between overflow-x-auto rounded-lg bg-primary-100 px-4 py-2 text-left text-sm font-medium text-primary-900 hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"
-                        >
-                            show
-                            <ChevronUpIcon
-                                :class="open ? 'rotate-180 transform' : ''"
-                                class="h-5 w-5 text-primary-500"
-                            />
-                        </DisclosureButton>
-                        <DisclosurePanel class="mt-2 ml-4 rounded-lg bg-white bg-primary-100 px-2 py-4">
-                            <div class="flex items-center justify-between space-y-1">
-                                <p class="mt-1 truncate text-gray-600 sm:mt-0 sm:ml-3">
-                                    0x{{ wallet.keyPair.getSeed() }}
-                                </p>
-                                <ClipboardCopyIcon
-                                    @click="copyToClipboard(`0x${wallet.keyPair.getSeed()}`)"
-                                    class="ml-2 h-8 text-black"
-                                />
-                            </div>
-                        </DisclosurePanel>
-                    </Disclosure>
-                </div>
+        <div @click="showDetails = !showDetails" class="flex items-center justify-between space-x-3 p-4">
+            <div class="flex flex-row">
+                <h3 class="overflow-x-auto text-sm font-medium font-semibold uppercase text-gray-900">
+                    {{ wallet.name }}
+                </h3>
+                <span
+                    class="ml-3 inline-block flex flex-shrink-0 items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
+                    v-if="wallet.meta.type !== 'NATIVE'"
+                    >{{ wallet.meta.type }}</span
+                >
+            </div>
+            <div>
+                <ChevronUpIcon v-if="showDetails" class="-ml-1 mr-2 h-5 w-5" />
+                <ChevronDownIcon v-if="!showDetails" class="-ml-1 mr-2 h-5 w-5" />
             </div>
         </div>
-        <div class="p-4">
-            <div class="space-y-2">
-                <div class="py-2">
-                    {{ farms.length === 0 ? 'No farms' : farms.length === 1 ? 'Farm:' : `Farms:` }}
-                    <div role="list" class="space-y-4 sm:px-6 lg:px-8">
-                        <template v-for="(farm, index) in farms">
-                            <Disclosure v-slot="{ open }">
-                                <DisclosureButton
-                                    class="no-scrollbar flex w-full justify-between overflow-x-auto rounded-lg bg-primary-100 px-4 py-2 text-left text-sm font-medium text-primary-900 hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"
-                                >
-                                    {{ farm.name }}
-                                    <ChevronUpIcon
-                                        :class="open ? 'rotate-180 transform' : ''"
-                                        class="h-5 w-5 text-primary-500"
+        <div v-show="showDetails">
+            <div class="flex w-full items-center justify-between space-x-6 px-4 pb-4">
+                <div class="flex-1 truncate">
+                    <div class="mt-4">
+                        <div class="flex flex-row items-center">
+                            <h2 class="">Stellar address</h2>
+                            <ClipboardCopyIcon
+                                @click="copyToClipboard(wallet.keyPair.getStellarKeyPair().publicKey())"
+                                class="ml-2 h-4 text-black"
+                            />
+                        </div>
+                        <div class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">
+                            {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex flex-row items-center">
+                            <h2 class="">TFChain address</h2>
+                            <ClipboardCopyIcon
+                                @click="copyToClipboard(wallet.keyPair.getSubstrateKeyring().address)"
+                                class="ml-2 h-4 text-black"
+                            />
+                        </div>
+                        <span class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">{{
+                            wallet.keyPair.getSubstrateKeyring().address
+                        }}</span>
+                    </div>
+                    <div class="mt-4">
+                        <h2 class="">TFChain secret</h2>
+                        <Disclosure v-slot="{ open }">
+                            <DisclosureButton
+                                class="no-scrollbar flex w-full justify-between overflow-x-auto rounded-lg bg-primary-100 px-4 py-2 text-left text-sm font-medium text-primary-900 hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"
+                            >
+                                show
+                                <ChevronUpIcon
+                                    :class="open ? 'rotate-180 transform' : ''"
+                                    class="h-5 w-5 text-primary-500"
+                                />
+                            </DisclosureButton>
+                            <DisclosurePanel class="mt-2 ml-4 rounded-lg bg-white bg-primary-100 px-2 py-4">
+                                <div class="flex items-center justify-between space-y-1">
+                                    <p class="mt-1 truncate text-gray-600 sm:mt-0 sm:ml-3">
+                                        0x{{ wallet.keyPair.getSeed() }}
+                                    </p>
+                                    <ClipboardCopyIcon
+                                        @click="copyToClipboard(`0x${wallet.keyPair.getSeed()}`)"
+                                        class="ml-2 h-8 text-black"
                                     />
-                                </DisclosureButton>
-                                <DisclosurePanel class="ml-4 rounded-lg bg-white bg-primary-100 px-2 py-4">
-                                    <div class="space-y-1 sm:flex sm:items-baseline sm:justify-between">
-                                        <h3 class="">
-                                            <span class="text-gray-600">Farm id: {{ farm.id }}</span>
-                                        </h3>
-                                        <p class="mt-1 whitespace-nowrap text-gray-600 sm:mt-0 sm:ml-3">
-                                            Twin Id: {{ farm.twin_id }}
-                                        </p>
-                                        <hr class="border-primary-300" />
-                                        <p
-                                            class="mt-1 whitespace-nowrap text-gray-600 sm:mt-0 sm:ml-3"
-                                            v-if="nodes.length > 0"
-                                        >
-                                            node Ids: {{ nodes.map((node:any) => node.id).join(', ') }}
-                                        </p>
-                                        <p
-                                            class="mt-1 whitespace-nowrap text-sm text-gray-600 sm:mt-0 sm:ml-3"
-                                            v-if="nodes.length === 0"
-                                        >
-                                            No nodes connected with this farm
-                                        </p>
-                                    </div>
-                                </DisclosurePanel>
-                            </Disclosure>
-                        </template>
+                                </div>
+                            </DisclosurePanel>
+                        </Disclosure>
                     </div>
                 </div>
-                <div class="p-2">
-                    Balance:
-                    <div class="mt-2 space-y-2">
-                        <BalanceCard
-                            v-for="assetBalance in walletBalances?.assets"
-                            :balance="assetBalance"
-                        ></BalanceCard>
+            </div>
+            <div class="p-4">
+                <div class="space-y-2">
+                    <div class="py-2">
+                        {{ farms.length === 0 ? 'No farms' : farms.length === 1 ? 'Farm:' : `Farms:` }}
+                        <div role="list" class="space-y-4 sm:px-6 lg:px-8">
+                            <template v-for="(farm, index) in farms">
+                                <Disclosure v-slot="{ open }">
+                                    <DisclosureButton
+                                        class="no-scrollbar flex w-full justify-between overflow-x-auto rounded-lg bg-primary-100 px-4 py-2 text-left text-sm font-medium text-primary-900 hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"
+                                    >
+                                        {{ farm.name }}
+                                        <ChevronUpIcon
+                                            :class="open ? 'rotate-180 transform' : ''"
+                                            class="h-5 w-5 text-primary-500"
+                                        />
+                                    </DisclosureButton>
+                                    <DisclosurePanel class="ml-4 rounded-lg bg-white bg-primary-100 px-2 py-4">
+                                        <div class="space-y-1 sm:flex sm:items-baseline sm:justify-between">
+                                            <h3 class="">
+                                                <span class="text-gray-600">Farm id: {{ farm.id }}</span>
+                                            </h3>
+                                            <p class="mt-1 whitespace-nowrap text-gray-600 sm:mt-0 sm:ml-3">
+                                                Twin Id: {{ farm.twin_id }}
+                                            </p>
+                                            <hr class="border-primary-300" />
+                                            <p
+                                                class="mt-1 whitespace-nowrap text-gray-600 sm:mt-0 sm:ml-3"
+                                                v-if="nodes.length > 0"
+                                            >
+                                                node Ids: {{ nodes.map((node:any) => node.id).join(', ') }}
+                                            </p>
+                                            <p
+                                                class="mt-1 whitespace-nowrap text-sm text-gray-600 sm:mt-0 sm:ml-3"
+                                                v-if="nodes.length === 0"
+                                            >
+                                                No nodes connected with this farm
+                                            </p>
+                                        </div>
+                                    </DisclosurePanel>
+                                </Disclosure>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="p-2">
+                        Balance:
+                        <div class="mt-2 space-y-2">
+                            <BalanceCard
+                                v-for="assetBalance in walletBalances?.assets"
+                                :balance="assetBalance"
+                            ></BalanceCard>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -537,6 +542,7 @@
     const farms = ref<any>([]);
     const subtitle = ref<string | undefined>();
     const showTermsAndConditionsModal = ref<boolean>(false);
+    const showDetails = ref<boolean>(false);
 
     const validateFarmNameForm = async (evt: Event) => {
         showFarmDialog.value = false;

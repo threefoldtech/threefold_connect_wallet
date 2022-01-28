@@ -28,7 +28,7 @@
         <div v-if="!loading && termsAndConditions.length === 0" class="absolute z-20 w-full rounded-lg bg-white p-4">
             <form @submit.prevent.stop="validateFarmNameForm">
                 <div class="flex flex-col gap-2">
-                    <div class="text-2xl text-black">
+                    <div class="truncate text-2xl text-black">
                         {{ wallet.name }}
                     </div>
                     <hr class="border-gray-300" />
@@ -150,8 +150,8 @@
         </div>
 
         <div @click="showDetails = !showDetails" class="flex items-center justify-between space-x-3 p-4">
-            <div class="flex flex-row">
-                <h3 class="overflow-x-auto text-sm font-medium font-semibold uppercase text-gray-900">
+            <div class="max-w-80 flex flex-row">
+                <h3 class="overflow-x-auto truncate text-sm font-medium font-semibold uppercase text-gray-900">
                     {{ wallet.name }}
                 </h3>
                 <span
@@ -881,3 +881,8 @@
     };
     init();
 </script>
+<style scoped>
+    .max-w-80 {
+        max-width: 80%;
+    }
+</style>

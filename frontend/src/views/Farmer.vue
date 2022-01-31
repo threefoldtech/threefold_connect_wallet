@@ -92,6 +92,7 @@
 
     const addressesIsLoading = ref(true);
     const adressess = ref<string[]>([]);
+
     const initAddresses = async () => {
         addressesIsLoading.value = true;
         const result = await axios.get('/api/v1/farms/addresses');
@@ -100,6 +101,7 @@
         }
         addressesIsLoading.value = false;
     };
+
     initAddresses();
 
     const grid2Wallets = computed(() => {
@@ -121,6 +123,7 @@
     const intervalPointer = setInterval(async () => {
         await fetchAllFarms();
     }, 3000);
+
     onBeforeUnmount(() => clearInterval(intervalPointer));
 </script>
 

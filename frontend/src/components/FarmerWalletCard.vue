@@ -25,70 +25,83 @@
                 <h3 class="text-sm" v-if="subtitle">{{ subtitle }}</h3>
             </div>
         </div>
-        <div v-if="!loading && termsAndConditions.length === 0" class="absolute z-20 w-full rounded-lg bg-white p-4">
+        <div
+            v-if="!loading && termsAndConditions.length === 0"
+            class="absolute z-20 w-full rounded-lg bg-white px-4 pt-4"
+        >
             <form @submit.prevent.stop="validateFarmNameForm">
                 <div class="flex flex-col gap-2">
-                    <div class="truncate text-2xl text-black">
-                        {{ wallet.name }}
+                    <div
+                        @click="showCreateFarmDetails = !showCreateFarmDetails"
+                        class="flex flex-row items-center justify-between"
+                    >
+                        <div class="max-w-80 truncate text-2xl text-black">
+                            {{ wallet.name }}
+                        </div>
+                        <div>
+                            <ChevronUpIcon v-if="showCreateFarmDetails" class="-ml-1 mr-2 h-5 w-5" />
+                            <ChevronDownIcon v-if="!showCreateFarmDetails" class="-ml-1 mr-2 h-5 w-5" />
+                        </div>
                     </div>
                     <hr class="border-gray-300" />
-                    <label>
-                        <p class="block text-sm font-medium text-gray-700">Farm name</p>
-                        <div class="mt-1">
-                            <input
-                                type="text"
-                                name="farmName"
-                                id="email"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                                :class="{ 'border-red-500': farmFormErrors.farmName }"
-                                placeholder="Enter Farm Name"
-                                v-model="farmNameToValidate"
-                                required
-                            />
-                        </div>
-
-                        <p class="mt-2 text-sm text-red-600" v-if="farmFormErrors.farmName">
-                            {{ farmFormErrors.farmName }}
-                        </p>
-                        <p class="mt-2 text-sm text-gray-500" v-if="!farmFormErrors.farmName">
-                            No spaces or special characters
-                        </p>
-                    </label>
-                    <Menu as="div" class="relative inline-block text-left" v-if="possibleNames.length > 1">
-                        <div>
-                            <MenuButton
-                                class="inline-flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-                            >
-                                Other Possibilities
-                                <ChevronDownIcon
-                                    class="ml-2 -mr-1 h-5 w-5 text-primary-200 hover:text-primary-100"
-                                    aria-hidden="true"
+                    <div v-if="showCreateFarmDetails">
+                        <label>
+                            <p class="block text-sm font-medium text-gray-700">Farm name</p>
+                            <div class="mt-1">
+                                <input
+                                    type="text"
+                                    name="farmName"
+                                    id="email"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                    :class="{ 'border-red-500': farmFormErrors.farmName }"
+                                    placeholder="Enter Farm Name"
+                                    v-model="farmNameToValidate"
+                                    required
                                 />
-                            </MenuButton>
-                        </div>
-
-                        <MenuItems
-                            class="absolute right-0 z-50 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                        >
-                            <div class="divide-y divide-primary-300 px-1 py-2">
-                                <MenuItem v-for="name in possibleNames" v-slot="{ active }">
-                                    <button
-                                        class="group flex w-full items-center px-2 py-2 text-sm text-gray-800 hover:bg-primary-200"
-                                        @click="farmNameToValidate = name"
-                                    >
-                                        {{ name }}
-                                    </button>
-                                </MenuItem>
                             </div>
-                        </MenuItems>
-                    </Menu>
 
-                    <input
-                        type="submit"
-                        value="Submit"
-                        class="inline-flex items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
-                    />
+                            <p class="mt-2 text-sm text-red-600" v-if="farmFormErrors.farmName">
+                                {{ farmFormErrors.farmName }}
+                            </p>
+                            <p class="mt-2 text-sm text-gray-500" v-if="!farmFormErrors.farmName">
+                                No spaces or special characters
+                            </p>
+                        </label>
+                        <Menu as="div" class="relative inline-block text-left" v-if="possibleNames.length > 1">
+                            <div>
+                                <MenuButton
+                                    class="inline-flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                                >
+                                    Other Possibilities
+                                    <ChevronDownIcon
+                                        class="ml-2 -mr-1 h-5 w-5 text-primary-200 hover:text-primary-100"
+                                        aria-hidden="true"
+                                    />
+                                </MenuButton>
+                            </div>
 
+                            <MenuItems
+                                class="absolute right-0 z-50 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                            >
+                                <div class="divide-y divide-primary-300 px-1 py-2">
+                                    <MenuItem v-for="name in possibleNames" v-slot="{ active }">
+                                        <button
+                                            class="group flex w-full items-center px-2 py-2 text-sm text-gray-800 hover:bg-primary-200"
+                                            @click="farmNameToValidate = name"
+                                        >
+                                            {{ name }}
+                                        </button>
+                                    </MenuItem>
+                                </div>
+                            </MenuItems>
+                        </Menu>
+
+                        <input
+                            type="submit"
+                            value="Submit"
+                            class="inline-flex items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
+                        />
+                    </div>
                     <modal
                         v-if="showTermsAndConditionsModal"
                         @close="showTermsAndConditionsModal = false"
@@ -154,11 +167,11 @@
                 <h3 class="overflow-x-auto truncate text-sm font-medium font-semibold uppercase text-gray-900">
                     {{ wallet.name }}
                 </h3>
-                <span
-                    class="ml-3 inline-block flex flex-shrink-0 items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
-                    v-if="wallet.meta.type !== 'NATIVE'"
-                    >{{ wallet.meta.type }}</span
-                >
+                <!--                <span-->
+                <!--                    class="ml-3 inline-block flex flex-shrink-0 items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"-->
+                <!--                    v-if="wallet.meta.type !== 'NATIVE'"-->
+                <!--                    >{{ wallet.meta.type }}</span-->
+                <!--                >-->
             </div>
             <div>
                 <ChevronUpIcon v-if="showDetails" class="-ml-1 mr-2 h-5 w-5" />
@@ -170,7 +183,7 @@
                 <div class="flex-1 truncate">
                     <div class="mt-4">
                         <div class="flex flex-row items-center">
-                            <h2 class="">Stellar address</h2>
+                            <h2 class="font-semibold">Stellar address</h2>
                             <ClipboardCopyIcon
                                 @click="copyToClipboard(wallet.keyPair.getStellarKeyPair().publicKey())"
                                 class="ml-2 h-4 text-black"
@@ -179,44 +192,56 @@
                         <div class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">
                             {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
                         </div>
+                        <div class="mt-1 text-xs font-light">Note: This address will be used for payout</div>
                     </div>
                     <div class="mt-4">
                         <div class="flex flex-row items-center">
-                            <h2 class="">TFChain address</h2>
-                            <ClipboardCopyIcon
-                                @click="copyToClipboard(wallet.keyPair.getSubstrateKeyring().address)"
-                                class="ml-2 h-4 text-black"
-                            />
+                            <div class="font-semibold">Balance</div>
                         </div>
-                        <span class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">{{
-                            wallet.keyPair.getSubstrateKeyring().address
-                        }}</span>
+                        <div class="mt-2 space-y-2">
+                            <BalanceCard
+                                v-for="assetBalance in walletBalances?.assets"
+                                :balance="assetBalance"
+                            ></BalanceCard>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <h2 class="">TFChain secret</h2>
-                        <Disclosure v-slot="{ open }">
-                            <DisclosureButton
-                                class="no-scrollbar flex w-full justify-between overflow-x-auto rounded-lg bg-primary-100 px-4 py-2 text-left text-sm font-medium text-primary-900 hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"
-                            >
-                                show
-                                <ChevronUpIcon
-                                    :class="open ? 'rotate-180 transform' : ''"
-                                    class="h-5 w-5 text-primary-500"
-                                />
-                            </DisclosureButton>
-                            <DisclosurePanel class="mt-2 ml-4 rounded-lg bg-white bg-primary-100 px-2 py-4">
-                                <div class="flex items-center justify-between space-y-1">
-                                    <p class="mt-1 truncate text-gray-600 sm:mt-0 sm:ml-3">
-                                        0x{{ wallet.keyPair.getSeed() }}
-                                    </p>
-                                    <ClipboardCopyIcon
-                                        @click="copyToClipboard(`0x${wallet.keyPair.getSeed()}`)"
-                                        class="ml-2 h-8 text-black"
-                                    />
-                                </div>
-                            </DisclosurePanel>
-                        </Disclosure>
-                    </div>
+                    <!--                    <div class="mt-4">-->
+                    <!--                        <div class="flex flex-row items-center">-->
+                    <!--                            <h2 class="">TFChain address</h2>-->
+                    <!--                            <ClipboardCopyIcon-->
+                    <!--                                @click="copyToClipboard(wallet.keyPair.getSubstrateKeyring().address)"-->
+                    <!--                                class="ml-2 h-4 text-black"-->
+                    <!--                            />-->
+                    <!--                        </div>-->
+                    <!--                        <span class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">{{-->
+                    <!--                            wallet.keyPair.getSubstrateKeyring().address-->
+                    <!--                        }}</span>-->
+                    <!--                    </div>-->
+                    <!--                    <div class="mt-4">-->
+                    <!--                        <h2 class="">TFChain secret</h2>-->
+                    <!--                        <Disclosure v-slot="{ open }">-->
+                    <!--                            <DisclosureButton-->
+                    <!--                                class="no-scrollbar flex w-full justify-between overflow-x-auto rounded-lg bg-primary-100 px-4 py-2 text-left text-sm font-medium text-primary-900 hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"-->
+                    <!--                            >-->
+                    <!--                                show-->
+                    <!--                                <ChevronUpIcon-->
+                    <!--                                    :class="open ? 'rotate-180 transform' : ''"-->
+                    <!--                                    class="h-5 w-5 text-primary-500"-->
+                    <!--                                />-->
+                    <!--                            </DisclosureButton>-->
+                    <!--                            <DisclosurePanel class="mt-2 ml-4 rounded-lg bg-white bg-primary-100 px-2 py-4">-->
+                    <!--                                <div class="flex items-center justify-between space-y-1">-->
+                    <!--                                    <p class="mt-1 truncate text-gray-600 sm:mt-0 sm:ml-3">-->
+                    <!--                                        0x{{ wallet.keyPair.getSeed() }}-->
+                    <!--                                    </p>-->
+                    <!--                                    <ClipboardCopyIcon-->
+                    <!--                                        @click="copyToClipboard(`0x${wallet.keyPair.getSeed()}`)"-->
+                    <!--                                        class="ml-2 h-8 text-black"-->
+                    <!--                                    />-->
+                    <!--                                </div>-->
+                    <!--                            </DisclosurePanel>-->
+                    <!--                        </Disclosure>-->
+                    <!--                    </div>-->
                 </div>
             </div>
             <div class="p-4">
@@ -262,20 +287,11 @@
                             </template>
                         </div>
                     </div>
-                    <div class="p-2">
-                        Balance:
-                        <div class="mt-2 space-y-2">
-                            <BalanceCard
-                                v-for="assetBalance in walletBalances?.assets"
-                                :balance="assetBalance"
-                            ></BalanceCard>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
         <div>
-            <div v-if="!loading" class="-mt-px flex divide-x divide-gray-200">
+            <div v-if="!loading" class="-mt-px flex hidden divide-x divide-gray-200">
                 <div v-if="termsAndConditions.length === 0" class="flex w-0 flex-1">
                     <button
                         class="relative -mr-px inline-flex w-0 flex-1 items-center justify-center rounded-bl-lg border border-transparent py-4 text-sm font-medium text-gray-700 hover:text-gray-500"
@@ -485,6 +501,9 @@
         Disclosure,
         DisclosureButton,
         DisclosurePanel,
+        Popover,
+        PopoverButton,
+        PopoverPanel,
         Switch,
         SwitchDescription,
         SwitchGroup,
@@ -496,7 +515,7 @@
         DialogTitle,
     } from '@headlessui/vue';
     import { DocumentAddIcon } from '@heroicons/vue/outline';
-    import { ChevronUpIcon, PlusIcon, XIcon, ChevronDownIcon } from '@heroicons/vue/solid';
+    import { ChevronUpIcon, PlusIcon, XIcon, ChevronDownIcon, InformationCircleIcon } from '@heroicons/vue/solid';
     import { computed, ref, watch } from 'vue';
     import {
         allFarmNames,
@@ -543,6 +562,7 @@
     const subtitle = ref<string | undefined>();
     const showTermsAndConditionsModal = ref<boolean>(false);
     const showDetails = ref<boolean>(false);
+    const showCreateFarmDetails = ref<boolean>(false);
 
     const validateFarmNameForm = async (evt: Event) => {
         showFarmDialog.value = false;

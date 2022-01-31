@@ -32,74 +32,80 @@
             </div>
 
             <div @click="showDetails = !showDetails" class="flex flex-row items-center justify-between">
-                <div class="max-w-80 truncate text-2xl text-black">
+                <div class="text-md max-w-90 truncate p-4 font-medium">
                     {{ farm.name }}
                 </div>
                 <div>
-                    <ChevronUpIcon v-if="showCreateFarmDetails" class="-ml-1 mr-2 h-5 w-5" />
-                    <ChevronDownIcon v-if="!showCreateFarmDetails" class="-ml-1 mr-2 h-5 w-5" />
+                    <ChevronUpIcon v-if="showDetails" class="-ml-1 mr-2 h-5 w-5" />
+                    <ChevronDownIcon v-if="!showDetails" class="-ml-1 mr-2 h-5 w-5" />
                 </div>
             </div>
 
             <div v-show="showDetails">
                 <div class="p-4">
                     <div class="space-y-2">
-                        <div class="py-2">
+                        <div>
                             <div role="list" class="space-y-4 sm:px-6 lg:px-8">
                                 <div class="space-y-1 sm:flex sm:items-baseline sm:justify-between">
-                                    <h3 class="">
-                                        <span class="text-gray-600">Farm id: {{ farm.id }}</span>
-                                    </h3>
-                                    <p class="mt-1 whitespace-nowrap text-gray-600 sm:mt-0 sm:ml-3">
-                                        Twin Id: {{ farm.twin_id }}
-                                    </p>
-                                    <hr class="border-primary-300" />
-                                    <p
-                                        class="mt-1 whitespace-nowrap text-gray-600 sm:mt-0 sm:ml-3"
-                                        v-if="nodes.length > 0"
-                                    >
-                                        node Ids: {{ nodes.map((node:any) => node.id).join(', ') }}
-                                    </p>
-                                    <p
-                                        class="mt-1 whitespace-nowrap text-sm text-gray-600 sm:mt-0 sm:ml-3"
-                                        v-if="nodes.length === 0"
-                                    >
-                                        No nodes connected with this farm
-                                    </p>
-                                    <div class="flex w-full items-center justify-between space-x-6 px-4 pb-4">
-                                        <div class="flex-1 truncate">
-                                            <div class="mt-4">
-                                                <div class="flex flex-row items-center">
-                                                    <h2 class="font-semibold">Stellar address</h2>
-                                                    <ClipboardCopyIcon
-                                                        @click="
-                                                            copyToClipboard(
-                                                                wallet.keyPair.getStellarKeyPair().publicKey()
-                                                            )
-                                                        "
-                                                        class="ml-2 h-4 text-black"
-                                                    />
-                                                </div>
-                                                <div
-                                                    class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500"
-                                                >
-                                                    {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
-                                                </div>
-                                                <div class="mt-1 text-xs font-light">
-                                                    Note: This address will be used for payout
-                                                </div>
-                                            </div>
-                                            <div class="mt-4">
-                                                <div class="flex flex-row items-center">
-                                                    <div class="font-semibold">Balance</div>
-                                                </div>
-                                                <div class="mt-2 space-y-2">
-                                                    <BalanceCard
-                                                        v-for="assetBalance in walletBalances?.assets"
-                                                        :balance="assetBalance"
-                                                    ></BalanceCard>
-                                                </div>
-                                            </div>
+                                    <div>
+                                        <div class="flex flex-row items-center">
+                                            <h2 class="text-sm font-semibold uppercase">Stellar address</h2>
+                                            <ClipboardCopyIcon
+                                                @click="copyToClipboard(wallet.keyPair.getStellarKeyPair().publicKey())"
+                                                class="ml-2 h-4 text-black"
+                                            />
+                                        </div>
+
+                                        <div
+                                            class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500"
+                                        >
+                                            {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
+                                        </div>
+                                        <div class="mt-1 text-xs font-light text-orange-500">
+                                            Note: This address will be used for payout
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-4">
+                                        <h2 class="text-sm font-semibold uppercase">Balances</h2>
+                                        <div class="mt-2 space-y-2">
+                                            <BalanceCard
+                                                v-for="assetBalance in walletBalances?.assets"
+                                                :balance="assetBalance"
+                                            ></BalanceCard>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-4">
+                                        <h2 class="text-sm font-semibold uppercase">Wallet name</h2>
+                                        <span class="text-sm text-gray-500"> {{ wallet.name }}</span>
+                                    </div>
+
+                                    <div class="pt-4">
+                                        <h2 class="text-sm font-semibold uppercase">Farm id</h2>
+                                        <span class="text-sm text-gray-500"> {{ farm.id }}</span>
+                                    </div>
+
+                                    <div class="pt-4">
+                                        <h2 class="text-sm font-semibold uppercase">Twin id</h2>
+                                        <span class="text-sm text-gray-500"> {{ farm.twin_id }}</span>
+                                    </div>
+
+                                    <div class="pt-4">
+                                        <h2 class="text-sm font-semibold uppercase">Nodes</h2>
+                                        <div class="text-sm text-gray-500">
+                                            <p
+                                                class="mt-1 whitespace-nowrap text-gray-600 sm:mt-0 sm:ml-3"
+                                                v-if="nodes && nodes.length > 0"
+                                            >
+                                                {{ nodes.map((node:any) => node.id).join(', ') }}
+                                            </p>
+                                            <p
+                                                class="mt-1 whitespace-nowrap text-sm text-gray-600 sm:mt-0 sm:ml-3"
+                                                v-if="nodes && nodes.length === 0"
+                                            >
+                                                No nodes connected with this farm
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -587,7 +593,7 @@
 </script>
 
 <style scoped>
-    .max-w-80 {
-        max-width: 80%;
+    .max-w-90 {
+        max-width: 90%;
     }
 </style>

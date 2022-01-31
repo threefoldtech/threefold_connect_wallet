@@ -81,7 +81,7 @@
 
     const createWallet = async () => {
         const walletKeyPair = WalletKeyPair.random();
-        console.log(walletKeyPair);
+        console.log(walletKeyPair.getStellarKeyPair().publicKey());
         wallets.value.push({
             keyPair: walletKeyPair,
             meta: { chain: 'stellar', type: PkidWalletTypes.Imported },

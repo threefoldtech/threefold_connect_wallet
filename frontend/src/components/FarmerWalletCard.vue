@@ -17,33 +17,12 @@
             </div>
         </div>
 
-        <div class="relative col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
-            <div
-                v-if="loading"
-                class="absolute inset-0 z-50 flex items-center justify-center rounded-lg bg-slate-600/80 text-2xl text-white"
-            >
+        <div class="relative col-span-1 min-h-[56px] divide-y divide-gray-200 rounded-lg bg-slate-600/60 shadow">
+            <div v-if="loading" class="absolute inset-0 z-50 flex items-center justify-center rounded-lg text-white">
                 <div class="flex flex-col items-center justify-center text-center">
-                    <svg
-                        class="h-8 animate-spin text-white text-primary-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <circle
-                            class="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            stroke-width="4"
-                        ></circle>
-                        <path
-                            class="opacity-75"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            fill="currentColor"
-                        ></path>
-                    </svg>
-                    <h2 class="mt-4 text-sm">Loading ...</h2>
+                    <h2 class="mt-4 text-sm">
+                        <span class="animate-pulse">Loading</span> <span class="animate-bounce">...</span>
+                    </h2>
                     <h3 class="text-sm" v-if="subtitle">{{ subtitle }}</h3>
                 </div>
             </div>
@@ -54,7 +33,7 @@
                             @click="showCreateFarmDetails = !showCreateFarmDetails"
                             class="flex flex-row items-center justify-between"
                         >
-                            <div class="max-w-90 truncate p-4 font-medium">
+                            <div class="max-w-[90%] truncate p-4 font-medium">
                                 {{ wallet.name }}
                             </div>
                             <div>
@@ -188,7 +167,7 @@
         </div>
     </div>
 
-    <template :key="farm.name + index" v-for="(farm, index) in farms">
+    <template v-else :key="farm.name + index" v-for="(farm, index) in farms">
         <Disclosure as="div" class="relative col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
             <DisclosureButton as="div" class="flex flex-row items-center justify-between">
                 <div class="text-md max-w-90 truncate p-4 font-medium">
@@ -763,8 +742,4 @@
     init();
 </script>
 
-<style scoped>
-    .max-w-90 {
-        max-width: 90%;
-    }
-</style>
+<style scoped></style>

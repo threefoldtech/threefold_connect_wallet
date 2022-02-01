@@ -3,7 +3,7 @@
         <div v-for="possibleName in possibleNames" class="mb-5">
             <div class="relative z-20 w-full rounded-lg bg-white">
                 <div class="flex flex-row items-center justify-between">
-                    <div class="truncate p-4 font-medium" style="max-width: 60%">
+                    <div class="max-w-[60%] truncate p-4 font-medium">
                         {{ possibleName }}
                     </div>
                     <div>
@@ -26,7 +26,7 @@
                     <h3 class="text-sm" v-if="subtitle">{{ subtitle }}</h3>
                 </div>
             </div>
-            <div v-if="!loading && termsAndConditions.length === 0" class="relative z-20 w-full rounded-lg bg-white">
+            <div v-else-if="termsAndConditions.length === 0" class="relative z-20 w-full rounded-lg bg-white">
                 <form @submit.prevent.stop="validateFarmNameForm">
                     <div class="flex flex-col gap-2">
                         <div
@@ -34,7 +34,7 @@
                             class="flex flex-row items-center justify-between"
                         >
                             <div class="max-w-[90%] truncate p-4 font-medium">
-                                {{ wallet.name }}
+                                {{ wallet.name }} {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
                             </div>
                             <div>
                                 <ChevronUpIcon v-if="showCreateFarmDetails" class="-ml-1 mr-2 h-5 w-5" />
@@ -50,16 +50,16 @@
                                             <MenuButton
                                                 class="inline-flex w-full justify-between rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
                                             >
-                                                <span class="truncate" style="max-width: 50%">
+                                                <div class="flex-0 truncate">
                                                     {{ pickedWallet.name }}
-                                                </span>
-                                                <span>
+                                                </div>
+                                                <div class="shrink-0">
                                                     ({{
                                                         walletBalances?.assets.filter(asset => (asset.name = 'TFT'))[0]
                                                             ?.amount
                                                     }}
                                                     TFT)
-                                                </span>
+                                                </div>
                                                 <ChevronDownIcon
                                                     class="ml-2 -mr-1 h-5 w-5 text-primary-200 hover:text-primary-100"
                                                     aria-hidden="true"
@@ -68,9 +68,9 @@
                                         </div>
 
                                         <MenuItems
-                                            class="absolute left-0 z-50 w-full origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                            class="absolute left-0 z-50 mt-2 w-full origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                                         >
-                                            <div class="max-h-32 w-full overflow-y-auto">
+                                            <div class="max-h-28 w-full divide-y overflow-y-auto">
                                                 <MenuItem
                                                     v-for="wallet in allWallets.filter(
                                                         wallet => wallet.name !== pickedWallet.name
@@ -78,15 +78,20 @@
                                                     v-slot="{ active }"
                                                 >
                                                     <div
-                                                        class="block w-full truncate px-4 py-2 text-sm"
+                                                        class="flex w-full justify-between gap-2 truncate px-4 py-2 text-sm"
                                                         @click="pickedWallet = wallet"
                                                     >
-                                                        {{ wallet.name }} ({{
-                                                            walletBalances?.assets.filter(
-                                                                asset => (asset.name = 'TFT')
-                                                            )[0]?.amount
-                                                        }}
-                                                        TFT)
+                                                        <div class="flex items-center truncate">
+                                                            {{ wallet.name }} <br />
+                                                        </div>
+                                                        <div class="flex items-center justify-center gap-2">
+                                                            {{
+                                                                walletBalances?.assets.filter(
+                                                                    asset => (asset.name = 'TFT')
+                                                                )[0]?.amount
+                                                            }}
+                                                            <AssetIcon />
+                                                        </div>
                                                     </div>
                                                 </MenuItem>
                                             </div>
@@ -167,7 +172,7 @@
         </div>
     </div>
 
-    <template v-else :key="farm.name + index" v-for="(farm, index) in farms">
+    <template :key="farm.name + index" v-for="(farm, index) in farms">
         <Disclosure as="div" class="relative col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
             <DisclosureButton as="div" class="flex flex-row items-center justify-between">
                 <div class="text-md max-w-90 truncate p-4 font-medium">
@@ -269,7 +274,7 @@
                     <SwitchDescription as="span" class="text-sm text-gray-500"
                         >I have read and accept the
                         <a
-                            class="inline underline decoration-primary-600 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
+                            class="inline underline decoration-primary-500 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
                             tabindex="0"
                             @click.stop.prevent="showTerms()"
                         >
@@ -304,7 +309,7 @@
             </button>
             <button
                 @click="showTermsAndConditionsModal = false"
-                class="rounded-md bg-white py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                class="rounded-md py-2 px-4 text-sm font-medium text-orange-600 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
                 Cancel
             </button>
@@ -361,6 +366,7 @@
     import { toNumber } from 'lodash';
     import { ClipboardCopyIcon } from '@heroicons/vue/outline';
     import Modal from '@/components/global/Modal.vue';
+    import AssetIcon from '@/components/AssetIcon.vue';
 
     const v2farms: {
         id: number;
@@ -545,6 +551,7 @@
     const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
 
     const addFarm = async (farmName: string, publicIps: string[]) => {
+        twinId.value = await getTwinId(pickedWallet.value.keyPair.getSubstrateKeyring().address);
         if (twinId.value === 0) {
             await addTwin();
         }

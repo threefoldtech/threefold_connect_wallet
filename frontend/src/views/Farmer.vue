@@ -16,15 +16,10 @@
         </template>
         <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
             <div class="font-medium">Farms on v2</div>
-            <div v-if="grid2Wallets.length > 0">
-                <h2 cl ass="py-2 font-medium">Wallets connected to existing farms in TF Grid v2</h2>
+            <div v-if="v2Farms.length > 0">
+                <h2 class="py-2 font-medium">Wallets connected to existing farms in TF Grid v2</h2>
                 <ul role="list" class="grid grid-cols-1 gap-6">
-                    <FarmerWalletCard :wallet="wallet" v-for="wallet in grid2Wallets" />
-                </ul>
-                <hr class="my-4 border-primary-400" />
-                <h2 class="py-2 font-medium">Wallets with no existing farms on Grid v2</h2>
-                <ul role="list" class="grid grid-cols-1 gap-6">
-                    <FarmerWalletCard :wallet="wallet" v-for="wallet in restWallets" />
+                    <FarmCard :farm="farm" v-for="farm in v2Farms" />
                 </ul>
             </div>
             <div v-else>
@@ -34,8 +29,17 @@
                     <div class="py-2 font-medium">Farms on v3</div>
                     <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createWallet()" />
                 </div>
-                <ul role="list" class="grid grid-cols-1 gap-6">
+                <ul role="list" class="grid grid-cols-1 gap-4">
                     <FarmerWalletCard :allWallets="wallets" :wallet="wallet" v-for="wallet in wallets" />
+                </ul>
+            </div>
+
+            <!-- // farms on v3-->
+            <!--  @todo: add Button to make new farm from chosen wallet  -->
+            <div v-if="v3Farms.length > 0">
+                <h2 class="py-2 font-medium">No Farms Found On v3</h2>
+                <ul role="list" class="grid grid-cols-1 gap-6">
+                    <FarmCard :farm="farm" v-for="farm in v3Farms" />
                 </ul>
             </div>
         </div>
@@ -63,7 +67,7 @@
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import { saveWallets, wallets } from '@/service/walletService';
+    import { saveWallets, Wallet, wallets } from '@/service/walletService';
     import FarmerWalletCard from '@/components/FarmerWalletCard.vue';
 
     import { PlusCircleIcon } from '@heroicons/vue/outline';
@@ -75,6 +79,7 @@
     import { fetchAllFarms } from '@/service/substrateService';
     import { usePromise } from '@/util/usePromise';
     import axios from 'axios';
+    import FarmCard from '@/components/FarmCard.vue';
 
     //@ts-ignore
     const canCreateWallet = import.meta.env.DEV || flagsmith.hasFeature('can_create_wallet_for_farmer');
@@ -111,6 +116,25 @@
         });
     });
 
+    // @todo: move and add export
+    interface Farm {
+        name: string;
+        wallet_id: string; // wallet.keyPair.getBasePublicKey()
+        v3: boolean;
+    }
+
+    const v3Farms = ref<Farm[]>([]);
+    const v2Farms = ref<Farm[]>([]);
+
+    const checkV3FarmsForWallets = async (wallets: Wallet[]) => {};
+
+    const checkV2FarmsForWallets = async (wallets: Wallet[]) => {
+        for (const wallet of wallets) {
+            const stellarKeyPair = wallet.keyPair.getStellarKeyPair().publicKey();
+            const result = await axios.get(`/api/v1/farms/address/${stellarKeyPair}`);
+            // @Todo: add farm to v2Farms
+        }
+    };
     const restWallets = computed(() => {
         return wallets.value.filter(wallet => {
             const id = wallet.keyPair.getBasePublicKey();
@@ -121,8 +145,11 @@
     const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
 
     const intervalPointer = setInterval(async () => {
+        console.log('refreshing');
         await fetchAllFarms();
     }, 3000);
+
+    // @todo: if no wallets are found at all after loading the page, redirect to info page to open the wallet
 
     onBeforeUnmount(() => clearInterval(intervalPointer));
 </script>

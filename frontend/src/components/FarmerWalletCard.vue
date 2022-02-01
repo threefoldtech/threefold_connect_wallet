@@ -189,8 +189,8 @@
     </div>
 
     <template :key="farm.name + index" v-for="(farm, index) in farms">
-        <div class="relative col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
-            <div @click="showDetails = !showDetails" class="flex flex-row items-center justify-between">
+        <Disclosure as="div" class="relative col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
+            <DisclosureButton as="div" class="flex flex-row items-center justify-between">
                 <div class="text-md max-w-90 truncate p-4 font-medium">
                     {{ farm.name }}
                 </div>
@@ -198,9 +198,9 @@
                     <ChevronUpIcon v-if="showDetails" class="-ml-1 mr-2 h-5 w-5" />
                     <ChevronDownIcon v-if="!showDetails" class="-ml-1 mr-2 h-5 w-5" />
                 </div>
-            </div>
+            </DisclosureButton>
 
-            <div v-show="showDetails">
+            <DisclosurePanel>
                 <div class="p-4">
                     <div class="space-y-2">
                         <div>
@@ -272,8 +272,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </DisclosurePanel>
+        </Disclosure>
     </template>
 
     <modal

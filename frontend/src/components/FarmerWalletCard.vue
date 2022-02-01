@@ -1,5 +1,22 @@
 <template>
-    <template :key="farm.name" v-for="(farm, index) in farms">
+    <div v-if="farms.length <= 0">
+        <div v-for="possibleName in possibleNames" class="mb-5">
+            <div class="relative z-20 w-full rounded-lg bg-white">
+                <div class="flex flex-row items-center justify-between">
+                    <div class="truncate p-4 font-medium" style="max-width: 60%">
+                        {{ possibleName }}
+                    </div>
+                    <div>
+                        <button
+                            class="rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
+                        >
+                            Migrate to v3
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="relative col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
             <div
                 v-if="loading"
@@ -30,7 +47,149 @@
                     <h3 class="text-sm" v-if="subtitle">{{ subtitle }}</h3>
                 </div>
             </div>
+            <div v-if="!loading && termsAndConditions.length === 0" class="relative z-20 w-full rounded-lg bg-white">
+                <form @submit.prevent.stop="validateFarmNameForm">
+                    <div class="flex flex-col gap-2">
+                        <div
+                            @click="showCreateFarmDetails = !showCreateFarmDetails"
+                            class="flex flex-row items-center justify-between"
+                        >
+                            <div class="max-w-90 truncate p-4 font-medium">
+                                {{ wallet.name }}
+                            </div>
+                            <div>
+                                <ChevronUpIcon v-if="showCreateFarmDetails" class="-ml-1 mr-2 h-5 w-5" />
+                                <ChevronDownIcon v-if="!showCreateFarmDetails" class="-ml-1 mr-2 h-5 w-5" />
+                            </div>
+                        </div>
+                        <div v-if="showCreateFarmDetails">
+                            <div class="px-4 pb-4">
+                                <div>
+                                    <h2 class="text-sm font-semibold uppercase">Choose a wallet</h2>
+                                    <Menu as="div" class="relative inline-block w-full pt-2 text-left">
+                                        <div>
+                                            <MenuButton
+                                                class="inline-flex w-full justify-between rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
+                                            >
+                                                <span class="truncate" style="max-width: 50%">
+                                                    {{ pickedWallet.name }}
+                                                </span>
+                                                <span>
+                                                    ({{
+                                                        walletBalances?.assets.filter(asset => (asset.name = 'TFT'))[0]
+                                                            ?.amount
+                                                    }}
+                                                    TFT)
+                                                </span>
+                                                <ChevronDownIcon
+                                                    class="ml-2 -mr-1 h-5 w-5 text-primary-200 hover:text-primary-100"
+                                                    aria-hidden="true"
+                                                />
+                                            </MenuButton>
+                                        </div>
 
+                                        <MenuItems
+                                            class="absolute left-0 z-50 w-full origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                        >
+                                            <div class="max-h-32 w-full overflow-y-auto">
+                                                <MenuItem
+                                                    v-for="wallet in allWallets.filter(
+                                                        wallet => wallet.name !== pickedWallet.name
+                                                    )"
+                                                    v-slot="{ active }"
+                                                >
+                                                    <div
+                                                        class="block w-full truncate px-4 py-2 text-sm"
+                                                        @click="pickedWallet = wallet"
+                                                    >
+                                                        {{ wallet.name }} ({{
+                                                            walletBalances?.assets.filter(
+                                                                asset => (asset.name = 'TFT')
+                                                            )[0]?.amount
+                                                        }}
+                                                        TFT)
+                                                    </div>
+                                                </MenuItem>
+                                            </div>
+                                        </MenuItems>
+                                    </Menu>
+                                </div>
+
+                                <div>
+                                    <h2 class="pt-4 text-sm font-semibold uppercase">Farm name</h2>
+                                    <label>
+                                        <div class="pt-2">
+                                            <input
+                                                type="text"
+                                                name="farmName"
+                                                id="email"
+                                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                                :class="{ 'border-red-500': farmFormErrors.farmName }"
+                                                placeholder="Enter Farm Name"
+                                                v-model="farmNameToValidate"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div class="mt-1 text-sm text-red-600" v-if="farmFormErrors.farmName">
+                                            {{ farmFormErrors.farmName }}
+                                        </div>
+                                        <div class="mt-1 text-xs text-gray-500" v-else>
+                                            No spaces or special characters
+                                        </div>
+                                    </label>
+
+                                    <Menu
+                                        as="div"
+                                        class="relative inline-block text-left"
+                                        v-if="possibleNames.length > 1"
+                                    >
+                                        <div>
+                                            <MenuButton
+                                                class="inline-flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                                            >
+                                                Other Possibilities
+                                                <ChevronDownIcon
+                                                    class="ml-2 -mr-1 h-5 w-5 text-primary-200 hover:text-primary-100"
+                                                    aria-hidden="true"
+                                                />
+                                            </MenuButton>
+                                        </div>
+
+                                        <MenuItems
+                                            class="absolute right-0 z-50 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                        >
+                                            <div class="divide-y divide-primary-300 px-1 py-2">
+                                                <MenuItem v-for="name in possibleNames" v-slot="{ active }">
+                                                    <button
+                                                        class="group flex w-full items-center px-2 py-2 text-sm text-gray-800 hover:bg-primary-200"
+                                                        @click="farmNameToValidate = name"
+                                                    >
+                                                        {{ name }}
+                                                    </button>
+                                                </MenuItem>
+                                            </div>
+                                        </MenuItems>
+                                    </Menu>
+                                </div>
+
+                                <div class="pt-4">
+                                    <input
+                                        type="submit"
+                                        value="Submit"
+                                        class="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <template :key="farm.name + index" v-for="(farm, index) in farms">
+        <div class="relative col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
             <div @click="showDetails = !showDetails" class="flex flex-row items-center justify-between">
                 <div class="text-md max-w-90 truncate p-4 font-medium">
                     {{ farm.name }}
@@ -66,15 +225,15 @@
                                         </div>
                                     </div>
 
-                                    <div class="pt-4">
-                                        <h2 class="text-sm font-semibold uppercase">Balances</h2>
-                                        <div class="mt-2 space-y-2">
-                                            <BalanceCard
-                                                v-for="assetBalance in walletBalances?.assets"
-                                                :balance="assetBalance"
-                                            ></BalanceCard>
-                                        </div>
-                                    </div>
+                                    <!--                                    <div class="pt-4">-->
+                                    <!--                                        <h2 class="text-sm font-semibold uppercase">Balances</h2>-->
+                                    <!--                                        <div class="mt-2 space-y-2">-->
+                                    <!--                                            <BalanceCard-->
+                                    <!--                                                v-for="assetBalance in walletBalances?.assets"-->
+                                    <!--                                                :balance="assetBalance"-->
+                                    <!--                                            ></BalanceCard>-->
+                                    <!--                                        </div>-->
+                                    <!--                                    </div>-->
 
                                     <div class="pt-4">
                                         <h2 class="text-sm font-semibold uppercase">Wallet name</h2>
@@ -115,60 +274,63 @@
                 </div>
             </div>
         </div>
-
-        <modal v-if="showTermsAndConditionsModal" @close="showTermsAndConditionsModal = false" :action="true">
-            <template #header> You have to accept the terms and conditions </template>
-            <template #content>
-                <SwitchGroup as="div" class="flex items-center justify-between px-4">
-                    <span class="flex flex-grow flex-col">
-                        <SwitchLabel as="span" class="text-sm font-medium text-gray-900"
-                            >Terms & Conditions</SwitchLabel
-                        >
-                        <SwitchDescription as="span" class="text-sm text-gray-500"
-                            >I have read and accept the
-                            <a
-                                class="inline underline decoration-primary-600 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
-                                tabindex="0"
-                                @click.stop.prevent="showTerms()"
-                            >
-                                terms and conditions
-                            </a>
-                        </SwitchDescription>
-                    </span>
-                    <Switch
-                        v-model="termsAndConditionsIsAccepted"
-                        :class="[
-                            termsAndConditionsIsAccepted ? 'bg-primary-600' : 'bg-gray-200',
-                            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-                        ]"
-                    >
-                        <span
-                            :class="[
-                                termsAndConditionsIsAccepted ? 'translate-x-5' : 'translate-x-0',
-                                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-                            ]"
-                            aria-hidden="true"
-                        />
-                    </Switch>
-                </SwitchGroup>
-            </template>
-            <template #actions>
-                <button
-                    @click="createFarmFormSubmit"
-                    :disabled="!termsAndConditionsIsAccepted"
-                    class="rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
-                >
-                    Create farm
-                </button>
-                <button
-                    @click="showTermsAndConditionsModal = false"
-                    class="rounded-md bg-white py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                >
-                    Cancel
-                </button>
-            </template>
-        </modal>
     </template>
+
+    <modal
+        :key="showTermsAndConditionsModal"
+        v-if="showTermsAndConditionsModal"
+        @close="showTermsAndConditionsModal = false"
+        :action="true"
+    >
+        <template #header> You have to accept the terms and conditions </template>
+        <template #content>
+            <SwitchGroup as="div" class="flex items-center justify-between px-4">
+                <span class="flex flex-grow flex-col">
+                    <SwitchLabel as="span" class="text-sm font-medium text-gray-900">Terms & Conditions</SwitchLabel>
+                    <SwitchDescription as="span" class="text-sm text-gray-500"
+                        >I have read and accept the
+                        <a
+                            class="inline underline decoration-primary-600 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
+                            tabindex="0"
+                            @click.stop.prevent="showTerms()"
+                        >
+                            terms and conditions
+                        </a>
+                    </SwitchDescription>
+                </span>
+                <Switch
+                    v-model="termsAndConditionsIsAccepted"
+                    :class="[
+                        termsAndConditionsIsAccepted ? 'bg-primary-600' : 'bg-gray-200',
+                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+                    ]"
+                >
+                    <span
+                        :class="[
+                            termsAndConditionsIsAccepted ? 'translate-x-5' : 'translate-x-0',
+                            'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                        ]"
+                        aria-hidden="true"
+                    />
+                </Switch>
+            </SwitchGroup>
+        </template>
+        <template #actions>
+            <button
+                @click="createFarmFormSubmit"
+                :disabled="!termsAndConditionsIsAccepted"
+                class="rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
+            >
+                Create farm
+            </button>
+            <button
+                @click="showTermsAndConditionsModal = false"
+                class="rounded-md bg-white py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+            >
+                Cancel
+            </button>
+        </template>
+    </modal>
 
     <SiteModalFrame
         v-if="showTermsAndConditions"
@@ -218,7 +380,7 @@
     import { useDynamicBalance } from '@/util/useDynamicBalance';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { toNumber } from 'lodash';
-    import { ClipboardCopyIcon } from '@heroicons/vue/solid';
+    import { ClipboardCopyIcon } from '@heroicons/vue/outline';
     import Modal from '@/components/global/Modal.vue';
 
     const v2farms: {
@@ -229,16 +391,18 @@
 
     interface IProps {
         wallet: Wallet;
+        allWallets: Wallet[];
     }
 
     const possibleNames = ref<string[]>([]);
 
-    const { wallet } = defineProps<IProps>();
+    const { wallet, allWallets } = defineProps<IProps>();
 
     const loading = ref(true);
     const twinId = ref();
     const ipAmount = ref(1);
     const farmNameToValidate = ref();
+    const pickedWallet = ref<Wallet>(allWallets[0]);
     const farmFormErrors = ref<any>({});
     const termsAndConditionsIsAccepted = ref(false);
     const termsAndConditions = ref<any[]>([]);
@@ -256,7 +420,8 @@
         const formData = new FormData(evt.target as HTMLFormElement);
 
         const farmName = <string>formData.get('farmName');
-        await validateFarmName(farmName, wallet.keyPair.getStellarKeyPair().publicKey());
+
+        await validateFarmName(farmName, pickedWallet.value.keyPair.getStellarKeyPair().publicKey());
         if (farmFormErrors.value?.farmName) return;
 
         showTermsAndConditionsModal.value = true;
@@ -265,7 +430,7 @@
     const validateFarmName = async (value: string, myStellarAddress: string) => {
         const wasFound = v2farms.find(farm => farm.name === value);
 
-        if (wasFound && wasFound.stellar_wallet_addres === wallet.keyPair.getStellarKeyPair().publicKey()) {
+        if (wasFound && wasFound.stellar_wallet_addres === pickedWallet.value.keyPair.getStellarKeyPair().publicKey()) {
             delete farmFormErrors.value.farmName;
             return;
         }
@@ -329,7 +494,7 @@
     };
 
     watch(farmNameToValidate, value => {
-        validateFarmName(value, wallet.keyPair.getStellarKeyPair().publicKey());
+        validateFarmName(value, pickedWallet.value.keyPair.getStellarKeyPair().publicKey());
     });
 
     const farmFormSubmit = async (evt: Event) => {
@@ -338,8 +503,9 @@
         const formData = new FormData(evt.target as HTMLFormElement);
 
         const farmName = <string>formData.get('farmName');
-        await validateFarmName(farmName, wallet.keyPair.getStellarKeyPair().publicKey());
+        await validateFarmName(farmName, pickedWallet.value.keyPair.getStellarKeyPair().publicKey());
         if (farmFormErrors.value?.farmName) return;
+
         const publicIps = <string[]>formData.getAll('publicIP') || [];
 
         await addFarm(farmName, publicIps);
@@ -349,7 +515,8 @@
         subtitle.value = 'could take some time to go through';
         loading.value = true;
 
-        const id = wallet.keyPair.getSubstrateKeyring().address;
+        const id = pickedWallet.value.keyPair.getSubstrateKeyring().address;
+
         await activationServiceForSubstrate(id);
 
         //while no substrateBalance is available we wait
@@ -393,7 +560,7 @@
     const isNumeric = (n: any) => !isNaN(parseFloat(n)) && isFinite(n);
 
     const walletBalances = computed(() => {
-        return balances.value.find(t => t.id === wallet.keyPair.getBasePublicKey());
+        return balances.value.find(t => t.id === pickedWallet.value.keyPair.getBasePublicKey());
     });
 
     const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
@@ -403,13 +570,15 @@
             await addTwin();
         }
         loading.value = true;
-        subtitle.value = 'creating farm';
+        subtitle.value = 'Creating farm';
 
         const currentAmountOfFarms = farms.value.length;
         const api = await getSubstrateApi();
+
         const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, publicIps);
+
         const promise = new Promise((resolve, reject) => {
-            submittableExtrinsic.signAndSend(wallet.keyPair.getSubstrateKeyring(), result => {
+            submittableExtrinsic.signAndSend(pickedWallet.value.keyPair.getSubstrateKeyring(), result => {
                 if (result.status.isFinalized) {
                     resolve(null);
                 }
@@ -454,10 +623,10 @@
         // TODO: make tis for the right farm not just the first one
         const submittableExtrinsic1 = api.tx.tfgridModule.addStellarPayoutV2address(
             farms.value[0]?.id,
-            wallet.keyPair.getStellarKeyPair().publicKey()
+            pickedWallet.value.keyPair.getStellarKeyPair().publicKey()
         );
 
-        const res = await submittableExtrinsic1.signAndSend(wallet.keyPair.getSubstrateKeyring());
+        const res = await submittableExtrinsic1.signAndSend(pickedWallet.value.keyPair.getSubstrateKeyring());
 
         let j = 0;
         while (true) {
@@ -482,7 +651,7 @@
     const signTermsAndConditions = async () => {
         const api = await getSubstrateApi();
         const submittableExtrinsic = api.tx.tfgridModule.userAcceptTc(termsAndConditionsUrl, 'NO_HASH');
-        const result = await submittableExtrinsic.signAndSend(wallet.keyPair.getSubstrateKeyring());
+        const result = await submittableExtrinsic.signAndSend(pickedWallet.value.keyPair.getSubstrateKeyring());
     };
 
     const addTwin = async () => {
@@ -490,10 +659,10 @@
         subtitle.value = 'creating twin';
         const api = await getSubstrateApi();
         const submittableExtrinsic = api.tx.tfgridModule.createTwin('127.0.0.1');
-        const result = await submittableExtrinsic.signAndSend(wallet.keyPair.getSubstrateKeyring());
+        const result = await submittableExtrinsic.signAndSend(pickedWallet.value.keyPair.getSubstrateKeyring());
 
         while (true) {
-            twinId.value = await getTwinId(wallet.keyPair.getSubstrateKeyring().address);
+            twinId.value = await getTwinId(pickedWallet.value.keyPair.getSubstrateKeyring().address);
             if (twinId.value !== 0) {
                 console.log('twinId', twinId.value);
                 break;
@@ -507,7 +676,7 @@
     };
 
     const activate = () => {
-        activationServiceForSubstrate(wallet.keyPair.getSubstrateKeyring().address);
+        activationServiceForSubstrate(pickedWallet.value.keyPair.getSubstrateKeyring().address);
     };
 
     const activationServiceForSubstrate = async (id: string) => {
@@ -538,7 +707,7 @@
 
         // Farm name has already been validated, but double check to be 100% sure
         const farmName: string = farmNameToValidate.value;
-        await validateFarmName(farmName, wallet.keyPair.getStellarKeyPair().publicKey());
+        await validateFarmName(farmName, pickedWallet.value.keyPair.getStellarKeyPair().publicKey());
 
         if (farmFormErrors.value?.farmName) return;
 
@@ -546,6 +715,8 @@
         subtitle.value = 'Starting creation of farm';
 
         await acceptTermsAndConditions();
+
+        showTermsAndConditionsModal.value = false;
 
         await addFarm(farmName, []);
 

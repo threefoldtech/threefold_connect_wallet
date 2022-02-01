@@ -3,7 +3,7 @@
         <div class="fixed inset-0 z-20 overflow-y-auto">
             <div class="grid h-screen w-screen place-items-center px-4 text-center sm:block sm:p-0">
                 <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="close()">
-                    <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+                    <div class="absolute inset-0 bg-gray-500/75"></div>
                 </div>
                 <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true"></span>
                 <div

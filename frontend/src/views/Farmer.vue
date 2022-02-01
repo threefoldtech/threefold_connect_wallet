@@ -35,7 +35,7 @@
                     <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createWallet()" />
                 </div>
                 <ul role="list" class="grid grid-cols-1 gap-6">
-                    <FarmerWalletCard :wallet="wallet" v-for="wallet in wallets" />
+                    <FarmerWalletCard :allWallets="wallets" :wallet="wallet" v-for="wallet in wallets" />
                 </ul>
             </div>
         </div>

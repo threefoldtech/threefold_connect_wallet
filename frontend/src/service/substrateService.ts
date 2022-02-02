@@ -2,10 +2,12 @@ import types from '@/lib/substrateTypes';
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { ref } from 'vue';
-import { AssetBalance } from '@/service/walletService';
+import { AssetBalance, Wallet } from '@/service/walletService';
 import { IKeyringPair } from '@polkadot/types/types/interfaces';
 import { bin2String } from '@/util/crypto';
 import flagsmith from 'flagsmith';
+import { BCFarm } from '@/types/farms.types';
+import axios from 'axios';
 
 const apiCache = ref<Promise<ApiPromise>>();
 
@@ -81,4 +83,15 @@ export const fetchAllFarms = async () => {
     const api = await getSubstrateApi();
     allFarms.value = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm.toHuman(true));
     allFarmNames.value = allFarms.value.map((farm: any) => farm.name);
+};
+
+export const activationServiceForSubstrate = async (id: string) => {
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    const url = `${flagsmith.getValue('tfchain_activation_base_url')}/activation/activate`;
+    const data = { substrateAccountID: id };
+
+    return await axios.post(url, data, { headers });
 };

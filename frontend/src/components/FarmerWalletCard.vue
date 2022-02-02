@@ -176,6 +176,7 @@
         <Disclosure as="div" class="relative col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
             <DisclosureButton as="div" class="flex flex-row items-center justify-between">
                 <div class="text-md max-w-90 truncate p-4 font-medium">
+                    {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
                     {{ farm.name }}
                 </div>
                 <div>
@@ -726,7 +727,6 @@
         const api = await getSubstrateApi();
 
         termsAndConditions.value = await getUsersTermsAndConditions(address);
-        // termsAndConditions.value = await api.query.tfgridModule.usersTermsAndConditions(address);
 
         twinId.value = await getTwinId(address);
         //@ts-ignore

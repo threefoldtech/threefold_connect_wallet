@@ -2,45 +2,39 @@
     <MainLayout>
         <template #header>
             <PageHeader>
-                <!--                <template #before v-if="canCreateWallet">-->
-                <!--                    <div>-->
-                <!--                        <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createWallet()" />-->
-                <!--                        Sync with your wallet-->
-                <!--                    </div>-->
-                <!--                </template>-->
                 <h1>Farms</h1>
-                <!--                <template #after v-if="canCreateWallet">-->
-                <!--                    <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createWallet()" />-->
-                <!--                </template>-->
+                <template v-if="canCreateWallet" #after>
+                    <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createNewFarm()" />
+                </template>
             </PageHeader>
         </template>
         <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
             <div class="font-medium">Farms on v2</div>
             <div v-if="v2Farms.length > 0">
-                <h2 class="py-2 font-medium">Wallets connected to existing farms in TF Grid v2</h2>
-                <ul role="list" class="grid grid-cols-1 gap-6">
-                    <FarmCard :farm="farm" v-for="farm in v2Farms" />
+                <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v2</h2>
+                <ul role="list" class="grid grid-cols-1 gap-4">
+                    <FarmCard :isV3="false" :farm="farm" v-for="farm in v2Farms" />
                 </ul>
             </div>
             <div v-else>
-                <h2 class="py-2 text-sm">No wallets found with farms in TF Grid v2</h2>
-
-                <div class="flex flex-row items-center justify-between py-2">
-                    <div class="py-2 font-medium">Farms on v3</div>
-                    <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createWallet()" />
-                </div>
-                <ul role="list" class="grid grid-cols-1 gap-4">
-                    <FarmerWalletCard :allWallets="wallets" :wallet="wallet" v-for="wallet in wallets" />
-                </ul>
+                <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v2</h2>
             </div>
 
-            <!-- // farms on v3-->
-            <!--  @todo: add Button to make new farm from chosen wallet  -->
+            <div class="pt-3 font-medium">Farms on v3</div>
             <div v-if="v3Farms.length > 0">
-                <h2 class="py-2 font-medium">No Farms Found On v3</h2>
+                <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v3</h2>
                 <ul role="list" class="grid grid-cols-1 gap-6">
-                    <FarmCard :farm="farm" v-for="farm in v3Farms" />
+                    <FarmCard :isV3="true" :farm="farm" v-for="farm in v3Farms" />
                 </ul>
+            </div>
+            <div v-else>
+                <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v3</h2>
+            </div>
+
+            <div v-if="newCreatedFarms.length > 0">
+                <div v-for="newFarm in newCreatedFarms">
+                    <CreateFarmCard :v2Farms="v2Farms" :farm="newFarm" :wallets="wallets"></CreateFarmCard>
+                </div>
             </div>
         </div>
         <div v-else class="flex min-h-full items-center justify-center bg-gray-200 p-4">
@@ -58,7 +52,7 @@
                         fill="currentColor"
                     ></path>
                 </svg>
-                <h2 class="mt-4">loading</h2>
+                <h2 class="mt-4">Loading</h2>
             </div>
         </div>
     </MainLayout>
@@ -75,11 +69,23 @@
     import { init, PkidWalletTypes } from '@/service/initializationService';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import flagsmith from 'flagsmith';
-    import { computed, onBeforeUnmount, ref } from 'vue';
-    import { fetchAllFarms } from '@/service/substrateService';
+    import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+    import {
+        allFarms,
+        fetchAllFarms,
+        getSubstrateApi,
+        getSubstrateAssetBalances,
+        getTwinId,
+        getUsersTermsAndConditions,
+    } from '@/service/substrateService';
     import { usePromise } from '@/util/usePromise';
     import axios from 'axios';
     import FarmCard from '@/components/FarmCard.vue';
+    import { BCFarm, Farm } from '@/types/farms.types';
+    import { onBeforeMount } from '@vue/runtime-core';
+    import { useDynamicBalance } from '@/util/useDynamicBalance';
+    import { toNumber } from 'lodash';
+    import CreateFarmCard from '@/components/CreateFarmCard.vue';
 
     //@ts-ignore
     const canCreateWallet = import.meta.env.DEV || flagsmith.hasFeature('can_create_wallet_for_farmer');
@@ -95,14 +101,27 @@
         await saveWallets();
     };
 
+    const createNewFarm = async () => {
+        const f: Farm = {
+            v3: true,
+            name: nanoid(),
+        };
+
+        newCreatedFarms.value.push(f);
+    };
+
     const addressesIsLoading = ref(true);
-    const adressess = ref<string[]>([]);
+    const addresses = ref<string[]>([]);
+
+    const v2Farms = ref<Farm[]>([]);
+    const v3Farms = ref(<Farm[]>[]);
+    const newCreatedFarms = ref(<Farm[]>[]);
 
     const initAddresses = async () => {
         addressesIsLoading.value = true;
         const result = await axios.get('/api/v1/farms/addresses');
         if (result?.data) {
-            adressess.value = result.data;
+            addresses.value = result.data;
         }
         addressesIsLoading.value = false;
     };
@@ -112,29 +131,65 @@
     const grid2Wallets = computed(() => {
         return wallets.value.filter(wallet => {
             const stellarKeyPair = wallet.keyPair.getStellarKeyPair().publicKey();
-            return adressess.value?.find(farm => farm === stellarKeyPair);
+            return addresses.value?.find(farm => farm === stellarKeyPair);
         });
     });
 
-    // @todo: move and add export
-    interface Farm {
-        name: string;
-        wallet_id: string; // wallet.keyPair.getBasePublicKey()
-        v3: boolean;
-    }
+    const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
+        for (const v3Wallet of v3Wallets) {
+            const api = await getSubstrateApi();
 
-    const v3Farms = ref<Farm[]>([]);
-    const v2Farms = ref<Farm[]>([]);
+            const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
+            const twinId = await getTwinId(substrateAddress);
 
-    const checkV3FarmsForWallets = async (wallets: Wallet[]) => {};
+            const allV3Farms = allFarms.value.filter((farm: { twin_id: Number }) => toNumber(farm.twin_id) === twinId);
 
-    const checkV2FarmsForWallets = async (wallets: Wallet[]) => {
-        for (const wallet of wallets) {
-            const stellarKeyPair = wallet.keyPair.getStellarKeyPair().publicKey();
-            const result = await axios.get(`/api/v1/farms/address/${stellarKeyPair}`);
-            // @Todo: add farm to v2Farms
+            const farmIds = JSON.parse(JSON.stringify(allV3Farms.map((farm: BCFarm) => farm.id)));
+            const bcNodes = await api.query.tfgridModule.nodes.entries();
+
+            await useDynamicBalance(v3Wallet);
+
+            const allNodes = bcNodes
+                //@ts-ignore
+                .filter(([, node]) => farmIds.includes(node.farm_id.words[0]))
+                //@ts-ignore
+                .map(([, node]) => node.toHuman(true));
+
+            for (const farm of allV3Farms) {
+                const f: Farm = {
+                    name: farm?.name,
+                    wallet_id: v3Wallet.keyPair.getBasePublicKey(),
+                    v3: true,
+                    wallet: v3Wallet,
+                    farmId: farm?.id,
+                    twinId: farm?.twin_id,
+                };
+
+                v3Farms.value.push(f);
+            }
         }
     };
+
+    const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
+        for (const v2Wallet of v2Wallets) {
+            const stellarKeyPair = v2Wallet.keyPair.getStellarKeyPair().publicKey();
+            const result = await axios.get(`/api/v1/farms/address/${stellarKeyPair}`);
+
+            if (result && result.status == 200) {
+                for (const farmName of result.data) {
+                    const f: Farm = {
+                        name: farmName,
+                        wallet_id: v2Wallet.keyPair.getBasePublicKey(),
+                        v3: false,
+                        wallet: v2Wallet,
+                    };
+
+                    v2Farms.value.push(f);
+                }
+            }
+        }
+    };
+
     const restWallets = computed(() => {
         return wallets.value.filter(wallet => {
             const id = wallet.keyPair.getBasePublicKey();
@@ -145,11 +200,18 @@
     const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
 
     const intervalPointer = setInterval(async () => {
-        console.log('refreshing');
+        console.log('Refreshing farms ..');
         await fetchAllFarms();
     }, 3000);
 
-    // @todo: if no wallets are found at all after loading the page, redirect to info page to open the wallet
+    onBeforeMount(async () => {
+        await checkV2FarmsForWallets(wallets.value);
+        await checkV3FarmsForWallets(restWallets.value);
+
+        console.log('Loaded farms');
+        console.log(v2Farms.value);
+        console.log(v3Farms.value);
+    });
 
     onBeforeUnmount(() => clearInterval(intervalPointer));
 </script>

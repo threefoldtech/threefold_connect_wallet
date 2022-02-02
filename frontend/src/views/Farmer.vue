@@ -73,14 +73,14 @@
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import { saveWallets, Wallet, wallets } from '@/service/walletService';
+    import { balances, saveWallets, Wallet, wallets } from '@/service/walletService';
     import FarmerWalletCard from '@/components/FarmerWalletCard.vue';
 
     import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from '@headlessui/vue';
 
     import { PlusCircleIcon } from '@heroicons/vue/outline';
     import { nanoid } from 'nanoid';
-    import { init, PkidWalletTypes } from '@/service/initializationService';
+    import { PkidWalletTypes } from '@/service/initializationService';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import flagsmith from 'flagsmith';
     import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
@@ -157,6 +157,11 @@
             const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
             const twinId = await getTwinId(substrateAddress);
 
+            if (!twinId) {
+                continue; // can't have farm without twin id
+            }
+            // console.debug('twinId', twinId);
+            // console.table([...allFarms.value.map((f: any) => ({ ...f }))], ['name', 'twin_id']);
             const allV3Farms = allFarms.value.filter((farm: { twin_id: Number }) => toNumber(farm.twin_id) === twinId);
 
             const farmIds = JSON.parse(JSON.stringify(allV3Farms.map((farm: BCFarm) => farm.id)));
@@ -180,7 +185,9 @@
                     twinId: farm?.twin_id,
                 };
 
-                v3Farms.value.push(f);
+                const index = v3Farms.value.findIndex((farm: any) => farm.name === f.name);
+
+                index === -1 ? v3Farms.value.push(f) : v3Farms.value.splice(index, 1, f);
             }
         }
     };
@@ -214,21 +221,25 @@
 
     const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
 
+    const fetchFarms = async () => {
+        await fetchAllFarms();
+        await checkV2FarmsForWallets(wallets.value);
+        await checkV3FarmsForWallets(wallets.value);
+    };
+
     const intervalPointer = setInterval(async () => {
         console.log('Refreshing farms ..');
-        await fetchAllFarms();
-    }, 3000);
-
-    onBeforeMount(async () => {
-        await checkV2FarmsForWallets(wallets.value);
-        await checkV3FarmsForWallets(restWallets.value);
-
-        console.log('Loaded farms');
-        console.log(v2Farms.value);
-        console.log(v3Farms.value);
-    });
+        await fetchFarms();
+        console.log('Farms refreshed');
+    }, 5000);
 
     onBeforeUnmount(() => clearInterval(intervalPointer));
+
+    const init = async () => {
+        await fetchFarms();
+    };
+
+    init();
 </script>
 
 <style scoped></style>

@@ -381,7 +381,10 @@
             });
         });
 
-        console.debug('signing and sending substate ring ');
+        console.debug(
+            'signing and sending substate address ',
+            desiredWallet.value.keyPair.getSubstrateKeyring().address
+        );
         try {
             await promise;
         } catch (e) {

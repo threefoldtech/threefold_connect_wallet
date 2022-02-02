@@ -316,6 +316,7 @@
         loadingSubtitle.value = 'Starting creation of farm';
 
         console.log('Going to accept terms and cs');
+        // @todo: check if the terms and conditions are accepted and if not, accept them
         await acceptTermsAndConditions();
 
         console.log('going to add the farm');
@@ -442,7 +443,7 @@
         loadingSubtitle.value = 'Refetching data';
     };
 
-    //@todo: remove this
+    // @todo: remove this
     const init = async () => {
         const address = desiredWallet.value.keyPair.getSubstrateKeyring().address;
         termsAndConditions.value = await getUsersTermsAndConditions(address);

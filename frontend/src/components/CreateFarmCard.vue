@@ -196,12 +196,7 @@
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { toNumber } from 'lodash';
     import { useDynamicBalance } from '@/util/useDynamicBalance';
-
-    interface Props {
-        v2Farms: Farm[];
-    }
-
-    const { v2Farms } = defineProps<Props>();
+    import { fetchFarms, v2Farms } from '@/service/farmService';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
@@ -219,12 +214,14 @@
     const farms = ref<any>([]);
     const newTwinId = ref();
 
+    const emit = defineEmits(['close']);
+
     watch(farmNameToValidate, value => {
         validateFarmName(value, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
     });
 
     const validateFarmName = async (value: string, myStellarAddress: string) => {
-        const wasFound = v2Farms.find(farm => farm.name === value);
+        const wasFound = v2Farms.value.find(farm => farm.name === value);
 
         if (
             wasFound &&
@@ -324,8 +321,10 @@
         console.log('going to add the farm');
         await addFarm(farmName, []);
 
-        isLoading.value = false;
         await init();
+        await fetchFarms();
+        isLoading.value = false;
+        emit('close');
     };
 
     const addTwin = async () => {
@@ -443,6 +442,7 @@
         loadingSubtitle.value = 'Refetching data';
     };
 
+    //@todo: remove this
     const init = async () => {
         const address = desiredWallet.value.keyPair.getSubstrateKeyring().address;
         termsAndConditions.value = await getUsersTermsAndConditions(address);

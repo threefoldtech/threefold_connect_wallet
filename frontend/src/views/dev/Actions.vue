@@ -2,6 +2,7 @@
     <div class="flex flex-col gap-2 p-4">
         <CTA @click="addWallet()"> add Wallet</CTA>
         <CTA @click="clearPkidPurse()"> clear PkidPurse</CTA>
+        <CTA @click="addNote()"> add Notification</CTA>
     </div>
 </template>
 
@@ -12,8 +13,8 @@
     import { bytesToHex } from '@/util/crypto';
     import { Keypair } from 'stellar-sdk';
     import { getPkidClient } from '@/service/pkidService';
-    import router from '@/router';
     import { nanoid } from 'nanoid';
+    import { addNotification, NotificationType } from '@/service/notificationService';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
@@ -29,6 +30,10 @@
         const pkid = getPkidClient();
         await pkid.setDoc('purse', false, true);
         window.location.assign('/');
+    };
+
+    const addNote = () => {
+        addNotification(NotificationType.success, 'test', 'test subtitle', 3000);
     };
 </script>
 

@@ -65,7 +65,7 @@
     >
         <DialogOverlay class="fixed inset-0 bg-gray-700/60" />
         <div class="flex items-center justify-center">
-            <CreateFarmCard :v2Farms="v2Farms" />
+            <CreateFarmCard @close="showCreateNewFarm = false" />
         </div>
     </Dialog>
 </template>
@@ -73,34 +73,23 @@
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import { balances, saveWallets, Wallet, wallets } from '@/service/walletService';
-    import FarmerWalletCard from '@/components/FarmerWalletCard.vue';
+    import { saveWallets, wallets } from '@/service/walletService';
 
-    import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from '@headlessui/vue';
+    import { Dialog, DialogOverlay } from '@headlessui/vue';
 
     import { PlusCircleIcon } from '@heroicons/vue/outline';
     import { nanoid } from 'nanoid';
     import { PkidWalletTypes } from '@/service/initializationService';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import flagsmith from 'flagsmith';
-    import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-    import {
-        allFarms,
-        fetchAllFarms,
-        getSubstrateApi,
-        getSubstrateAssetBalances,
-        getTwinId,
-        getUsersTermsAndConditions,
-    } from '@/service/substrateService';
+    import { computed, onBeforeUnmount, ref } from 'vue';
+    import { fetchAllFarms } from '@/service/substrateService';
     import { usePromise } from '@/util/usePromise';
     import axios from 'axios';
     import FarmCard from '@/components/FarmCard.vue';
-    import { BCFarm, Farm } from '@/types/farms.types';
-    import { onBeforeMount } from '@vue/runtime-core';
-    import { useDynamicBalance } from '@/util/useDynamicBalance';
-    import { toNumber } from 'lodash';
+    import { Farm } from '@/types/farms.types';
     import CreateFarmCard from '@/components/CreateFarmCard.vue';
-
+    import { fetchFarms, v2Farms, v3Farms } from '@/service/farmService';
     //@ts-ignore
     const canCreateWallet = import.meta.env.DEV || flagsmith.hasFeature('can_create_wallet_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);
@@ -116,20 +105,9 @@
         await saveWallets();
     };
 
-    const createNewFarm = async () => {
-        // const f: Farm = {
-        //     v3: true,
-        //     name: 'Create new farm',
-        // };
-        //
-        // newCreatedFarms.value.push(f);
-    };
-
     const addressesIsLoading = ref(true);
     const addresses = ref<string[]>([]);
 
-    const v2Farms = ref<Farm[]>([]);
-    const v3Farms = ref(<Farm[]>[]);
     const newCreatedFarms = ref(<Farm[]>[]);
 
     const initAddresses = async () => {
@@ -150,68 +128,6 @@
         });
     });
 
-    const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
-        for (const v3Wallet of v3Wallets) {
-            const api = await getSubstrateApi();
-
-            const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
-            const twinId = await getTwinId(substrateAddress);
-
-            if (!twinId) {
-                continue; // can't have farm without twin id
-            }
-            // console.debug('twinId', twinId);
-            // console.table([...allFarms.value.map((f: any) => ({ ...f }))], ['name', 'twin_id']);
-            const allV3Farms = allFarms.value.filter((farm: { twin_id: Number }) => toNumber(farm.twin_id) === twinId);
-
-            const farmIds = JSON.parse(JSON.stringify(allV3Farms.map((farm: BCFarm) => farm.id)));
-            const bcNodes = await api.query.tfgridModule.nodes.entries();
-
-            await useDynamicBalance(v3Wallet);
-
-            const allNodes = bcNodes
-                //@ts-ignore
-                .filter(([, node]) => farmIds.includes(node.farm_id.words[0]))
-                //@ts-ignore
-                .map(([, node]) => node.toHuman(true));
-
-            for (const farm of allV3Farms) {
-                const f: Farm = {
-                    name: farm?.name,
-                    wallet_id: v3Wallet.keyPair.getBasePublicKey(),
-                    v3: true,
-                    wallet: v3Wallet,
-                    farmId: farm?.id,
-                    twinId: farm?.twin_id,
-                };
-
-                const index = v3Farms.value.findIndex((farm: any) => farm.name === f.name);
-
-                index === -1 ? v3Farms.value.push(f) : v3Farms.value.splice(index, 1, f);
-            }
-        }
-    };
-
-    const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
-        for (const v2Wallet of v2Wallets) {
-            const stellarKeyPair = v2Wallet.keyPair.getStellarKeyPair().publicKey();
-            const result = await axios.get(`/api/v1/farms/address/${stellarKeyPair}`);
-
-            if (result && result.status == 200) {
-                for (const farmName of result.data) {
-                    const f: Farm = {
-                        name: farmName,
-                        wallet_id: v2Wallet.keyPair.getBasePublicKey(),
-                        v3: false,
-                        wallet: v2Wallet,
-                    };
-
-                    v2Farms.value.push(f);
-                }
-            }
-        }
-    };
-
     const restWallets = computed(() => {
         return wallets.value.filter(wallet => {
             const id = wallet.keyPair.getBasePublicKey();
@@ -220,12 +136,6 @@
     });
 
     const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
-
-    const fetchFarms = async () => {
-        await fetchAllFarms();
-        await checkV2FarmsForWallets(wallets.value);
-        await checkV3FarmsForWallets(wallets.value);
-    };
 
     const intervalPointer = setInterval(async () => {
         console.log('Refreshing farms ..');

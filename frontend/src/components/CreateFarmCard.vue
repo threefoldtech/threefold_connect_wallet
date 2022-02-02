@@ -1,120 +1,101 @@
 <template>
-    <div class="relative col-span-1 mt-5 divide-y rounded-lg bg-white p-4" v-if="isLoading">
-        Loading ...
-        <div>
-            {{ loadingSubtitle }}
-        </div>
-    </div>
-    <div v-else class="relative col-span-1 mt-5 divide-y rounded-lg bg-white">
-        <Disclosure v-slot="{ open }" as="div" class="relative col-span-1 rounded-lg bg-white">
-            <DisclosureButton as="div" class="flex flex-row items-center justify-between">
-                <div class="text-md max-w-90 truncate p-4 font-medium">
-                    {{ farm.name }}
-                </div>
-                <div>
-                    <ChevronUpIcon v-if="open" class="-ml-1 mr-2 h-5 w-5" />
-                    <ChevronDownIcon v-if="!open" class="-ml-1 mr-2 h-5 w-5" />
-                </div>
-            </DisclosureButton>
-
-            <DisclosurePanel class="px-4 pb-4" as="div">
-                <form @submit.prevent.stop="validateCreatedFarm">
-                    <div data-field="wallet">
-                        <h2 class="pb-2 text-sm font-semibold uppercase">Choose a wallet</h2>
-                        <div class="w-full">
-                            <Menu as="div" class="relative inline-block w-full text-left">
-                                <div>
-                                    <MenuButton
-                                        class="inline-flex w-full justify-between rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
-                                    >
-                                        {{ desiredWallet.name }}
-                                        <ChevronDownIcon
-                                            class="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"
-                                            aria-hidden="true"
-                                        />
-                                    </MenuButton>
-                                </div>
-
-                                <MenuItems
-                                    class="absolute left-0 z-50 mt-2 w-full origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+    <div class="relative col-span-1 mt-5 divide-y rounded-lg bg-white">
+        <div class="px-4 pb-4">
+            <form @submit.prevent.stop="validateCreatedFarm">
+                <div data-field="wallet">
+                    <h2 class="pb-2 text-sm font-semibold uppercase">Choose a wallet</h2>
+                    <div class="w-full">
+                        <Menu as="div" class="relative inline-block w-full text-left">
+                            <div>
+                                <MenuButton
+                                    class="inline-flex w-full justify-between rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
                                 >
-                                    <div class="max-h-28 w-full divide-y overflow-y-auto">
-                                        <MenuItem
-                                            v-for="wallet in wallets.filter(
-                                                wallet => wallet.name !== desiredWallet.name
-                                            )"
-                                            v-slot="{ active }"
+                                    {{ desiredWallet.name }}
+                                    <ChevronDownIcon
+                                        class="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"
+                                        aria-hidden="true"
+                                    />
+                                </MenuButton>
+                            </div>
+
+                            <MenuItems
+                                class="absolute left-0 z-50 mt-2 w-full origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                            >
+                                <div class="max-h-28 w-full divide-y overflow-y-auto">
+                                    <MenuItem
+                                        v-for="wallet in wallets.filter(wallet => wallet.name !== desiredWallet.name)"
+                                        v-slot="{ active }"
+                                    >
+                                        <div
+                                            class="flex w-full justify-between gap-2 truncate px-4 py-2 text-sm"
+                                            @click="desiredWallet = wallet"
                                         >
-                                            <div
-                                                class="flex w-full justify-between gap-2 truncate px-4 py-2 text-sm"
-                                                @click="desiredWallet = wallet"
-                                            >
-                                                <div class="flex w-full flex-col justify-start truncate">
-                                                    <div class="flex flex-row justify-between">
-                                                        <div class="font-semibold">Name</div>
-                                                        <div>{{ wallet.name }}</div>
+                                            <div class="flex w-full flex-col justify-start truncate">
+                                                <div class="flex flex-row justify-between">
+                                                    <div class="font-semibold">Name</div>
+                                                    <div>
+                                                        {{ wallet.keyPair.getSubstrateKeyring().address
+                                                        }}{{ wallet.name }}
                                                     </div>
-                                                    <div class="flex flex-row justify-between">
-                                                        <div class="font-semibold">Balance</div>
-                                                        <div>
-                                                            {{
-                                                                balances
-                                                                    .find(
-                                                                        b => b.id === wallet.keyPair.getBasePublicKey()
-                                                                    )
-                                                                    ?.assets.filter(asset => asset.name === 'TFT')[0]
-                                                                    ?.amount
-                                                            }}
-                                                            TFT
-                                                        </div>
+                                                </div>
+                                                <div class="flex flex-row justify-between">
+                                                    <div class="font-semibold">Balance</div>
+                                                    <div>
+                                                        {{
+                                                            balances
+                                                                .find(b => b.id === wallet.keyPair.getBasePublicKey())
+                                                                ?.assets.filter(asset => asset.name === 'TFT')[0]
+                                                                ?.amount
+                                                        }}
+                                                        TFT
                                                     </div>
                                                 </div>
                                             </div>
-                                        </MenuItem>
-                                    </div>
-                                </MenuItems>
-                                <transition
-                                    enter-active-class="transition duration-100 ease-out"
-                                    enter-from-class="transform scale-95 opacity-0"
-                                    enter-to-class="transform scale-100 opacity-100"
-                                    leave-active-class="transition duration-75 ease-in"
-                                    leave-from-class="transform scale-100 opacity-100"
-                                    leave-to-class="transform scale-95 opacity-0"
-                                >
-                                </transition>
-                            </Menu>
-                        </div>
+                                        </div>
+                                    </MenuItem>
+                                </div>
+                            </MenuItems>
+                            <transition
+                                enter-active-class="transition duration-100 ease-out"
+                                enter-from-class="transform scale-95 opacity-0"
+                                enter-to-class="transform scale-100 opacity-100"
+                                leave-active-class="transition duration-75 ease-in"
+                                leave-from-class="transform scale-100 opacity-100"
+                                leave-to-class="transform scale-95 opacity-0"
+                            >
+                            </transition>
+                        </Menu>
                     </div>
+                </div>
 
-                    <div class="pt-5" data-field="farmName">
-                        <h2 class="pb-2 text-sm font-semibold uppercase">Choose a farm name</h2>
-                        <input
-                            type="text"
-                            name="farmName"
-                            id="farmName"
-                            placeholder="Enter Farm Name"
-                            required
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                            :class="{ 'border-red-500': farmFormErrors.farmName }"
-                            v-model="farmNameToValidate"
-                        />
+                <div class="pt-5" data-field="farmName">
+                    <h2 class="pb-2 text-sm font-semibold uppercase">Choose a farm name</h2>
+                    <input
+                        type="text"
+                        name="farmName"
+                        id="farmName"
+                        placeholder="Enter Farm Name"
+                        required
+                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                        :class="{ 'border-red-500': farmFormErrors.farmName }"
+                        v-model="farmNameToValidate"
+                    />
 
-                        <div class="mt-1 text-sm text-red-600" v-if="farmFormErrors.farmName">
-                            {{ farmFormErrors.farmName }}
-                        </div>
-                        <div class="mt-1 text-xs text-gray-500" v-else>No spaces or special characters</div>
+                    <div class="mt-1 text-sm text-red-600" v-if="farmFormErrors.farmName">
+                        {{ farmFormErrors.farmName }}
                     </div>
+                    <div class="mt-1 text-xs text-gray-500" v-else>No spaces or special characters</div>
+                </div>
 
-                    <div class="pt-4">
-                        <input
-                            type="submit"
-                            value="Submit"
-                            class="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
-                        />
-                    </div>
-                </form>
-            </DisclosurePanel>
-        </Disclosure>
+                <div class="pt-4">
+                    <input
+                        type="submit"
+                        value="Submit"
+                        class="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
+                    />
+                </div>
+            </form>
+        </div>
     </div>
 
     <modal
@@ -184,7 +165,7 @@
 <script lang="ts" setup>
     import SiteModalFrame from '@/components/SiteModalFrame.vue';
     import { Farm } from '@/types/farms.types';
-    import { AssetBalance, balances, Wallet } from '@/service/walletService';
+    import { AssetBalance, balances, Wallet, wallets } from '@/service/walletService';
     import {
         DisclosureButton,
         Disclosure,
@@ -217,14 +198,12 @@
     import { useDynamicBalance } from '@/util/useDynamicBalance';
 
     interface Props {
-        farm: Farm;
-        wallets: Wallet[];
         v2Farms: Farm[];
     }
 
-    const { farm, wallets, v2Farms } = defineProps<Props>();
+    const { v2Farms } = defineProps<Props>();
 
-    const desiredWallet = ref<Wallet>(wallets[0]);
+    const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
     const farmNameToValidate = ref();
 
@@ -339,7 +318,10 @@
         isLoading.value = true;
         loadingSubtitle.value = 'Starting creation of farm';
 
+        console.log('Going to accept terms and cs');
         await acceptTermsAndConditions();
+
+        console.log('going to add the farm');
         await addFarm(farmName, []);
 
         isLoading.value = false;
@@ -371,7 +353,9 @@
     const addFarm = async (farmName: string, publicIps: string[]) => {
         newTwinId.value = await getTwinId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
 
+        console.debug('this is the twinid, ', newTwinId.value);
         if (newTwinId.value === 0) {
+            console.debug('the twin id was 0');
             await addTwin();
         }
 
@@ -381,9 +365,10 @@
         const currentAmountOfFarms = farms.value.length;
         const api = await getSubstrateApi();
 
-        const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, publicIps);
-
+        console.debug('this is the provided info', farmName, publicIps);
         console.log(desiredWallet.value.keyPair.getSubstrateKeyring());
+
+        const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, publicIps);
 
         const promise = new Promise((resolve, reject) => {
             submittableExtrinsic.signAndSend(desiredWallet.value.keyPair.getSubstrateKeyring(), result => {
@@ -396,8 +381,7 @@
             });
         });
 
-        console.log('Reach this part 1');
-
+        console.debug('signing and sending substate ring ');
         try {
             await promise;
         } catch (e) {
@@ -412,7 +396,6 @@
         }
 
         //while no substrateBalance is available we wait
-        console.log('Reach this part 2');
         let i = 0;
         while (true) {
             // break after 20 seconds
@@ -463,8 +446,7 @@
 
         newTwinId.value = await getTwinId(address);
 
-        //@ts-ignore
-        await useDynamicBalance(desiredWallet.value);
+        await useDynamicBalance(desiredWallet.value as Wallet);
 
         //@ts-ignore
         farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === newTwinId.value);
@@ -487,6 +469,7 @@
 
         const id = desiredWallet.value.keyPair.getSubstrateKeyring().address;
 
+        console.log('Activating service for substrate');
         await activationServiceForSubstrate(id);
 
         //While there is no substrate balance, we need to wait
@@ -505,6 +488,7 @@
 
         while (true) {
             try {
+                console.log('Signging terms and conditions');
                 await signTermsAndConditions();
                 break;
             } catch (e) {
@@ -517,6 +501,8 @@
             termsAndConditions.value = await getUsersTermsAndConditions(id);
         } while (termsAndConditions.value.filter(t => t.document_link === termsAndConditionsUrl).length === 0);
 
+        console.log('these are the terms and conditions');
+        console.log(termsAndConditions.value);
         loadingSubtitle.value = 'Reloading data';
         await init();
     };

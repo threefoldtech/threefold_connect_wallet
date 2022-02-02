@@ -4,7 +4,7 @@
             <PageHeader>
                 <h1>Farms</h1>
                 <template v-if="canCreateWallet" #after>
-                    <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createNewFarm()" />
+                    <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="showCreateNewFarm = true" />
                 </template>
             </PageHeader>
         </template>
@@ -56,6 +56,18 @@
             </div>
         </div>
     </MainLayout>
+
+    <Dialog
+        as="div"
+        class="fixed inset-0 flex h-screen w-full items-center justify-center"
+        :open="showCreateNewFarm"
+        @close="showCreateNewFarm = false"
+    >
+        <DialogOverlay class="fixed inset-0 bg-gray-700/60" />
+        <div class="flex items-center justify-center">
+            <CreateFarmCard :v2Farms="v2Farms" />
+        </div>
+    </Dialog>
 </template>
 
 <script lang="ts" setup>
@@ -63,6 +75,8 @@
     import PageHeader from '@/components/header/PageHeader.vue';
     import { saveWallets, Wallet, wallets } from '@/service/walletService';
     import FarmerWalletCard from '@/components/FarmerWalletCard.vue';
+
+    import { Dialog, DialogOverlay, DialogTitle, DialogDescription } from '@headlessui/vue';
 
     import { PlusCircleIcon } from '@heroicons/vue/outline';
     import { nanoid } from 'nanoid';
@@ -89,6 +103,7 @@
 
     //@ts-ignore
     const canCreateWallet = import.meta.env.DEV || flagsmith.hasFeature('can_create_wallet_for_farmer');
+    const showCreateNewFarm = ref<boolean>(false);
 
     const createWallet = async () => {
         const walletKeyPair = WalletKeyPair.random();
@@ -102,12 +117,12 @@
     };
 
     const createNewFarm = async () => {
-        const f: Farm = {
-            v3: true,
-            name: nanoid(),
-        };
-
-        newCreatedFarms.value.push(f);
+        // const f: Farm = {
+        //     v3: true,
+        //     name: 'Create new farm',
+        // };
+        //
+        // newCreatedFarms.value.push(f);
     };
 
     const addressesIsLoading = ref(true);

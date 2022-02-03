@@ -57,9 +57,9 @@
     import FarmCardDetails from '@/components/FarmCardDetails.vue';
     import { ref } from 'vue';
 
-    // Defining props
+    // @TODO: make yarn build work on type: Farm
     interface Props {
-        farm: Farm;
+        farm: any;
         isV3: boolean;
     }
 

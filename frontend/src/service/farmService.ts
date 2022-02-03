@@ -47,10 +47,20 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
 
             index === -1 ? v3Farms.value.push(f) : v3Farms.value.splice(index, 1, f);
         }
+
+        v3Farms.value.sort((a, b) => {
+            // @TODO: solve this ts ignores - cause farm type farmId can be null
+            //@ts-ignore
+            if (a.farmId < b.farmId) return -1;
+            //@ts-ignore
+            if (a.farmId > b.farmId) return 1;
+            return 0;
+        });
     }
 };
 const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
     for (const v2Wallet of v2Wallets) {
+        console.log(v2Wallet.keyPair.getStellarKeyPair().publicKey());
         const stellarKeyPair = v2Wallet.keyPair.getStellarKeyPair().publicKey();
         const result = await axios.get(`/api/v1/farms/address/${stellarKeyPair}`);
 

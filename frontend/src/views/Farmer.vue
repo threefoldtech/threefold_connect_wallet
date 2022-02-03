@@ -90,6 +90,7 @@
     import { Farm } from '@/types/farms.types';
     import CreateFarmCard from '@/components/CreateFarmCard.vue';
     import { fetchFarms, v2Farms, v3Farms } from '@/service/farmService';
+    import { useRouter } from 'vue-router';
     //@ts-ignore
     const canCreateWallet = import.meta.env.DEV || flagsmith.hasFeature('can_create_wallet_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);
@@ -105,6 +106,7 @@
         await saveWallets();
     };
 
+    const router = useRouter();
     const addressesIsLoading = ref(true);
     const addresses = ref<string[]>([]);
 
@@ -143,6 +145,10 @@
     onBeforeUnmount(() => clearInterval(intervalPointer));
 
     const init = async () => {
+        if (wallets.value.length <= 0) {
+            return await router.push({ name: 'noWalletsScreen' });
+        }
+
         farmsIsLoading.value = true;
         await fetchFarms();
         console.log('Farms have been fetched');

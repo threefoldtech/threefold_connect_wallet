@@ -16,6 +16,7 @@ import DevShell from '@/views/dev/DevShell.vue';
 import Logs from '@/views/dev/Logs.vue';
 import Actions from '@/views/dev/Actions.vue';
 import Receive from '@/views/transfer/Receive.vue';
+import NoWalletsScreen from '@/views/NoWalletsScreen.vue';
 import FirstWalletInit from '@/views/FirstWalletInit.vue';
 import ConfirmSend from '@/views/transfer/ConfirmSend.vue';
 import {
@@ -172,6 +173,12 @@ export const routes: Route[] = [
         path: '/firstWalletInit',
         name: 'firstWalletInit',
         component: FirstWalletInit,
+        props: true,
+    },
+    {
+        path: '/noWalletsScreen',
+        name: 'noWalletsScreen',
+        component: NoWalletsScreen,
         props: true,
     },
     {

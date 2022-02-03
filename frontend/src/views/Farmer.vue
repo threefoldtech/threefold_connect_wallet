@@ -135,8 +135,9 @@
         });
     });
 
-    const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
+    // const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
 
+    const farmsIsLoading = ref<boolean>(false);
     let intervalPointer: any;
 
     onBeforeUnmount(() => clearInterval(intervalPointer));

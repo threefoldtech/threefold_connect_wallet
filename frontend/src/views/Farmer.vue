@@ -3,7 +3,7 @@
         <template #header>
             <PageHeader>
                 <h1>Farms</h1>
-                <template v-if="canCreateWallet && showCreateNewFarm === false" #after>
+                <template v-if="canCreateFarms && showCreateNewFarm === false" #after>
                     <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="showCreateNewFarm = true" />
                 </template>
             </PageHeader>
@@ -92,7 +92,7 @@
     import { fetchFarms, v2Farms, v3Farms } from '@/service/farmService';
     import { useRouter } from 'vue-router';
     //@ts-ignore
-    const canCreateWallet = import.meta.env.DEV || flagsmith.hasFeature('can_create_wallet_for_farmer');
+    const canCreateFarms = import.meta.env.DEV || flagsmith.hasFeature('can_create_farms_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);
 
     const createWallet = async () => {

@@ -6,10 +6,6 @@
     </div>
 </template>
 
-<script>
-    export default {
-        name: 'NoWalletsScreen',
-    };
-</script>
+<script lang="ts" setup></script>
 
 <style scoped></style>

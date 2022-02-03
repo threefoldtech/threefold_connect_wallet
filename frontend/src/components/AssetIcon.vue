@@ -55,8 +55,8 @@
 </template>
 <script lang="ts" setup>
     interface IProps {
-        name: string;
+        name?: string;
     }
 
-    const { name } = defineProps<IProps>();
+    const { name } = withDefaults(defineProps<IProps>(), { name: 'TFT' });
 </script>

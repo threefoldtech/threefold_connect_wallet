@@ -2,35 +2,39 @@
     <MainLayout>
         <template #header>
             <PageHeader>
-                <!--                <template #before v-if="canCreateWallet">-->
-                <!--                    <div>-->
-                <!--                        <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createWallet()" />-->
-                <!--                        Sync with your wallet-->
-                <!--                    </div>-->
-                <!--                </template>-->
                 <h1>Farms</h1>
-                <template #after v-if="canCreateWallet">
-                    <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="createWallet()" />
+                <template v-if="canCreateWallet && showCreateNewFarm === false" #after>
+                    <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="showCreateNewFarm = true" />
                 </template>
             </PageHeader>
         </template>
         <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
-            <div v-if="grid2Wallets.length > 0">
-                <h2 class="py-2 font-medium">Wallets found with farms in Gridv2</h2>
-                <ul role="list" class="grid grid-cols-1 gap-6">
-                    <FarmerWalletCard :wallet="wallet" v-for="wallet in grid2Wallets" />
-                </ul>
-                <hr class="my-4 border-primary-400" />
-                <h2 class="py-2 font-medium">Rest Wallets</h2>
-                <ul role="list" class="grid grid-cols-1 gap-6">
-                    <FarmerWalletCard :wallet="wallet" v-for="wallet in restWallets" />
+            <div class="font-medium">Farms on v2</div>
+            <div v-if="v2Farms.length > 0">
+                <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v2</h2>
+                <ul role="list" class="grid grid-cols-1 gap-3">
+                    <FarmCard :isV3="false" :farm="farm" v-for="farm in v2Farms" />
                 </ul>
             </div>
             <div v-else>
-                <h2 class="py-2 font-medium">No wallets found with farms in Gridv2</h2>
-                <ul role="list" class="grid grid-cols-1 gap-6">
-                    <FarmerWalletCard :wallet="wallet" v-for="wallet in wallets" />
+                <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v2</h2>
+            </div>
+
+            <div class="pt-3 font-medium">Farms on v3</div>
+            <div v-if="v3Farms.length > 0">
+                <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v3</h2>
+                <ul role="list" class="grid grid-cols-1 gap-3">
+                    <FarmCard :isV3="true" :farm="farm" v-for="farm in v3Farms" />
                 </ul>
+            </div>
+            <div v-else>
+                <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v3</h2>
+            </div>
+
+            <div v-if="newCreatedFarms.length > 0">
+                <div v-for="newFarm in newCreatedFarms">
+                    <CreateFarmCard :v2Farms="v2Farms" :farm="newFarm" :wallets="wallets"></CreateFarmCard>
+                </div>
             </div>
         </div>
         <div v-else class="flex min-h-full items-center justify-center bg-gray-200 p-4">
@@ -48,34 +52,51 @@
                         fill="currentColor"
                     ></path>
                 </svg>
-                <h2 class="mt-4">loading</h2>
+                <h2 class="mt-4">Loading</h2>
             </div>
         </div>
     </MainLayout>
+
+    <Dialog
+        as="div"
+        class="fixed inset-0 flex h-screen w-full items-center justify-center"
+        :open="showCreateNewFarm"
+        @close="showCreateNewFarm = false"
+    >
+        <DialogOverlay class="pointer-events-none fixed inset-0 bg-gray-700/60" />
+        <div class="flex w-[80%] max-w-[80%] items-center justify-center">
+            <CreateFarmCard :migrationFarm="null" @close="showCreateNewFarm = false" />
+        </div>
+    </Dialog>
 </template>
 
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { saveWallets, wallets } from '@/service/walletService';
-    import FarmerWalletCard from '@/components/FarmerWalletCard.vue';
+
+    import { Dialog, DialogOverlay } from '@headlessui/vue';
 
     import { PlusCircleIcon } from '@heroicons/vue/outline';
     import { nanoid } from 'nanoid';
-    import { init, PkidWalletTypes } from '@/service/initializationService';
+    import { PkidWalletTypes } from '@/service/initializationService';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import flagsmith from 'flagsmith';
     import { computed, onBeforeUnmount, ref } from 'vue';
     import { fetchAllFarms } from '@/service/substrateService';
     import { usePromise } from '@/util/usePromise';
     import axios from 'axios';
-
+    import FarmCard from '@/components/FarmCard.vue';
+    import { Farm } from '@/types/farms.types';
+    import CreateFarmCard from '@/components/CreateFarmCard.vue';
+    import { fetchFarms, v2Farms, v3Farms } from '@/service/farmService';
     //@ts-ignore
     const canCreateWallet = import.meta.env.DEV || flagsmith.hasFeature('can_create_wallet_for_farmer');
+    const showCreateNewFarm = ref<boolean>(false);
 
     const createWallet = async () => {
         const walletKeyPair = WalletKeyPair.random();
-        console.log(walletKeyPair);
+        console.log(walletKeyPair.getStellarKeyPair().publicKey());
         wallets.value.push({
             keyPair: walletKeyPair,
             meta: { chain: 'stellar', type: PkidWalletTypes.Imported },
@@ -85,21 +106,25 @@
     };
 
     const addressesIsLoading = ref(true);
-    const adressess = ref<string[]>([]);
+    const addresses = ref<string[]>([]);
+
+    const newCreatedFarms = ref(<Farm[]>[]);
+
     const initAddresses = async () => {
         addressesIsLoading.value = true;
         const result = await axios.get('/api/v1/farms/addresses');
         if (result?.data) {
-            adressess.value = result.data;
+            addresses.value = result.data;
         }
         addressesIsLoading.value = false;
     };
+
     initAddresses();
 
     const grid2Wallets = computed(() => {
         return wallets.value.filter(wallet => {
             const stellarKeyPair = wallet.keyPair.getStellarKeyPair().publicKey();
-            return adressess.value?.find(farm => farm === stellarKeyPair);
+            return addresses.value?.find(farm => farm === stellarKeyPair);
         });
     });
 
@@ -110,12 +135,27 @@
         });
     });
 
-    const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
+    // const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
 
-    const intervalPointer = setInterval(async () => {
-        await fetchAllFarms();
-    }, 3000);
+    const farmsIsLoading = ref<boolean>(false);
+    let intervalPointer: any;
+
     onBeforeUnmount(() => clearInterval(intervalPointer));
+
+    const init = async () => {
+        farmsIsLoading.value = true;
+        await fetchFarms();
+        console.log('Farms have been fetched');
+        farmsIsLoading.value = false;
+
+        intervalPointer = setInterval(async () => {
+            console.log('Refreshing farms ..');
+            await fetchFarms();
+            console.log('Farms refreshed');
+        }, 5000);
+    };
+
+    init();
 </script>
 
 <style scoped></style>

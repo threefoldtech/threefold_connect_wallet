@@ -65,7 +65,7 @@
     >
         <DialogOverlay class="pointer-events-none fixed inset-0 bg-gray-700/60" />
         <div class="flex w-[80%] max-w-[80%] items-center justify-center">
-            <CreateFarmCard :migrationFarm="null" @close="showCreateNewFarm = false" />
+            <CreateFarmCard @close="showCreateNewFarm = false" />
         </div>
     </Dialog>
 </template>

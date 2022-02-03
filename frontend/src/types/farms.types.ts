@@ -4,7 +4,7 @@ export interface Farm {
     name: string;
     wallet_id?: string; // wallet.keyPair.getBasePublicKey()
     v3: boolean;
-    wallet?: Wallet;
+    wallet: Wallet;
     twinId?: string;
     farmId?: string;
 

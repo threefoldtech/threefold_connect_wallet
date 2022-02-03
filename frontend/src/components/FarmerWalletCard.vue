@@ -261,61 +261,61 @@
         </Disclosure>
     </template>
 
-    <modal
-        :key="showTermsAndConditionsModal"
-        v-if="showTermsAndConditionsModal"
-        @close="showTermsAndConditionsModal = false"
-        :action="true"
-    >
-        <template #header> You have to accept the terms and conditions </template>
-        <template #content>
-            <SwitchGroup as="div" class="flex items-center justify-between px-4">
-                <span class="flex flex-grow flex-col">
-                    <SwitchLabel as="span" class="text-sm font-medium text-gray-900">Terms & Conditions</SwitchLabel>
-                    <SwitchDescription as="span" class="text-sm text-gray-500"
-                        >I have read and accept the
-                        <a
-                            class="inline underline decoration-primary-500 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
-                            tabindex="0"
-                            @click.stop.prevent="showTerms()"
-                        >
-                            terms and conditions
-                        </a>
-                    </SwitchDescription>
-                </span>
-                <Switch
-                    v-model="termsAndConditionsIsAccepted"
-                    :class="[
-                        termsAndConditionsIsAccepted ? 'bg-primary-600' : 'bg-gray-200',
-                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-                    ]"
-                >
-                    <span
-                        :class="[
-                            termsAndConditionsIsAccepted ? 'translate-x-5' : 'translate-x-0',
-                            'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-                        ]"
-                        aria-hidden="true"
-                    />
-                </Switch>
-            </SwitchGroup>
-        </template>
-        <template #actions>
-            <button
-                @click="createFarmFormSubmit"
-                :disabled="!termsAndConditionsIsAccepted"
-                class="rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
-            >
-                Create farm
-            </button>
-            <button
-                @click="showTermsAndConditionsModal = false"
-                class="rounded-md py-2 px-4 text-sm font-medium text-orange-600 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-            >
-                Cancel
-            </button>
-        </template>
-    </modal>
+    <!--    <modal-->
+    <!--        :key="showTermsAndConditionsModal"-->
+    <!--        v-if="showTermsAndConditionsModal"-->
+    <!--        @close="showTermsAndConditionsModal = false"-->
+    <!--        :action="true"-->
+    <!--    >-->
+    <!--        <template #header> You have to accept the terms and conditions </template>-->
+    <!--        <template #content>-->
+    <!--            <SwitchGroup as="div" class="flex items-center justify-between px-4">-->
+    <!--                <span class="flex flex-grow flex-col">-->
+    <!--                    <SwitchLabel as="span" class="text-sm font-medium text-gray-900">Terms & Conditions</SwitchLabel>-->
+    <!--                    <SwitchDescription as="span" class="text-sm text-gray-500"-->
+    <!--                        >I have read and accept the-->
+    <!--                        <a-->
+    <!--                            class="inline underline decoration-primary-500 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"-->
+    <!--                            tabindex="0"-->
+    <!--                            @click.stop.prevent="showTerms()"-->
+    <!--                        >-->
+    <!--                            terms and conditions-->
+    <!--                        </a>-->
+    <!--                    </SwitchDescription>-->
+    <!--                </span>-->
+    <!--                <Switch-->
+    <!--                    v-model="termsAndConditionsIsAccepted"-->
+    <!--                    :class="[-->
+    <!--                        termsAndConditionsIsAccepted ? 'bg-primary-600' : 'bg-gray-200',-->
+    <!--                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',-->
+    <!--                    ]"-->
+    <!--                >-->
+    <!--                    <span-->
+    <!--                        :class="[-->
+    <!--                            termsAndConditionsIsAccepted ? 'translate-x-5' : 'translate-x-0',-->
+    <!--                            'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',-->
+    <!--                        ]"-->
+    <!--                        aria-hidden="true"-->
+    <!--                    />-->
+    <!--                </Switch>-->
+    <!--            </SwitchGroup>-->
+    <!--        </template>-->
+    <!--        <template #actions>-->
+    <!--            <button-->
+    <!--                @click="createFarmFormSubmit"-->
+    <!--                :disabled="!termsAndConditionsIsAccepted"-->
+    <!--                class="rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"-->
+    <!--            >-->
+    <!--                Create farm-->
+    <!--            </button>-->
+    <!--            <button-->
+    <!--                @click="showTermsAndConditionsModal = false"-->
+    <!--                class="rounded-md py-2 px-4 text-sm font-medium text-orange-600 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"-->
+    <!--            >-->
+    <!--                Cancel-->
+    <!--            </button>-->
+    <!--        </template>-->
+    <!--    </modal>-->
 
     <SiteModalFrame
         v-if="showTermsAndConditions"
@@ -366,7 +366,6 @@
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { toNumber } from 'lodash';
     import { ClipboardCopyIcon } from '@heroicons/vue/outline';
-    import Modal from '@/components/global/Modal.vue';
     import AssetIcon from '@/components/AssetIcon.vue';
 
     const v2farms: {

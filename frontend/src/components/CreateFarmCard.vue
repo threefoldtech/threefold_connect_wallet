@@ -103,7 +103,7 @@
                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                         :class="{ 'border-red-500': farmFormErrors.farmName }"
                         v-model="farmNameToValidate"
-                        :disabled="migrationFarm"
+                        :disabled="migrationFarm !== undefined"
                     />
 
                     <div class="mt-1 text-sm text-red-600" v-if="farmFormErrors.farmName">
@@ -221,14 +221,14 @@
 
     onBeforeMount(() => {
         if (migrationFarm) {
-            farmNameToValidate.value = migrationFarm.name;
-            desiredWallet.value = migrationFarm.wallet as Wallet;
+            farmNameToValidate.value = migrationFarm?.name;
+            desiredWallet.value = migrationFarm?.wallet as Wallet;
         }
     });
 
     // Defining props
     interface Props {
-        migrationFarm: Farm;
+        migrationFarm?: Farm;
     }
 
     const { migrationFarm } = defineProps<Props>();

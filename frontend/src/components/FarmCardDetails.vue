@@ -4,13 +4,13 @@
             <div class="flex flex-row items-center">
                 <h2 class="text-sm font-medium uppercase">Stellar address</h2>
                 <ClipboardCopyIcon
-                    @click="copyToClipboard(farm.wallet?.keyPair.getStellarKeyPair().publicKey())"
+                    @click="copyToClipboard(farm.wallet.keyPair.getStellarKeyPair().publicKey())"
                     class="ml-2 h-4 text-black"
                 />
             </div>
 
             <div class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">
-                {{ farm.wallet?.keyPair.getStellarKeyPair().publicKey() }}
+                {{ farm.wallet.keyPair.getStellarKeyPair().publicKey() }}
             </div>
             <div class="mt-1 text-xs font-light text-orange-500">Note: This address will be used for payout</div>
         </div>
@@ -18,7 +18,7 @@
         <div class="pt-4" data-field="walletName">
             <h2 class="text-sm font-medium uppercase">Wallet name</h2>
             <div class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">
-                {{ farm.wallet?.name }}
+                {{ farm.wallet.name }}
             </div>
         </div>
 

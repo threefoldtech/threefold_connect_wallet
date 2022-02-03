@@ -7,6 +7,7 @@
             </div>
             <div>
                 <button
+                    @click="showCreateNewFarm = true"
                     class="rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
                 >
                     Migrate to v3
@@ -32,14 +33,29 @@
             </DisclosurePanel>
         </Disclosure>
     </div>
+
+    <Dialog
+        v-if="showCreateNewFarm"
+        as="div"
+        class="fixed inset-0 flex h-screen w-full items-center justify-center"
+        :open="showCreateNewFarm"
+        @close="showCreateNewFarm = false"
+    >
+        <DialogOverlay class="fixed inset-0 bg-gray-700/60" />
+        <div class="flex w-[80%] max-w-[80%] items-center justify-center">
+            <CreateFarmCard :migrationFarm="farm" @close="showCreateNewFarm = false" />
+        </div>
+    </Dialog>
 </template>
 
 <script lang="ts" setup>
     import { Farm } from '@/types/farms.types';
 
-    import { DisclosureButton, Disclosure, DisclosurePanel } from '@headlessui/vue';
+    import CreateFarmCard from '@/components/CreateFarmCard.vue';
+    import { DisclosureButton, Disclosure, DisclosurePanel, DialogOverlay, Dialog } from '@headlessui/vue';
     import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
     import FarmCardDetails from '@/components/FarmCardDetails.vue';
+    import { ref } from 'vue';
 
     // Defining props
     interface Props {
@@ -48,6 +64,7 @@
     }
 
     const { farm, isV3 } = withDefaults(defineProps<Props>(), { isV3: false });
+    const showCreateNewFarm = ref<boolean>(false);
 </script>
 
 <style scoped></style>

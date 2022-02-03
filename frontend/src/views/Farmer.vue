@@ -3,7 +3,7 @@
         <template #header>
             <PageHeader>
                 <h1>Farms</h1>
-                <template v-if="canCreateWallet" #after>
+                <template v-if="canCreateWallet && showCreateNewFarm === false" #after>
                     <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="showCreateNewFarm = true" />
                 </template>
             </PageHeader>
@@ -12,7 +12,7 @@
             <div class="font-medium">Farms on v2</div>
             <div v-if="v2Farms.length > 0">
                 <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v2</h2>
-                <ul role="list" class="grid grid-cols-1 gap-4">
+                <ul role="list" class="grid grid-cols-1 gap-3">
                     <FarmCard :isV3="false" :farm="farm" v-for="farm in v2Farms" />
                 </ul>
             </div>
@@ -23,7 +23,7 @@
             <div class="pt-3 font-medium">Farms on v3</div>
             <div v-if="v3Farms.length > 0">
                 <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v3</h2>
-                <ul role="list" class="grid grid-cols-1 gap-6">
+                <ul role="list" class="grid grid-cols-1 gap-3">
                     <FarmCard :isV3="true" :farm="farm" v-for="farm in v3Farms" />
                 </ul>
             </div>
@@ -63,9 +63,9 @@
         :open="showCreateNewFarm"
         @close="showCreateNewFarm = false"
     >
-        <DialogOverlay class="fixed inset-0 bg-gray-700/60" />
-        <div class="flex items-center justify-center">
-            <CreateFarmCard @close="showCreateNewFarm = false" />
+        <DialogOverlay class="pointer-events-none fixed inset-0 bg-gray-700/60" />
+        <div class="flex w-[80%] max-w-[80%] items-center justify-center">
+            <CreateFarmCard :migrationFarm="null" @close="showCreateNewFarm = false" />
         </div>
     </Dialog>
 </template>
@@ -137,16 +137,21 @@
 
     const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
 
-    const intervalPointer = setInterval(async () => {
-        console.log('Refreshing farms ..');
-        await fetchFarms();
-        console.log('Farms refreshed');
-    }, 5000);
+    let intervalPointer: any;
 
     onBeforeUnmount(() => clearInterval(intervalPointer));
 
     const init = async () => {
+        farmsIsLoading.value = true;
         await fetchFarms();
+        console.log('Farms have been fetched');
+        farmsIsLoading.value = false;
+
+        intervalPointer = setInterval(async () => {
+            console.log('Refreshing farms ..');
+            await fetchFarms();
+            console.log('Farms refreshed');
+        }, 5000);
     };
 
     init();

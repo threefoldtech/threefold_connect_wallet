@@ -63,6 +63,11 @@ const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
                     wallet: v2Wallet,
                 };
 
+                const isMigrated = v3Farms.value.find(farm => farm.name == farmName);
+                if (isMigrated) {
+                    continue;
+                }
+
                 const index = v2Farms.value.findIndex((farm: any) => farm.name === f.name);
                 index === -1 ? v2Farms.value.push(f) : v2Farms.value.splice(index, 1, f);
             }
@@ -71,6 +76,6 @@ const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
 };
 export const fetchFarms = async () => {
     await fetchAllFarms();
-    await checkV2FarmsForWallets(wallets.value);
     await checkV3FarmsForWallets(wallets.value);
+    await checkV2FarmsForWallets(wallets.value);
 };

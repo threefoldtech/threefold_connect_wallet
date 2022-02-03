@@ -1,8 +1,35 @@
 <template>
-    <div class="relative col-span-1 mt-5 divide-y rounded-lg bg-white">
-        <div class="px-4 pb-4">
-            <form @submit.prevent.stop="validateCreatedFarm">
-                <div data-field="wallet">
+    <div class="relative col-span-1 mt-5 w-full divide-y rounded-lg bg-white pt-4">
+        <div class="w-full" v-if="isLoading">
+            <div class="flex flex-row items-center justify-center pb-3">
+                {{ loadingSubtitle }} <span class="decoration- pl-1"> ...</span>
+            </div>
+            <div class="flex justify-center pb-3">
+                <svg
+                    class="h-6 animate-spin text-primary-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path
+                        class="opacity-75"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        fill="currentColor"
+                    ></path>
+                </svg>
+            </div>
+        </div>
+        <div v-else class="px-4 pb-4">
+            <div class="flex flex-row items-center justify-between pb-4">
+                <div class="text-lg font-semibold">CREATE A NEW WALLET</div>
+                <div>
+                    <XIcon class="h-4 w-4 text-black" @click="emit('close')"></XIcon>
+                </div>
+            </div>
+
+            <form @submit.prevent.stop="createNewFarm">
+                <div v-if="!migrationFarm" data-field="wallet">
                     <h2 class="pb-2 text-sm font-semibold uppercase">Choose a wallet</h2>
                     <div class="w-full">
                         <Menu as="div" class="relative inline-block w-full text-left">
@@ -33,10 +60,7 @@
                                             <div class="flex w-full flex-col justify-start truncate">
                                                 <div class="flex flex-row justify-between">
                                                     <div class="font-semibold">Name</div>
-                                                    <div>
-                                                        {{ wallet.keyPair.getSubstrateKeyring().address
-                                                        }}{{ wallet.name }}
-                                                    </div>
+                                                    <div>{{ wallet.name }}</div>
                                                 </div>
                                                 <div class="flex flex-row justify-between">
                                                     <div class="font-semibold">Balance</div>
@@ -79,6 +103,7 @@
                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                         :class="{ 'border-red-500': farmFormErrors.farmName }"
                         v-model="farmNameToValidate"
+                        :disabled="migrationFarm"
                     />
 
                     <div class="mt-1 text-sm text-red-600" v-if="farmFormErrors.farmName">
@@ -88,7 +113,45 @@
                 </div>
 
                 <div class="pt-4">
+                    <SwitchGroup as="div" class="flex items-center justify-between">
+                        <span class="flex flex-grow flex-col">
+                            <SwitchLabel as="span" class="pb-2 text-sm font-semibold uppercase text-gray-900"
+                                >Terms & Conditions</SwitchLabel
+                            >
+                            <SwitchDescription as="span" class="text-sm text-gray-500"
+                                >I have read and accept the
+                                <a
+                                    class="inline text-primary-600 decoration-primary-500 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
+                                    tabindex="0"
+                                    @click.stop.prevent="showTerms()"
+                                >
+                                    terms and conditions
+                                </a>
+                            </SwitchDescription>
+                        </span>
+                        <Switch
+                            v-model="termsAndConditionsIsAccepted"
+                            :class="[
+                                termsAndConditionsIsAccepted ? 'bg-primary-600' : 'bg-gray-200',
+                                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+                            ]"
+                        >
+                            <span
+                                :class="[
+                                    termsAndConditionsIsAccepted ? 'translate-x-5' : 'translate-x-0',
+                                    'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                                ]"
+                                aria-hidden="true"
+                            />
+                        </Switch>
+                    </SwitchGroup>
+                </div>
+
+                <div class="pt-4">
                     <input
+                        :disabled="
+                            !termsAndConditionsIsAccepted || farmFormErrors.farmName || farmNameToValidate.length == 0
+                        "
                         type="submit"
                         value="Submit"
                         class="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
@@ -97,62 +160,6 @@
             </form>
         </div>
     </div>
-
-    <modal
-        :key="showTermsAndConditionsModal"
-        v-if="showTermsAndConditionsModal"
-        @close="showTermsAndConditionsModal = false"
-        :action="true"
-    >
-        <template #header> You have to accept the terms and conditions</template>
-        <template #content>
-            <SwitchGroup as="div" class="flex items-center justify-between px-4">
-                <span class="flex flex-grow flex-col">
-                    <SwitchLabel as="span" class="text-sm font-medium text-gray-900">Terms & Conditions</SwitchLabel>
-                    <SwitchDescription as="span" class="text-sm text-gray-500"
-                        >I have read and accept the
-                        <a
-                            class="inline underline decoration-primary-500 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
-                            tabindex="0"
-                            @click.stop.prevent="showTerms()"
-                        >
-                            terms and conditions
-                        </a>
-                    </SwitchDescription>
-                </span>
-                <Switch
-                    v-model="termsAndConditionsIsAccepted"
-                    :class="[
-                        termsAndConditionsIsAccepted ? 'bg-primary-600' : 'bg-gray-200',
-                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-                    ]"
-                >
-                    <span
-                        :class="[
-                            termsAndConditionsIsAccepted ? 'translate-x-5' : 'translate-x-0',
-                            'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-                        ]"
-                        aria-hidden="true"
-                    />
-                </Switch>
-            </SwitchGroup>
-        </template>
-        <template #actions>
-            <button
-                @click="createNewFarm"
-                :disabled="!termsAndConditionsIsAccepted"
-                class="rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
-            >
-                Create farm
-            </button>
-            <button
-                @click="showTermsAndConditionsModal = false"
-                class="rounded-md py-2 px-4 text-sm font-medium text-orange-600 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-            >
-                Cancel
-            </button>
-        </template>
-    </modal>
 
     <SiteModalFrame
         v-if="showTermsAndConditions"
@@ -167,9 +174,6 @@
     import { Farm } from '@/types/farms.types';
     import { AssetBalance, balances, Wallet, wallets } from '@/service/walletService';
     import {
-        DisclosureButton,
-        Disclosure,
-        DisclosurePanel,
         Menu,
         MenuButton,
         MenuItems,
@@ -179,8 +183,9 @@
         SwitchDescription,
         SwitchLabel,
     } from '@headlessui/vue';
-    import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
-    import { computed, devtools, ref, watch } from 'vue';
+    import { ChevronDownIcon, XIcon } from '@heroicons/vue/solid';
+
+    import { ref, watch } from 'vue';
     import {
         activationServiceForSubstrate,
         allFarmNames,
@@ -191,21 +196,19 @@
         getUsersTermsAndConditions,
     } from '@/service/substrateService';
     import axios from 'axios';
-    import Modal from '@/components/global/Modal.vue';
     import flagsmith from 'flagsmith';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { toNumber } from 'lodash';
-    import { useDynamicBalance } from '@/util/useDynamicBalance';
     import { fetchFarms, v2Farms } from '@/service/farmService';
+    import { onBeforeMount } from '@vue/runtime-core';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
-    const farmNameToValidate = ref();
+    const farmNameToValidate = ref<string>('');
 
     const isLoading = ref<boolean>(false);
     const loadingSubtitle = ref<string>('');
 
-    const showTermsAndConditionsModal = ref<boolean>(false);
     const showTermsAndConditions = ref<boolean>(false);
     const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
     const termsAndConditionsIsAccepted = ref<boolean>(false);
@@ -216,9 +219,27 @@
 
     const emit = defineEmits(['close']);
 
+    onBeforeMount(() => {
+        if (migrationFarm) {
+            farmNameToValidate.value = migrationFarm.name;
+            desiredWallet.value = migrationFarm.wallet as Wallet;
+        }
+    });
+
+    // Defining props
+    interface Props {
+        migrationFarm: Farm;
+    }
+
+    const { migrationFarm } = defineProps<Props>();
+
     watch(farmNameToValidate, value => {
         validateFarmName(value, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
     });
+
+    const showTerms = () => {
+        showTermsAndConditions.value = true;
+    };
 
     const validateFarmName = async (value: string, myStellarAddress: string) => {
         const wasFound = v2Farms.value.find(farm => farm.name === value);
@@ -290,42 +311,47 @@
         delete farmFormErrors.value.farmName;
     };
 
-    const validateCreatedFarm = async (evt: Event) => {
-        const formData = new FormData(evt.target as HTMLFormElement);
-
-        const farmName = <string>formData.get('farmName');
-
-        await validateFarmName(farmName, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
-        if (farmFormErrors.value?.farmName) return;
-
-        showTermsAndConditionsModal.value = true;
-    };
+    // const validateCreatedFarm = async (evt: Event) => {
+    //     const formData = new FormData(evt.target as HTMLFormElement);
+    //
+    //     const farmName = <string>formData.get('farmName');
+    //
+    //     await validateFarmName(farmName, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
+    //     if (farmFormErrors.value?.farmName) return;
+    // };
 
     const createNewFarm = async (evt: Event) => {
-        // Double check if the terms and conditions are checked
-        if (!termsAndConditionsIsAccepted.value) return;
+        const formData = new FormData(evt.target as HTMLFormElement);
 
-        // Farm name has already been validated, but double check to be 100% sure
-        const farmName: string = farmNameToValidate.value;
+        const farmName = !migrationFarm ? <string>formData.get('farmName') : farmNameToValidate.value;
+        console.log(farmName);
+
         await validateFarmName(farmName, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
-
         if (farmFormErrors.value?.farmName) return;
-        showTermsAndConditionsModal.value = false;
+
+        if (!termsAndConditionsIsAccepted.value) return;
 
         isLoading.value = true;
         loadingSubtitle.value = 'Starting creation of farm';
 
         console.log('Going to accept terms and cs');
-        // @todo: check if the terms and conditions are accepted and if not, accept them
-        await acceptTermsAndConditions();
+
+        const termsAndConditions = await getUsersTermsAndConditions(
+            desiredWallet.value.keyPair.getSubstrateKeyring().address
+        );
+        console.log('These are the terms and conditions');
+
+        if (!termsAndConditions) {
+            await acceptTermsAndConditions();
+        }
 
         console.log('going to add the farm');
         await addFarm(farmName, []);
 
-        await init();
-        await fetchFarms();
         isLoading.value = false;
         emit('close');
+
+        location.reload();
     };
 
     const addTwin = async () => {
@@ -346,7 +372,6 @@
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-        await init();
         loadingSubtitle.value = 'Refetching data';
     };
 
@@ -439,24 +464,7 @@
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-        await init();
         loadingSubtitle.value = 'Refetching data';
-    };
-
-    // @todo: remove this
-    const init = async () => {
-        const address = desiredWallet.value.keyPair.getSubstrateKeyring().address;
-        termsAndConditions.value = await getUsersTermsAndConditions(address);
-
-        newTwinId.value = await getTwinId(address);
-
-        await useDynamicBalance(desiredWallet.value as Wallet);
-
-        //@ts-ignore
-        farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === newTwinId.value);
-
-        isLoading.value = false;
-        loadingSubtitle.value = '';
     };
 
     const signTermsAndConditions = async () => {
@@ -508,6 +516,5 @@
         console.log('these are the terms and conditions');
         console.log(termsAndConditions.value);
         loadingSubtitle.value = 'Reloading data';
-        await init();
     };
 </script>

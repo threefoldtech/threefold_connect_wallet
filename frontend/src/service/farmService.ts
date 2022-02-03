@@ -63,7 +63,8 @@ const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
                     wallet: v2Wallet,
                 };
 
-                v2Farms.value.push(f);
+                const index = v2Farms.value.findIndex((farm: any) => farm.name === f.name);
+                index === -1 ? v2Farms.value.push(f) : v2Farms.value.splice(index, 1, f);
             }
         }
     }

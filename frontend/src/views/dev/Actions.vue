@@ -3,6 +3,20 @@
         <CTA @click="addWallet()"> add Wallet</CTA>
         <CTA @click="clearPkidPurse()"> clear PkidPurse</CTA>
         <CTA @click="addNote()"> add Notification</CTA>
+        <hr />
+        <CTA @click="deleteUnwantedFarms()">delete <span class="text-bold">unwanted</span> Farms</CTA>
+        <hr />
+        <Disclosure as="div" class="mt-2" v-slot="{ open }">
+            <DisclosureButton
+                class="flex w-full justify-between rounded-lg bg-red-600 px-4 py-2 text-left text-sm font-medium text-white focus:outline-none focus-visible:ring focus-visible:ring-red-500 focus-visible:ring-opacity-75"
+            >
+                <span>Delete all farms(every farm connected to my wallets)?</span>
+                <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="h-5 w-5 text-white" />
+            </DisclosureButton>
+            <DisclosurePanel class="mt-2 rounded-md bg-red-300 px-4 pt-4 pb-2 text-sm text-gray-500">
+                <CTA @click="deleteAllFarms()">I am sure and i will not complain to the devs</CTA>
+            </DisclosurePanel>
+        </Disclosure>
     </div>
 </template>
 
@@ -10,11 +24,18 @@
     import { saveWallets, Wallet, wallets } from '@/service/walletService';
     import { PkidWalletTypes } from '@/service/initializationService';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
-    import { bytesToHex } from '@/util/crypto';
+    import { bytesToHex, hexToBytes } from '@/util/crypto';
     import { Keypair } from 'stellar-sdk';
     import { getPkidClient } from '@/service/pkidService';
     import { nanoid } from 'nanoid';
     import { addNotification, NotificationType } from '@/service/notificationService';
+    import { Keyring } from '@polkadot/api';
+    import { getSubstrateApi, getTwinId } from '@/service/substrateService';
+    import { KeyringPair } from '@polkadot/keyring/types';
+    import { toNumber } from 'lodash';
+    import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
+    import CTA from '@/components/global/CTA.vue';
+    import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
@@ -34,6 +55,103 @@
 
     const addNote = () => {
         addNotification(NotificationType.success, 'test', 'test subtitle', 3000);
+    };
+
+    const deleteUnwantedFarms = async () => {
+        addNotification(NotificationType.info, 'Deleting unwanted farms');
+        const seeds = wallets.value.map(w => w.keyPair.getSeed());
+        const api = await getSubstrateApi();
+
+        const allFarms = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm.toHuman(true));
+
+        console.log('got all farms');
+        for (const seed of seeds) {
+            console.log('deleting farms for seed', seed);
+            const keyring: Keyring = new Keyring({ type: 'ed25519' });
+            const bytes = hexToBytes(seed);
+
+            const keyringPair = keyring.addFromSeed(bytes);
+
+            const twinId = toNumber(await getTwinId(keyringPair.address));
+            console.log('got twin id', twinId);
+            if (twinId === 0) {
+                continue;
+            }
+
+            //@ts-ignore
+            const farm_ids = allFarms.filter(f => toNumber(f.twin_id) === twinId).map(f => f.id);
+            console.log({ farm_ids });
+
+            for (const id of farm_ids) {
+                addNotification(NotificationType.info, 'Deleting farm', `Farm ${id}`);
+
+                const submittableExtrinsic = api.tx.tfgridModule.deleteFarm(id);
+
+                const promise = new Promise((resolve, reject) => {
+                    submittableExtrinsic.signAndSend(keyringPair, result => {
+                        if (result.status.isFinalized) {
+                            resolve(null);
+                        }
+                        if (result.dispatchError) {
+                            reject();
+                        }
+                    });
+                });
+                await promise;
+                // wait 1 second
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+
+        addNotification(NotificationType.success, 'Done', 'Deleted unwanted farms');
+    };
+
+    const deleteAllFarms = async () => {
+        addNotification(NotificationType.info, 'Deleting farms');
+        const seeds = wallets.value.map(w => w.keyPair.getSeed());
+        const api = await getSubstrateApi();
+
+        const allFarms = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm.toHuman(true));
+
+        console.log('got all farms');
+        for (const seed of seeds) {
+            console.log('deleting farms for seed', seed);
+            const keyring: Keyring = new Keyring({ type: 'sr25519' });
+            const bytes = hexToBytes(seed);
+
+            const keyringPair = keyring.addFromSeed(bytes);
+
+            const twinId = toNumber(await getTwinId(keyringPair.address));
+            console.log('got twin id', twinId);
+            if (twinId === 0) {
+                continue;
+            }
+
+            //@ts-ignore
+            const farm_ids = allFarms.filter(f => toNumber(f.twin_id) === twinId).map(f => f.id);
+            console.log({ farm_ids });
+
+            for (const id of farm_ids) {
+                addNotification(NotificationType.info, 'Deleting farm', `Farm ${id}`);
+                const submittableExtrinsic = api.tx.tfgridModule.deleteFarm(id);
+
+                const promise = new Promise((resolve, reject) => {
+                    submittableExtrinsic.signAndSend(keyringPair, result => {
+                        if (result.status.isFinalized) {
+                            resolve(null);
+                        }
+                        if (result.dispatchError) {
+                            reject();
+                        }
+                    });
+                });
+                await promise;
+                // wait 1 second
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+
+        addNotification(NotificationType.success, 'Done', 'Deleted farms');
     };
 </script>
 

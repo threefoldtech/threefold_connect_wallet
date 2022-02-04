@@ -9,7 +9,7 @@
             </PageHeader>
         </template>
         <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
-            <template v-if="newCreatedFarms.length > 0 || v2Farms.length > 0">
+            <div v-if="v2Farms.length > 0 || v3Farms.length > 0">
                 <div class="font-medium">Farms to be migrated to V3 from V2</div>
                 <div v-if="v2Farms.length > 0">
                     <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v2</h2>
@@ -37,7 +37,7 @@
                         <CreateFarmCard :v2Farms="v2Farms" :farm="newFarm" :wallets="wallets"></CreateFarmCard>
                     </div>
                 </div>
-            </template>
+            </div>
             <main
                 v-else
                 class="mx-auto flex w-full max-w-7xl flex-grow flex-col justify-center rounded-md bg-white px-4 sm:px-6 lg:px-8"

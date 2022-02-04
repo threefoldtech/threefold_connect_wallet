@@ -38,9 +38,7 @@
 
         <div class="pt-4" data-field="nodes">
             <h2 class="text-sm font-medium uppercase">Nodes</h2>
-            <div class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">
-                Migration still has to be done
-            </div>
+            <div class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">No nodes</div>
         </div>
     </div>
 </template>

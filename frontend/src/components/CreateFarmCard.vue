@@ -2,7 +2,7 @@
     <div class="relative col-span-1 mt-5 w-full divide-y rounded-lg bg-white pt-4">
         <div class="w-full" v-if="isLoading">
             <div class="flex flex-row items-center justify-center pb-3">
-                {{ loadingSubtitle }} <span class="decoration- pl-1"> ...</span>
+                {{ loadingSubtitle }} <span class="pl-1"> ...</span>
             </div>
             <div class="flex justify-center pb-3">
                 <svg
@@ -29,7 +29,7 @@
                 </div>
             </div>
 
-            <form @submit.prevent.stop="createNewFarm">
+            <form @submit.prevent.stop="createNewFarm" class="space-y-4">
                 <div v-if="!migrationFarm" data-field="wallet">
                     <h2 class="pb-2 text-sm font-semibold uppercase">Choose a wallet</h2>
                     <div class="w-full">
@@ -93,7 +93,7 @@
                     </div>
                 </div>
 
-                <div class="pt-5" data-field="farmName">
+                <div data-field="farmName">
                     <h2 v-if="migrationFarm !== undefined" class="pb-2 text-sm font-semibold uppercase">
                         Migrating farm with name: {{ farmNameToValidate }}
                     </h2>
@@ -116,7 +116,7 @@
                     <div class="mt-1 text-xs text-gray-500" v-else>No spaces or special characters</div>
                 </div>
 
-                <div class="pt-4">
+                <div>
                     <SwitchGroup as="div" class="flex items-center justify-between">
                         <span class="flex flex-grow flex-col">
                             <SwitchLabel as="span" class="pb-2 text-sm font-semibold uppercase text-gray-900"
@@ -151,7 +151,7 @@
                     </SwitchGroup>
                 </div>
 
-                <div class="pt-4">
+                <div>
                     <input
                         :disabled="
                             !termsAndConditionsIsAccepted || farmFormErrors.farmName || farmNameToValidate.length === 0

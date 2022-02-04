@@ -63,7 +63,7 @@ export const getTwinId = async (id: string) => {
 
 export const getUsersTermsAndConditions = async (
     id: string
-): Promise<[{ document_link: string; account_id: string; document_hash: string; timestamp: number }]> => {
+): Promise<{ document_link: string; account_id: string; document_hash: string; timestamp: number }[]> => {
     const api = await getSubstrateApi();
     // @ts-ignore
     const arr: any[] = await api.query.tfgridModule.usersTermsAndConditions(id);

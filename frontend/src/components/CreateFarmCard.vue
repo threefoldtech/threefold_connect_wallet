@@ -22,7 +22,8 @@
         </div>
         <div v-else class="px-4 pb-4">
             <div class="flex flex-row items-center justify-between pb-4">
-                <div class="text-lg font-semibold">CREATE A NEW WALLET</div>
+                <div class="text-lg font-semibold" v-if="migrationFarm">MIGRATE FARM</div>
+                <div class="text-lg font-semibold" v-else>CREATE A NEW FARM</div>
                 <div>
                     <XIcon class="h-4 w-4 text-black" @click="emit('close')"></XIcon>
                 </div>
@@ -93,9 +94,12 @@
                 </div>
 
                 <div class="pt-5" data-field="farmName">
-                    <h2 class="pb-2 text-sm font-semibold uppercase">Choose a farm name</h2>
+                    <h2 v-if="migrationFarm !== undefined" class="pb-2 text-sm font-semibold uppercase">
+                        Migrating farm with name: {{ farmNameToValidate }}
+                    </h2>
+                    <h2 v-else class="pb-2 text-sm font-semibold uppercase">Choose a farm name</h2>
                     <input
-                        type="text"
+                        :type="migrationFarm !== undefined ? 'hidden' : 'text'"
                         name="farmName"
                         id="farmName"
                         placeholder="Enter Farm Name"
@@ -150,7 +154,7 @@
                 <div class="pt-4">
                     <input
                         :disabled="
-                            !termsAndConditionsIsAccepted || farmFormErrors.farmName || farmNameToValidate.length == 0
+                            !termsAndConditionsIsAccepted || farmFormErrors.farmName || farmNameToValidate.length === 0
                         "
                         type="submit"
                         value="Submit"
@@ -339,9 +343,9 @@
         const termsAndConditions = await getUsersTermsAndConditions(
             desiredWallet.value.keyPair.getSubstrateKeyring().address
         );
-        console.log('These are the terms and conditions');
+        console.log('These are the terms and conditions', termsAndConditions);
 
-        if (!termsAndConditions) {
+        if (termsAndConditions.length === 0) {
             await acceptTermsAndConditions();
         }
 

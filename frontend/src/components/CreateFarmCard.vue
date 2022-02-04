@@ -50,10 +50,7 @@
                                 class="absolute left-0 z-50 mt-2 w-full origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                             >
                                 <div class="max-h-28 w-full divide-y overflow-y-auto">
-                                    <MenuItem
-                                        v-for="wallet in wallets.filter(wallet => wallet.name !== desiredWallet.name)"
-                                        v-slot="{ active }"
-                                    >
+                                    <MenuItem v-for="wallet in wallets" v-slot="{ active }">
                                         <div
                                             class="flex w-full justify-between gap-2 truncate px-4 py-2 text-sm"
                                             @click="desiredWallet = wallet"

@@ -9,33 +9,59 @@
             </PageHeader>
         </template>
         <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
-            <div class="font-medium">Farms on v2</div>
-            <div v-if="v2Farms.length > 0">
-                <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v2</h2>
-                <ul role="list" class="grid grid-cols-1 gap-3">
-                    <FarmCard :isV3="false" :farm="farm" v-for="farm in v2Farms" />
-                </ul>
-            </div>
-            <div v-else>
-                <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v2</h2>
-            </div>
-
-            <div class="pt-3 font-medium">Farms on v3</div>
-            <div v-if="v3Farms.length > 0">
-                <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v3</h2>
-                <ul role="list" class="grid grid-cols-1 gap-3">
-                    <FarmCard :isV3="true" :farm="farm" v-for="farm in v3Farms" />
-                </ul>
-            </div>
-            <div v-else>
-                <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v3</h2>
-            </div>
-
-            <div v-if="newCreatedFarms.length > 0">
-                <div v-for="newFarm in newCreatedFarms">
-                    <CreateFarmCard :v2Farms="v2Farms" :farm="newFarm" :wallets="wallets"></CreateFarmCard>
+            <template v-if="newCreatedFarms.length > 0 || v2Farms.length > 0">
+                <div class="font-medium">Farms to be migrated to V3 from V2</div>
+                <div v-if="v2Farms.length > 0">
+                    <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v2</h2>
+                    <ul role="list" class="grid grid-cols-1 gap-3">
+                        <FarmCard :isV3="false" :farm="farm" v-for="farm in v2Farms" />
+                    </ul>
                 </div>
-            </div>
+                <div v-else>
+                    <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v2</h2>
+                </div>
+
+                <div class="pt-3 font-medium">Farms on v3</div>
+                <div v-if="v3Farms.length > 0">
+                    <h2 class="pb-2 text-xs">Farms connected to existing wallets should be migrated</h2>
+                    <ul role="list" class="grid grid-cols-1 gap-3">
+                        <FarmCard :isV3="true" :farm="farm" v-for="farm in v3Farms" />
+                    </ul>
+                </div>
+                <div v-else>
+                    <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v3</h2>
+                </div>
+
+                <div v-if="newCreatedFarms.length > 0">
+                    <div v-for="newFarm in newCreatedFarms">
+                        <CreateFarmCard :v2Farms="v2Farms" :farm="newFarm" :wallets="wallets"></CreateFarmCard>
+                    </div>
+                </div>
+            </template>
+            <main
+                v-else
+                class="mx-auto flex w-full max-w-7xl flex-grow flex-col justify-center rounded-md bg-white px-4 sm:px-6 lg:px-8"
+            >
+                <div class="py-16">
+                    <div class="text-center">
+                        <p class="text-sm font-semibold uppercase tracking-wide text-primary-600">
+                            no farms connected to your existing wallets
+                        </p>
+                        <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
+                            Create farm on grid v3
+                        </h1>
+                        <div class="mt-6">
+                            <a
+                                href="#"
+                                class="text-base font-medium text-primary-600 hover:text-primary-500"
+                                @click="showCreateNewFarm = true"
+                            >
+                                Click to create<span aria-hidden="true"> &rarr;</span></a
+                            >
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
         <div v-else class="flex min-h-full items-center justify-center bg-gray-200 p-4">
             <div class="items-center justify-center text-center">

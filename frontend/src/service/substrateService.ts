@@ -8,6 +8,8 @@ import { bin2String } from '@/util/crypto';
 import flagsmith from 'flagsmith';
 import { BCFarm } from '@/types/farms.types';
 import axios from 'axios';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import type { ISubmittableResult } from '@polkadot/types/types';
 
 const apiCache = ref<Promise<ApiPromise>>();
 
@@ -38,11 +40,7 @@ export const sendTokens = async (keyring: IKeyringPair, address: string) => {
     const api = await getSubstrateApi();
 
     const submittableExtrinsic = api.tx.balances.transfer(address, 1);
-    const resHash = await submittableExtrinsic.signAndSend(keyring);
-
-    console.log(resHash);
-
-    return resHash;
+    await submitExtrensic(submittableExtrinsic, keyring);
 };
 export const hex2a = (hex: string) => {
     let str = '';
@@ -94,4 +92,22 @@ export const activationServiceForSubstrate = async (id: string) => {
     const data = { substrateAccountID: id };
 
     return await axios.post(url, data, { headers });
+};
+
+export const submitExtrensic = async (submittableExtrinsic: SubmittableExtrinsic<any>, keyringPair: IKeyringPair) => {
+    const promise = new Promise((resolve, reject) => {
+        submittableExtrinsic.signAndSend(keyringPair, (result: ISubmittableResult) => {
+            if (result.isFinalized) {
+                resolve(result.toHuman(true));
+                return;
+            }
+            if (result.isError) {
+                reject(result.toHuman(true));
+                return;
+            }
+            console.log('Waiting for transaction to be finalized...');
+        });
+    });
+
+    return await promise;
 };

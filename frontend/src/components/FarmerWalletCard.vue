@@ -205,6 +205,12 @@
                                         >
                                             {{ wallet.keyPair.getStellarKeyPair().publicKey() }}
                                         </div>
+
+                                        <div
+                                            class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500"
+                                        >
+                                            {{ farm.wallet.keyPair.getSubstrateKeyring().address }}
+                                        </div>
                                         <div class="mt-1 text-xs font-light text-orange-500">
                                             Note: This address will be used for payout
                                         </div>
@@ -355,6 +361,7 @@
         getSubstrateAssetBalances,
         getTwinId,
         getUsersTermsAndConditions,
+        submitExtrensic,
     } from '@/service/substrateService';
     import axios from 'axios';
     import SiteModalFrame from '@/components/SiteModalFrame.vue';
@@ -563,19 +570,8 @@
 
         const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, publicIps);
 
-        const promise = new Promise((resolve, reject) => {
-            submittableExtrinsic.signAndSend(pickedWallet.value.keyPair.getSubstrateKeyring(), result => {
-                if (result.status.isFinalized) {
-                    resolve(null);
-                }
-                if (result.dispatchError) {
-                    reject();
-                }
-            });
-        });
-
         try {
-            await promise;
+            await submitExtrensic(submittableExtrinsic, pickedWallet.value.keyPair.getSubstrateKeyring());
         } catch (e) {
             loading.value = false;
             subtitle.value = undefined;
@@ -612,7 +608,7 @@
             pickedWallet.value.keyPair.getStellarKeyPair().publicKey()
         );
 
-        const res = await submittableExtrinsic1.signAndSend(pickedWallet.value.keyPair.getSubstrateKeyring());
+        await submitExtrensic(submittableExtrinsic1, pickedWallet.value.keyPair.getSubstrateKeyring());
 
         let j = 0;
         while (true) {
@@ -637,7 +633,7 @@
     const signTermsAndConditions = async () => {
         const api = await getSubstrateApi();
         const submittableExtrinsic = api.tx.tfgridModule.userAcceptTc(termsAndConditionsUrl, 'NO_HASH');
-        const result = await submittableExtrinsic.signAndSend(pickedWallet.value.keyPair.getSubstrateKeyring());
+        await submitExtrensic(submittableExtrinsic, pickedWallet.value.keyPair.getSubstrateKeyring());
     };
 
     const addTwin = async () => {
@@ -645,7 +641,7 @@
         subtitle.value = 'creating twin';
         const api = await getSubstrateApi();
         const submittableExtrinsic = api.tx.tfgridModule.createTwin('127.0.0.1');
-        const result = await submittableExtrinsic.signAndSend(pickedWallet.value.keyPair.getSubstrateKeyring());
+        await submitExtrensic(submittableExtrinsic, pickedWallet.value.keyPair.getSubstrateKeyring());
 
         while (true) {
             twinId.value = await getTwinId(pickedWallet.value.keyPair.getSubstrateKeyring().address);

@@ -195,6 +195,7 @@
         getSubstrateAssetBalances,
         getTwinId,
         getUsersTermsAndConditions,
+        submitExtrensic,
     } from '@/service/substrateService';
     import axios from 'axios';
     import flagsmith from 'flagsmith';
@@ -362,7 +363,7 @@
         const api = await getSubstrateApi();
         const submittableExtrinsic = api.tx.tfgridModule.createTwin('127.0.0.1');
 
-        await submittableExtrinsic.signAndSend(desiredWallet.value.keyPair.getSubstrateKeyring());
+        await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
 
         while (true) {
             newTwinId.value = await getTwinId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
@@ -396,23 +397,12 @@
 
         const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, publicIps);
 
-        const promise = new Promise((resolve, reject) => {
-            submittableExtrinsic.signAndSend(desiredWallet.value.keyPair.getSubstrateKeyring(), result => {
-                if (result.status.isFinalized) {
-                    resolve(null);
-                }
-                if (result.dispatchError) {
-                    reject();
-                }
-            });
-        });
-
         console.debug(
             'signing and sending substate address ',
             desiredWallet.value.keyPair.getSubstrateKeyring().address
         );
         try {
-            await promise;
+            await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
         } catch (e) {
             isLoading.value = false;
             loadingSubtitle.value = '';
@@ -449,7 +439,7 @@
             desiredWallet.value.keyPair.getStellarKeyPair().publicKey()
         );
 
-        const res = await submittableExtrinsic1.signAndSend(desiredWallet.value.keyPair.getSubstrateKeyring());
+        await submitExtrensic(submittableExtrinsic1, desiredWallet.value.keyPair.getSubstrateKeyring());
 
         let j = 0;
         while (true) {
@@ -473,7 +463,7 @@
 
         const api = await getSubstrateApi();
         const submittableExtrinsic = api.tx.tfgridModule.userAcceptTc(termsAndConditionsUrl, 'NO_HASH');
-        await submittableExtrinsic.signAndSend(desiredWallet.value.keyPair.getSubstrateKeyring());
+        await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
     };
 
     const acceptTermsAndConditions = async () => {

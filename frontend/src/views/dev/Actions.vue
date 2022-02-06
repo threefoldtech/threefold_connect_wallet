@@ -30,7 +30,7 @@
     import { nanoid } from 'nanoid';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { Keyring } from '@polkadot/api';
-    import { getSubstrateApi, getTwinId } from '@/service/substrateService';
+    import { getSubstrateApi, getTwinId, submitExtrensic } from '@/service/substrateService';
     import { KeyringPair } from '@polkadot/keyring/types';
     import { toNumber } from 'lodash';
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
@@ -87,17 +87,8 @@
 
                 const submittableExtrinsic = api.tx.tfgridModule.deleteFarm(id);
 
-                const promise = new Promise((resolve, reject) => {
-                    submittableExtrinsic.signAndSend(keyringPair, result => {
-                        if (result.status.isFinalized) {
-                            resolve(null);
-                        }
-                        if (result.dispatchError) {
-                            reject();
-                        }
-                    });
-                });
-                await promise;
+                await submitExtrensic(submittableExtrinsic, keyringPair);
+
                 // wait 1 second
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
@@ -135,17 +126,8 @@
                 addNotification(NotificationType.info, 'Deleting farm', `Farm ${id}`);
                 const submittableExtrinsic = api.tx.tfgridModule.deleteFarm(id);
 
-                const promise = new Promise((resolve, reject) => {
-                    submittableExtrinsic.signAndSend(keyringPair, result => {
-                        if (result.status.isFinalized) {
-                            resolve(null);
-                        }
-                        if (result.dispatchError) {
-                            reject();
-                        }
-                    });
-                });
-                await promise;
+                await submitExtrensic(submittableExtrinsic, keyringPair);
+
                 // wait 1 second
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }

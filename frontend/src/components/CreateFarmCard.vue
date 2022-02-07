@@ -23,7 +23,7 @@
         <div v-else class="px-4 pb-4">
             <div class="flex flex-row items-center justify-between pb-4">
                 <div class="text-lg font-semibold" v-if="migrationFarm">MIGRATE FARM</div>
-                <div class="text-lg font-semibold" v-else>CREATE A NEW FARM</div>
+                <div class="text-lg font-semibold" v-else>CREATE A NEW FARM ON TF GRID V3 MAIN NET</div>
                 <div>
                     <XIcon class="h-4 w-4 text-black" @click="emit('close')"></XIcon>
                 </div>
@@ -244,7 +244,7 @@
     };
 
     const validateFarmName = async (value: string, myStellarAddress: string) => {
-        const wasFound = v2Farms.value.find(farm => farm.name === value);
+        const wasFound = v2Farms.value.find(farm => farm.name.toLowerCase() === value.toLowerCase());
 
         if (
             wasFound &&

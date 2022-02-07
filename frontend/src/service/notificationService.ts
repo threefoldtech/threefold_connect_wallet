@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import { nanoid } from 'nanoid';
 
 export enum NotificationType {
     success = 'success',
@@ -26,7 +27,7 @@ export const addNotification = (
     const notification: Notification = {
         duration,
         // @ts-ignore
-        id: globalThis.crypto.randomUUID(),
+        id: nanoid(),
         message,
         type,
         subtitle,

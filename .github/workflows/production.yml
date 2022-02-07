@@ -1,0 +1,36 @@
+name: staging
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Log into GitHub Container Registry
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Building wallet-next for production
+        run: docker build . -t threefoldjimber/wallet-next:${{ github.sha }}
+      - name: Push the Docker image
+        run: docker push threefoldjimber/wallet-next:${{ github.sha }}
+
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create kubeconfig
+        run: |
+          mkdir ${HOME}/.kube
+          echo ${{ secrets.KUBE_KEY }} | base64 --decode > ${HOME}/.kube/jimber-prod2.key
+          echo ${HOME}/.kube/jimber-prod2.key
+          echo ${{ secrets.KUBE_CRT }} | base64 --decode > ${HOME}/.kube/jimber-prod2.crt
+          echo ${HOME}/.kube/jimber-prod2.crt
+      - name: context
+        run: |
+          echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
+          cat ${HOME}/.kube/config
+      - name: deploy to kubernetes
+        run: helm upgrade wallet-next -f helm_files --set image.tag=${{ github.sha }} --set secret.FLAGSMITH_ENVIROMENT_KEY=${{ secrets.FLAGSMITH_ENV_PRODUCTION}} -n jimber

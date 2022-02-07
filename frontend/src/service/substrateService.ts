@@ -79,7 +79,7 @@ export const allFarmNames = ref<string[]>([]);
 
 export const fetchAllFarms = async () => {
     const api = await getSubstrateApi();
-    allFarms.value = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm.toHuman(true));
+    allFarms.value = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm);
     allFarmNames.value = allFarms.value.map((farm: any) => farm.name);
 };
 
@@ -105,7 +105,12 @@ export const submitExtrensic = async (submittableExtrinsic: SubmittableExtrinsic
                 reject(result.toHuman(true));
                 return;
             }
-            console.log('Waiting for transaction to be finalized...');
+
+            // @ts-ignore
+            if (result.status === 'Finalized' || result.status === 'Ready') {
+                resolve(result.toHuman(true));
+                return;
+            }
         });
     });
 

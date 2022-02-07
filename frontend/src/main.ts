@@ -27,6 +27,9 @@ const init = async () => {
         // @ts-ignore
         console.info(`running version: ${globalThis.version}`);
         axios.interceptors.response.use(undefined, error => {
+            // @ts-ignore
+            const isDev = import.meta.env.DEV;
+            if (isDev) return;
             console.error(
                 error?.config ? `${error.message}: ${error?.config?.method.toUpperCase()} ${error?.config?.url}` : error
             );

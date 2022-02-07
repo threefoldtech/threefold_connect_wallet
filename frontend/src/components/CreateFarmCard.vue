@@ -201,7 +201,7 @@
     import flagsmith from 'flagsmith';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { toNumber } from 'lodash';
-    import { fetchFarms, v2Farms } from '@/service/farmService';
+    import { fetchFarms, v2Farms, v3Farms } from '@/service/farmService';
     import { onBeforeMount } from '@vue/runtime-core';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
@@ -414,25 +414,7 @@
             throw e;
         }
 
-        //while no substrateBalance is available we wait
-        let i = 0;
-        while (true) {
-            // break after 20 seconds
-            if (i > 20) {
-                throw new Error('Timeout');
-            }
-            i++;
-
-            //@ts-ignore
-            farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === newTwinId.value);
-
-            if (farms.value.length > currentAmountOfFarms) {
-                console.log('Farm created');
-                break;
-            }
-
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
         // TODO: make tis for the right farm not just the first one
         const submittableExtrinsic1 = api.tx.tfgridModule.addStellarPayoutV2address(
             farms.value[0]?.id,
@@ -441,20 +423,7 @@
 
         await submitExtrensic(submittableExtrinsic1, desiredWallet.value.keyPair.getSubstrateKeyring());
 
-        let j = 0;
-        while (true) {
-            // break after 20 seconds
-            if (j > 20) {
-                throw new Error('Timeout');
-            }
-            j++;
-            //@ts-ignore
-            const value = await api.query.tfgridModule.farmPayoutV2AddressByFarmID(farms.value[0].id);
-
-            if (!!value) break;
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
+        await new Promise(resolve => setTimeout(resolve, 1000));
         loadingSubtitle.value = 'Refetching data';
     };
 

@@ -2,6 +2,7 @@
     <div class="flex flex-col gap-2 p-4">
         <CTA @click="addWallet()"> add Wallet</CTA>
         <CTA @click="clearPkidPurse()"> clear PkidPurse</CTA>
+        <CTA @click="activate()"> activate</CTA>
         <CTA @click="addNote()"> add Notification</CTA>
         <hr />
         <CTA @click="deleteUnwantedFarms()">delete <span class="text-bold">unwanted</span> Farms</CTA>
@@ -30,7 +31,12 @@
     import { nanoid } from 'nanoid';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { Keyring } from '@polkadot/api';
-    import { getSubstrateApi, getTwinId, submitExtrensic } from '@/service/substrateService';
+    import {
+        activationServiceForSubstrate,
+        getSubstrateApi,
+        getTwinId,
+        submitExtrensic,
+    } from '@/service/substrateService';
     import { KeyringPair } from '@polkadot/keyring/types';
     import { toNumber } from 'lodash';
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
@@ -62,11 +68,10 @@
         const seeds = wallets.value.map(w => w.keyPair.getSeed());
         const api = await getSubstrateApi();
 
-        const allFarms = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm.toHuman(true));
+        const allFarms = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm.toJSON());
 
         console.log('got all farms');
         for (const seed of seeds) {
-            console.log('deleting farms for seed', seed);
             const keyring: Keyring = new Keyring({ type: 'ed25519' });
             const bytes = hexToBytes(seed);
 
@@ -102,11 +107,10 @@
         const seeds = wallets.value.map(w => w.keyPair.getSeed());
         const api = await getSubstrateApi();
 
-        const allFarms = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm.toHuman(true));
+        const allFarms = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm.toJSON());
 
         console.log('got all farms');
         for (const seed of seeds) {
-            console.log('deleting farms for seed', seed);
             const keyring: Keyring = new Keyring({ type: 'sr25519' });
             const bytes = hexToBytes(seed);
 
@@ -134,6 +138,11 @@
         }
 
         addNotification(NotificationType.success, 'Done', 'Deleted farms');
+    };
+
+    const activate = async () => {
+        await activationServiceForSubstrate('5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B');
+        addNotification(NotificationType.success, 'Done', 'Activated');
     };
 </script>
 

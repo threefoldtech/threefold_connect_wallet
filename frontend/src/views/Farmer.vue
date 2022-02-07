@@ -181,9 +181,7 @@
         farmsIsLoading.value = false;
 
         intervalPointer = setInterval(async () => {
-            console.log('Refreshing farms ..');
             await fetchFarms();
-            console.log('Farms refreshed');
         }, 5000);
     };
 

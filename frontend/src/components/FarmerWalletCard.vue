@@ -597,7 +597,6 @@
             farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === twinId.value);
 
             if (farms.value.length > currentAmountOfFarms) {
-                console.log('farm created');
                 break;
             }
             await new Promise(resolve => setTimeout(resolve, 1000));

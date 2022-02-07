@@ -33,4 +33,4 @@ jobs:
           echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
           cat ${HOME}/.kube/config
       - name: deploy to kubernetes
-        run: helm upgrade wallet-next wallet-next -f helm_files --set image.tag=${{ github.sha }} --set secret.FLAGSMITH_ENVIROMENT_KEY=${{ secrets.FLAGSMITH_ENV_PRODUCTION}} -n jimber
+        run: helm upgrade wallet-next -f helm_files --set image.tag=${{ github.sha }} --set secret.FLAGSMITH_ENVIROMENT_KEY=${{ secrets.FLAGSMITH_ENV_PRODUCTION}} -n jimber

@@ -104,7 +104,6 @@
                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                         :class="{ 'border-red-500': farmFormErrors.farmName }"
                         v-model="farmNameToValidate"
-                        :disabled="migrationFarm !== undefined"
                     />
 
                     <div class="mt-1 text-sm text-red-600" v-if="farmFormErrors.farmName">
@@ -206,7 +205,7 @@
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
-    const farmNameToValidate = ref<string>('');
+    const farmNameToValidate = ref<string>('sabrinastestfarm');
 
     const isLoading = ref<boolean>(false);
     const loadingSubtitle = ref<string>('');
@@ -245,6 +244,7 @@
 
     const validateFarmName = async (value: string, myStellarAddress: string) => {
         const wasFound = v2Farms.value.find(farm => farm.name.toLowerCase() === value.toLowerCase());
+        console.log({ wasFound: !!wasFound, value, myStellarAddress });
 
         if (
             wasFound &&
@@ -329,6 +329,8 @@
         console.log(farmName);
 
         await validateFarmName(farmName, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
+        if (migrationFarm) farmFormErrors.value = {}; //temporary fix for migration farm
+
         if (farmFormErrors.value?.farmName) return;
 
         if (!termsAndConditionsIsAccepted.value) return;

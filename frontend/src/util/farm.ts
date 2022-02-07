@@ -5,6 +5,7 @@ import { Farm } from '@/types/farms.types';
 
 export const validateFarmName = async (farmName: any, stellarAddress: string, wallet: Wallet, v2farms: Farm[]) => {
     const wasFound = v2farms.find(farm => farm.name === farmName);
+    console.log(wasFound);
 
     if (
         wasFound &&

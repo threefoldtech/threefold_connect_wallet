@@ -205,7 +205,7 @@
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
-    const farmNameToValidate = ref<string>('sabrinastestfarm');
+    const farmNameToValidate = ref<string>('');
 
     const isLoading = ref<boolean>(false);
     const loadingSubtitle = ref<string>('');

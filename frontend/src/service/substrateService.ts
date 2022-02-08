@@ -80,7 +80,7 @@ export const allFarmNames = ref<string[]>([]);
 export const fetchAllFarms = async () => {
     const api = await getSubstrateApi();
     allFarms.value = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm);
-    allFarmNames.value = allFarms.value.map((farm: any) => farm.toHuman().name);
+    allFarmNames.value = allFarms.value.map((farm: any) => farm.toHuman().name.toLowerCase());
 };
 
 export const activationServiceForSubstrate = async (id: string) => {

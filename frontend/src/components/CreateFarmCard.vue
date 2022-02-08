@@ -247,6 +247,7 @@
     };
 
     const validateFarmName = async (value: string, myStellarAddress: string) => {
+        value = value.toLowerCase();
         if (migrationFarm) {
             farmFormErrors.value = {}; //tem
             return;
@@ -476,6 +477,7 @@
 
         while (true) {
             try {
+                loadingSubtitle.value = 'Signing terms and conditions';
                 console.log('Signging terms and conditions');
                 await signTermsAndConditions();
                 break;
@@ -486,6 +488,7 @@
 
         do {
             await new Promise(resolve => setTimeout(resolve, 1000));
+            loadingSubtitle.value = 'Getting terms and conditions';
             termsAndConditions.value = await getUsersTermsAndConditions(id);
         } while (termsAndConditions.value.filter(t => t.document_link === termsAndConditionsUrl).length === 0);
 

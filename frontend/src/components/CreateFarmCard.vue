@@ -428,6 +428,7 @@
                 'Could not create farm (name already in use)',
                 'Try again with different name.'
             );
+            emit('close');
             throw e;
         }
 
@@ -483,6 +484,8 @@
                 break;
             } catch (e) {
                 isLoading.value = false;
+                emit('close');
+                addNotification(NotificationType.error, 'Failed', 'Failed signing terms and conditions');
                 console.error(e);
             }
         }

@@ -176,11 +176,11 @@
     import {
         Menu,
         MenuButton,
-        MenuItems,
         MenuItem,
-        SwitchGroup,
+        MenuItems,
         Switch,
         SwitchDescription,
+        SwitchGroup,
         SwitchLabel,
     } from '@headlessui/vue';
     import { ChevronDownIcon, XIcon } from '@heroicons/vue/solid';
@@ -189,7 +189,6 @@
     import {
         activationServiceForSubstrate,
         allFarmNames,
-        allFarms,
         getSubstrateApi,
         getSubstrateAssetBalances,
         getTwinId,
@@ -199,8 +198,7 @@
     import axios from 'axios';
     import flagsmith from 'flagsmith';
     import { addNotification, NotificationType } from '@/service/notificationService';
-    import { toNumber } from 'lodash';
-    import { fetchFarms, v2Farms, v3Farms } from '@/service/farmService';
+    import { v2Farms } from '@/service/farmService';
     import { onBeforeMount } from '@vue/runtime-core';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
@@ -360,7 +358,12 @@
         isLoading.value = false;
         emit('close');
 
-        location.reload();
+        if (migrationFarm)
+            addNotification(
+                NotificationType.info,
+                'Farm creation on v3 successful',
+                'Your nodes will appear under your farm once they have been migrated to Grid v3'
+            );
     };
 
     const addTwin = async () => {

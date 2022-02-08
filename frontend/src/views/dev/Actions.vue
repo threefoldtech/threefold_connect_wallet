@@ -60,6 +60,11 @@
     };
 
     const addNote = () => {
+        addNotification(
+            NotificationType.info,
+            'Farm creation on v3 successful',
+            'Any active nodes will appear under the farm once they have been migrated to Grid v3.'
+        );
         addNotification(NotificationType.success, 'test', 'test subtitle', 3000);
     };
 

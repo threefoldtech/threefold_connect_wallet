@@ -362,7 +362,7 @@
             addNotification(
                 NotificationType.info,
                 'Farm creation on v3 successful',
-                'Your nodes will appear under your farm once they have been migrated to Grid v3'
+                'Your farm has been created on Grid v3. Please note that it will take several days for your v2 nodes to be migrated to your v3 farm. Once they have been migrated, you will see them listed under your new v3 Farm.'
             );
     };
 

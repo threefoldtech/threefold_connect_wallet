@@ -96,6 +96,7 @@
                     </h2>
                     <h2 v-else class="pb-2 text-sm font-semibold uppercase">Choose a farm name</h2>
                     <input
+                        @keyup="listenToKeyBindsForValidation"
                         :type="migrationFarm !== undefined ? 'hidden' : 'text'"
                         name="farmName"
                         id="farmName"
@@ -235,6 +236,11 @@
     watch(farmNameToValidate, value => {
         validateFarmName(value, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
     });
+
+    const listenToKeyBindsForValidation = async (e: any) => {
+        farmNameToValidate.value = e.target?.value;
+        await validateFarmName(e.target?.value, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
+    };
 
     const showTerms = () => {
         showTermsAndConditions.value = true;

@@ -243,6 +243,11 @@
     };
 
     const validateFarmName = async (value: string, myStellarAddress: string) => {
+        if (migrationFarm) {
+            farmFormErrors.value = {}; //tem
+            return;
+        } // temp fix for migration farm
+
         const wasFound = v2Farms.value.find(farm => farm.name.toLowerCase() === value.toLowerCase());
         console.log({ wasFound: !!wasFound, value, myStellarAddress });
 
@@ -259,7 +264,7 @@
             farmFormErrors.value = {
                 ...farmFormErrors.value,
 
-                farmName: 'This name is already taken',
+                farmName: 'This name is already taken (1)',
             };
             return;
         }
@@ -287,7 +292,7 @@
             farmFormErrors.value = {
                 ...farmFormErrors.value,
 
-                farmName: 'This name is already taken',
+                farmName: 'This name is already taken (2)',
             };
             return;
         }
@@ -298,7 +303,7 @@
             if (res.data?.canuse !== true) {
                 farmFormErrors.value = {
                     ...farmFormErrors.value,
-                    farmName: 'This name is already taken',
+                    farmName: 'This name is already taken (3)',
                 };
                 return;
             }

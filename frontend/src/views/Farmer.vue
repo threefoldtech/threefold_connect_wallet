@@ -10,7 +10,7 @@
         </template>
         <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
             <div v-if="v2Farms.length > 0 || v3Farms.length > 0">
-                <div class="font-medium">Farms to be migrated to V3 from V2</div>
+                <div class="font-medium">Farms to be migrated from V2 to V3</div>
                 <div v-if="v2Farms.length > 0">
                     <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v2</h2>
                     <ul role="list" class="grid grid-cols-1 gap-3">

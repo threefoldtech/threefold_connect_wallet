@@ -482,6 +482,7 @@
                 await signTermsAndConditions();
                 break;
             } catch (e) {
+                isLoading.value = false;
                 console.error(e);
             }
         }

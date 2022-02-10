@@ -3,7 +3,7 @@
         <div data-field="stellarAddress" v-if="payoutAddress">
             <div class="flex flex-row items-center">
                 <h2 class="text-sm font-medium uppercase">Stellar Payout address</h2>
-                <ClipboardCopyIcon @click="copyToClipboard(payoutAddress)" class="ml-2 h-4 text-black" />
+                <ClipboardCopyIcon @click="copyToClipboard(payoutAddress || '')" class="ml-2 h-4 text-black" />
             </div>
 
             <div class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">

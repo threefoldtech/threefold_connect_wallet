@@ -91,7 +91,15 @@ export const activationServiceForSubstrate = async (id: string) => {
     const url = `${flagsmith.getValue('tfchain_activation_base_url')}/activation/activate`;
     const data = { substrateAccountID: id };
 
-    return await axios.post(url, data, { headers });
+    await axios.post(url, data, { headers });
+
+    while (true) {
+        const balances = await getSubstrateAssetBalances(id);
+        if (balances[0].amount > 0) {
+            break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
 };
 
 export const submitExtrensic = async (submittableExtrinsic: SubmittableExtrinsic<any>, keyringPair: IKeyringPair) => {

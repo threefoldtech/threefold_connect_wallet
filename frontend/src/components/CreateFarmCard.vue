@@ -367,12 +367,16 @@
         isLoading.value = false;
         emit('close');
 
-        if (migrationFarm)
+        if (migrationFarm) {
             addNotification(
                 NotificationType.info,
                 'Farm creation on v3 successful',
                 'Your farm has been created on Grid v3. Please note that it will take several days for your v2 nodes to be migrated to your v3 farm. Once they have been migrated, you will see them listed under your new v3 farm.'
             );
+            return;
+        }
+
+        addNotification(NotificationType.success, 'Farm creation successful');
     };
 
     const addTwin = async () => {
@@ -397,7 +401,9 @@
     };
 
     const addFarm = async (farmName: string, publicIps: string[]) => {
+        console.log('getting twinId');
         newTwinId.value = await getTwinId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
+        console.log('twinId', newTwinId.value);
 
         console.debug('this is the twinid, ', newTwinId.value);
         if (newTwinId.value === 0) {
@@ -444,10 +450,10 @@
             i++;
             //@ts-ignore
 
-            farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === twinId.value);
+            farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === newTwinId.value);
 
             //@ts-ignore
-            const myFarm = farms.value.find(farm => farm.name === farmName);
+            const myFarm = farms.value.find(farm => farm.toHuman().name === farmName);
 
             if (myFarm) {
                 break;
@@ -456,17 +462,20 @@
         }
 
         //@ts-ignore
-        const myFarm = farms.value.find(farm => farm.name === farmName);
-        console.log('this is the farm', myFarm);
+        const myFarm = farms.value.find(farm => farm.toHuman().name === farmName);
+
+        loadingSubtitle.value = 'Adding stellar payout address';
 
         const submittableExtrinsic1 = api.tx.tfgridModule.addStellarPayoutV2address(
-            myFarm.farmId,
+            myFarm.id,
             desiredWallet.value.keyPair.getStellarKeyPair().publicKey()
         );
 
         await submitExtrensic(submittableExtrinsic1, desiredWallet.value.keyPair.getSubstrateKeyring());
 
         await new Promise(resolve => setTimeout(resolve, 1000));
+
+        addNotification(NotificationType.success, 'Farm created');
         loadingSubtitle.value = 'Refetching data';
     };
 

@@ -405,8 +405,6 @@
 
         isLoading.value = true;
         loadingSubtitle.value = 'Creating farm';
-
-        const currentAmountOfFarms = farms.value.length;
         const api = await getSubstrateApi();
 
         console.debug('this is the provided info', farmName, publicIps);

@@ -190,6 +190,7 @@
     import {
         activationServiceForSubstrate,
         allFarmNames,
+        allFarms,
         getSubstrateApi,
         getSubstrateAssetBalances,
         getTwinId,
@@ -201,6 +202,7 @@
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { v2Farms } from '@/service/farmService';
     import { onBeforeMount } from '@vue/runtime-core';
+    import { toNumber } from 'lodash';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
@@ -254,7 +256,7 @@
         } // temp fix for migration farm
 
         const wasFound = v2Farms.value.find(farm => farm.name.toLowerCase() === value.toLowerCase());
-        console.log({ wasFound: !!wasFound, value, myStellarAddress });
+        // console.log({ wasFound: !!wasFound, value, myStellarAddress });
 
         if (
             wasFound &&
@@ -417,7 +419,8 @@
             desiredWallet.value.keyPair.getSubstrateKeyring().address
         );
         try {
-            await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
+            const res = await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
+            console.log('this is the response', res);
         } catch (e) {
             isLoading.value = false;
             loadingSubtitle.value = '';
@@ -431,7 +434,29 @@
         }
 
         await new Promise(resolve => setTimeout(resolve, 1000));
-        // TODO: make tis for the right farm not just the first one
+        let i = 0;
+        while (true) {
+            // break after 20 seconds
+            if (i > 20) {
+                throw new Error('Timeout');
+            }
+            i++;
+            //@ts-ignore
+
+            farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === twinId.value);
+
+            //@ts-ignore
+            const myFarm = farms.value.find(farm => farm.name === farmName);
+
+            if (myFarm) {
+                break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        //@ts-ignore
+        const myFarm = farms.value.find(farm => farm.name === farmName);
+
         const submittableExtrinsic1 = api.tx.tfgridModule.addStellarPayoutV2address(
             farms.value[0]?.id,
             desiredWallet.value.keyPair.getStellarKeyPair().publicKey()

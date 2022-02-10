@@ -21,7 +21,13 @@
             </DisclosureButton>
             <DisclosurePanel class="text-sm text-gray-500">
                 <div>
-                    <button @click="copyToClipboard('0x' + farm.wallet.keyPair.getSeed())">Copy secret</button>
+                    <button
+                        @click="copyToClipboard('0x' + farm.wallet.keyPair.getSeed())"
+                        class="flex items-center rounded-md border border-transparent py-2 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                        Copy secret
+                        <ClipboardCopyIcon class="ml-2 h-4 text-black" />
+                    </button>
                 </div>
                 <div class="no-scrollbar overflow-x-auto whitespace-normal">0x{{ farm.wallet.keyPair.getSeed() }}</div>
             </DisclosurePanel>

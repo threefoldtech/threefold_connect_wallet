@@ -200,7 +200,7 @@
     import axios from 'axios';
     import flagsmith from 'flagsmith';
     import { addNotification, NotificationType } from '@/service/notificationService';
-    import { v2Farms } from '@/service/farmService';
+    import { fetchFarms, v2Farms } from '@/service/farmService';
     import { onBeforeMount } from '@vue/runtime-core';
     import { toNumber } from 'lodash';
 
@@ -373,6 +373,9 @@
                 'Farm creation on v3 successful',
                 'Your farm has been created on Grid v3. Please note that it will take several days for your v2 nodes to be migrated to your v3 farm. Once they have been migrated, you will see them listed under your new v3 farm.'
             );
+
+            v2Farms.value = [];
+            await fetchFarms();
             return;
         }
 

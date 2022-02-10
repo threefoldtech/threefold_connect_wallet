@@ -433,6 +433,7 @@
             throw e;
         }
 
+        console.log('farm created');
         await new Promise(resolve => setTimeout(resolve, 1000));
         let i = 0;
         while (true) {
@@ -456,9 +457,10 @@
 
         //@ts-ignore
         const myFarm = farms.value.find(farm => farm.name === farmName);
+        console.log('this is the farm', myFarm);
 
         const submittableExtrinsic1 = api.tx.tfgridModule.addStellarPayoutV2address(
-            farms.value[0]?.id,
+            myFarm.farmId,
             desiredWallet.value.keyPair.getStellarKeyPair().publicKey()
         );
 

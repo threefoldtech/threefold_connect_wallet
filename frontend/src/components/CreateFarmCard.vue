@@ -271,7 +271,7 @@
             farmFormErrors.value = {
                 ...farmFormErrors.value,
 
-                farmName: 'This name is already taken (1)',
+                farmName: 'This name is already taken',
             };
             return;
         }
@@ -299,7 +299,7 @@
             farmFormErrors.value = {
                 ...farmFormErrors.value,
 
-                farmName: 'This name is already taken (2)',
+                farmName: 'This name is already taken',
             };
             return;
         }
@@ -310,7 +310,7 @@
             if (res.data?.canuse !== true) {
                 farmFormErrors.value = {
                     ...farmFormErrors.value,
-                    farmName: 'This name is already taken (3)',
+                    farmName: 'This name is already taken',
                 };
                 return;
             }
@@ -478,7 +478,7 @@
 
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        addNotification(NotificationType.success, 'Farm created');
+        // addNotification(NotificationType.success, 'Farm created');
         loadingSubtitle.value = 'Refetching data';
     };
 

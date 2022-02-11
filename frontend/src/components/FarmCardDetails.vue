@@ -21,13 +21,13 @@
             </DisclosureButton>
             <DisclosurePanel class="text-sm text-gray-500">
                 <div>
-                    <button
+                    <div
                         @click="copyToClipboard('0x' + farm.wallet.keyPair.getSeed())"
                         class="flex items-center rounded-md border border-transparent py-2 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
                         Copy secret
                         <ClipboardCopyIcon class="ml-2 h-4 text-black" />
-                    </button>
+                    </div>
                 </div>
                 <div class="no-scrollbar overflow-x-auto whitespace-normal">0x{{ farm.wallet.keyPair.getSeed() }}</div>
             </DisclosurePanel>
@@ -112,6 +112,10 @@
     };
     fetchStellarPayoutAddress();
     const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text);
+        //@ts-ignore
+        globalThis?.flutter_inappwebview.callHandler('COPY', text).then(function () {
+            console.log('Copied');
+        });
+        addNotification(NotificationType.info, 'Text has been copied to clipboard', text, 2000);
     };
 </script>

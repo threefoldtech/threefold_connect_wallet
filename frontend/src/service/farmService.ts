@@ -22,20 +22,17 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
         if (twinId === 0) {
             continue; // can't have farm without twin id
         }
-        // console  .debug('twinId', twinId);
-        // console.table([...allFarms.value.map((f: any) => ({ ...f }))], ['name', 'twin_id']);
+
         const allV3Farms = allFarms.value.filter((farm: { twin_id: Number }) => toNumber(farm.twin_id) === twinId);
 
-        const farmIds = JSON.parse(JSON.stringify(allV3Farms.map((farm: BCFarm) => toNumber(farm.id))));
+        // const farmIds = JSON.parse(JSON.stringify(allV3Farms.map((farm: BCFarm) => toNumber(farm.id))));
         const bcNodes = await api.query.tfgridModule.nodes.entries();
 
-        // farmIds.push(35);
-
-        const allNodes = bcNodes
-            //@ts-ignore
-            .filter(([, node]) => farmIds.includes(node.toJSON().farm_id));
-
         for (const farm of allV3Farms) {
+            const allNodes = bcNodes
+                //@ts-ignore
+                .filter(([, node]) => node.toJSON().farm_id === farm?.toJSON()?.id);
+
             const f: Farm = {
                 name: farm?.toHuman()?.name,
                 wallet_id: v3Wallet.keyPair.getBasePublicKey(),
@@ -43,6 +40,9 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
                 wallet: v3Wallet,
                 farmId: farm?.toJSON()?.id,
                 twinId: farm?.toJSON()?.twin_id,
+                nodes: allNodes.map(([, node]) => {
+                    return node.toHuman();
+                }),
             };
 
             const index = v3Farms.value.findIndex((farm: any) => farm.farmId === f.farmId);

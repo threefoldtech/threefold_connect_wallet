@@ -55,7 +55,18 @@
 
         <div data-field="nodes">
             <h2 class="text-sm font-medium uppercase">Nodes</h2>
-            <div class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500">No nodes</div>
+            <div
+                class="no-scrollbar overflow-x-auto whitespace-normal text-sm text-gray-500"
+                v-if="farm?.nodes.length === 0"
+            >
+                No nodes
+            </div>
+            <div v-for="node in farm?.nodes">
+                <div class="flex flex-row justify-between whitespace-normal text-sm text-gray-500">
+                    <div>Connected node id:</div>
+                    <div>{{ node.id }}</div>
+                </div>
+            </div>
         </div>
         <div class="border-t border-gray-200" v-if="!payoutLoading && !payoutAddress">
             <div class="-pt-px flex divide-x divide-gray-200">

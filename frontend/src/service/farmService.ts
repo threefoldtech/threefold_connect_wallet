@@ -90,6 +90,7 @@ const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
 export const getAllStellarPayoutAddresses = async () => {
     const api = await getSubstrateApi();
 
+    const bcNodes = await api.query.tfgridModule.nodes.entries();
     const myStellarAddresses = wallets.value.map(wallet => wallet.keyPair.getStellarKeyPair().publicKey());
 
     allStellarPayoutAddresses.value = (await api.query.tfgridModule.farmPayoutV2AddressByFarmID.entries()).map(
@@ -124,6 +125,10 @@ export const getAllStellarPayoutAddresses = async () => {
             continue;
         }
 
+        const allNodes = bcNodes
+            //@ts-ignore
+            .filter(([, node]) => node.toJSON().farm_id === v3PortalFarm.farmId.toString());
+
         const f: Farm = {
             name: foundFarm.toHuman().name,
             wallet_id: v3Wallet.keyPair.getBasePublicKey(),
@@ -131,6 +136,9 @@ export const getAllStellarPayoutAddresses = async () => {
             wallet: v3Wallet,
             farmId: v3PortalFarm.farmId.toString(),
             twinId: foundFarm.twin_id.toString(),
+            nodes: allNodes.map(([, node]) => {
+                return node.toHuman();
+            }),
         };
 
         const index = v3PortalFarms.value.findIndex((farm: any) => farm.name === f.name);

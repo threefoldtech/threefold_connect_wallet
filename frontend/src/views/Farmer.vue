@@ -9,12 +9,12 @@
             </PageHeader>
         </template>
         <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
-            <div v-if="v2Farms.length > 0 || v3Farms.length > 0">
+            <div v-if="v2Farms.length > 0 || v3Farms.length > 0 || v3PortalFarms.length > 0">
                 <div class="font-medium">Farms to be migrated from V2 to V3</div>
                 <div v-if="v2Farms.length > 0">
                     <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v2</h2>
                     <ul role="list" class="grid grid-cols-1 gap-3">
-                        <FarmCard :isV3="false" :farm="farm" v-for="farm in v2Farms" />
+                        <FarmCard :showSecrets="false" :isV3="false" :farm="farm" v-for="farm in v2Farms" />
                     </ul>
                 </div>
                 <div v-else>
@@ -25,11 +25,21 @@
                 <div v-if="v3Farms.length > 0">
                     <h2 class="pb-2 text-xs">Farms connected to existing wallets should be migrated</h2>
                     <ul role="list" class="grid grid-cols-1 gap-3">
-                        <FarmCard :isV3="true" :farm="farm" v-for="farm in v3Farms" />
+                        <FarmCard :showSecrets="true" :isV3="true" :farm="farm" v-for="farm in v3Farms" />
                     </ul>
                 </div>
                 <div v-else>
                     <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v3</h2>
+                </div>
+
+                <div v-if="v3PortalFarms.length > 0" class="pt-3 font-medium">Other v3 farms</div>
+                <div v-if="v3PortalFarms.length > 0">
+                    <h2 class="pb-2 text-xs">
+                        Farms created with other platforms that have a payout to your TF Connect wallet
+                    </h2>
+                    <ul role="list" class="grid grid-cols-1 gap-3">
+                        <FarmCard :showSecrets="false" :isV3="true" :farm="farm" v-for="farm in v3PortalFarms" />
+                    </ul>
                 </div>
 
                 <div v-if="newCreatedFarms.length > 0">
@@ -115,7 +125,7 @@
     import FarmCard from '@/components/FarmCard.vue';
     import { Farm } from '@/types/farms.types';
     import CreateFarmCard from '@/components/CreateFarmCard.vue';
-    import { fetchFarms, v2Farms, v3Farms } from '@/service/farmService';
+    import { fetchFarms, v2Farms, v3Farms, v3PortalFarms } from '@/service/farmService';
     import { useRouter } from 'vue-router';
     //@ts-ignore
     const canCreateFarms = import.meta.env.DEV || flagsmith.hasFeature('can_create_farms_for_farmer');

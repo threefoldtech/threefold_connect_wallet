@@ -12,7 +12,7 @@
             <div class="mt-1 text-xs font-light text-orange-500">Note: This address will be used for payout</div>
         </div>
 
-        <Disclosure as="div" class="w-full" v-slot="{ open }">
+        <Disclosure as="div" class="w-full" v-slot="{ open }" v-if="showSecrets">
             <DisclosureButton class="flex w-full flex-row items-center justify-between text-sm font-medium uppercase">
                 <div>
                     <span>TFCHAIN SECRET</span>
@@ -83,9 +83,10 @@
 
     interface Props {
         farm: Farm;
+        showSecrets: boolean;
     }
 
-    const { farm } = defineProps<Props>();
+    const { farm, showSecrets } = defineProps<Props>();
 
     const payoutAddress = ref<string | undefined>();
     const payoutLoading = ref<boolean>(true);

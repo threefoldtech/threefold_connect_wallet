@@ -21,3 +21,8 @@ export interface BCFarm {
     twin_id: string;
     version: string;
 }
+
+export interface StellarPayoutResponse {
+    farmId: string;
+    stellarAddress: string;
+}

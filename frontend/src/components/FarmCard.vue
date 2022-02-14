@@ -29,7 +29,7 @@
                 </div>
             </DisclosureButton>
             <DisclosurePanel as="div">
-                <FarmCardDetails :farm="farm"></FarmCardDetails>
+                <FarmCardDetails :showSecrets="showSecrets" :farm="farm"></FarmCardDetails>
             </DisclosurePanel>
         </Disclosure>
     </div>
@@ -61,9 +61,10 @@
     interface Props {
         farm: any;
         isV3: boolean;
+        showSecrets?: boolean;
     }
 
-    const { farm, isV3 } = withDefaults(defineProps<Props>(), { isV3: false });
+    const { farm, isV3, showSecrets } = withDefaults(defineProps<Props>(), { isV3: false, showSecrets: true });
     const showCreateNewFarm = ref<boolean>(false);
 </script>
 

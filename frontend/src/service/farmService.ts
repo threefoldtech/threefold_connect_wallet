@@ -1,13 +1,18 @@
 import { Wallet, wallets } from '@/service/walletService';
 import { allFarms, fetchAllFarms, getSubstrateApi, getTwinId } from '@/service/substrateService';
 import { toNumber } from 'lodash';
-import { BCFarm, Farm } from '@/types/farms.types';
+import { BCFarm, Farm, StellarPayoutResponse } from '@/types/farms.types';
 import { useDynamicBalance } from '@/util/useDynamicBalance';
 import axios from 'axios';
 import { ref } from 'vue';
+import { crypto_sign_keypair } from 'libsodium-wrappers';
 
 export const v2Farms = ref<Farm[]>([]);
 export const v3Farms = ref(<Farm[]>[]);
+export const allStellarPayoutAddresses = ref<any>([]);
+export const v3SpecialFarms = ref<any>([]);
+export const v3PortalFarms = ref<any>([]);
+
 const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
     for (const v3Wallet of v3Wallets) {
         const api = await getSubstrateApi();
@@ -81,8 +86,61 @@ const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
         }
     }
 };
+
+export const getAllStellarPayoutAddresses = async () => {
+    const api = await getSubstrateApi();
+
+    const myStellarAddresses = wallets.value.map(wallet => wallet.keyPair.getStellarKeyPair().publicKey());
+
+    allStellarPayoutAddresses.value = (await api.query.tfgridModule.farmPayoutV2AddressByFarmID.entries()).map(
+        (farm: any) => {
+            return {
+                farmId: toNumber(farm[0].toHuman()[0].toString()),
+                stellarAddress: farm[1].toHuman(),
+            };
+        }
+    );
+
+    const v3FarmIds = v3Farms.value.map(farm => farm.farmId);
+
+    v3SpecialFarms.value = allStellarPayoutAddresses.value
+        .filter((address: StellarPayoutResponse) => myStellarAddresses.includes(address.stellarAddress))
+        .filter((address: StellarPayoutResponse) => !v3FarmIds.includes(address.farmId));
+
+    for (const v3PortalFarm of v3SpecialFarms.value) {
+        const foundFarm = allFarms.value.find(
+            (f: any) => toNumber(f.toHuman().id.toString()) === toNumber(v3PortalFarm.farmId.toString())
+        );
+
+        if (!foundFarm) {
+            continue;
+        }
+
+        const v3Wallet = wallets.value.find(
+            wallet => wallet.keyPair.getStellarKeyPair().publicKey() === v3PortalFarm.stellarAddress
+        );
+
+        if (!v3Wallet) {
+            continue;
+        }
+
+        const f: Farm = {
+            name: foundFarm.toHuman().name,
+            wallet_id: v3Wallet.keyPair.getBasePublicKey(),
+            v3: true,
+            wallet: v3Wallet,
+            farmId: v3PortalFarm.farmId.toString(),
+            twinId: foundFarm.twin_id.toString(),
+        };
+
+        const index = v3PortalFarms.value.findIndex((farm: any) => farm.name === f.name);
+        index === -1 ? v3PortalFarms.value.push(f) : v3PortalFarms.value.splice(index, 1, f);
+    }
+};
+
 export const fetchFarms = async () => {
     await fetchAllFarms();
     await checkV3FarmsForWallets(wallets.value);
+    await getAllStellarPayoutAddresses();
     await checkV2FarmsForWallets(wallets.value);
 };

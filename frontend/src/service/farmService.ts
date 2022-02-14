@@ -26,14 +26,14 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
         // console.table([...allFarms.value.map((f: any) => ({ ...f }))], ['name', 'twin_id']);
         const allV3Farms = allFarms.value.filter((farm: { twin_id: Number }) => toNumber(farm.twin_id) === twinId);
 
-        const farmIds = JSON.parse(JSON.stringify(allV3Farms.map((farm: BCFarm) => farm.id)));
+        const farmIds = JSON.parse(JSON.stringify(allV3Farms.map((farm: BCFarm) => toNumber(farm.id))));
         const bcNodes = await api.query.tfgridModule.nodes.entries();
+
+        // farmIds.push(35);
 
         const allNodes = bcNodes
             //@ts-ignore
-            .filter(([, node]) => farmIds.includes(node.farm_id.words[0]))
-            //@ts-ignore
-            .map(([, node]) => node.toHuman(true));
+            .filter(([, node]) => farmIds.includes(node.toJSON().farm_id));
 
         for (const farm of allV3Farms) {
             const f: Farm = {

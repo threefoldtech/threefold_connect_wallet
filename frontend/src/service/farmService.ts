@@ -6,6 +6,7 @@ import { useDynamicBalance } from '@/util/useDynamicBalance';
 import axios from 'axios';
 import { ref } from 'vue';
 import { crypto_sign_keypair } from 'libsodium-wrappers';
+import { parseBCInt } from '@/util/farm';
 
 export const v2Farms = ref<Farm[]>([]);
 export const v3Farms = ref(<Farm[]>[]);
@@ -14,9 +15,10 @@ export const v3SpecialFarms = ref<any>([]);
 export const v3PortalFarms = ref<any>([]);
 
 const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
-    for (const v3Wallet of v3Wallets) {
-        const api = await getSubstrateApi();
+    const api = await getSubstrateApi();
+    const bcNodes = await api.query.tfgridModule.nodes.entries();
 
+    for (const v3Wallet of v3Wallets) {
         const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
         const twinId = await getTwinId(substrateAddress);
         if (twinId === 0) {
@@ -26,7 +28,6 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
         const allV3Farms = allFarms.value.filter((farm: { twin_id: Number }) => toNumber(farm.twin_id) === twinId);
 
         // const farmIds = JSON.parse(JSON.stringify(allV3Farms.map((farm: BCFarm) => toNumber(farm.id))));
-        const bcNodes = await api.query.tfgridModule.nodes.entries();
 
         for (const farm of allV3Farms) {
             const allNodes = bcNodes
@@ -96,7 +97,7 @@ export const getAllStellarPayoutAddresses = async () => {
     allStellarPayoutAddresses.value = (await api.query.tfgridModule.farmPayoutV2AddressByFarmID.entries()).map(
         (farm: any) => {
             return {
-                farmId: toNumber(farm[0].toHuman()[0].toString()),
+                farmId: parseBCInt(farm[0].toHuman()[0].toString()),
                 stellarAddress: farm[1].toHuman(),
             };
         }
@@ -109,11 +110,12 @@ export const getAllStellarPayoutAddresses = async () => {
         .filter((address: StellarPayoutResponse) => !v3FarmIds.includes(address.farmId));
 
     for (const v3PortalFarm of v3SpecialFarms.value) {
-        const foundFarm = allFarms.value.find(
-            (f: any) => toNumber(f.toHuman().id.toString()) === toNumber(v3PortalFarm.farmId.toString())
-        );
+        const foundFarm = allFarms.value.find((f: any) => {
+            return toNumber(parseBCInt(f.toHuman().id.toString())) === toNumber(v3PortalFarm.farmId.toString());
+        });
 
         if (!foundFarm) {
+            console.log('Couldnt find farm', v3PortalFarm);
             continue;
         }
 

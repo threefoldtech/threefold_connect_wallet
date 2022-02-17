@@ -43,3 +43,7 @@ export const validateFarmName = async (farmName: any, stellarAddress: string, wa
 
     return;
 };
+
+export const parseBCInt = (bcInt: string) => {
+    return parseInt(bcInt.replace(',', ''));
+};

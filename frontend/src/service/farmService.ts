@@ -1,6 +1,6 @@
 import { Wallet, wallets } from '@/service/walletService';
 import { allFarms, fetchAllFarms, getSubstrateApi, getTwinId } from '@/service/substrateService';
-import { toNumber } from 'lodash';
+import toNumber from 'lodash/toNumber';
 import { BCFarm, Farm, StellarPayoutResponse } from '@/types/farms.types';
 import { useDynamicBalance } from '@/util/useDynamicBalance';
 import axios from 'axios';
@@ -95,10 +95,10 @@ export const getAllStellarPayoutAddresses = async () => {
     const myStellarAddresses = wallets.value.map(wallet => wallet.keyPair.getStellarKeyPair().publicKey());
 
     allStellarPayoutAddresses.value = (await api.query.tfgridModule.farmPayoutV2AddressByFarmID.entries()).map(
-        (farm: any) => {
+        ([storageKey, farm]) => {
             return {
-                farmId: parseBCInt(farm[0].toHuman()[0].toString()),
-                stellarAddress: farm[1].toHuman(),
+                farmId: <number>storageKey.args?.[0].toJSON() || -1,
+                stellarAddress: farm.toHuman(),
             };
         }
     );

@@ -31,7 +31,7 @@
                         >
                             <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900">
                                 <div class="flex flex-row justify-between">
-                                    <div>Welcome to Farm Migration.</div>
+                                    <div>Welcome to Farm Migration</div>
                                     <div>
                                         <XIcon class="h-6 cursor-pointer text-gray-600" @click="isOpen = false" />
                                     </div>
@@ -39,10 +39,9 @@
                             </DialogTitle>
                             <div class="mt-2">
                                 <p class="text-sm text-gray-500">
-                                    This tool is designed to help you migrate any existing farms you may have from TF
-                                    Grid v2 to TF Grid v3. If any of your existing farms are created with or have a
-                                    payout to an active wallet address in your TF Connect app, you will see these in the
-                                    next screen.
+                                    This tool is designed to help you migrate your existing farms from TF Grid v2 to TF
+                                    Grid v3. If any of your existing farms are created with or have a payout to an
+                                    active wallet address in your TF Connect app, you will see these in this section.
                                 </p>
                             </div>
 

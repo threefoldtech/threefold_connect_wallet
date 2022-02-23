@@ -11,7 +11,10 @@ const farmStellarAdresses = farms
   .filter((value, index, self) => self.indexOf(value) === index);
 
 fastify.get("/api/v1/env", () => {
-  return { flagsmith: process.env.FLAGSMITH_ENVIROMENT_KEY || "dev" };
+  return {
+    flagsmith: process.env.FLAGSMITH_ENVIROMENT_KEY || "dev",
+    farmerOnly: process.env.FARMER_ONLY || true,
+  };
 });
 
 fastify.get("/api/v1/farms", async () => {

@@ -29,6 +29,7 @@ import {
 } from '@heroicons/vue/outline';
 import flagsmith from 'flagsmith';
 import { NavItem } from '@/types';
+import axios from 'axios';
 
 interface Route extends _RouteRecordBase {
     component?: RouteComponent | (() => Promise<RouteComponent>);
@@ -40,7 +41,7 @@ interface Route extends _RouteRecordBase {
     };
 }
 
-const farmerOnly = true; //@todo: remove this for wallet
+const farmerOnly = (await axios.get('/api/v1/env')).data.farmerOnly;
 
 export const routes: Route[] = [
     {

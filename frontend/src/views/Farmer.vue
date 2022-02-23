@@ -1,4 +1,5 @@
 <template>
+    <landing-farm-information-dialog v-if="showInformationDialog"></landing-farm-information-dialog>
     <MainLayout>
         <template #header>
             <PageHeader>
@@ -127,6 +128,11 @@
     import CreateFarmCard from '@/components/CreateFarmCard.vue';
     import { fetchFarms, v2Farms, v3Farms, v3PortalFarms } from '@/service/farmService';
     import { useRouter } from 'vue-router';
+    import LandingFarmInformationDialog from '@/components/dialogs/LandingFarmInformationDialog.vue';
+
+    import { useLocalStorage } from '@vueuse/core';
+    const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
+
     //@ts-ignore
     const canCreateFarms = import.meta.env.DEV || flagsmith.hasFeature('can_create_farms_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);

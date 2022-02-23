@@ -46,6 +46,9 @@ export default {
         farming_policy_id: 'u32',
         interfaces: 'Vec<Interface>',
         certification_type: 'CertificationType',
+        secure_boot: 'bool',
+        virtualized: 'bool',
+        serial_number: 'Vec<u8>',
     },
     PublicConfig: {
         ipv4: 'Vec<u8>',

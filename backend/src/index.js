@@ -13,7 +13,7 @@ const farmStellarAdresses = farms
 fastify.get("/api/v1/env", () => {
   return {
     flagsmith: process.env.FLAGSMITH_ENVIROMENT_KEY || "dev",
-    farmerOnly: process.env.FARMER_ONLY || true,
+    farmerOnly: process.env.FARMER_ONLY || false,
   };
 });
 

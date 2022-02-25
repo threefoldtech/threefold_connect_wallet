@@ -122,6 +122,7 @@ const initStellarCryptoConfig = () => {
     (<any>window).serviceUrl = flagsmith.getValue('threefold-service-url');
     (<any>window).feeDestination = flagsmith.getValue('fee-destination');
     (<any>window).feeAmount = flagsmith.getValue('fee-amount');
+    (<any>window).supportedCurrencies = flagsmith.getValue('supported-currencies');
     (<any>window).currencies = (<any[]>JSON.parse(<string>flagsmith.getValue('currencies'))).reduce(
         (previousValue, currentValue) => {
             if (currentValue.type !== 'stellar') return previousValue;

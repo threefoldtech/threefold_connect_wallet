@@ -40,7 +40,7 @@ interface Route extends _RouteRecordBase {
     };
 }
 
-const farmerOnly = true; //@todo: remove this for wallet
+const farmerOnly = false; //@todo: remove this for wallet
 
 export const routes: Route[] = [
     {

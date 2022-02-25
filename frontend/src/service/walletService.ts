@@ -51,8 +51,8 @@ export interface Operation {
 }
 
 export const wallets: Ref<Wallet[]> = <Ref<Wallet[]>>ref<Wallet[]>([]);
-export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', []);
-export const operations: Ref<Operation[]> = useLocalStorage<Operation[]>('operations_cache', []);
+export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', []); // @TODO: check when to clear cache
+export const operations: Ref<Operation[]> = useLocalStorage<Operation[]>('operations_cache', []); // @TODO: check when to clear cache
 
 export const getStellarBalance = async (wallet: Wallet): Promise<AccountRecord> => {
     const server = getStellarClient();

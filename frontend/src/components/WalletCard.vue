@@ -3,7 +3,7 @@
         <div class="">
             <p class="font-semibold">{{ name }}</p>
             <small v-if="balance && balance.assets && balance?.assets.filter(a => a.amount > 0).length === 0"
-                >no balance found for this wallet</small
+                >No balance found for this wallet</small
             >
         </div>
         <hr

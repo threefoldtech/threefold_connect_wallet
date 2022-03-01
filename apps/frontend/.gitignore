@@ -298,3 +298,5 @@ dist
 # .pnp.*
 
 # End of https://www.toptal.com/developers/gitignore/api/yarn,node,web,macos,intellij
+
+stats.html

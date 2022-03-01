@@ -1,52 +1,82 @@
 `
 <template>
-    <div class="break-words p-2">
-        <div>
-            <label class="block text-sm font-medium text-gray-700" for="name">Name</label>
-            <div class="mt-1">
-                <input
-                    id="name"
-                    :value="wallet.name"
-                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                    name="name"
-                    type="text"
-                    @change="updateWalletName"
-                />
-            </div>
-        </div>
-        <div class="mt-2">
-            <code class="block border-2 border-slate-500 p-2">{{
-                wallet.keyPair.getStellarKeyPair().publicKey()
-            }}</code>
-            <code class="mt-2 block border-2 border-slate-500 p-2">{{
-                wallet.keyPair.getSubstrateKeyring().address
-            }}</code>
-        </div>
-        <Disclosure v-slot="{ open }" as="div" class="flex flex-col">
-            <DisclosureButton
-                class="mt-2 flex grow rounded-md bg-primary-100 px-4 py-2 py-2 text-left text-sm font-medium text-primary-500 focus:outline-none"
-            >
-                <ChevronUpIcon v-if="open" class="-ml-1 mr-2 h-5 w-5" />
-                <ChevronDownIcon v-if="!open" class="-ml-1 mr-2 h-5 w-5" />
-                <span>Show Stellar Secret</span>
-            </DisclosureButton>
-            <DisclosurePanel class="mt-2 block border-2 border-slate-500 p-2" as="code">
-                {{ wallet.keyPair.getStellarKeyPair().secret() }} <br
-            /></DisclosurePanel>
-        </Disclosure>
-        <Disclosure v-slot="{ open }" as="div" class="flex flex-col">
-            <DisclosureButton
-                class="mt-2 flex grow rounded-md bg-primary-100 px-4 py-2 py-2 text-left text-sm font-medium text-primary-500 focus:outline-none"
-            >
-                <ChevronUpIcon v-if="open" class="-ml-1 mr-2 h-5 w-5" />
-                <ChevronDownIcon v-if="!open" class="-ml-1 mr-2 h-5 w-5" />
-                <span>Show entropy in hex</span>
-            </DisclosureButton>
-            <DisclosurePanel class="mt-2 block border-2 border-slate-500 p-2" as="code">
-                {{ wallet.keyPair.getSeed() }} <br
-            /></DisclosurePanel>
-        </Disclosure>
+    <div class="mt-2 px-4">
+        <h2 class="font-bold text-black">Addresses</h2>
+    </div>
+    <div class="mt-2 px-4">
+        <CopyToClipboardField
+            :labelText="'Stellar Address'"
+            :disabled="true"
+            :fieldText="wallet?.keyPair.getStellarKeyPair().publicKey()"
+        >
+            <template #icon>
+                <ClipboardCopyIcon class="h-5 text-primary-600"></ClipboardCopyIcon>
+            </template>
+        </CopyToClipboardField>
+    </div>
+    <div class="mt-2 px-4">
+        <CopyToClipboardField
+            :labelText="'Substrate Address'"
+            :disabled="true"
+            :fieldText="wallet?.keyPair.getSubstrateKeyring().address"
+        >
+            <template #icon>
+                <ClipboardCopyIcon class="h-5 text-primary-600"></ClipboardCopyIcon>
+            </template>
+        </CopyToClipboardField>
+    </div>
 
+    <div class="mt-4 px-4">
+        <h2 class="font-bold text-black">Secrets</h2>
+    </div>
+    <div class="mt-2 px-4">
+        <CopyToClipboardField
+            :labelText="'Stellar Secret'"
+            :disabled="true"
+            :fieldText="wallet?.keyPair.getSubstrateKeyring().address"
+            :isSensitiveData="true"
+        >
+            <template #icon>
+                <ClipboardCopyIcon class="h-5 text-primary-600"></ClipboardCopyIcon>
+            </template>
+        </CopyToClipboardField>
+    </div>
+
+    <div class="mt-2 px-4">
+        <CopyToClipboardField
+            :labelText="'Entropy in HEX'"
+            :disabled="true"
+            :fieldText="wallet?.keyPair.getSeed()"
+            :isSensitiveData="true"
+        >
+            <template #icon>
+                <ClipboardCopyIcon class="h-5 text-primary-600"></ClipboardCopyIcon>
+            </template>
+        </CopyToClipboardField>
+    </div>
+
+    <div class="mt-2 px-4">
+        <EditTextField
+            @clickOnField="showEditWalletName = true"
+            :labelText="'Wallet name'"
+            :disabled="true"
+            :fieldText="wallet?.name"
+            v-model:fieldText="walletName"
+        >
+            <template #icon>
+                <PencilIcon class="h-5 text-primary-600"></PencilIcon>
+            </template>
+        </EditTextField>
+    </div>
+
+    <ChangeWalletNameDialog
+        v-if="showEditWalletName"
+        :walletName="wallet?.name"
+        @close="showEditWalletName = false"
+        @confirmed="changeWalletName"
+    ></ChangeWalletNameDialog>
+
+    <div class="break-words p-2">
         <div class="mt-2 flex">
             <button
                 v-if="!showDeleteWalletConfirmation"
@@ -83,17 +113,23 @@
 </template>
 
 <script lang="ts" setup>
+    import { TransitionRoot, TransitionChild, Dialog, DialogOverlay, DialogTitle } from '@headlessui/vue';
     import { addOrUpdateWallet, saveWallets, Wallet } from '@/service/walletService';
-    import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
     import { computed, inject, ref } from 'vue';
     import { getSubstrateApi } from '@/service/substrateService';
-    import { TrashIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/solid';
+    import { TrashIcon, PencilIcon, ClipboardCopyIcon, XIcon } from '@heroicons/vue/solid';
     import { PkidWalletTypes } from '@/service/initializationService';
-    import { addNotification, NotificationType } from '../../service/notificationService';
-    import { sendTokens } from '../../service/substrateService';
+    import { addNotification, NotificationType } from '@/service/notificationService';
+    import { sendTokens } from '@/service/substrateService';
+    import CopyToClipboardField from '@/components/misc/CopyToClipboardField.vue';
+    import EditTextField from '@/components/misc/EditTextField.vue';
+    import ChangeWalletNameDialog from '@/components/dialogs/wallet/ChangeWalletNameDialog.vue';
 
     const showDeleteWalletConfirmation = ref(false);
     const wallet: Wallet = <Wallet>inject('wallet');
+
+    const showEditWalletName = ref<boolean>(false);
+    const walletName = ref<string>(wallet?.name);
 
     const test = computed(async () => {
         const api = await getSubstrateApi();
@@ -108,22 +144,20 @@
     };
     init();
 
-    const updateWalletName = (e: Event) => {
-        const target: HTMLInputElement | undefined = <HTMLInputElement>e?.target;
-        if (!target) return;
-        const newRawName = target?.value;
-        if (!newRawName) return;
-
-        //@todo: validate name
-        //@todo: add notification
-        //@todo: maby add confirm dialog
-
-        const newName = newRawName.trim();
-
-        wallet.name = `${newName}`;
-        addOrUpdateWallet(wallet);
-
-        saveWallets();
+    const changeWalletName = (newWalletName: string) => {
+        console.log(newWalletName);
+        // //@todo: validate name
+        // //@todo: add notification
+        // //@todo: maby add confirm dialog
+        //
+        // const newName = walletName.value.trim();
+        //
+        // wallet.name = `${newName}`;
+        // addOrUpdateWallet(wallet);
+        // saveWallets();
+        //
+        // showEditWalletName.value = false;
+        // addNotification(NotificationType.success, `Successfully changed wallet name into ${wallet.name}`);
     };
 
     const deleteWallet = () => {

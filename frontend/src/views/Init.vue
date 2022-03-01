@@ -25,6 +25,7 @@
     import { init, loadingText } from '@/service/initializationService';
     import { useCounter, useLocalStorage } from '@vueuse/core';
     import { watch } from 'vue';
+    import { balances, operations } from '@/service/walletService';
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();
@@ -37,12 +38,13 @@
         if (newValue < 5) return;
         router.push({ name: 'devLogs' });
     });
-    //@ts-ignore
     const isDev = import.meta.env.DEV;
 
     const seed = useLocalStorage('devSeed', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=');
     const overrideIsDev = useLocalStorage('override', false);
     if (isDev || overrideIsDev.value) {
+        balances.value = [];
+        operations.value = [];
         init('testseed.3bot', seed.value)
             .then(() => {
                 router.push({ name: 'walletList' }).catch(e => {

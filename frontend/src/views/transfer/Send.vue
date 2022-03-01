@@ -236,7 +236,7 @@
         wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0];
 
     const selectedBalance = computed(() =>
-        balances.value.find(t => t.id === selectedWallet?.value?.keyPair.getStellarKeyPair().publicKey())
+        balances.value.find(t => t.id === selectedWallet?.value?.keyPair.getBasePublicKey())
     );
 
     const selectedChain = ref('stellar');

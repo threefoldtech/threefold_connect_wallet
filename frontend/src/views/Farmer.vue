@@ -128,7 +128,7 @@
     import CreateFarmCard from '@/components/CreateFarmCard.vue';
     import { fetchFarms, v2Farms, v3Farms, v3PortalFarms } from '@/service/farmService';
     import { useRouter } from 'vue-router';
-    import LandingFarmInformationDialog from '@/components/dialogs/LandingFarmInformationDialog.vue';
+    import LandingFarmInformationDialog from '@/components/dialogs/farm/LandingFarmInformationDialog.vue';
 
     import { useLocalStorage } from '@vueuse/core';
     const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);

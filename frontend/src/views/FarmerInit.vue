@@ -38,7 +38,7 @@
         if (newValue < 5) return;
         router.push({ name: 'devLogs' });
     });
-    //@ts-ignore
+
     const isDev = import.meta.env.DEV;
 
     const seed = useLocalStorage('devSeed', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=');

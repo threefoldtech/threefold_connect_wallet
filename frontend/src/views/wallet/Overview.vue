@@ -22,7 +22,7 @@
                 </div>
             </RouterLink>
             <RouterLink
-                :to="{ name: 'receive', params: { toAddress: wallet.keyPair.getStellarKeyPair().publicKey() } }"
+                :to="{ name: 'receive', params: { toAddress: wallet?.keyPair.getStellarKeyPair().publicKey() } }"
             >
                 <div class="flex h-16 w-16 items-center justify-center rounded-xl border-2 border-gray-300 bg-gray-200">
                     <svg fill="none" height="30" viewBox="0 0 20 30" width="20" xmlns="http://www.w3.org/2000/svg">

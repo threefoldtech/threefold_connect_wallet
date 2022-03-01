@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export const initFlags = async (name: string) => {
     const isDev = import.meta.env.DEV;
-    const environmentID = isDev ? 'VNe6BDbxYpeaJV66t8nMUX' : (await axios.get('/api/v1/env')).data.flagsmith;
+    const environmentID = isDev ? 'VGR7Kmd6qWqnYaZxXU7Gyw' : (await axios.get('/api/v1/env')).data.flagsmith;
 
     await flagsmith.init({
         environmentID,

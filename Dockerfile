@@ -1,18 +1,18 @@
 FROM node as backend_builder
 WORKDIR /app
 
-COPY ./backend/package.json /app
-COPY ./backend/yarn.lock /app
+COPY ./apps/backend/package.json /app
+COPY ./apps/backend/yarn.lock /app
 RUN yarn install --frozen-lockfile --ignore-platform --silent
-COPY ./backend .
+COPY ./apps/backend .
 
 FROM node as frontend_builder
 WORKDIR /app
 
-COPY ./frontend/package.json /app
-COPY ./frontend/yarn.lock /app
+COPY ./apps/frontend/package.json /app
+COPY ./apps/frontend/yarn.lock /app
 RUN yarn install --frozen-lockfile --silent
-COPY ./frontend .
+COPY ./apps/frontend .
 RUN yarn build
 
 
@@ -27,7 +27,7 @@ RUN apk add --no-cache --repository http://nl.alpinelinux.org/alpine/edge/main l
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY startup.sh /startup.sh
-COPY --from=backend_builder /app /backend
+COPY --from=backend_builder /app /apps/backend
 COPY --from=frontend_builder /app/dist /usr/share/nginx/html
 
 

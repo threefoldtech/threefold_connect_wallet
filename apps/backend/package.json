@@ -1,0 +1,17 @@
+{
+    "name": "backend",
+    "version": "1.0.0",
+    "main": "index.js",
+    "private": true,
+    "license": "MIT",
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "nodemon src/index.js"
+    },
+    "dependencies": {
+        "fastify": "^3.27.2"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.15"
+    }
+}

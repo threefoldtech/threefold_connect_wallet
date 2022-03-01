@@ -111,6 +111,8 @@ export const getAllStellarPayoutAddresses = async () => {
         .filter((address: StellarPayoutResponse) => myStellarAddresses.includes(address.stellarAddress))
         .filter((address: StellarPayoutResponse) => !v3FarmIds.includes(address.farmId));
 
+    console.table(v3SpecialFarms.value);
+    // v3SpecialFarms.value.push('GB6LS6QAK776UQDUHEUO5V4K5AEV7IMEUQRGLLH57GOV3OMTKR76ZFBJ')
     for (const v3PortalFarm of v3SpecialFarms.value) {
         const foundFarm = allFarms.value.find((f: any) => {
             return toNumber(parseBCInt(f.toHuman().id.toString())) === toNumber(v3PortalFarm.farmId.toString());

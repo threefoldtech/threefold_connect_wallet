@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-cd ./frontend && npx pretty-quick --staged
+cd ./apps/frontend && npx pretty-quick --staged

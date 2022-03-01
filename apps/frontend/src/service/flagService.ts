@@ -8,7 +8,6 @@ export const initFlags = async (name: string) => {
     console.log(flagsmithEnvironmentOverideID);
     const environmentID = isDev ? flagsmithEnvironmentOverideID : (await axios.get('/api/v1/env')).data.flagsmith;
 
-    console.assert(flagsmithEnvironmentOverideID === environmentID, 'Flagsmith environment ID does not match');
     await flagsmith.init({
         environmentID,
         api: 'https://flagsmith.jimber.io/api/v1/',

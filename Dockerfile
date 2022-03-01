@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY ./apps/backend/package.json /app
 COPY ./apps/backend/yarn.lock /app
-RUN yarn install --frozen-lockfile --ignore-platform --silent
+RUN yarn install --ignore-platform --silent
 COPY ./apps/backend .
 
 FROM node as frontend_builder
@@ -11,7 +11,7 @@ WORKDIR /app
 
 COPY ./apps/frontend/package.json /app
 COPY ./apps/frontend/yarn.lock /app
-RUN yarn install --frozen-lockfile --silent
+RUN yarn install --silent
 COPY ./apps/frontend .
 RUN yarn build
 

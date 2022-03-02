@@ -12,7 +12,7 @@
                         leave-from="opacity-100"
                         leave-to="opacity-0"
                     >
-                        <DialogOverlay class="fixed inset-0 bg-slate-500/40" />
+                        <DialogOverlay class="fixed inset-0 bg-slate-500/60" />
                     </TransitionChild>
 
                     <span class="inline-block h-screen align-middle" aria-hidden="true"> &#8203; </span>
@@ -31,7 +31,7 @@
                         >
                             <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900">
                                 <div class="mb-4 flex flex-row justify-between">
-                                    <div>Change wallet name</div>
+                                    <div class="uppercase">Change wallet name</div>
                                     <div>
                                         <XIcon class="h-6 cursor-pointer text-gray-600" @click="closeDialog" />
                                     </div>
@@ -49,14 +49,14 @@
                             <div class="mt-6 flex flex-row justify-between">
                                 <button
                                     type="button"
-                                    class="rounded-md py-2 px-4 text-sm font-medium text-red-600 hover:bg-gray-50 focus:outline-none focus:ring-offset-2"
+                                    class="rounded-md bg-red-500 py-2 px-4 text-sm font-medium text-white hover:bg-gray-50 focus:outline-none focus:ring-offset-2"
                                     @click="closeDialog"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="button"
-                                    class="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-primary-600 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                    class="inline-flex justify-center rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                                     @click="acceptDialog"
                                 >
                                     Change

@@ -70,6 +70,7 @@
     </div>
 
     <ChangeWalletNameDialog
+        v-model:newWalletName="newWalletName"
         v-if="showEditWalletName"
         :walletName="wallet?.name"
         @close="showEditWalletName = false"
@@ -115,7 +116,7 @@
 <script lang="ts" setup>
     import { TransitionRoot, TransitionChild, Dialog, DialogOverlay, DialogTitle } from '@headlessui/vue';
     import { addOrUpdateWallet, saveWallets, Wallet } from '@/service/walletService';
-    import { computed, inject, ref } from 'vue';
+    import { computed, inject, ref, watch } from 'vue';
     import { getSubstrateApi } from '@/service/substrateService';
     import { TrashIcon, PencilIcon, ClipboardCopyIcon, XIcon } from '@heroicons/vue/solid';
     import { PkidWalletTypes } from '@/service/initializationService';
@@ -124,12 +125,15 @@
     import CopyToClipboardField from '@/components/misc/CopyToClipboardField.vue';
     import EditTextField from '@/components/misc/EditTextField.vue';
     import ChangeWalletNameDialog from '@/components/dialogs/wallet/ChangeWalletNameDialog.vue';
+    import { validateWalletName } from '@/util/validate';
 
     const showDeleteWalletConfirmation = ref(false);
     const wallet: Wallet = <Wallet>inject('wallet');
 
     const showEditWalletName = ref<boolean>(false);
     const walletName = ref<string>(wallet?.name);
+
+    const newWalletName = ref<string>(wallet?.name);
 
     const test = computed(async () => {
         const api = await getSubstrateApi();
@@ -146,19 +150,27 @@
 
     const changeWalletName = (newWalletName: string) => {
         console.log(newWalletName);
-        // //@todo: validate name
-        // //@todo: add notification
-        // //@todo: maby add confirm dialog
-        //
-        // const newName = walletName.value.trim();
-        //
-        // wallet.name = `${newName}`;
-        // addOrUpdateWallet(wallet);
-        // saveWallets();
-        //
-        // showEditWalletName.value = false;
-        // addNotification(NotificationType.success, `Successfully changed wallet name into ${wallet.name}`);
+
+        const trimmedName: string = newWalletName.trim();
+
+        const hasError = validateWalletName(trimmedName);
+
+        if (hasError) {
+            console.log(hasError);
+            return;
+        }
+
+        wallet.name = `${trimmedName}`;
+        addOrUpdateWallet(wallet);
+        saveWallets();
+
+        showEditWalletName.value = false;
+        addNotification(NotificationType.success, `Successfully changed wallet name into ${wallet.name}`);
     };
+
+    watch(newWalletName, newValue => {
+        console.log(newValue);
+    });
 
     const deleteWallet = () => {
         addNotification(NotificationType.error, 'not implemented yet', undefined, 2000);
@@ -171,4 +183,3 @@
 </script>
 
 <style scoped></style>
-`

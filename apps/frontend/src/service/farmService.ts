@@ -131,7 +131,7 @@ export const getAllStellarPayoutAddresses = async () => {
 
         const allNodes = bcNodes
             //@ts-ignore
-            .filter(([, node]) => node.toJSON().farm_id === v3PortalFarm.farmId.toString());
+            .filter(([, node]) => node.toJSON().farm_id === v3PortalFarm.farmId);
 
         const f: Farm = {
             name: foundFarm.toHuman().name,

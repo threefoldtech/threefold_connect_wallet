@@ -1,6 +1,11 @@
 import { wallets } from '@/service/walletService';
 
-export function validateWalletName(name: string): string | null {
+export function validateWalletName(name: string, selectedWalletName: string): string | null {
+    // Case when they just click change without changing the name
+    if (name.toLowerCase() == selectedWalletName.toLowerCase()) {
+        return null;
+    }
+
     if (name.length >= 50) {
         return 'Maximum of 50 characters';
     }

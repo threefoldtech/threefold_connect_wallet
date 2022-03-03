@@ -114,7 +114,6 @@
 </template>
 
 <script lang="ts" setup>
-    import { TransitionRoot, TransitionChild, Dialog, DialogOverlay, DialogTitle } from '@headlessui/vue';
     import { addOrUpdateWallet, saveWallets, Wallet } from '@/service/walletService';
     import { computed, inject, ref, watch } from 'vue';
     import { getSubstrateApi } from '@/service/substrateService';
@@ -149,14 +148,10 @@
     init();
 
     const changeWalletName = (newWalletName: string) => {
-        console.log(newWalletName);
-
         const trimmedName: string = newWalletName.trim();
-
-        const hasError = validateWalletName(trimmedName);
+        const hasError = validateWalletName(trimmedName, wallet?.name);
 
         if (hasError) {
-            console.log(hasError);
             return;
         }
 
@@ -165,12 +160,8 @@
         saveWallets();
 
         showEditWalletName.value = false;
-        addNotification(NotificationType.success, `Successfully changed wallet name into ${wallet.name}`);
+        addNotification(NotificationType.success, `Successfully changed wallet name into ${wallet.name}`, '', 3000);
     };
-
-    watch(newWalletName, newValue => {
-        console.log(newValue);
-    });
 
     const deleteWallet = () => {
         addNotification(NotificationType.error, 'not implemented yet', undefined, 2000);

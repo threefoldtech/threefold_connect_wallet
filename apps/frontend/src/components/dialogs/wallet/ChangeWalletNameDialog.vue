@@ -44,6 +44,9 @@
                                     name="name"
                                     type="text"
                                 />
+                                <div class="pt-1 text-xs text-red-500">
+                                    {{ walletNameError }}
+                                </div>
                             </div>
 
                             <div class="mt-6 flex flex-row justify-between">
@@ -55,8 +58,10 @@
                                     Cancel
                                 </button>
                                 <button
+                                    :disabled="walletNameError"
                                     type="button"
-                                    class="inline-flex justify-center rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                    class="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white hover:bg-blue-200"
+                                    :class="walletNameError ? 'bg-gray-200' : 'bg-blue-500'"
                                     @click="acceptDialog"
                                 >
                                     Change
@@ -72,10 +77,11 @@
 
 <script lang="ts" setup>
     import { TransitionRoot, TransitionChild, DialogOverlay, Dialog, DialogTitle } from '@headlessui/vue';
-    import { ref } from 'vue';
+    import { ref, watch } from 'vue';
     import { XIcon } from '@heroicons/vue/solid';
+    import { validateWalletName } from '@/util/validate';
 
-    const emit = defineEmits(['close', 'confirmed']);
+    const emit = defineEmits(['close', 'confirmed', 'update:newWalletName']);
 
     interface IProps {
         walletName: string;
@@ -83,7 +89,12 @@
 
     const { walletName } = defineProps<IProps>();
 
+    const walletNameError = ref<string | null>(null);
     const newWalletName = ref<string>(walletName);
+
+    watch(newWalletName, newValue => {
+        walletNameError.value = validateWalletName(newValue, walletName);
+    });
 
     const closeDialog = () => {
         emit('close');

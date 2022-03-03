@@ -17,7 +17,7 @@
         "@jimber/pkid": "^1.0.4",
         "@jimber/simple-bip39": "^1.0.0",
         "@jimber/stellar-crypto": "^2.0.4",
-        "@polkadot/api": "6.12.1",
+        "@polkadot/api": "6.8.1",
         "@polkadot/extension-dapp": "0.41.2",
         "@tailwindcss/aspect-ratio": "^0.4.0",
         "@tailwindcss/forms": "^0.4.0",

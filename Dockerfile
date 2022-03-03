@@ -10,7 +10,7 @@ FROM node as frontend_builder
 WORKDIR /app
 
 COPY ./apps/frontend/package.json /app
-COPY ./apps/yarn.lock /app
+COPY yarn.lock /app
 RUN yarn install --silent
 COPY ./apps/frontend .
 RUN yarn build

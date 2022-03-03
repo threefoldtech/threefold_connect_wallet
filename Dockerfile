@@ -1,18 +1,9 @@
-FROM node as backend_builder
+FROM node as builder
 WORKDIR /app
 
-COPY ./apps/backend/package.json /app
-COPY ./apps/backend/yarn.lock /app
-RUN yarn install --ignore-platform --silent
-COPY ./apps/backend .
+COPY . .
+RUN yarn install --ignore-platform --silent --frozen-lockfile
 
-FROM node as frontend_builder
-WORKDIR /app
-
-COPY ./apps/frontend/package.json /app
-COPY yarn.lock /app
-RUN yarn install --silent
-COPY ./apps/frontend .
 RUN yarn build
 
 
@@ -27,8 +18,7 @@ RUN apk add --no-cache --repository http://nl.alpinelinux.org/alpine/edge/main l
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY startup.sh /startup.sh
-COPY --from=backend_builder /app /apps/backend
-COPY --from=frontend_builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app /app
 
 
 CMD ["/bin/sh", "startup.sh"]

@@ -6,7 +6,7 @@ echo "flagsmith env key : $FLAGSMITH_ENVIROMENT_KEY"
 
 nginx -g 'daemon off;' &
 # Start the first process
-node ./backend/src/index.js &
+node /app/apps/backend/src/index.js &
 
 
 # Start the second process

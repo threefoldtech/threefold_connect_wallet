@@ -26,8 +26,10 @@
                 Cancel
             </button>
             <button
+                :disabled="walletNameError"
+                :class="walletNameError ? 'bg-gray-200' : 'bg-button-colored'"
                 type="button"
-                class="bg-button-colored inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white hover:bg-blue-200"
+                class="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white hover:bg-blue-200"
                 @click="acceptDialog"
             >
                 Change
@@ -41,7 +43,7 @@
     import { ref, watch } from 'vue';
     import { validateWalletName } from '@/util/validate';
 
-    const emit = defineEmits(['close', 'confirmed', 'update:newWalletName']);
+    const emit = defineEmits(['close', 'confirm', 'update:newWalletName']);
 
     interface IProps {
         walletName: string;
@@ -61,6 +63,6 @@
     };
 
     const acceptDialog = () => {
-        emit('confirmed', newWalletName.value);
+        emit('confirm', newWalletName.value);
     };
 </script>

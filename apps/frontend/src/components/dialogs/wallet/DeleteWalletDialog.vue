@@ -30,7 +30,7 @@
 <script lang="ts" setup>
     import Modal from '@/components/Modal.vue';
 
-    const emit = defineEmits(['close', 'confirmed']);
+    const emit = defineEmits(['close', 'confirm']);
 
     interface IProps {
         walletName: string;
@@ -43,6 +43,6 @@
     };
 
     const acceptDialog = () => {
-        emit('confirmed');
+        emit('confirm');
     };
 </script>

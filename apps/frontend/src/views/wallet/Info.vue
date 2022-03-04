@@ -74,7 +74,7 @@
         v-if="showEditWalletName"
         :walletName="wallet?.name"
         @close="showEditWalletName = false"
-        @confirmed="changeWalletName"
+        @confirm="changeWalletName"
     ></ChangeWalletNameDialog>
 
     <DeleteWalletDialog
@@ -84,7 +84,7 @@
         :walletName="wallet.name"
     ></DeleteWalletDialog>
 
-    <div class="break-words p-2">
+    <div class="p-4">
         <div class="mt-2 flex">
             <button
                 :disabled="wallet.meta.type === PkidWalletTypes.Native"
@@ -118,14 +118,12 @@
     import { validateWalletName } from '@/util/validate';
     import DeleteWalletDialog from '@/components/dialogs/wallet/DeleteWalletDialog.vue';
 
-    const showDeleteWalletConfirmation = ref(false);
     const wallet: Wallet = <Wallet>inject('wallet');
 
     const showEditWalletName = ref<boolean>(false);
     const walletName = ref<string>(wallet?.name);
 
     const showDeleteWalletDialog = ref<boolean>(false);
-
     const newWalletName = ref<string>(wallet?.name);
 
     const test = computed(async () => {
@@ -158,7 +156,8 @@
     };
 
     const deleteWallet = () => {
-        addNotification(NotificationType.error, 'not implemented yet', undefined, 2000);
+        showDeleteWalletDialog.value = false;
+        addNotification(NotificationType.info, 'This feature is not implemented yet', undefined, 2000);
     };
 
     const testSend = () => {

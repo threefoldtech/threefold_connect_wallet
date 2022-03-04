@@ -5,16 +5,7 @@
         </template>
 
         <template #content>
-            <div class="pb-2">Please enter the new desired name</div>
-            <input
-                v-model="newWalletName"
-                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                name="name"
-                type="text"
-            />
-            <div class="pt-1 text-xs text-red-500">
-                {{ walletNameError }}
-            </div>
+            <div>Are you sure you want to delete {{ walletName }}</div>
         </template>
 
         <template #actions>
@@ -30,7 +21,7 @@
                 class="bg-button-colored inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white hover:bg-blue-200"
                 @click="acceptDialog"
             >
-                Change
+                Delete
             </button>
         </template>
     </Modal>
@@ -38,10 +29,8 @@
 
 <script lang="ts" setup>
     import Modal from '@/components/Modal.vue';
-    import { ref, watch } from 'vue';
-    import { validateWalletName } from '@/util/validate';
 
-    const emit = defineEmits(['close', 'confirmed', 'update:newWalletName']);
+    const emit = defineEmits(['close', 'confirmed']);
 
     interface IProps {
         walletName: string;
@@ -49,18 +38,11 @@
 
     const { walletName } = defineProps<IProps>();
 
-    const walletNameError = ref<string | null>(null);
-    const newWalletName = ref<string>(walletName);
-
-    watch(newWalletName, newValue => {
-        walletNameError.value = validateWalletName(newValue, walletName);
-    });
-
     const closeDialog = () => {
         emit('close');
     };
 
     const acceptDialog = () => {
-        emit('confirmed', newWalletName.value);
+        emit('confirmed');
     };
 </script>

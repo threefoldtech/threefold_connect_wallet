@@ -77,37 +77,28 @@
         @confirmed="changeWalletName"
     ></ChangeWalletNameDialog>
 
+    <DeleteWalletDialog
+        v-if="showDeleteWalletDialog"
+        @close="showDeleteWalletDialog = false"
+        @confirm="deleteWallet"
+        :walletName="wallet.name"
+    ></DeleteWalletDialog>
+
     <div class="break-words p-2">
         <div class="mt-2 flex">
             <button
-                v-if="!showDeleteWalletConfirmation"
                 :disabled="wallet.meta.type === PkidWalletTypes.Native"
                 class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-500 focus:disabled:ring-0"
                 type="button"
-                @click="showDeleteWalletConfirmation = true"
+                @click="showDeleteWalletDialog = true"
             >
                 <TrashIcon aria-hidden="true" class="-ml-1 mr-2 h-5 w-5" />
                 Delete
             </button>
-            <button
-                v-if="showDeleteWalletConfirmation"
-                class="inline-flex items-center rounded-md border border-transparent bg-red-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-700 focus:ring-offset-2"
-                type="button"
-                @click="deleteWallet"
-            >
-                I agree to delete my wallet
-            </button>
-            <button
-                v-if="showDeleteWalletConfirmation"
-                class="inline-flex flex-1 items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                type="button"
-                @click="showDeleteWalletConfirmation = false"
-            >
-                Cancel
-            </button>
         </div>
 
-        <div class="mt-2">
+        <!--      @TODO: still needed? -->
+        <div class="mt-2 hidden">
             <button class="rounded-md bg-blue-200 px-4 py-2" @click="testSend">test</button>
         </div>
     </div>
@@ -125,12 +116,15 @@
     import EditTextField from '@/components/misc/EditTextField.vue';
     import ChangeWalletNameDialog from '@/components/dialogs/wallet/ChangeWalletNameDialog.vue';
     import { validateWalletName } from '@/util/validate';
+    import DeleteWalletDialog from '@/components/dialogs/wallet/DeleteWalletDialog.vue';
 
     const showDeleteWalletConfirmation = ref(false);
     const wallet: Wallet = <Wallet>inject('wallet');
 
     const showEditWalletName = ref<boolean>(false);
     const walletName = ref<string>(wallet?.name);
+
+    const showDeleteWalletDialog = ref<boolean>(false);
 
     const newWalletName = ref<string>(wallet?.name);
 
@@ -168,7 +162,6 @@
     };
 
     const testSend = () => {
-        console.log(wallet);
         sendTokens(wallet.keyPair.getSubstrateKeyring(), '5DiwPcPzCmj3i4TFFUtXfb4wUk8h5YapMuz6qnqzDL914EbL');
     };
 </script>

@@ -8,10 +8,11 @@ import { ref } from 'vue';
 import { crypto_sign_keypair } from 'libsodium-wrappers';
 import { parseBCInt } from '@/util/farm';
 import { useLocalStorage } from '@vueuse/core';
+import { SubstrateFarmDto } from '@/types/substrate.types';
 
 export const v2Farms = ref<Farm[]>([]);
 export const v3Farms = ref(<Farm[]>[]);
-export const allStellarPayoutAddresses = ref<any>([]);
+export const allStellarPayoutAddresses = ref<StellarPayoutResponse[]>([]);
 export const v3SpecialFarms = ref<any>([]);
 export const v3PortalFarms = ref<any>([]);
 export const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
@@ -29,20 +30,18 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
 
         const allV3Farms = allFarms.value.filter((farm: { twin_id: Number }) => toNumber(farm.twin_id) === twinId);
 
-        // const farmIds = JSON.parse(JSON.stringify(allV3Farms.map((farm: BCFarm) => toNumber(farm.id))));
-
         for (const farm of allV3Farms) {
             const allNodes = bcNodes
                 //@ts-ignore
-                .filter(([, node]) => node.toJSON().farm_id === farm?.toJSON()?.id);
+                .filter(([, node]) => node.toJSON().farm_id === farm.id);
 
             const f: Farm = {
-                name: farm?.toHuman()?.name,
+                name: farm.name,
                 wallet_id: v3Wallet.keyPair.getBasePublicKey(),
                 v3: true,
                 wallet: v3Wallet,
-                farmId: farm?.toJSON()?.id,
-                twinId: farm?.toJSON()?.twin_id,
+                farmId: farm.id,
+                twinId: farm.twin_id,
                 nodes: allNodes.map(([, node]) => {
                     return node.toHuman();
                 }),
@@ -100,7 +99,7 @@ export const getAllStellarPayoutAddresses = async () => {
         ([storageKey, farm]) => {
             return {
                 farmId: <number>storageKey.args?.[0].toJSON() || -1,
-                stellarAddress: farm.toHuman(),
+                stellarAddress: <string>farm.toHuman(),
             };
         }
     );
@@ -109,11 +108,12 @@ export const getAllStellarPayoutAddresses = async () => {
 
     v3SpecialFarms.value = allStellarPayoutAddresses.value
         .filter((address: StellarPayoutResponse) => myStellarAddresses.includes(address.stellarAddress))
-        .filter((address: StellarPayoutResponse) => !v3FarmIds.includes(address.farmId));
+        .filter((address: StellarPayoutResponse) => !v3FarmIds.includes(toNumber(address.farmId)));
 
+    console.log(v3SpecialFarms.value);
     for (const v3PortalFarm of v3SpecialFarms.value) {
-        const foundFarm = allFarms.value.find((f: any) => {
-            return toNumber(parseBCInt(f.toHuman().id.toString())) === toNumber(v3PortalFarm.farmId.toString());
+        const foundFarm = allFarms.value.find((f: SubstrateFarmDto) => {
+            return f.id === toNumber(v3PortalFarm.farmId.toString());
         });
 
         if (!foundFarm) {
@@ -134,12 +134,12 @@ export const getAllStellarPayoutAddresses = async () => {
             .filter(([, node]) => node.toJSON().farm_id === v3PortalFarm.farmId);
 
         const f: Farm = {
-            name: foundFarm.toHuman().name,
+            name: foundFarm.name,
             wallet_id: v3Wallet.keyPair.getBasePublicKey(),
             v3: true,
             wallet: v3Wallet,
-            farmId: v3PortalFarm.farmId.toString(),
-            twinId: foundFarm.twin_id.toString(),
+            farmId: v3PortalFarm.farmId,
+            twinId: foundFarm.twin_id,
             nodes: allNodes.map(([, node]) => {
                 return node.toHuman();
             }),

@@ -203,6 +203,7 @@
     import { fetchFarms, v2Farms } from '@/service/farmService';
     import { onBeforeMount } from '@vue/runtime-core';
     import { toNumber } from 'lodash';
+    import { SubstrateFarmDto } from '@/types/substrate.types';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
@@ -216,7 +217,7 @@
     const termsAndConditionsIsAccepted = ref<boolean>(false);
     const termsAndConditions = ref<any[]>([]);
 
-    const farms = ref<any>([]);
+    const farms = ref<SubstrateFarmDto[]>([]);
     const newTwinId = ref();
 
     const emit = defineEmits(['close']);
@@ -451,12 +452,10 @@
                 throw new Error('Timeout');
             }
             i++;
-            //@ts-ignore
 
             farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === newTwinId.value);
 
-            //@ts-ignore
-            const myFarm = farms.value.find(farm => farm.toHuman().name === farmName);
+            const myFarm = farms.value.find((farm: SubstrateFarmDto) => farm.name === farmName);
 
             if (myFarm) {
                 break;
@@ -464,9 +463,11 @@
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-        //@ts-ignore
-        const myFarm = farms.value.find(farm => farm.toHuman().name === farmName);
+        const myFarm = farms.value.find(farm => farm.name === farmName);
 
+        if (!myFarm) {
+            throw new Error('Farm not found, should not happen here');
+        }
         loadingSubtitle.value = 'Adding stellar payout address';
 
         const submittableExtrinsic1 = api.tx.tfgridModule.addStellarPayoutV2address(

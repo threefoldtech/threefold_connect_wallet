@@ -29,6 +29,7 @@ import {
 } from '@heroicons/vue/outline';
 import flagsmith from 'flagsmith';
 import { NavItem } from '@/types';
+import { RenderFunction } from 'vue';
 
 interface Route extends _RouteRecordBase {
     component?: RouteComponent | (() => Promise<RouteComponent>);
@@ -40,7 +41,7 @@ interface Route extends _RouteRecordBase {
     };
 }
 
-const farmerOnly = true; //@todo: remove this for wallet
+const farmerOnly = import.meta.env.VITE_ENABLE_FARMERS ?? true; //@todo: remove this for wallet
 
 export const routes: Route[] = [
     {
@@ -77,8 +78,8 @@ export const routes: Route[] = [
         ],
         meta: {
             bottomNav: [
-                { name: 'devLogs', icon: TableIcon },
-                { name: 'devActions', icon: BeakerIcon },
+                { name: 'devLogs', icon: <RenderFunction>TableIcon },
+                { name: 'devActions', icon: <RenderFunction>BeakerIcon },
             ],
         },
     },
@@ -131,12 +132,14 @@ export const routes: Route[] = [
         ],
         meta: {
             bottomNav: () => [
-                { name: 'walletOverview', icon: CashIcon },
+                { name: 'walletOverview', icon: <RenderFunction>CashIcon },
                 ...(flagsmith.hasFeature('transactionOverview')
-                    ? [{ name: 'walletTransactions', icon: SwitchHorizontalIcon }]
+                    ? [{ name: 'walletTransactions', icon: <RenderFunction>SwitchHorizontalIcon }]
                     : []),
-                { name: 'walletInfo', icon: InformationCircleIcon },
-                ...(flagsmith.hasFeature('vesting') ? [{ name: 'walletVesting', icon: TrendingUpIcon }] : []),
+                { name: 'walletInfo', icon: <RenderFunction>InformationCircleIcon },
+                ...(flagsmith.hasFeature('vesting')
+                    ? [{ name: 'walletVesting', icon: <RenderFunction>TrendingUpIcon }]
+                    : []),
             ],
         },
     },

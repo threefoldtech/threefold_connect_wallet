@@ -2,14 +2,14 @@ import types from '@/lib/substrateTypes';
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { ref } from 'vue';
-import { AssetBalance, Wallet } from '@/service/walletService';
+import { AssetBalance } from '@/service/walletService';
 import { IKeyringPair } from '@polkadot/types/types/interfaces';
 import { bin2String } from '@/util/crypto';
 import flagsmith from 'flagsmith';
-import { BCFarm } from '@/types/farms.types';
 import axios from 'axios';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { ISubmittableResult } from '@polkadot/types/types';
+import { SubstrateFarmDto } from '@/types/substrate.types';
 
 const apiCache = ref<Promise<ApiPromise>>();
 
@@ -25,7 +25,7 @@ export const getSubstrateApi = async (): Promise<ApiPromise> => {
 export const getSubstrateAssetBalances = async (publicKey: string): Promise<AssetBalance[]> => {
     const api = await getSubstrateApi();
 
-    const { data: balances } = await api.query.system.account(publicKey);
+    const { data: balances }: any = await api.query.system.account(publicKey);
     const balance = balances.free.toJSON() / 1e7;
 
     const assetBalance: AssetBalance = {
@@ -74,19 +74,24 @@ export const getUsersTermsAndConditions = async (
         return newTerm;
     });
 };
-export const allFarms = ref<any>([]);
+
+export const allFarms = ref<SubstrateFarmDto[]>([]);
 export const allFarmNames = ref<string[]>([]);
 
 export const fetchAllFarms = async () => {
     const api = await getSubstrateApi();
-    allFarms.value = (await api.query.tfgridModule.farms.entries()).map(([, farm]) => farm);
-    allFarmNames.value = allFarms.value.map((farm: any) => farm.toHuman().name.toLowerCase());
+    const farmEntries = await api.query.tfgridModule.farms.entries();
+    const farms = farmEntries.map(([, farm]) => {
+        const newFarm = JSON.parse(JSON.stringify(farm));
+        newFarm.name = bin2String((<any>farm)?.name);
+        return <SubstrateFarmDto>newFarm;
+    });
+    allFarms.value = farms;
+    allFarmNames.value = farms.map(farm => farm.name);
 };
 
 export const activationServiceForSubstrate = async (id: string) => {
-    const headers = {
-        'Content-Type': 'application/json',
-    };
+    const headers = { 'Content-Type': 'application/json' };
 
     const url = `${flagsmith.getValue('tfchain_activation_base_url')}/activation/activate`;
     const data = { substrateAccountID: id };

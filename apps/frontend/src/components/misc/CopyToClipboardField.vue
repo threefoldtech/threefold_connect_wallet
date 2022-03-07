@@ -21,7 +21,7 @@
                 type="text"
                 name="fieldText"
                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                :class="showSensitive ? 'pr-12' : ''"
+                :class="[showSensitive ? 'pr-12' : '', disabled ? 'border-none pl-0  shadow-none' : '']"
                 placeholder="Search..."
                 autocomplete="off"
                 :disabled="disabled"
@@ -63,6 +63,7 @@
         // @TODO: find a better solution for this
         // Developer mode doesn't use Flutter Webview so a copy won't work. This is a temporary fix
         if (isDev) {
+          console.log(navigator.clipboard)
             navigator.clipboard.writeText(fieldText);
             console.log('Copied');
             return addNotification(NotificationType.info, 'Text has been copied to clipboard', fieldText, 2000);

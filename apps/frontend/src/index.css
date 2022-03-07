@@ -24,3 +24,8 @@ body,
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
 }
+
+
+.bg-button-colored {
+    @apply bg-blue-600
+}

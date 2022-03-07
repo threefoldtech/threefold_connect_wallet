@@ -30,6 +30,7 @@ import {
 import flagsmith from 'flagsmith';
 import { NavItem } from '@/types';
 import axios from 'axios';
+import { RenderFunction } from 'vue';
 
 interface Route extends _RouteRecordBase {
     component?: RouteComponent | (() => Promise<RouteComponent>);
@@ -78,8 +79,8 @@ export const routes: Route[] = [
         ],
         meta: {
             bottomNav: [
-                { name: 'devLogs', icon: TableIcon },
-                { name: 'devActions', icon: BeakerIcon },
+                { name: 'devLogs', icon: <RenderFunction>TableIcon },
+                { name: 'devActions', icon: <RenderFunction>BeakerIcon },
             ],
         },
     },
@@ -132,12 +133,14 @@ export const routes: Route[] = [
         ],
         meta: {
             bottomNav: () => [
-                { name: 'walletOverview', icon: CashIcon },
+                { name: 'walletOverview', icon: <RenderFunction>CashIcon },
                 ...(flagsmith.hasFeature('transactionOverview')
-                    ? [{ name: 'walletTransactions', icon: SwitchHorizontalIcon }]
+                    ? [{ name: 'walletTransactions', icon: <RenderFunction>SwitchHorizontalIcon }]
                     : []),
-                { name: 'walletInfo', icon: InformationCircleIcon },
-                ...(flagsmith.hasFeature('vesting') ? [{ name: 'walletVesting', icon: TrendingUpIcon }] : []),
+                { name: 'walletInfo', icon: <RenderFunction>InformationCircleIcon },
+                ...(flagsmith.hasFeature('vesting')
+                    ? [{ name: 'walletVesting', icon: <RenderFunction>TrendingUpIcon }]
+                    : []),
             ],
         },
     },

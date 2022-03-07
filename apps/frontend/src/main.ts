@@ -1,6 +1,8 @@
 import process from 'process';
 import { Buffer } from 'buffer';
 
+import '@polkadot/api-augment'; //see: https://github.com/polkadot-js/api/releases/tag/v7.0.1
+
 window.Buffer = Buffer;
 window.process = process;
 

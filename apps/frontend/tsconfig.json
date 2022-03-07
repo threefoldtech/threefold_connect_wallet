@@ -12,7 +12,10 @@
         "esModuleInterop": true,
         "baseUrl": "./",
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["src/*"],
+            "sample-polkadotjs-typegen/*": ["src/*"],
+            "@polkadot/api/augment": ["src/interfaces/augment-api.ts"],
+            "@polkadot/types/augment": ["src/interfaces/augment-types.ts"]
         },
         "lib": ["esnext", "dom"]
     },

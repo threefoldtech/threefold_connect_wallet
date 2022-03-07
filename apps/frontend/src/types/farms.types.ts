@@ -5,8 +5,8 @@ export interface Farm {
     wallet_id?: string; // wallet.keyPair.getBasePublicKey()
     v3: boolean;
     wallet: Wallet;
-    twinId?: string;
-    farmId?: string;
+    twinId?: number;
+    farmId?: number;
 
     // @TODO: make type for nodes
     nodes?: any;
@@ -23,6 +23,6 @@ export interface BCFarm {
 }
 
 export interface StellarPayoutResponse {
-    farmId: string;
+    farmId: number;
     stellarAddress: string;
 }

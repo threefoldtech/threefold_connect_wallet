@@ -41,7 +41,7 @@ interface Route extends _RouteRecordBase {
     };
 }
 
-const farmerOnly = (await axios.get('/api/v1/env')).data.farmerOnly;
+const farmerOnly = import.meta.env.VITE_ENABLE_FARMERS ?? (await axios.get('/api/v1/env')).data.farmerOnly;
 
 export const routes: Route[] = [
     {

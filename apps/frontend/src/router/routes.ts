@@ -29,6 +29,7 @@ import {
 } from '@heroicons/vue/outline';
 import flagsmith from 'flagsmith';
 import { NavItem } from '@/types';
+import axios from 'axios';
 import { RenderFunction } from 'vue';
 
 interface Route extends _RouteRecordBase {
@@ -41,7 +42,7 @@ interface Route extends _RouteRecordBase {
     };
 }
 
-const farmerOnly = import.meta.env.VITE_ENABLE_FARMERS ?? true; //@todo: remove this for wallet
+const farmerOnly = import.meta.env.VITE_ENABLE_FARMERS ?? (await axios.get('/api/v1/env')).data.farmerOnly ?? false;
 
 export const routes: Route[] = [
     {

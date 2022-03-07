@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link href="/favicon.ico" rel="icon" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>Wallet</title>
+    </head>
+    <body>
+        <div id="app" class=""></div>
+        <!-- Hacky workaround to make crypto/bip39 and other libraries work with vite/rollup. -->
+        <script>
+            window.global = window;
+        </script>
+
+        <script type="module">
+            import process from 'process';
+            import { Buffer } from 'buffer';
+
+            window.Buffer = Buffer;
+            window.process = process;
+        </script>
+        <!-- End of hack -->
+        <script src="./src/main.ts" type="module"></script>
+    </body>
+</html>

@@ -3,7 +3,7 @@
         <div class="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
             <div class="pr-16 sm:px-16 sm:text-center">
                 <p class="font-medium text-white">
-                    <span class="md:inline">Transaction history for tfchain comming soon </span>
+                    <span class="md:inline">Transaction history for tfchain coming soon </span>
                 </p>
             </div>
         </div>
@@ -101,7 +101,7 @@
 
     const assets = computed(() => {
         const values = balance.value?.assets.map(a => a.name).filter(a => allowedAssets.indexOf(a) !== -1) || [];
-        return ['All', ...values];
+        return ['All', ...values].filter((v, i, a) => a.indexOf(v) === i); // @todo: enable chains per asset
     });
     const selectedAsset = ref(assets.value.find(a => a === route.params?.assetCode) || assets.value[0]);
 

@@ -128,7 +128,7 @@
             </div>
         </div>
 
-        <div class="mx-4 mt-4">
+        <div class="mx-4 mt-4" v-if="selectedChain === 'stellar'">
             <label class="block text-sm font-medium text-gray-700" for="message">Message</label>
             <div class="relative mt-1 rounded-md shadow-sm">
                 <input

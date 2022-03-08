@@ -19,6 +19,7 @@ import Receive from '@/views/transfer/Receive.vue';
 import NoWalletsScreen from '@/views/NoWalletsScreen.vue';
 import FirstWalletInit from '@/views/FirstWalletInit.vue';
 import ConfirmSend from '@/views/transfer/ConfirmSend.vue';
+import Bridge from '@/views/transfer/Bridge.vue';
 import {
     BeakerIcon,
     CashIcon,
@@ -42,8 +43,10 @@ interface Route extends _RouteRecordBase {
     };
 }
 
-const farmerOnly =
-    import.meta.env.VITE_ENABLE_FARMERS === '1' || (await axios.get('/api/v1/env')).data.farmerOnly || false;
+const viteEnableFarmers = import.meta.env.VITE_ENABLE_FARMERS;
+
+//@ts-ignore
+const farmerOnly = parseInt(viteEnableFarmers) ?? (await axios.get('/api/v1/env')).data.farmerOnly ?? 0;
 
 export const routes: Route[] = [
     {
@@ -166,12 +169,17 @@ export const routes: Route[] = [
                 name: 'confirmSend',
                 component: ConfirmSend,
             },
+            {
+                path: 'bridge/:basePublicKey',
+                name: 'bridge',
+                component: Bridge,
+            },
         ],
     },
     {
         path: '/init',
         name: 'init',
-        component: farmerOnly ? FarmerInit : Init,
+        component: farmerOnly === 1 ? FarmerInit : Init,
         props: true,
     },
     {

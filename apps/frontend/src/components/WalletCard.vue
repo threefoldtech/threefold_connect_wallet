@@ -17,7 +17,10 @@
                 class="flex justify-between"
             >
                 <span>
-                    {{ assetBalance.name }} <small class="text-gray-400">{{ assetBalance.type }}</small>
+                    {{ assetBalance.name }}
+                    <small class="text-gray-400">{{
+                        assetBalance.type === 'substrate' ? 'tfchain' : assetBalance.type
+                    }}</small>
                 </span>
                 {{
                     assetBalance.amount.toLocaleString(undefined, {

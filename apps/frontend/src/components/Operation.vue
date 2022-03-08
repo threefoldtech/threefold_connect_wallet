@@ -1,5 +1,5 @@
 <template>
-    <Dialog v-if="isOpen" as="div" open @close="isOpen = false">
+    <Dialog v-if="isOpen && false" as="div" open @close="isOpen = false">
         <div class="fixed inset-0 z-10 overflow-y-auto">
             <div class="h-screen w-full bg-blue-200">
                 <MainLayout>
@@ -22,12 +22,18 @@
     <div class="group py-2 text-sm tracking-tight" @click="isOpen = true">
         <div v-if="operation.type === 'payment'" class="flex items-center justify-between gap-4">
             <div
-                class="h-8 w-8 shrink-0 rounded-full"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
                 :class="{
                     'bg-green-600': operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
                     'bg-red-600': operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                 }"
-            ></div>
+            >
+                <ArrowUpIcon
+                    v-if="operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey()"
+                    class="h-5 w-5 text-white"
+                />
+                <ArrowDownIcon v-else class="h-5 w-5 text-white" />
+            </div>
             <div class="flex flex-1 flex-col overflow-hidden">
                 <div class="overflow-hidden overflow-ellipsis text-ellipsis">
                     {{
@@ -50,7 +56,9 @@
             </div>
         </div>
         <div v-else-if="operation.type === 'change_trust'" class="flex items-center justify-between gap-4">
-            <div class="h-8 w-8 shrink-0 rounded-full bg-blue-600"></div>
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600">
+                <LinkIcon class="h- w-5 text-white" />
+            </div>
             <div class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                 {{ operation.asset_code }} asset added
             </div>
@@ -65,7 +73,7 @@
 <script lang="ts" setup>
     import { Wallet } from '@/service/walletService';
     import { Dialog } from '@headlessui/vue';
-    import { XIcon } from '@heroicons/vue/outline';
+    import { XIcon, ArrowUpIcon, ArrowDownIcon, LinkIcon } from '@heroicons/vue/solid';
 
     import { ServerApi } from 'stellar-sdk';
     import OperationRecord = ServerApi.OperationRecord;

@@ -1,4 +1,13 @@
 <template>
+    <div class="relative bg-primary-600">
+        <div class="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
+            <div class="pr-16 sm:px-16 sm:text-center">
+                <p class="font-medium text-white">
+                    <span class="md:inline">Transaction history for tfchain comming soon </span>
+                </p>
+            </div>
+        </div>
+    </div>
     <div class="space-y-2 p-4">
         <div>
             <p>Filter by currency</p>

@@ -42,7 +42,8 @@ interface Route extends _RouteRecordBase {
     };
 }
 
-const farmerOnly = import.meta.env.VITE_ENABLE_FARMERS ?? (await axios.get('/api/v1/env')).data.farmerOnly ?? false;
+const farmerOnly =
+    import.meta.env.VITE_ENABLE_FARMERS === '1' || (await axios.get('/api/v1/env')).data.farmerOnly || false;
 
 export const routes: Route[] = [
     {

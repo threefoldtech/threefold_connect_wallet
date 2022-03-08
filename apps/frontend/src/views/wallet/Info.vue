@@ -1,4 +1,3 @@
-`
 <template>
     <div class="mt-2 px-4">
         <h2 class="font-bold text-black">Addresses</h2>
@@ -33,7 +32,7 @@
         <CopyToClipboardField
             :labelText="'Stellar Secret'"
             :disabled="true"
-            :fieldText="wallet?.keyPair.getSubstrateKeyring().address"
+            :fieldText="wallet?.keyPair.getStellarKeyPair().secret()"
             :isSensitiveData="true"
         >
             <template #icon>

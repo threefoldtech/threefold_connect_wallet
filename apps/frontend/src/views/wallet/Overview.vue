@@ -74,20 +74,44 @@
                 </template>
             </div>
         </div>
+        <div class="py-2" v-if="vestedAssetBalance.length >= 1 || vestedAssetBalanceIsLoading">
+            <h2>Vested Tokens</h2>
+            <div class="mt-4 space-y-2">
+                <template v-for="assetBalance in vestedAssetBalance">
+                    <BalanceCard :balance="assetBalance"> </BalanceCard>
+                </template>
+            </div>
+        </div>
+        <div v-if="vestedAssetBalanceIsLoading && vestedAssetBalance.length === 0">
+            <div class="text-center">
+                <p class="animate-pulse text-gray-600">Checking vested tokens...</p>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
     import BalanceCard from '@/components/BalanceCard.vue';
     import { useRouter } from 'vue-router';
-    import { Wallet } from '@/service/walletService';
-    import { inject } from 'vue';
+    import { AssetBalance, balances, Wallet } from '@/service/walletService';
+    import { inject, ref } from 'vue';
     import { useAssets } from '@/util/useAssets';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
-
+    import { checkVesting } from '@/service/vestingService';
+    import { useLocalStorage } from '@vueuse/core';
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
+    const vestedAssetBalance = useLocalStorage<AssetBalance[]>(
+        `vested_asset_balance_${wallet.keyPair.getBasePublicKey()}`,
+        []
+    );
+    const vestedAssetBalanceIsLoading = ref(true);
+
+    checkVesting(wallet).then(balances => {
+        vestedAssetBalance.value = balances;
+        vestedAssetBalanceIsLoading.value = false;
+    });
     const assets = useAssets(wallet);
 </script>
 

@@ -1,4 +1,4 @@
-name: farmer-production
+name: next-production
 
 on:
   push:

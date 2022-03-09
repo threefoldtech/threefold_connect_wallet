@@ -40,25 +40,38 @@ const useDynamicStellarBalance = (wallet: Wallet) => {
 
     init();
 
-    onBeforeUnmount(() => {
+    return () => {
         streams.forEach(closeHandler => closeHandler());
-    });
-};
-
-export const useDynamicSubstrateBalance = async (wallet: Wallet) => {
-    const assetBalances = await getSubstrateAssetBalances(wallet.keyPair.getSubstrateKeyring().address);
-    const balance: Balance = balances.value.find(value => value.id === wallet.keyPair.getBasePublicKey()) || {
-        id: wallet.keyPair.getBasePublicKey(),
-        assets: [],
     };
-
-    balance.assets = mergeAssets(...assetBalances, ...balance.assets);
-    const index = balances.value.findIndex(lb => lb.id === balance.id);
-
-    index === -1 ? balances.value.push(balance) : balances.value.splice(index, 1, balance);
 };
 
-export const useDynamicBalance = async (wallet: Wallet) => {
-    await useDynamicStellarBalance(wallet);
-    await useDynamicSubstrateBalance(wallet);
+const useDynamicSubstrateBalance = (wallet: Wallet) => {
+    const myInterval = setInterval(async () => {
+        const assetBalances = await getSubstrateAssetBalances(wallet.keyPair.getSubstrateKeyring().address);
+        const balance: Balance = balances.value.find(value => value.id === wallet.keyPair.getBasePublicKey()) || {
+            id: wallet.keyPair.getBasePublicKey(),
+            assets: [],
+        };
+
+        balance.assets = mergeAssets(...assetBalances, ...balance.assets);
+        const index = balances.value.findIndex(lb => lb.id === balance.id);
+
+        index === -1 ? balances.value.push(balance) : balances.value.splice(index, 1, balance);
+    }, 5000); //@todo: move to config
+
+    return () => {
+        clearInterval(myInterval);
+    };
+};
+
+export const useDynamicBalance = (wallet: Wallet) => {
+    const stellarCleanUp = useDynamicStellarBalance(wallet);
+    const substrateCleanUp = useDynamicSubstrateBalance(wallet);
+
+    return {
+        cleanUp: () => {
+            stellarCleanUp();
+            substrateCleanUp();
+        },
+    };
 };

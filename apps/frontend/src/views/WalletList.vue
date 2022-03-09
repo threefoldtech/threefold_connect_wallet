@@ -80,7 +80,7 @@
     import { SaveIcon, XIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/vue/outline';
     import { balances, Wallet, wallets } from '@/service/walletService';
     import { useRouter } from 'vue-router';
-    import { computed, ref } from 'vue';
+    import { computed, onBeforeUnmount, ref } from 'vue';
     import WalletCard from '../components/WalletCard.vue';
 
     import { getSubstrateAssetBalances } from '@/service/substrateService';
@@ -90,7 +90,12 @@
 
     const router = useRouter();
 
-    wallets.value.forEach((wallet: Wallet) => useDynamicBalance(wallet));
+    wallets.value.forEach((wallet: Wallet) => {
+        const { cleanUp } = useDynamicBalance(wallet);
+        onBeforeUnmount(() => {
+            cleanUp();
+        });
+    });
 
     wallets.value.forEach(async (wallet: Wallet) => {
         const assetBalances = await getSubstrateAssetBalances(wallet.keyPair.getSubstrateKeyring().address);

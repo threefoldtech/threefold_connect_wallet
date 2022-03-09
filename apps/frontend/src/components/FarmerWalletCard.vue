@@ -353,7 +353,7 @@
     } from '@headlessui/vue';
     import { DocumentAddIcon } from '@heroicons/vue/outline';
     import { ChevronUpIcon, PlusIcon, XIcon, ChevronDownIcon, InformationCircleIcon } from '@heroicons/vue/solid';
-    import { computed, ref, watch } from 'vue';
+    import { computed, onBeforeUnmount, ref, watch } from 'vue';
     import {
         allFarmNames,
         allFarms,
@@ -716,8 +716,11 @@
         }
 
         substrateBalance.value = await getSubstrateAssetBalances(address);
-        await useDynamicBalance(wallet);
+        const { cleanUp } = useDynamicBalance(wallet);
 
+        onBeforeUnmount(() => {
+            cleanUp();
+        });
         const api = await getSubstrateApi();
 
         termsAndConditions.value = await getUsersTermsAndConditions(address);

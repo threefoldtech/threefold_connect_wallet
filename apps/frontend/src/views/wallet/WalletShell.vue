@@ -18,7 +18,7 @@
 
 <script lang="ts" setup>
     import { Wallet, wallets } from '@/service/walletService';
-    import { computed, provide } from 'vue';
+    import { computed, onBeforeUnmount, provide } from 'vue';
     import { useRoute } from 'vue-router';
     import { ArrowLeftIcon } from '@heroicons/vue/outline';
 
@@ -36,7 +36,11 @@
 
     provide('wallet', wallet);
 
-    useDynamicBalance(wallet);
+    const { cleanUp } = useDynamicBalance(wallet);
+
+    onBeforeUnmount(() => {
+        cleanUp();
+    });
 </script>
 
 <style scoped></style>

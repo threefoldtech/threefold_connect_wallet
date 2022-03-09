@@ -65,7 +65,7 @@
 <script lang="ts" setup>
     import { Wallet, wallets } from '@/service/walletService';
     import { useRoute, useRouter } from 'vue-router';
-    import { computed, Ref, ref } from 'vue';
+    import { computed, onBeforeUnmount, Ref, ref } from 'vue';
     import { getSubstrateApi } from '@/service/substrateService';
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
@@ -142,7 +142,8 @@
             wallets.value.find(wallet => wallet.keyPair.getBasePublicKey() === basePublicKey)
         );
 
-        await useDynamicBalance(selectedWallet.value);
+        const { cleanUp } = useDynamicBalance(selectedWallet.value);
+        onBeforeUnmount(cleanUp);
         isLoading.value = false;
     };
 

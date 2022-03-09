@@ -92,9 +92,7 @@
 
     wallets.value.forEach((wallet: Wallet) => {
         const { cleanUp } = useDynamicBalance(wallet);
-        onBeforeUnmount(() => {
-            cleanUp();
-        });
+        onBeforeUnmount(cleanUp);
     });
 
     wallets.value.forEach(async (wallet: Wallet) => {

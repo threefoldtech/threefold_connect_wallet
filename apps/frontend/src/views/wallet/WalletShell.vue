@@ -38,9 +38,7 @@
 
     const { cleanUp } = useDynamicBalance(wallet);
 
-    onBeforeUnmount(() => {
-        cleanUp();
-    });
+    onBeforeUnmount(cleanUp);
 </script>
 
 <style scoped></style>

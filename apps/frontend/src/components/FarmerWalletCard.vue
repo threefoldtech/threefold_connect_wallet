@@ -718,9 +718,7 @@
         substrateBalance.value = await getSubstrateAssetBalances(address);
         const { cleanUp } = useDynamicBalance(wallet);
 
-        onBeforeUnmount(() => {
-            cleanUp();
-        });
+        onBeforeUnmount(cleanUp);
         const api = await getSubstrateApi();
 
         termsAndConditions.value = await getUsersTermsAndConditions(address);

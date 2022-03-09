@@ -41,7 +41,7 @@
             </div>
 
             <div class="mt-4 flex">
-                <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white" @click="submitBridge">
+                <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white" @click="bridgeTokens">
                     Confirm
                 </button>
             </div>
@@ -144,9 +144,22 @@
         selectedWallet.value = wallets.value.find(w => w.keyPair.getBasePublicKey() === route.params.walletId);
     });
 
-    const submitBridge = async () => {
+    const bridgeTokens = async () => {
         isLoadingTransaction.value = true;
 
+        try {
+            await submitBridge();
+        } catch (e) {
+            isLoadingTransaction.value = false;
+            addNotification(NotificationType.error, 'Failed to transfer tokens, please contact support', '', 5000);
+            console.error('Transaction failed');
+            console.error(e);
+
+            await router.back();
+        }
+    };
+
+    const submitBridge = async () => {
         if (!selectedWallet.value) return;
 
         const substrateAddressTo = selectedWallet.value.keyPair.getSubstrateKeyring().address;
@@ -186,7 +199,7 @@
 
                 if (res instanceof Error) {
                     console.error('Error in signAndSendCallback');
-                    return;
+                    throw new Error();
                 }
 
                 const { events = [], status } = res;

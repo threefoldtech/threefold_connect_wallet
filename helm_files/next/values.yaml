@@ -27,3 +27,4 @@ acme:
 
 secrets:
         FLAGSMITH_ENVIROMENT_KEY: S5j22oQHTzUk7y4khnBxda
+        FARMER_ONLY: 0

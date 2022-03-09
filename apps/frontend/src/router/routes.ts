@@ -45,8 +45,7 @@ interface Route extends _RouteRecordBase {
 
 const viteEnableFarmers = import.meta.env.VITE_ENABLE_FARMERS;
 
-//@ts-ignore
-const farmerOnly = parseInt(viteEnableFarmers) ?? parseInt((await axios.get('/api/v1/env')).data.farmerOnly) ?? 1;
+const farmerOnly = parseInt((await axios.get('/api/v1/env')).data.farmerOnly) ?? 1;
 
 export const routes: Route[] = [
     {

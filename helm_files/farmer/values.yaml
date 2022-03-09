@@ -26,5 +26,5 @@ acme:
         email: laudr1997@gmail.com
 
 secrets:
-        FLAGSMITH_ENVIROMENT_KEY: VGR7Kmd6qWqnYaZxXU7Gyw
-        FARMER_ONLY: 1
+        FLAGSMITH_ENVIROMENT_KEY: "VGR7Kmd6qWqnYaZxXU7Gyw"
+        FARMER_ONLY: "1"

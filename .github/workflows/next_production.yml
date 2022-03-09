@@ -3,7 +3,7 @@ name: farmer-production
 on:
   push:
     tags:
-      - "farmer-v[0-9]+.[0-9]+.[0-9]+"
+      - "next-v[0-9]+.[0-9]+.[0-9]+"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -33,4 +33,4 @@ jobs:
           echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
           cat ${HOME}/.kube/config
       - name: deploy to kubernetes
-        run: helm upgrade wallet-next helm_files -f helm_files/values.yaml --set image.tag=${{ github.sha }} --set secret.FLAGSMITH_ENVIROMENT_KEY=${{ secrets.FLAGSMITH_ENV_PRODUCTION}} --set secret.FARMER_ONLY=${{ secrets.FARMER_ONLY_PRODUCTION}} -n jimber
+        run: helm upgrade wallet-next helm_files -f helm_files/values.yaml --set image.tag=${{ github.sha }} --set secret.FLAGSMITH_ENVIROMENT_KEY=${{ secrets.FLAGSMITH_ENV_PRODUCTION_NEXT}} --set secret.FARMER_ONLY=0 -n jimber

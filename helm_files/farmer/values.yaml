@@ -1,0 +1,29 @@
+replicaCount: 1
+
+environment: prod
+
+image:
+        name: wallet-next
+        repo: threefoldjimber/wallet-next
+        tag: 19022765a78b7482f97ab15b4ab914835e1c7e02 
+        containerPort: 80
+
+service:
+        port: 80
+        targetPort: 80
+
+ingress:
+        hosts:
+                - name: farmer.threefold.me
+                  path: /
+                  service: wallet-farmer-prod
+                  port: 80
+
+
+                  
+
+acme:
+        email: laudr1997@gmail.com
+
+secrets:
+        FLAGSMITH_ENVIROMENT_KEY: "VGR7Kmd6qWqnYaZxXU7Gyw"

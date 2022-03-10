@@ -30,8 +30,8 @@
                                 'flex flex-1 items-center justify-center rounded-md border py-3 px-3 text-sm font-medium uppercase',
                             ]"
                         >
-                            <RadioGroupLabel as="p">
-                                {{ option === 'substrate' ? 'tfchain' : option }}
+                            <RadioGroupLabel as="p" class="capitalize">
+                                {{ option === 'substrate' ? 'TFchain' : option }}
                             </RadioGroupLabel>
                         </div>
                     </RadioGroupOption>

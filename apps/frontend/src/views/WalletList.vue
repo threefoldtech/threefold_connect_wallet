@@ -5,7 +5,7 @@
                 <template #before>
                     <XIcon v-if="showMove" class="text-orange-600" @click="showMove = false" />
                 </template>
-                <h1>wallets</h1>
+                <h1>Your wallets</h1>
                 <h2 v-if="showMove">moving</h2>
                 <template #after>
                     <SaveIcon v-if="showMove" class="text-green-600" @click="showMove = false" />

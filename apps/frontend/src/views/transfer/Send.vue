@@ -37,7 +37,7 @@
                                 ]"
                             >
                                 <RadioGroupLabel as="p">
-                                    {{ option === 'substrate' ? 'tfchain' : option }}
+                                    {{ option === 'substrate' ? 'TFchain' : option }}
                                 </RadioGroupLabel>
                             </div>
                         </RadioGroupOption>

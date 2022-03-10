@@ -3,7 +3,7 @@
         <div class="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
             <div class="pr-16 sm:px-16 sm:text-center">
                 <p class="font-medium text-white">
-                    <span class="md:inline">Transaction history for tfchain coming soon </span>
+                    <span class="md:inline">Transaction history for TFChain coming soon </span>
                 </p>
             </div>
         </div>

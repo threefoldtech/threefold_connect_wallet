@@ -15,7 +15,7 @@
     </div>
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'Tfchain Address'"
+            :labelText="'TFChain Address'"
             :disabled="true"
             :fieldText="wallet?.keyPair.getSubstrateKeyring().address"
         >
@@ -43,7 +43,7 @@
 
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'Tfchain secret'"
+            :labelText="'TFChain secret'"
             :disabled="true"
             :fieldText="`0x${wallet?.keyPair.getSeed()}`"
             :isSensitiveData="true"

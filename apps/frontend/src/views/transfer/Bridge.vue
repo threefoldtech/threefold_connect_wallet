@@ -76,8 +76,9 @@
     import { useAssets } from '@/util/useAssets';
     import flagsmith from 'flagsmith';
     import { userInitialized } from '@/service/cryptoService';
-    import { createEntitySign, getEntity, getEntityIDByName } from '@/service/entityService';
+    import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/service/entityService';
     import { bridgeToSubstrate } from '@/service/stellarService';
+    import { nanoid } from 'nanoid';
 
     const selectedWallet = ref<Wallet>() as Ref<Wallet>;
 
@@ -161,18 +162,15 @@
         // await activationServiceForSubstrate(substrateAddressTo);
 
         const substrateKeyRing = selectedWallet.value.keyPair.getSubstrateKeyring();
-        const name = userInitialized.value;
 
-        if (!name) return;
-
-        console.info('Getting entityId for user ', name);
-        let entityId = await getEntityIDByName(api, name);
+        let entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
 
         if (entityId == 0) {
             console.info("Can't find entity, creating one");
 
             const country = 'Unknown';
             const city = 'Unknown';
+            const name = nanoid(8);
 
             const signature = createEntitySign(substrateKeyRing, name, country, city);
             console.info('Signature: ', signature);

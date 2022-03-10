@@ -110,7 +110,6 @@
     import { TrashIcon, PencilIcon, ClipboardCopyIcon, XIcon } from '@heroicons/vue/solid';
     import { PkidWalletTypes } from '@/service/initializationService';
     import { addNotification, NotificationType } from '@/service/notificationService';
-    import { sendTokens } from '@/service/substrateService';
     import CopyToClipboardField from '@/components/misc/CopyToClipboardField.vue';
     import EditTextField from '@/components/misc/EditTextField.vue';
     import ChangeWalletNameDialog from '@/components/dialogs/wallet/ChangeWalletNameDialog.vue';
@@ -157,10 +156,6 @@
     const deleteWallet = () => {
         showDeleteWalletDialog.value = false;
         addNotification(NotificationType.info, 'Not Possible at This Time', undefined, 2000);
-    };
-
-    const testSend = () => {
-        sendTokens(wallet.keyPair.getSubstrateKeyring(), '5DiwPcPzCmj3i4TFFUtXfb4wUk8h5YapMuz6qnqzDL914EbL');
     };
 </script>
 

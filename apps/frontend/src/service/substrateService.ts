@@ -36,11 +36,11 @@ export const getSubstrateAssetBalances = async (publicKey: string): Promise<Asse
     return [assetBalance];
 };
 
-export const sendTokens = async (keyring: IKeyringPair, address: string) => {
+export const sendSubstrateTokens = async (keyring: IKeyringPair, address: string, amount: number) => {
     const api = await getSubstrateApi();
 
-    const submittableExtrinsic = api.tx.balances.transfer(address, 1);
-    await submitExtrensic(submittableExtrinsic, keyring);
+    const submittableExtrinsic = api.tx.balances.transfer(address, amount * 1e7);
+    return await submitExtrensic(submittableExtrinsic, keyring);
 };
 export const hex2a = (hex: string) => {
     let str = '';

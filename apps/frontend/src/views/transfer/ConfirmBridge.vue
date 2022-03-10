@@ -5,13 +5,13 @@
                 <template #before>
                     <ArrowLeftIcon @click="router.back()" />
                 </template>
-                <h1>ConfirmSend</h1>
+                <h1>Confirm transaction</h1>
             </PageHeader>
         </template>
-
         <div class="p-4">
-            <h1 class="font-bold">Confirm your transaction</h1>
-            <div v-if="chainName === ChainTypes.SUBSTRATE">
+            <div class="mt-4 break-words">
+                <h1 class="font-bold">Confirm your transaction</h1>
+
                 <div class="mt-4">
                     <div class="flex flex-row justify-between">
                         <p class="text-2xl">
@@ -25,52 +25,23 @@
 
                     <p class="mt-10 text-sm font-semibold">Pay with</p>
                     <p class="mb-2 truncate text-gray-500">
-                        {{ fromWallet.keyPair.getSubstrateKeyring().address }}
+                        {{ selectedWallet.keyPair.getStellarKeyPair().publicKey() }}
                     </p>
                     <hr />
                     <p class="mt-2 text-sm font-semibold">To</p>
                     <p class="mb-2 truncate text-gray-500">
-                        {{ toAddress }}
+                        {{ selectedWallet.keyPair.getSubstrateKeyring().address }}
                     </p>
 
                     <hr />
                     <p class="mt-2 text-sm font-semibold">Fee</p>
-                    <p class="truncate text-gray-500">{{ fee }} {{ asset }}</p>
+                    <!--              @TODO: make dynamic-->
+                    <p class="truncate text-gray-500">1 TFT</p>
                 </div>
             </div>
-
-            <div v-else-if="chainName === ChainTypes.STELLAR">
-                <div class="mt-4">
-                    <div class="flex flex-row justify-between">
-                        <p class="text-2xl">
-                            {{ amount.toFixed(2) }}
-                        </p>
-                        <div>
-                            <AssetIcon class="h-2" name="TFT" />
-                        </div>
-                    </div>
-                    <div>Threefold Token (TFT)</div>
-
-                    <p class="mt-10 text-sm font-semibold">Pay with</p>
-                    <p class="mb-2 truncate text-gray-500">
-                        {{ fromWallet.keyPair.getStellarKeyPair().publicKey() }}
-                    </p>
-                    <hr />
-                    <p class="mt-2 text-sm font-semibold">To</p>
-                    <p class="mb-2 truncate text-gray-500">
-                        {{ toAddress }}
-                    </p>
-
-                    <hr />
-                    <p class="mt-2 text-sm font-semibold">Fee</p>
-                    <p class="truncate text-gray-500">{{ fee }} {{ asset }}</p>
-                </div>
-            </div>
-
-            <div v-else>Chain not found</div>
 
             <div class="mt-4 flex">
-                <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white" @click="sendTransaction">
+                <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white" @click="bridgeTokens">
                     Confirm
                 </button>
             </div>
@@ -149,78 +120,118 @@
     import ArrowLeftIcon from '@heroicons/vue/outline/ArrowLeftIcon';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRoute, useRouter } from 'vue-router';
-    import flagsmith from 'flagsmith';
-    import { wallets } from '@/service/walletService';
-    import { ChainTypes } from '@/enums/chains.enums';
-    import { buildFundedPaymentTransaction, submitFundedTransaction } from '@jimber/stellar-crypto';
-    import AssetIcon from '@/components/AssetIcon.vue';
-    import { sendSubstrateTokens } from '@/service/substrateService';
-    import { addNotification, NotificationType } from '@/service/notificationService';
+    import { Wallet, wallets } from '@/service/walletService';
     import { ref } from 'vue';
+    import { activationServiceForSubstrate, getSubstrateApi } from '@/service/substrateService';
+    import { userInitialized } from '@/service/cryptoService';
+    import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/service/entityService';
+    import { bridgeToSubstrate } from '@/service/stellarService';
+    import { addNotification, NotificationType } from '@/service/notificationService';
+    import { toNumber } from 'lodash';
+    import { onBeforeMount } from '@vue/runtime-core';
+    import AssetIcon from '@/components/AssetIcon.vue';
 
     const router = useRouter();
-    const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
-
     const route = useRoute();
 
+    const selectedWallet = ref<Wallet>();
+    const amount = toNumber(route.params.amount);
+    console.log(amount);
     const isLoadingTransaction = ref<boolean>(false);
     const loadingSubtitle = ref<string>('');
 
-    const fromWallet = wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === route.params.from);
-    const toAddress = <string>route.params.to;
-    const amount = Number(route.params.amount);
-    const asset = <string>route.params.asset;
-    const fee = Number(<string>flagsmith.getValue('fee-amount'));
-    const chainName = route.params.chainName;
+    onBeforeMount(() => {
+        selectedWallet.value = wallets.value.find(w => w.keyPair.getBasePublicKey() === route.params.walletId);
+    });
 
-    const sendStellarTokens = async () => {
-        if (!fromWallet || !toAddress || !amount || !asset) return router.push({ name: 'error' });
-
+    const bridgeTokens = async () => {
         isLoadingTransaction.value = true;
-        loadingSubtitle.value = 'Sending tokens';
 
         try {
-            const fundedTransaction = await buildFundedPaymentTransaction(
-                fromWallet.keyPair.getStellarKeyPair(),
-                toAddress,
-                amount,
-                undefined,
-                asset
-            );
-
-            await submitFundedTransaction(fundedTransaction, fromWallet.keyPair.getStellarKeyPair());
-            await router.push({ name: 'walletList' });
+            await submitBridge();
         } catch (e) {
+            isLoadingTransaction.value = false;
+            addNotification(NotificationType.error, 'Failed to transfer tokens, please contact support', '', 5000);
+            console.error('Transaction failed');
+            console.error(e);
+
             await router.back();
-            addNotification(NotificationType.error, 'Failed to transfer tokens');
         }
     };
 
-    const sendSubstrate = async () => {
-        if (!fromWallet) {
-            return;
+    const submitBridge = async () => {
+        if (!selectedWallet.value) return;
+
+        const substrateAddressTo = selectedWallet.value.keyPair.getSubstrateKeyring().address;
+        const api = await getSubstrateApi();
+
+        loadingSubtitle.value = 'Using activation service';
+        console.info('Using activation service for substrate');
+        await activationServiceForSubstrate(substrateAddressTo);
+
+        const substrateKeyRing = selectedWallet.value.keyPair.getSubstrateKeyring();
+        const name = userInitialized.value;
+
+        if (!name) return;
+
+        loadingSubtitle.value = 'Getting entity ID';
+        console.info('Getting entityId for user ', name);
+        let entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
+
+        if (entityId == 0) {
+            loadingSubtitle.value = 'Entity not found, creating one';
+            console.info("Can't find entity, creating one");
+
+            const country = 'Unknown';
+            const city = 'Unknown';
+
+            const signature = createEntitySign(substrateKeyRing, name, country, city);
+            console.info('Signature: ', signature);
+
+            const entity = await api.tx.tfgridModule.createEntity(substrateAddressTo, name, country, city, signature);
+            const nonce = await api.rpc.system.accountNextIndex(substrateAddressTo);
+            console.info('Created entity: ', entity.toHuman());
+            console.info('Created nonce: ', nonce.toHuman);
+
+            const signAndSendCallback = async (res: any) => {
+                loadingSubtitle.value = 'Transacting the funds';
+                console.info('Callback from signAndSend.');
+
+                if (res instanceof Error) {
+                    console.error('Error in signAndSendCallback');
+                    throw new Error();
+                }
+
+                const { events = [], status } = res;
+                console.info(`Current status is ${status.type}`);
+
+                if (status.isFinalized) {
+                    loadingSubtitle.value = 'Transaction done';
+                    console.info(`Transaction included at blockHash ${status.asFinalized}`);
+
+                    // @ts-ignore
+                    events.forEach(({ phase, event: { data, method, section } }) => {
+                        console.info(`\t' ${phase}: ${section}.${method}:: ${data}`);
+                    });
+
+                    entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
+                    console.log('We found entityId: ', entityId);
+
+                    const entity = await getEntity(api, entityId);
+                }
+            };
+
+            await entity.signAndSend(substrateKeyRing, { nonce }, signAndSendCallback);
         }
 
-        isLoadingTransaction.value = true;
-        loadingSubtitle.value = 'Sending tokens';
+        await bridgeToSubstrate(amount, selectedWallet.value.keyPair.getStellarKeyPair(), entityId);
+        loadingSubtitle.value = 'Finishing up';
+        isLoadingTransaction.value = false;
 
-        try {
-            await sendSubstrateTokens(fromWallet.keyPair.getSubstrateKeyring(), toAddress, amount);
-            await router.push({ name: 'walletList' });
-            addNotification(NotificationType.success, 'Successfully transferred tokens');
-        } catch (e) {
-            await router.back();
-            addNotification(NotificationType.error, 'Failed to transfer tokens');
-        }
-    };
+        addNotification(NotificationType.success, 'Successfully transferred tokens', '', 5000);
+        console.log('Transaction done');
 
-    const sendTransaction = async () => {
-        if (chainName === ChainTypes.STELLAR) {
-            await sendStellarTokens();
-        }
-        if (chainName === ChainTypes.SUBSTRATE) {
-            await sendSubstrate();
-        }
+        await router.back();
     };
 </script>
 

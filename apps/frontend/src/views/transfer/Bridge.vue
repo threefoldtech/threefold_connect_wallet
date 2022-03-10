@@ -8,7 +8,7 @@
                 <h1>Transfer to TFChain</h1>
             </PageHeader>
         </template>
-        <div class="flex h-full flex-col justify-between p-4 pb-8" v-if="!isLoading">
+        <div class="flex h-full flex-col p-4 pb-8" v-if="!isLoading">
             <div>
                 <div class="mb-2 border-2 border-gray-200 p-4">
                     <div class="text-2xl font-semibold">Stellar tokens</div>
@@ -16,13 +16,21 @@
                 </div>
                 <div class="flex w-full items-center justify-center">
                     <ArrowDownIcon class="h-6 text-primary-500"></ArrowDownIcon>
+                    <ArrowDownIcon class="h-6 text-primary-500"></ArrowDownIcon>
                 </div>
                 <div class="mt-2 border-2 border-gray-200 p-4">
                     <div class="text-2xl font-semibold">TFChain tokens</div>
                     <div class="text-lg text-gray-500">{{ substrateBalance }} TFT</div>
                 </div>
                 <div class="mt-8">
-                    <label class="block text-sm font-medium text-gray-700" for="amount">Amount</label>
+                    <label class="block text-sm font-medium text-gray-700" for="amount">
+                        <div class="pr-3">
+                            <span class="pr-2">Amount</span>
+                            <span class="text-xs text-gray-400" @click="amount = stellarBalance"
+                                >( {{ stellarBalance }})</span
+                            >
+                        </div>
+                    </label>
                     <div class="relative mt-1 rounded-md shadow-sm">
                         <input
                             id="amount"
@@ -47,9 +55,9 @@
                 </div>
             </div>
 
-            <div>
+            <div class="pt-4">
                 <button
-                    @click="submitBridge"
+                    @click="goToConfirmBridge"
                     class="bg-button-colored mt-4 w-full rounded-md py-2 px-4 text-lg font-semibold text-white"
                 >
                     Transfer
@@ -66,7 +74,6 @@
     import { Wallet, wallets } from '@/service/walletService';
     import { useRoute, useRouter } from 'vue-router';
     import { computed, onBeforeUnmount, Ref, ref } from 'vue';
-    import { getSubstrateApi } from '@/service/substrateService';
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { ArrowLeftIcon, ArrowDownIcon } from '@heroicons/vue/solid';
@@ -75,10 +82,10 @@
     import { useDynamicBalance } from '@/util/useDynamicBalance';
     import { useAssets } from '@/util/useAssets';
     import flagsmith from 'flagsmith';
-    import { userInitialized } from '@/service/cryptoService';
     import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/service/entityService';
     import { bridgeToSubstrate } from '@/service/stellarService';
     import { nanoid } from 'nanoid';
+    import { getSubstrateApi } from '@/service/substrateService';
 
     const selectedWallet = ref<Wallet>() as Ref<Wallet>;
 
@@ -117,6 +124,20 @@
         }
 
         amount.value = newAmount;
+    };
+
+    const goToConfirmBridge = async () => {
+        // Check if given amount is valid
+        await isValidAmount(amount.value);
+        if (errorAmountText.value != null) return;
+
+        await router.replace({
+            name: 'confirmBridge',
+            params: {
+                walletId: selectedWallet.value?.keyPair.getBasePublicKey(),
+                amount: Number(amount.value),
+            },
+        });
     };
 
     const stellarBalance = computed(() => {
@@ -199,7 +220,7 @@
                         console.info(`\t' ${phase}: ${section}.${method}:: ${data}`);
                     });
 
-                    entityId = await getEntityIDByName(api, name);
+                    entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
                     console.log('We found entityId: ', entityId);
 
                     const entity = await getEntity(api, entityId);

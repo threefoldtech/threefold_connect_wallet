@@ -19,6 +19,7 @@ import Receive from '@/views/transfer/Receive.vue';
 import NoWalletsScreen from '@/views/NoWalletsScreen.vue';
 import FirstWalletInit from '@/views/FirstWalletInit.vue';
 import ConfirmSend from '@/views/transfer/ConfirmSend.vue';
+import ConfirmBridge from '@/views/transfer/ConfirmBridge.vue';
 import Bridge from '@/views/transfer/Bridge.vue';
 import {
     BeakerIcon,
@@ -167,6 +168,11 @@ export const routes: Route[] = [
                 path: 'confirm/send/:from/:to/:amount/:asset',
                 name: 'confirmSend',
                 component: ConfirmSend,
+            },
+            {
+                path: 'confirm/bridge/:walletId/:amount',
+                name: 'confirmBridge',
+                component: ConfirmBridge,
             },
             {
                 path: 'bridge/:basePublicKey',

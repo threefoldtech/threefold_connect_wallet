@@ -5,5 +5,5 @@ export type SubstrateFarmDto = {
     pricing_policy_id: number;
     public_ips: any[];
     twin_id: number;
-    version: 1;
+    version: number;
 };

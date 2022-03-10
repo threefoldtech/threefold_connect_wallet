@@ -1,5 +1,5 @@
 import { Wallet, wallets } from '@/service/walletService';
-import { allFarms, fetchAllFarms, getSubstrateApi, getTwinId } from '@/service/substrateService';
+import { allFarms, fetchAllFarms, getSubstrateApi, getTwinId, twinIds } from '@/service/substrateService';
 import toNumber from 'lodash/toNumber';
 import { BCFarm, Farm, StellarPayoutResponse } from '@/types/farms.types';
 import { useDynamicBalance } from '@/util/useDynamicBalance';
@@ -9,6 +9,7 @@ import { crypto_sign_keypair } from 'libsodium-wrappers';
 import { parseBCInt } from '@/util/farm';
 import { useLocalStorage } from '@vueuse/core';
 import { SubstrateFarmDto } from '@/types/substrate.types';
+import flagsmith from 'flagsmith';
 
 export const v2Farms = ref<Farm[]>([]);
 export const v3Farms = ref(<Farm[]>[]);
@@ -19,7 +20,7 @@ export const showInformationDialog = useLocalStorage('landingFarmInformationDial
 
 const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
     const api = await getSubstrateApi();
-    const bcNodes = await api.query.tfgridModule.nodes.entries();
+    // const bcNodes = await api.query.tfgridModule.nodes.entries();
 
     for (const v3Wallet of v3Wallets) {
         const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
@@ -31,9 +32,9 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
         const allV3Farms = allFarms.value.filter((farm: { twin_id: Number }) => toNumber(farm.twin_id) === twinId);
 
         for (const farm of allV3Farms) {
-            const allNodes = bcNodes
-                //@ts-ignore
-                .filter(([, node]) => node.toJSON().farm_id === farm.id);
+            // const allNodes = bcNodes
+            //     //@ts-ignore
+            //     .filter(([, node]) => node.toJSON().farm_id === farm.id);
 
             const f: Farm = {
                 name: farm.name,
@@ -42,9 +43,7 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
                 wallet: v3Wallet,
                 farmId: farm.id,
                 twinId: farm.twin_id,
-                nodes: allNodes.map(([, node]) => {
-                    return node.toHuman();
-                }),
+                nodes: [],
             };
 
             const index = v3Farms.value.findIndex((farm: any) => farm.farmId === f.farmId);
@@ -110,14 +109,35 @@ export const getAllStellarPayoutAddresses = async () => {
         .filter((address: StellarPayoutResponse) => myStellarAddresses.includes(address.stellarAddress))
         .filter((address: StellarPayoutResponse) => !v3FarmIds.includes(toNumber(address.farmId)));
 
-    console.log(v3SpecialFarms.value);
+    const query = `query farmQuery($stellarAddresses: [String!]) {
+  farms(where: {stellarAddress_in: $stellarAddresses}) {
+    name
+    twin_id: twinId
+    public_ips: publicIPs {
+      ip
+    }
+    pricing_policy_id: pricingPolicyId
+    id: farmId
+    certification_type: certificationType
+    version
+  }
+}
+`;
+    const response = await axios.post(<string>flagsmith.getValue('tfchain_graphql_endpoint'), {
+        query,
+        variables: {
+            stellarAddresses: myStellarAddresses,
+        },
+    });
+
+    const tempSpecialFarms = response?.data?.data?.farms ?? [];
+
     for (const v3PortalFarm of v3SpecialFarms.value) {
-        const foundFarm = allFarms.value.find((f: SubstrateFarmDto) => {
+        const foundFarm = tempSpecialFarms.find((f: SubstrateFarmDto) => {
             return f.id === toNumber(v3PortalFarm.farmId.toString());
         });
 
         if (!foundFarm) {
-            console.log('Couldnt find farm', v3PortalFarm);
             continue;
         }
 
@@ -151,6 +171,19 @@ export const getAllStellarPayoutAddresses = async () => {
 };
 
 export const fetchFarms = async () => {
+    //get all twinIds
+    const api = await getSubstrateApi();
+    // const bcNodes = await api.query.tfgridModule.nodes.entries();
+
+    for (const v3Wallet of wallets.value) {
+        const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
+        const twinId = await getTwinId(substrateAddress);
+        if (twinId === 0) {
+            continue; // can't have farm without twin id
+        }
+        twinIds.value.add(twinId);
+    }
+
     await fetchAllFarms();
     await checkV3FarmsForWallets(wallets.value);
     await getAllStellarPayoutAddresses();

@@ -77,17 +77,49 @@ export const getUsersTermsAndConditions = async (
 
 export const allFarms = ref<SubstrateFarmDto[]>([]);
 export const allFarmNames = ref<string[]>([]);
+export const twinIds = ref<Set<number>>(new Set());
 
 export const fetchAllFarms = async () => {
-    const api = await getSubstrateApi();
-    const farmEntries = await api.query.tfgridModule.farms.entries();
-    const farms = farmEntries.map(([, farm]) => {
-        const newFarm = JSON.parse(JSON.stringify(farm));
-        newFarm.name = bin2String((<any>farm)?.name);
-        return <SubstrateFarmDto>newFarm;
+    // const api = await getSubstrateApi();
+    // const farmEntries = await api.query.tfgridModule.farms.entries();
+
+    const query = `query farmQuery($twinIds: [Int!]) {
+  farms(where: {twinId_in: $twinIds}) {
+    name
+    twin_id: twinId
+    public_ips: publicIPs {
+      ip
+    }
+    pricing_policy_id: pricingPolicyId
+    id: farmId
+    certification_type: certificationType
+    version
+  }
+}
+`;
+    const ids = [...twinIds.value.values()];
+    console.log('ids', ids);
+    const response = await axios.post(<string>flagsmith.getValue('tfchain_graphql_endpoint'), {
+        query,
+        variables: {
+            twinIds: ids,
+        },
     });
+
+    const farms = response?.data?.data?.farms.map((farm: any) => {
+        const newFarm = JSON.parse(JSON.stringify(farm));
+        newFarm.public_ips = farm.public_ips.map((ip: any) => ip.ip);
+        return newFarm;
+    });
+
+    console.log({ farms });
+    // const farms = farmEntries.map(([, farm]) => {
+    //     const newFarm = JSON.parse(JSON.stringify(farm));
+    //     newFarm.name = bin2String((<any>farm)?.name);
+    //     return <SubstrateFarmDto>newFarm;
+    // });
     allFarms.value = farms;
-    allFarmNames.value = farms.map(farm => farm.name);
+    // allFarmNames.value = farms.map(farm => farm.name);
 };
 
 export const activationServiceForSubstrate = async (id: string) => {

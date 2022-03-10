@@ -3,14 +3,14 @@
         <div class="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
             <div class="pr-16 sm:px-16 sm:text-center">
                 <p class="font-medium text-white">
-                    <span class="md:inline">Transaction history for tfchain coming soon </span>
+                    <span class="md:inline">Transaction History for TFChain Coming Soon </span>
                 </p>
             </div>
         </div>
     </div>
     <div class="space-y-2 p-4">
         <div>
-            <p>Filter by currency</p>
+            <p>Filter by Currency</p>
             <Listbox v-model="selectedAsset">
                 <div class="relative mt-1">
                     <ListboxButton

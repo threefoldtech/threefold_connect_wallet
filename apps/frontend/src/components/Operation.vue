@@ -60,13 +60,13 @@
                 <LinkIcon class="h- w-5 text-white" />
             </div>
             <div class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                {{ operation.asset_code }} asset added
+                {{ operation.asset_code }} Asset Added
             </div>
             <div>
                 {{ formatTime(operation.created_at) }}
             </div>
         </div>
-        <div class="shrink-0" v-else-if="operation.type === 'create_account'">account created</div>
+        <div class="shrink-0" v-else-if="operation.type === 'create_account'">Account CSreated</div>
     </div>
 </template>
 

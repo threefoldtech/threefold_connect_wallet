@@ -380,12 +380,12 @@
             return;
         }
 
-        addNotification(NotificationType.success, 'Farm creation successful');
+        addNotification(NotificationType.success, 'Farm Creation Successful');
     };
 
     const addTwin = async () => {
         isLoading.value = true;
-        loadingSubtitle.value = 'Creating twin';
+        loadingSubtitle.value = 'Creating Twin';
 
         const api = await getSubstrateApi();
         const submittableExtrinsic = api.tx.tfgridModule.createTwin('127.0.0.1');
@@ -523,7 +523,7 @@
             } catch (e) {
                 isLoading.value = false;
                 emit('close');
-                addNotification(NotificationType.error, 'Failed', 'Failed signing terms and conditions');
+                addNotification(NotificationType.error, 'Failed', 'Failed Signing Terms Snd Conditions');
                 console.error(e);
             }
         }

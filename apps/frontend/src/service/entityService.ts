@@ -2,8 +2,8 @@ import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { hex2a } from '@/service/substrateService';
 
-export const getEntityIDByName = async (api: ApiPromise, name: string) => {
-    const entity = await api.query.tfgridModule.entityIdByName(name);
+export const getEntityIDByAccountId = async (api: ApiPromise, accountId: string) => {
+    const entity = await api.query.tfgridModule.entityIdByAccountID(accountId);
     return entity.toJSON();
 };
 

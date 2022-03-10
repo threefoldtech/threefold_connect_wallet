@@ -82,6 +82,10 @@
     import { useDynamicBalance } from '@/util/useDynamicBalance';
     import { useAssets } from '@/util/useAssets';
     import flagsmith from 'flagsmith';
+    import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/service/entityService';
+    import { bridgeToSubstrate } from '@/service/stellarService';
+    import { nanoid } from 'nanoid';
+    import { getSubstrateApi } from '@/service/substrateService';
 
     const selectedWallet = ref<Wallet>() as Ref<Wallet>;
 
@@ -163,6 +167,72 @@
         const { cleanUp } = useDynamicBalance(selectedWallet.value);
         onBeforeUnmount(cleanUp);
         isLoading.value = false;
+    };
+
+    const submitBridge = async () => {
+        if (!selectedWallet.value.keyPair) return;
+
+        // Check if given amount is valid
+        await isValidAmount(amount.value);
+        if (errorAmountText.value != null) return;
+
+        const substrateAddressTo = selectedWallet.value?.keyPair.getSubstrateKeyring().address;
+        const api = await getSubstrateApi();
+
+        console.info('Using activation service for substrate');
+        // await activationServiceForSubstrate(substrateAddressTo);
+
+        const substrateKeyRing = selectedWallet.value.keyPair.getSubstrateKeyring();
+
+        let entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
+
+        if (entityId == 0) {
+            console.info("Can't find entity, creating one");
+
+            const country = 'Unknown';
+            const city = 'Unknown';
+            const name = nanoid(8);
+
+            const signature = createEntitySign(substrateKeyRing, name, country, city);
+            console.info('Signature: ', signature);
+
+            const entity = await api.tx.tfgridModule.createEntity(substrateAddressTo, name, country, city, signature);
+            const nonce = await api.rpc.system.accountNextIndex(substrateAddressTo);
+            console.info('Created entity: ', entity.toHuman());
+            console.info('Created nonce: ', nonce.toHuman);
+
+            const signAndSendCallback = async (res: any) => {
+                console.info('Callback from signAndSend.');
+
+                if (res instanceof Error) {
+                    console.error('Error in signAndSendCallback');
+                    return;
+                }
+
+                const { events = [], status } = res;
+                console.info(`Current status is ${status.type}`);
+
+                if (status.isFinalized) {
+                    console.info(`Transaction included at blockHash ${status.asFinalized}`);
+
+                    // @ts-ignore
+                    events.forEach(({ phase, event: { data, method, section } }) => {
+                        console.info(`\t' ${phase}: ${section}.${method}:: ${data}`);
+                    });
+
+                    entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
+                    console.log('We found entityId: ', entityId);
+
+                    const entity = await getEntity(api, entityId);
+                }
+            };
+
+            await entity.signAndSend(substrateKeyRing, { nonce }, signAndSendCallback);
+        }
+
+        await bridgeToSubstrate(amount.value, selectedWallet.value.keyPair.getStellarKeyPair(), entityId);
+
+        console.log('Transaction done');
     };
 
     init();

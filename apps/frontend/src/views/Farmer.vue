@@ -120,8 +120,6 @@
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import flagsmith from 'flagsmith';
     import { computed, onBeforeUnmount, ref } from 'vue';
-    import { fetchAllFarms } from '@/service/substrateService';
-    import { usePromise } from '@/util/usePromise';
     import axios from 'axios';
     import FarmCard from '@/components/FarmCard.vue';
     import { Farm } from '@/types/farms.types';

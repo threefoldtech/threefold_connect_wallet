@@ -76,7 +76,6 @@ export const getUsersTermsAndConditions = async (
 };
 
 export const allFarms = ref<SubstrateFarmDto[]>([]);
-export const allFarmNames = ref<string[]>([]);
 export const twinIds = ref<Set<number>>(new Set());
 
 export const fetchAllFarms = async () => {
@@ -111,7 +110,6 @@ export const fetchAllFarms = async () => {
         newFarm.public_ips = farm.public_ips.map((ip: any) => ip.ip);
         return newFarm;
     });
-
     console.log({ farms });
     // const farms = farmEntries.map(([, farm]) => {
     //     const newFarm = JSON.parse(JSON.stringify(farm));
@@ -119,7 +117,6 @@ export const fetchAllFarms = async () => {
     //     return <SubstrateFarmDto>newFarm;
     // });
     allFarms.value = farms;
-    // allFarmNames.value = farms.map(farm => farm.name);
 };
 
 export const activationServiceForSubstrate = async (id: string) => {
@@ -160,4 +157,12 @@ export const submitExtrensic = async (submittableExtrinsic: SubmittableExtrinsic
     });
 
     return await promise;
+};
+
+export const doesFarmExistByName = async (name: string): Promise<boolean> => {
+    const api = await getSubstrateApi();
+    const farm = await api.query.tfgridModule.farmIdByName(name);
+
+    const readableFarm = farm.toJSON();
+    return readableFarm != 0;
 };

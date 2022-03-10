@@ -32,9 +32,7 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
         const allV3Farms = allFarms.value.filter((farm: { twin_id: Number }) => toNumber(farm.twin_id) === twinId);
 
         for (const farm of allV3Farms) {
-            // const allNodes = bcNodes
-            //     //@ts-ignore
-            //     .filter(([, node]) => node.toJSON().farm_id === farm.id);
+            const allNodes = await getNodesByFarmId(farm.id);
 
             const f: Farm = {
                 name: farm.name,
@@ -43,7 +41,7 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
                 wallet: v3Wallet,
                 farmId: farm.id,
                 twinId: farm.twin_id,
-                nodes: [],
+                nodes: allNodes,
             };
 
             const index = v3Farms.value.findIndex((farm: any) => farm.farmId === f.farmId);
@@ -88,10 +86,25 @@ const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
     }
 };
 
+export const getNodesByFarmId = async (farmId: number) => {
+    const query = `query MyQuery($farmId_eq: Int = ${farmId}) {
+  nodes(where: {farmId_eq: $farmId_eq}) {
+    nodeId
+  }
+}
+`;
+    const response = await axios.post(<string>flagsmith.getValue('tfchain_graphql_endpoint'), {
+        query,
+        variables: {
+            farmId: farmId,
+        },
+    });
+
+    return response?.data?.data?.nodes ?? [];
+};
+
 export const getAllStellarPayoutAddresses = async () => {
     const api = await getSubstrateApi();
-
-    const bcNodes = await api.query.tfgridModule.nodes.entries();
     const myStellarAddresses = wallets.value.map(wallet => wallet.keyPair.getStellarKeyPair().publicKey());
 
     allStellarPayoutAddresses.value = (await api.query.tfgridModule.farmPayoutV2AddressByFarmID.entries()).map(
@@ -149,9 +162,7 @@ export const getAllStellarPayoutAddresses = async () => {
             continue;
         }
 
-        const allNodes = bcNodes
-            //@ts-ignore
-            .filter(([, node]) => node.toJSON().farm_id === v3PortalFarm.farmId);
+        const allNodes = await getNodesByFarmId(v3PortalFarm.farmId);
 
         const f: Farm = {
             name: foundFarm.name,
@@ -160,9 +171,7 @@ export const getAllStellarPayoutAddresses = async () => {
             wallet: v3Wallet,
             farmId: v3PortalFarm.farmId,
             twinId: foundFarm.twin_id,
-            nodes: allNodes.map(([, node]) => {
-                return node.toHuman();
-            }),
+            nodes: allNodes,
         };
 
         const index = v3PortalFarms.value.findIndex((farm: any) => farm.name === f.name);
@@ -171,10 +180,6 @@ export const getAllStellarPayoutAddresses = async () => {
 };
 
 export const fetchFarms = async () => {
-    //get all twinIds
-    const api = await getSubstrateApi();
-    // const bcNodes = await api.query.tfgridModule.nodes.entries();
-
     for (const v3Wallet of wallets.value) {
         const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
         const twinId = await getTwinId(substrateAddress);

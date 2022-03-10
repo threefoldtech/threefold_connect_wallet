@@ -189,8 +189,8 @@
     import { ref, watch } from 'vue';
     import {
         activationServiceForSubstrate,
-        allFarmNames,
         allFarms,
+        doesFarmExistByName,
         getSubstrateApi,
         getSubstrateAssetBalances,
         getTwinId,
@@ -250,7 +250,7 @@
     };
 
     const validateFarmName = async (value: string, myStellarAddress: string) => {
-        value = value.toLowerCase();
+        value = value.toLowerCase().trim();
         if (migrationFarm) {
             farmFormErrors.value = {}; //tem
             return;
@@ -296,7 +296,8 @@
         }
 
         // if name found in all farms show error
-        if (allFarmNames.value.includes(value)) {
+        const doesFarmNameExist = await doesFarmExistByName(value);
+        if (doesFarmNameExist) {
             farmFormErrors.value = {
                 ...farmFormErrors.value,
 

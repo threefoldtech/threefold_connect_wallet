@@ -1,7 +1,7 @@
-import { allFarmNames } from '@/service/substrateService';
 import axios from 'axios';
 import { Wallet } from '@/service/walletService';
 import { Farm } from '@/types/farms.types';
+import { doesFarmExistByName } from '@/service/substrateService';
 
 export const validateFarmName = async (farmName: any, stellarAddress: string, wallet: Wallet, v2farms: Farm[]) => {
     const wasFound = v2farms.find(farm => farm.name === farmName);
@@ -26,8 +26,8 @@ export const validateFarmName = async (farmName: any, stellarAddress: string, wa
         return 'Farm name must be less than 50 characters';
     }
 
-    // Check if the given farm name is already in the allFarms object
-    if (allFarmNames.value.includes(farmName)) {
+    const doesFarmNameExist = await doesFarmExistByName(farmName);
+    if (doesFarmNameExist) {
         return 'This name is already taken';
     }
 

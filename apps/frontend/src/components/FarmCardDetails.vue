@@ -64,7 +64,7 @@
             <div v-for="node in farm?.nodes">
                 <div class="flex flex-row justify-between whitespace-normal text-sm text-gray-500">
                     <div>Connected node id:</div>
-                    <div>{{ node.id }}</div>
+                    <div>{{ node.nodeId }}</div>
                 </div>
             </div>
         </div>

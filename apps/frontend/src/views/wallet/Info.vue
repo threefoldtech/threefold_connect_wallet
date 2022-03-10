@@ -4,7 +4,7 @@
     </div>
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'Stellar Address'"
+            :labelText="'Stellar address'"
             :disabled="true"
             :fieldText="wallet?.keyPair.getStellarKeyPair().publicKey()"
         >
@@ -15,7 +15,7 @@
     </div>
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'TFChain Address'"
+            :labelText="'TFChain address'"
             :disabled="true"
             :fieldText="wallet?.keyPair.getSubstrateKeyring().address"
         >
@@ -30,7 +30,7 @@
     </div>
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'Stellar Secret'"
+            :labelText="'Stellar secret'"
             :disabled="true"
             :fieldText="wallet?.keyPair.getStellarKeyPair().secret()"
             :isSensitiveData="true"

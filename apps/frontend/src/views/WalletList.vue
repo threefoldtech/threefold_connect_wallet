@@ -5,7 +5,7 @@
                 <template #before>
                     <XIcon v-if="showMove" class="text-orange-600" @click="showMove = false" />
                 </template>
-                <h1>Your wallets</h1>
+                <h1>My wallets</h1>
                 <h2 v-if="showMove">moving</h2>
                 <template #after>
                     <SaveIcon v-if="showMove" class="text-green-600" @click="showMove = false" />
@@ -27,7 +27,7 @@
                 <FAB title="Import wallet" @click="router.push({ name: 'walletImport' })" />
             </div>
         </template>
-        <div v-if="!showMove" class="flex flex-col space-y-2 p-4">
+        <div v-if="!showMove" class="flex flex-col space-y-4 p-4">
             <WalletCard
                 v-for="wallet in sortedWallets"
                 v-touch:hold="enableMove"

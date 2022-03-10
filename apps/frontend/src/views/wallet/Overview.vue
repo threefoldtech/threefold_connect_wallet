@@ -66,7 +66,7 @@
                                     })
                                 "
                             >
-                                Transfer with stellar
+                                Transfer from Stellar
                                 <SwitchHorizontalIcon class="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
                             </button>
                         </template>

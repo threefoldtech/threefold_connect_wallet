@@ -26,7 +26,7 @@
                 >
                     <span>
                         {{ assetBalance.name }}
-                        <small class="text-gray-400">{{
+                        <small class="capitalize text-gray-400">{{
                             assetBalance.type === 'substrate' ? 'TFChain' : assetBalance.type
                         }}</small>
                     </span>

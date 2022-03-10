@@ -297,6 +297,7 @@
                 to: toAddress.value,
                 amount: Number(amount.value),
                 asset: selectedAsset.value.asset_code,
+                chainName: selectedChain.value,
             },
         });
     };

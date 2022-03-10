@@ -60,7 +60,7 @@ export const getStellarBalance = async (wallet: Wallet): Promise<AccountRecord> 
 };
 export const getOperations = async (wallet: Wallet, cursor?: string): Promise<CollectionPage<OperationRecord>> => {
     const server = getStellarClient();
-    const callBuilder = server.operations().forAccount(wallet.keyPair.getStellarKeyPair().publicKey());
+    const callBuilder = server.operations().forAccount(wallet.keyPair.getStellarKeyPair().publicKey()).limit(200);
     if (cursor) callBuilder.cursor(cursor);
 
     return await callBuilder.call();

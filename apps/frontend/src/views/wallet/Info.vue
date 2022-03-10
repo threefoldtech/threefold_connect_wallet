@@ -4,7 +4,7 @@
     </div>
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'Stellar address'"
+            :labelText="'Stellar Address'"
             :disabled="true"
             :fieldText="wallet?.keyPair.getStellarKeyPair().publicKey()"
         >
@@ -15,7 +15,7 @@
     </div>
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'TFChain address'"
+            :labelText="'TFChain Address'"
             :disabled="true"
             :fieldText="wallet?.keyPair.getSubstrateKeyring().address"
         >
@@ -30,7 +30,7 @@
     </div>
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'Stellar secret'"
+            :labelText="'Stellar Secret'"
             :disabled="true"
             :fieldText="wallet?.keyPair.getStellarKeyPair().secret()"
             :isSensitiveData="true"
@@ -43,7 +43,7 @@
 
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'TFChain secret'"
+            :labelText="'TFChain Secret'"
             :disabled="true"
             :fieldText="`0x${wallet?.keyPair.getSeed()}`"
             :isSensitiveData="true"
@@ -57,7 +57,7 @@
     <div class="mt-2 px-4">
         <EditTextField
             @clickOnField="showEditWalletName = true"
-            :labelText="'Wallet name'"
+            :labelText="'Wallet Name'"
             :disabled="true"
             :fieldText="wallet?.name"
             v-model:fieldText="walletName"
@@ -83,7 +83,7 @@
         :walletName="wallet.name"
     ></DeleteWalletDialog>
 
-    <div class="p-4">
+    <div class="p-4" v-if="wallet.meta.type === PkidWalletTypes.Native">
         <div class="mt-2 flex">
             <button
                 :disabled="wallet.meta.type === PkidWalletTypes.Native"
@@ -151,12 +151,12 @@
         saveWallets();
 
         showEditWalletName.value = false;
-        addNotification(NotificationType.success, `Successfully changed wallet name into ${wallet.name}`, '', 3000);
+        addNotification(NotificationType.success, `Successfully Changed Wallet Name Into ${wallet.name}`, '', 3000);
     };
 
     const deleteWallet = () => {
         showDeleteWalletDialog.value = false;
-        addNotification(NotificationType.info, 'This feature is not implemented yet', undefined, 2000);
+        addNotification(NotificationType.info, 'Not Possible at This Time', undefined, 2000);
     };
 
     const testSend = () => {

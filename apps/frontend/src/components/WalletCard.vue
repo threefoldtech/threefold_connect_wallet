@@ -6,7 +6,7 @@
                 <div class="flex animate-pulse justify-between text-transparent">
                     <span>
                         <small class="rounded-xl bg-slate-200 px-1">TFT</small>
-                        <small class="ml-2 rounded-xl bg-slate-200">tfchain</small>
+                        <small class="ml-2 rounded-xl bg-slate-200">TFChain</small>
                     </span>
                     <span class="rounded-xl bg-slate-200 px-1">100.12</span>
                 </div>
@@ -27,7 +27,7 @@
                     <span>
                         {{ assetBalance.name }}
                         <small class="text-gray-400">{{
-                            assetBalance.type === 'substrate' ? 'tfchain' : assetBalance.type
+                            assetBalance.type === 'substrate' ? 'TFChain' : assetBalance.type
                         }}</small>
                     </span>
                     {{

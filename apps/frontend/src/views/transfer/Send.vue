@@ -135,22 +135,22 @@
                             type="text"
                         />
                     </div>
-                    <!--<button
-                        class="-ml-px relative inline-flex items-center space-x-2 px-2 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                        type="button"
-                    >
-                        <UserIcon class="w-6 text-primary-600"></UserIcon>
-                    </button>-->
                 </div>
+                <div class="text-sm text-red-500" v-if="isValidToAddress === false">Please enter a valid address</div>
             </div>
             <div class="mt-4">
-                <label class="block text-sm font-medium text-gray-700" for="amount">Amount</label>
+                <div class="block text-sm">
+                    <span class="pr-2">Amount</span>
+                    <span class="text-xs text-gray-400" @click="setCorrectBalance"
+                        >({{ selectedBalanceWithoutFee }})</span
+                    >
+                </div>
                 <div class="relative mt-1 rounded-md shadow-sm">
                     <input
                         id="amount"
                         v-model="amount"
                         :disabled="relevantAssets.length <= 0"
-                        :placeholder="relevantAssets.length <= 0 ? 'no funds on this wallet' : '0.00'"
+                        :placeholder="relevantAssets.length <= 0 ? 'No funds available' : '0.00'"
                         class="block w-full rounded-md border-gray-300 pl-4 pr-20 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
                         name="amount"
                         type="number"
@@ -169,6 +169,7 @@
                         </select>
                     </div>
                 </div>
+                <div class="text-sm text-red-500" v-if="isValidAmount === false">Please enter a valid amount</div>
                 <div class="mt-4 flex space-x-4">
                     <button class="flex-1 rounded-md border border-gray-300 p-1" @click="setAmount(0.25)">25%</button>
                     <button class="flex-1 rounded-md border border-gray-300 p-1" @click="setAmount(0.5)">50%</button>
@@ -186,7 +187,7 @@
                     class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:hover:animate-wiggle"
                     @click="goToConfirm"
                 >
-                    send tokens
+                    Send Tokens
                 </button>
             </div>
         </div>
@@ -195,9 +196,9 @@
 
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
-    import { UserIcon, CheckIcon, SelectorIcon, ArrowLeftIcon, QrcodeIcon } from '@heroicons/vue/outline';
+    import { CheckIcon, SelectorIcon, ArrowLeftIcon, QrcodeIcon } from '@heroicons/vue/outline';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import { useRoute, useRouter } from 'vue-router';
+    import { useRouter } from 'vue-router';
     import {
         Listbox,
         ListboxButton,
@@ -212,6 +213,9 @@
     import flagsmith from 'flagsmith';
     import { AssetBalance, Balance, balances, Wallet, wallets } from '@/service/walletService';
     import uniq from 'lodash/uniq';
+    import { validateStellarAddress, validateSubstrateAddress, validateWalletAddress } from '@/util/validate';
+    import { ChainTypes } from '@/enums/chains.enums';
+    import { toNumber } from 'lodash';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string };
@@ -238,6 +242,18 @@
     const selectedBalance = computed(() =>
         balances.value.find(t => t.id === selectedWallet?.value?.keyPair.getBasePublicKey())
     );
+
+    const selectedAssetBalance = computed(
+        () =>
+            selectedBalance.value?.assets.find(
+                a => a.name === selectedAsset.value.asset_code && a.type === selectedAsset.value.type
+            )?.amount
+    );
+
+    const setCorrectBalance = () => {
+        if (selectedBalanceWithoutFee.value == 0) return;
+        amount.value = selectedBalanceWithoutFee.value;
+    };
 
     const selectedChain = ref('stellar');
 
@@ -269,27 +285,57 @@
     });
 
     const toAddress = ref(to);
-    const amount = ref(initialAmount);
+    const amount = ref<Number>(toNumber(initialAmount));
     const fee = Number(flagsmith.getValue('fee-amount'));
+    const isValidToAddress = ref<boolean>();
+    const isValidAmount = ref<boolean>();
 
     const setAmount = (multiplier: number) => {
-        console.log(Number());
         const assetBalance = selectedBalance.value?.assets.find(
             a => a.name === selectedAsset.value.asset_code && a.type === selectedAsset.value.type
         )?.amount;
 
         if (!assetBalance) return;
 
-        const availableBalanceWithoutfee = assetBalance - fee;
-        console.log(availableBalanceWithoutfee);
-        const newAmount = availableBalanceWithoutfee * multiplier;
+        const availableBalanceWithoutFee = assetBalance - fee;
+        const newAmount = availableBalanceWithoutFee * multiplier;
         if (newAmount <= 0) {
             return;
         }
         amount.value = newAmount;
     };
 
+    const validateAddress = () => {
+        if (selectedChain.value === ChainTypes.STELLAR) {
+            return (isValidToAddress.value = validateStellarAddress(toAddress.value));
+        }
+
+        if (selectedChain.value === ChainTypes.SUBSTRATE) {
+            return (isValidToAddress.value = validateSubstrateAddress(toAddress.value));
+        }
+
+        return (isValidToAddress.value = false);
+    };
+
+    const validateAmount = () => {
+        if (amount.value <= 0 || amount.value > toNumber(selectedAssetBalance.value) - fee) {
+            return (isValidAmount.value = false);
+        }
+
+        return (isValidAmount.value = true);
+    };
+
+    const selectedBalanceWithoutFee = computed(() => {
+        if (selectedAssetBalance.value == undefined || selectedAssetBalance.value <= 0) return 0;
+        return selectedAssetBalance.value - fee;
+    });
+
     const goToConfirm = async () => {
+        const isValidAddress = validateAddress();
+        const isValidAmount = validateAmount();
+
+        if (!isValidAmount || !isValidAddress) return;
+
         await router.replace({
             name: 'confirmSend',
             params: {

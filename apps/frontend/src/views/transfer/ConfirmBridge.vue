@@ -124,7 +124,7 @@
     import { ref } from 'vue';
     import { activationServiceForSubstrate, getSubstrateApi } from '@/service/substrateService';
     import { userInitialized } from '@/service/cryptoService';
-    import { createEntitySign, getEntity, getEntityIDByName } from '@/service/entityService';
+    import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/service/entityService';
     import { bridgeToSubstrate } from '@/service/stellarService';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { toNumber } from 'lodash';
@@ -176,7 +176,7 @@
 
         loadingSubtitle.value = 'Getting entity ID';
         console.info('Getting entityId for user ', name);
-        let entityId = await getEntityIDByName(api, name);
+        let entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
 
         if (entityId == 0) {
             loadingSubtitle.value = 'Entity not found, creating one';
@@ -214,7 +214,7 @@
                         console.info(`\t' ${phase}: ${section}.${method}:: ${data}`);
                     });
 
-                    entityId = await getEntityIDByName(api, name);
+                    entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
                     console.log('We found entityId: ', entityId);
 
                     const entity = await getEntity(api, entityId);

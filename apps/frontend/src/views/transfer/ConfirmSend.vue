@@ -25,7 +25,7 @@
 
                     <p class="mt-10 text-sm font-semibold">Pay with</p>
                     <p class="mb-2 truncate text-gray-500">
-                        {{ fromWallet.keyPair.getSubstrateKeyring().address }}
+                        {{ fromWallet?.keyPair.getSubstrateKeyring().address }}
                     </p>
                     <hr />
                     <p class="mt-2 text-sm font-semibold">To</p>
@@ -53,7 +53,7 @@
 
                     <p class="mt-10 text-sm font-semibold">Pay with</p>
                     <p class="mb-2 truncate text-gray-500">
-                        {{ fromWallet.keyPair.getStellarKeyPair().publicKey() }}
+                        {{ fromWallet?.keyPair.getStellarKeyPair().publicKey() }}
                     </p>
                     <hr />
                     <p class="mt-2 text-sm font-semibold">To</p>

@@ -26,7 +26,7 @@
                     <label class="block text-sm font-medium text-gray-700" for="amount">
                         <div class="pr-3">
                             <span class="pr-2">Amount</span>
-                            <span class="text-xs text-gray-400" @click="amount = stellarBalance"
+                            <span class="text-xs text-gray-400" @click="amount = stellarBalance ?? 0"
                                 >( {{ stellarBalance }})</span
                             >
                         </div>

@@ -95,11 +95,6 @@
                 {{ $t('wallet.info.deleteButton') }}
             </button>
         </div>
-
-        <!--      @TODO: still needed? -->
-        <div class="mt-2 hidden">
-            <button class="rounded-md bg-blue-200 px-4 py-2" @click="testSend">test</button>
-        </div>
     </div>
 </template>
 

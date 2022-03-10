@@ -11,17 +11,17 @@ export function validateWalletName(name: string, selectedWalletName: string): st
     }
 
     if (name.length >= 50) {
-        return 'Maximum of 50 characters';
+        return 'maximum';
     }
 
     if (name.length <= 0) {
-        return 'This field can not be empty';
+        return 'empty';
     }
 
     const walletNames: string[] = wallets.value.map(wallet => wallet.name.toLowerCase());
 
     if (walletNames.includes(name.toLowerCase())) {
-        return 'Name already in use';
+        return 'inUse';
     }
 
     return null;

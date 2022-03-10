@@ -6,16 +6,16 @@
                 <div class="flex animate-pulse justify-between text-transparent">
                     <span>
                         <small class="rounded-xl bg-slate-200 px-1">TFT</small>
-                        <small class="ml-2 rounded-xl bg-slate-200">TFChain</small>
+                        <small class="ml-2 rounded-xl bg-slate-200">$t(`chain.substrate`)</small>
                     </span>
                     <span class="rounded-xl bg-slate-200 px-1">100.12</span>
                 </div>
             </div>
 
             <div class="">
-                <small v-if="balance && balance.assets && balance?.assets.filter(a => a.amount > 0).length === 0"
-                    >No balance found for this wallet</small
-                >
+                <small v-if="balance && balance.assets && balance?.assets.filter(a => a.amount > 0).length === 0">{{
+                    $t('walletCard.noBalance')
+                }}</small>
             </div>
 
             <div>
@@ -26,9 +26,7 @@
                 >
                     <span>
                         {{ assetBalance.name }}
-                        <small class="capitalize text-gray-400">{{
-                            assetBalance.type === 'substrate' ? 'TFChain' : assetBalance.type
-                        }}</small>
+                        <small class="capitalize text-gray-400">{{ $t(`chain.${assetBalance.type}`) }}</small>
                     </span>
                     {{
                         assetBalance.amount.toLocaleString(undefined, {

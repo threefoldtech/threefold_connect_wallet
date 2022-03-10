@@ -1,11 +1,11 @@
 <template>
     <Modal @close="closeDialog">
         <template #title>
-            <div>Delete wallet?</div>
+            <div>{{ $t('dialog.wallet.changeName.title') }}</div>
         </template>
 
         <template #content>
-            <div class="pb-2">Please enter the new desired name</div>
+            <div class="pb-2">{{ $t('dialog.wallet.changeName.input') }}</div>
             <input
                 v-model="newWalletName"
                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
@@ -13,7 +13,9 @@
                 type="text"
             />
             <div class="pt-1 text-xs text-red-500">
-                {{ walletNameError }}
+                <template v-if="walletNameError">
+                    {{ $t(`dialog.wallet.changeName.error.${walletNameError}`) }}
+                </template>
             </div>
         </template>
 
@@ -23,7 +25,7 @@
                 class="mr-4 rounded-md bg-blue-100 py-2 px-4 text-sm font-medium text-blue-500 hover:bg-gray-50 focus:outline-none focus:ring-offset-2"
                 @click="closeDialog"
             >
-                Cancel
+                {{ $t('dialog.wallet.changeName.cancel') }}
             </button>
             <button
                 :disabled="walletNameError != null"
@@ -32,7 +34,7 @@
                 class="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white hover:bg-blue-200"
                 @click="acceptDialog"
             >
-                Change
+                {{ $t('dialog.wallet.changeName.confirm') }}
             </button>
         </template>
     </Modal>

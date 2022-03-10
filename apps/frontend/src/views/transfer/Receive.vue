@@ -31,7 +31,7 @@
                             ]"
                         >
                             <RadioGroupLabel as="p" class="capitalize">
-                                {{ option === 'substrate' ? 'TFChain' : option }}
+                                {{ $t(`chain.${option}`) }}
                             </RadioGroupLabel>
                         </div>
                     </RadioGroupOption>
@@ -143,7 +143,7 @@
         <div class="mx-4 mt-4 flex">
             <button
                 @click="generateQRCode"
-                class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:hover:animate-wiggle"
+                class="flex-1 rounded-md bg-blue-600 px-4 py-2 uppercase text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:hover:animate-wiggle"
             >
                 Generate QR Code
             </button>

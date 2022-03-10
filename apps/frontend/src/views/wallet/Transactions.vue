@@ -3,20 +3,20 @@
         <div class="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
             <div class="pr-16 sm:px-16 sm:text-center">
                 <p class="font-medium text-white">
-                    <span class="md:inline">Transaction History for TFChain Coming Soon </span>
+                    <span class="md:inline">{{ $t('wallet.transactions.tfchainHistoryBanner') }}</span>
                 </p>
             </div>
         </div>
     </div>
     <div class="space-y-2 p-4">
         <div>
-            <p>Filter by Currency</p>
+            <p>{{ $t('wallet.transactions.filterTitle') }}</p>
             <Listbox v-model="selectedAsset">
                 <div class="relative mt-1">
                     <ListboxButton
                         class="relative w-full cursor-default rounded-lg border-2 border-gray-200 bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
                     >
-                        <span class="block truncate">{{ selectedAsset }}</span>
+                        <span class="block truncate">{{ $t(`currency.short.${selectedAsset}`) }}</span>
                         <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                             <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />
                         </span>
@@ -43,9 +43,9 @@
                                         'relative cursor-default select-none py-2 pl-10 pr-4',
                                     ]"
                                 >
-                                    <span :class="[selected ? 'font-medium' : 'font-normal', 'block truncate']">{{
-                                        asset
-                                    }}</span>
+                                    <span :class="[selected ? 'font-medium' : 'font-normal', 'block truncate']">
+                                        {{ $t(`currency.short.${asset}`) }}
+                                    </span>
                                     <span
                                         v-if="selected"
                                         class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600"
@@ -101,7 +101,7 @@
 
     const assets = computed(() => {
         const values = balance.value?.assets.map(a => a.name).filter(a => allowedAssets.indexOf(a) !== -1) || [];
-        return ['All', ...values].filter((v, i, a) => a.indexOf(v) === i); // @todo: enable chains per asset
+        return ['all', ...values].filter((v, i, a) => a.indexOf(v) === i); // @todo: enable chains per asset
     });
     const selectedAsset = ref(assets.value.find(a => a === route.params?.assetCode) || assets.value[0]);
 
@@ -124,7 +124,7 @@
             operations.value
                 .find(o => o.id === wallet.keyPair.getStellarKeyPair().publicKey())
                 ?.operations.filter(o => {
-                    return selectedAsset.value === 'All' || (<any>o)?.asset_code === selectedAsset.value;
+                    return selectedAsset.value === 'all' || (<any>o)?.asset_code === selectedAsset.value;
                 })
                 .reverse() || []
         );

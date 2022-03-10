@@ -1,10 +1,10 @@
 <template>
     <div class="mt-2 px-4">
-        <h2 class="font-bold text-black">Addresses</h2>
+        <h2 class="font-bold text-black">{{ $t('wallet.info.addressesTitle') }}</h2>
     </div>
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'Stellar Address'"
+            :labelText="$t('wallet.info.stellarAddress')"
             :disabled="true"
             :fieldText="wallet?.keyPair.getStellarKeyPair().publicKey()"
         >
@@ -15,7 +15,7 @@
     </div>
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'TFChain Address'"
+            :labelText="$t('wallet.info.tfChainAddress')"
             :disabled="true"
             :fieldText="wallet?.keyPair.getSubstrateKeyring().address"
         >
@@ -26,11 +26,11 @@
     </div>
 
     <div class="mt-4 px-4">
-        <h2 class="font-bold text-black">Secrets</h2>
+        <h2 class="font-bold text-black">{{ $t('wallet.info.secretsTitle') }}</h2>
     </div>
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'Stellar Secret'"
+            :labelText="$t('wallet.info.stellarSecret')"
             :disabled="true"
             :fieldText="wallet?.keyPair.getStellarKeyPair().secret()"
             :isSensitiveData="true"
@@ -43,7 +43,7 @@
 
     <div class="mt-2 px-4">
         <CopyToClipboardField
-            :labelText="'TFChain Secret'"
+            :labelText="$t('wallet.info.tfChainSecret')"
             :disabled="true"
             :fieldText="`0x${wallet?.keyPair.getSeed()}`"
             :isSensitiveData="true"
@@ -57,7 +57,7 @@
     <div class="mt-2 px-4">
         <EditTextField
             @clickOnField="showEditWalletName = true"
-            :labelText="'Wallet Name'"
+            :labelText="$t('wallet.info.walletName')"
             :disabled="true"
             :fieldText="wallet?.name"
             v-model:fieldText="walletName"
@@ -92,7 +92,7 @@
                 @click="showDeleteWalletDialog = true"
             >
                 <TrashIcon aria-hidden="true" class="-ml-1 mr-2 h-5 w-5" />
-                Delete
+                {{ $t('wallet.info.deleteButton') }}
             </button>
         </div>
 
@@ -115,6 +115,7 @@
     import ChangeWalletNameDialog from '@/components/dialogs/wallet/ChangeWalletNameDialog.vue';
     import { validateWalletName } from '@/util/validate';
     import DeleteWalletDialog from '@/components/dialogs/wallet/DeleteWalletDialog.vue';
+    import { translate } from '@/util/translate';
 
     const wallet: Wallet = <Wallet>inject('wallet');
 
@@ -150,12 +151,17 @@
         saveWallets();
 
         showEditWalletName.value = false;
-        addNotification(NotificationType.success, `Successfully Changed Wallet Name Into ${wallet.name}`, '', 3000);
+        addNotification(
+            NotificationType.success,
+            translate(`notification.successWalletName`, { name: wallet.name }),
+            '',
+            3000
+        );
     };
 
     const deleteWallet = () => {
         showDeleteWalletDialog.value = false;
-        addNotification(NotificationType.info, 'Not Possible at This Time', undefined, 2000);
+        addNotification(NotificationType.info, translate(`notification.notPossible`), undefined, 2000);
     };
 </script>
 

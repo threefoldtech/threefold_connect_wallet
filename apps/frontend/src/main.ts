@@ -1,6 +1,10 @@
 import process from 'process';
 import { Buffer } from 'buffer';
 
+import { createI18n } from 'vue-i18n';
+
+import translates from './translates';
+
 import '@polkadot/api-augment'; //see: https://github.com/polkadot-js/api/releases/tag/v7.0.1
 
 window.Buffer = Buffer;
@@ -18,6 +22,7 @@ import axios from 'axios';
 
 import Vue3TouchEvents from 'vue3-touch-events';
 import sodium from 'libsodium-wrappers';
+import { i18n } from '@/util/translate';
 
 const init = async () => {
     await sodium.ready;
@@ -39,6 +44,8 @@ const init = async () => {
         window.Buffer = Buffer;
 
         const app = createApp(App);
+
+        app.use(i18n);
         app.use(Vue3TouchEvents);
         app.use(router);
         registerGlobalComponent(app);

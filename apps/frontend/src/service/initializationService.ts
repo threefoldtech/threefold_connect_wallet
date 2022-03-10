@@ -20,7 +20,7 @@ type LoadingText = {
     title: string;
     subtitle?: string;
 };
-export const loadingText = ref<LoadingText>({ title: 'loading...' });
+export const loadingText = ref<LoadingText>({ title: 'loading' });
 
 export enum PkidWalletTypes {
     Native = 'NATIVE',
@@ -60,7 +60,7 @@ export const initFirstWallet = async () => {
         type: PkidWalletTypes.Native,
     };
 
-    loadingText.value = { title: 'checking if an account already exists' };
+    loadingText.value = { title: 'checkExist' };
 
     try {
         await server.loadAccount(keyPair.publicKey());
@@ -81,12 +81,12 @@ export const initFirstWallet = async () => {
     } catch (e) {
         console.log('no acc found');
     }
-    loadingText.value = { title: 'initializing first wallet creation' };
+    loadingText.value = { title: 'startFirstWallet' };
 
     try {
         await generateActivationCode(keyPair);
     } catch (e) {
-        loadingText.value = { title: 'wallet creation failed' };
+        loadingText.value = { title: 'walletCreationFailed' };
 
         throw e;
     }
@@ -152,7 +152,7 @@ export const init = async (name: string, seedString: string) => {
     const purseDocToCheckMigration = await pkid.getDoc(appKeyPair.value.publicKey, 'purse');
     // checking not only if the purse is empty, but also if it is a valid purse see actions.vue
     if (alwaysMigratePkid || !purseDocToCheckMigration?.success || !purseDocToCheckMigration?.data) {
-        loadingText.value = { title: 'starting update' };
+        loadingText.value = { title: 'startUpdating' };
         await migratePkid2_xTo3_x();
     }
 
@@ -163,7 +163,7 @@ export const init = async (name: string, seedString: string) => {
 
     if (!purseDocToCheckFirstWalletInit?.success) {
         console.info('first wallet init');
-        loadingText.value = { title: 'no data yet', subtitle: 'is this your first time?' };
+        loadingText.value = { title: 'noDataYet', subtitle: 'isThisFirstTime' };
         await pkid.setDoc('purse', [], true);
     }
 

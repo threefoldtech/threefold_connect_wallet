@@ -5,7 +5,7 @@
                 <template #before>
                     <XIcon v-if="showMove" class="text-orange-600" @click="showMove = false" />
                 </template>
-                <h1>My wallets</h1>
+                <h1>{{ $t('walletList.title') }}</h1>
                 <h2 v-if="showMove">moving</h2>
                 <template #after>
                     <SaveIcon v-if="showMove" class="text-green-600" @click="showMove = false" />
@@ -21,10 +21,10 @@
                         }"
                         class="inline-flex items-center rounded-full rounded-br-none bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800"
                     >
-                        Import Wallet
+                        {{ $t('walletImport.tooltip') }}
                     </span>
                 </div>
-                <FAB title="Import wallet" @click="router.push({ name: 'walletImport' })" />
+                <FAB :title="$t('walletImport.tooltip')" @click="router.push({ name: 'walletImport' })" />
             </div>
         </template>
         <div v-if="!showMove" class="flex flex-col space-y-4 p-4">

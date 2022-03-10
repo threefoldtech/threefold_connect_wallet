@@ -5,12 +5,14 @@
                 <template #before>
                     <ArrowLeftIcon @click="router.push({ name: 'walletList' })" />
                 </template>
-                <h1>Import wallet</h1>
+                <h1>{{ $t('walletImport.title') }}</h1>
             </PageHeader>
         </template>
         <div class="p-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700" for="Wallet Name">Wallet Name</label>
+                <label class="block text-sm font-medium text-gray-700" for="Wallet Name">{{
+                    $t('walletImport.walletName')
+                }}</label>
                 <div class="mt-1">
                     <input
                         id="Wallet Name"
@@ -22,7 +24,9 @@
                 </div>
             </div>
             <div class="mt-4">
-                <label class="block text-sm font-medium text-gray-700" for="secret">Secret</label>
+                <label class="block text-sm font-medium text-gray-700" for="secret">{{
+                    $t('walletImport.secret')
+                }}</label>
                 <div class="mt-1">
                     <textarea
                         id="secret"
@@ -37,12 +41,14 @@
                 <DisclosureButton
                     class="mt-4 flex w-full justify-between px-0 py-2 text-left text-sm font-medium text-primary-500 focus:outline-none"
                 >
-                    <span>Advanced</span>
+                    <span>{{ $t('walletImport.advanced') }}</span>
                     <ChevronUpIcon :class="open ? '' : 'rotate-180 transform'" class="h-5 w-5" />
                 </DisclosureButton>
                 <DisclosurePanel class="pt-4 pb-2">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700" for="walletindex">Address index</label>
+                        <label class="block text-sm font-medium text-gray-700" for="walletindex">{{
+                            $t('walletImport.addressIndex')
+                        }}</label>
                         <div class="mt-1">
                             <input
                                 id="walletindex"
@@ -56,8 +62,8 @@
                 </DisclosurePanel>
             </Disclosure>
             <div class="mt-4 flex">
-                <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white" @click="importWallet">
-                    Import Wallet
+                <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 uppercase text-white" @click="importWallet">
+                    {{ $t('walletImport.CTA') }}
                 </button>
             </div>
         </div>

@@ -6,7 +6,7 @@
 
                 <div class="shrink-0">
                     {{ balance.name }}
-                    <small class="capitalize text-gray-400">{{ balance.type.replace('substrate', 'TFChain') }}</small>
+                    <small class="capitalize text-gray-400"> {{ $t(`chain.${balance.type}`) }} </small>
                 </div>
             </div>
             <div>

@@ -60,7 +60,11 @@ export const getStellarBalance = async (wallet: Wallet): Promise<AccountRecord> 
 };
 export const getOperations = async (wallet: Wallet, cursor?: string): Promise<CollectionPage<OperationRecord>> => {
     const server = getStellarClient();
-    const callBuilder = server.operations().forAccount(wallet.keyPair.getStellarKeyPair().publicKey()).limit(200);
+    const callBuilder = server
+        .operations()
+        .forAccount(wallet.keyPair.getStellarKeyPair().publicKey())
+        .order('desc')
+        .limit(200);
     if (cursor) callBuilder.cursor(cursor);
 
     return await callBuilder.call();
@@ -128,6 +132,12 @@ export const handleOperationRecordPage = (page: CollectionPage<OperationRecord>,
         index === -1
             ? operation.operations.push(operationRecord)
             : operation.operations.splice(index, 1, operationRecord);
+
+        operation.operations.sort((a, b) => {
+            if (a.created_at === b.created_at) return -b.id.localeCompare(a.id);
+
+            return -b.created_at.localeCompare(a.created_at);
+        });
     });
 
     const index = operations.value.findIndex(t => t.id === operation.id);

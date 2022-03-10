@@ -15,7 +15,7 @@
                     fill="currentColor"
                 ></path>
             </svg>
-            <h2 class="mt-4">{{ loadingText.title }}</h2>
+            <h2 class="mt-4">{{ $t(`init.${loadingText.title}`) }}</h2>
         </div>
     </div>
 </template>

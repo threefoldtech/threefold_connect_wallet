@@ -16,9 +16,8 @@
                         />
                     </svg>
                 </div>
-                <div class="font-sm mt-2 text-center font-semibold tracking-wide text-gray-600">
-                    Send <br />
-                    Coins
+                <div class="font-sm mt-2 w-px min-w-fit text-center font-semibold tracking-wide text-gray-600">
+                    {{ $t('wallet.overview.sendCoins') }}
                 </div>
             </RouterLink>
             <RouterLink
@@ -38,17 +37,16 @@
                         />
                     </svg>
                 </div>
-                <div class="font-sm mt-2 text-center font-semibold tracking-wide text-gray-600">
+                <div class="font-sm mt-2 w-px min-w-fit text-center font-semibold tracking-wide text-gray-600">
                     <p>
-                        Receive <br />
-                        Coins
+                        {{ $t('wallet.overview.receiveCoins') }}
                     </p>
                 </div>
             </RouterLink>
         </div>
         <hr />
         <div class="py-2">
-            <h2>Assets</h2>
+            <h2>{{ $t('wallet.overview.assets') }}</h2>
             <div class="mt-4 space-y-2">
                 <template v-for="assetBalance in assets">
                     <BalanceCard
@@ -66,7 +64,7 @@
                                     })
                                 "
                             >
-                                Transfer from Stellar
+                                {{ $t('wallet.overview.transferFromStellar') }}
                                 <SwitchHorizontalIcon class="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
                             </button>
                         </template>
@@ -74,7 +72,7 @@
                 </template>
                 <template v-if="assets.length === 0">
                     <div class="text-center">
-                        <p class="text-gray-600">No assets found</p>
+                        <p class="text-gray-600">{{ $t('wallet.overview.noAssetsFound') }}</p>
                     </div>
                 </template>
             </div>
@@ -89,7 +87,7 @@
         </div>
         <div v-if="vestedAssetBalanceIsLoading && vestedAssetBalance.length === 0">
             <div class="text-center">
-                <p class="animate-pulse text-gray-600">Checking vested tokens...</p>
+                <p class="animate-pulse text-gray-600">{{ $t('wallet.overview.checkVesting') }}</p>
             </div>
         </div>
     </div>
@@ -104,6 +102,7 @@
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
     import { checkVesting } from '@/service/vestingService';
     import { useLocalStorage } from '@vueuse/core';
+    import { translate } from '@/util/translate';
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 

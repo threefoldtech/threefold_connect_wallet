@@ -243,12 +243,12 @@
         balances.value.find(t => t.id === selectedWallet?.value?.keyPair.getBasePublicKey())
     );
 
-    const selectedAssetBalance = computed(
-        () =>
-            selectedBalance.value?.assets.find(
-                a => a.name === selectedAsset.value.asset_code && a.type === selectedAsset.value.type
-            )?.amount
-    );
+    const selectedAssetBalance = computed(() => {
+        if (!selectedAsset.value) return;
+        return selectedBalance.value?.assets.find(
+            a => a.name === selectedAsset.value.asset_code && a.type === selectedAsset.value.type
+        )?.amount;
+    });
 
     const setCorrectBalance = () => {
         if (selectedBalanceWithoutFee.value == 0) return;

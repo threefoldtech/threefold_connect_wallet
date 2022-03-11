@@ -48,7 +48,7 @@ export default <Translation>{
             addressesTitle: 'Addresses',
             secretsTitle: 'Secrets',
             stellarAddress: 'Stellar Address',
-            tfChainAddress: 'Stellar Address',
+            tfChainAddress: 'TFChain Address',
             stellarSecret: 'Stellar Secret',
             tfChainSecret: 'TFChain Secret',
             walletName: 'Wallet Name',

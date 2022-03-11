@@ -142,7 +142,7 @@
                 <div class="block text-sm">
                     <span class="pr-2">Amount</span>
                     <span class="text-xs text-gray-400" @click="setCorrectBalance"
-                        >({{ selectedBalanceWithoutFee }})</span
+                        >({{ selectedBalanceWithoutFee.toFixed(2) }})</span
                     >
                 </div>
                 <div class="relative mt-1 rounded-md shadow-sm">

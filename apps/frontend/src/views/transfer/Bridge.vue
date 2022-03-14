@@ -27,7 +27,7 @@
                         <div class="pr-3">
                             <span class="pr-2">{{ $t('transfer.bridge.amount') }}</span>
                             <span class="text-xs text-gray-400" @click="amount = stellarBalance ?? 0"
-                                >( {{ formatCurrency(stellarBalance) }})</span
+                                >( {{ formatCurrency(stellarBalance ?? 0) }})</span
                             >
                         </div>
                     </label>

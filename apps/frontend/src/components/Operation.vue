@@ -48,7 +48,7 @@
                         'text-red-600': operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                     }"
                 >
-                    {{ operation?.asset_code }} {{ formatCurrency(operation?.amount) }}
+                    {{ operation?.asset_code }} {{ formatCurrency(operation?.amount ?? 0) }}
                 </div>
             </div>
             <div class="shrink-0">

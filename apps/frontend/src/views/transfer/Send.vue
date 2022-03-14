@@ -383,6 +383,9 @@
 
         const code = await (<any>window).flutter_inappwebview?.callHandler('SCAN_QR');
         const url = new URL(code);
+
+        console.log('Received QR Data');
+        console.log(url);
         const address = url.hostname === '' ? url.pathname.replace('//', '') : url.hostname;
         const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0].toUpperCase();
         amount.value = toNumber(url.searchParams.get('amount'));

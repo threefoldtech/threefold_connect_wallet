@@ -16,7 +16,7 @@ export default <Translation>{
         notPossible: 'Not Possible at This Time',
     },
     walletList: {
-        title: 'My wallets',
+        title: 'My Wallets',
     },
     walletCard: {
         noBalance: 'No balance found for this wallet',
@@ -40,8 +40,8 @@ export default <Translation>{
             checkVesting: 'Checking vested tokens...',
         },
         transactions: {
-            tfchainHistoryBanner: 'Transaction History for TFChain Coming Soon.',
-            filterTitle: 'Filter by Currency',
+            tfchainHistoryBanner: 'Transaction history for TFChain coming soon.',
+            filterTitle: 'Filter by currency',
         },
         info: {
             title: 'Wallet Info',

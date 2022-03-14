@@ -372,7 +372,7 @@
             params: {
                 from: selectedWallet.value?.keyPair.getStellarKeyPair().publicKey(),
                 to: toAddress.value,
-                amount: Number(amount.value),
+                amount: toNumber(amount.value),
                 asset: selectedAsset.value.asset_code,
                 chainName: selectedChain.value,
             },
@@ -385,7 +385,7 @@
         const url = new URL(code);
         const address = url.hostname === '' ? url.pathname.replace('//', '') : url.hostname;
         const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0].toUpperCase();
-        amount.value = Number(url.searchParams.get('amount'));
+        amount.value = toNumber(url.searchParams.get('amount'));
         transactionMessage.value = url.searchParams.get('message')?.toString();
 
         toAddress.value = address;

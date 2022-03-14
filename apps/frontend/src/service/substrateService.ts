@@ -10,15 +10,24 @@ import axios from 'axios';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { ISubmittableResult } from '@polkadot/types/types';
 import { SubstrateFarmDto } from '@/types/substrate.types';
+import { addNotification, NotificationType } from '@/service/notificationService';
+import { translate } from '@/util/translate';
+import router from '@/router';
 
-const apiCache = ref<Promise<ApiPromise>>();
+const apiCache = ref<ApiPromise>();
 
 export const getSubstrateApi = async (): Promise<ApiPromise> => {
     if (apiCache.value) return apiCache.value;
 
     const endpoint = <string>flagsmith.getValue('tfchain_endpoint');
     const provider = new WsProvider(endpoint);
-    apiCache.value = ApiPromise.create({ provider, types });
+    provider.on('disconnected', () => {
+        addNotification(NotificationType.error, translate('notification.substrateDisconnected'));
+    });
+    const api = await ApiPromise.create({ provider, types });
+    await api.isReady;
+    apiCache.value = api;
+
     return apiCache.value;
 };
 

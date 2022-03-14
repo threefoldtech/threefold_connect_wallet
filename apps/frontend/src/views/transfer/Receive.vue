@@ -5,12 +5,12 @@
                 <template #before>
                     <ArrowLeftIcon @click="router.back()" />
                 </template>
-                <h1>Receive</h1>
+                <h1>{{ $t('transfer.recieve.title') }}</h1>
             </PageHeader>
         </template>
         <div class="mx-4 mt-2">
             <div class="flex items-center justify-between">
-                <h2 class="text-sm font-medium text-gray-900">Chain</h2>
+                <h2 class="text-sm font-medium text-gray-900">{{ $t('transfer.recieve.chain') }}</h2>
             </div>
             <RadioGroup v-model="selectedChain" class="mt-2">
                 <div class="flex gap-3">
@@ -40,7 +40,7 @@
         </div>
         <div class="mx-4 mt-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700">To</label>
+                <label class="block text-sm font-medium text-gray-700"> {{ $t(`transfer.recieve.to`) }}</label>
                 <div class="relative mt-1 truncate">
                     <span class="shrink-0 truncate">{{ selectedWallet?.name }}</span>
                     <span v-if="selectedChain === 'stellar'" class="ml-2 truncate text-gray-500">{{
@@ -56,7 +56,9 @@
 
         <div class="mx-4 mt-4 flex flex-row">
             <div class="w-7/12">
-                <label class="block text-sm font-medium text-gray-700" for="amount">Amount</label>
+                <label class="block text-sm font-medium text-gray-700" for="amount">{{
+                    $t('transfer.recieve.amount')
+                }}</label>
                 <div class="relative mt-1 rounded-md shadow-sm">
                     <input
                         v-model="receiveAmount"
@@ -71,12 +73,16 @@
             <div class="w-1/12"></div>
             <div class="w-5/12">
                 <Listbox as="div" v-model="selectedAsset">
-                    <ListboxLabel class="block text-sm font-medium text-gray-700">Asset</ListboxLabel>
+                    <ListboxLabel class="block text-sm font-medium text-gray-700">{{
+                        $t('transfer.recieve.asset')
+                    }}</ListboxLabel>
                     <div class="relative mt-1">
                         <ListboxButton
                             class="relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 sm:text-sm"
                         >
-                            <span class="inline-flex w-full truncate"> {{ selectedAsset.asset_code }} </span>
+                            <span class="inline-flex w-full truncate">
+                                {{ $t(`currency.short.${selectedAsset.asset_code}`) }}
+                            </span>
                             <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                 <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />
                             </span>
@@ -107,7 +113,7 @@
                                                 :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']"
                                                 class="shrink-0"
                                             >
-                                                {{ asset.asset_code }}
+                                                {{ $t(`currency.short.${asset.asset_code}`) }}
                                             </span>
                                         </div>
 
@@ -130,7 +136,9 @@
         </div>
 
         <div class="mx-4 mt-4" v-if="selectedChain === 'stellar'">
-            <label class="block text-sm font-medium text-gray-700" for="message">Message</label>
+            <label class="block text-sm font-medium text-gray-700" for="message">{{
+                $t('transfer.recieve.message')
+            }}</label>
             <div class="relative mt-1 rounded-md shadow-sm">
                 <input
                     v-model="receiveMessage"

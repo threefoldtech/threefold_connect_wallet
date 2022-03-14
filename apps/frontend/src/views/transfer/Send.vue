@@ -142,7 +142,7 @@
                 <div class="block text-sm">
                     <span class="pr-2">Amount</span>
                     <span class="text-xs text-gray-400" @click="setCorrectBalance"
-                        >({{ selectedBalanceWithoutFee.toFixed(2) }})</span
+                        >({{ formatCurrency(selectedBalanceWithoutFee) }})</span
                     >
                 </div>
                 <div class="relative mt-1 rounded-md shadow-sm">
@@ -238,6 +238,7 @@
     } from '@/util/validate';
     import { ChainTypes } from '@/enums/chains.enums';
     import { toNumber } from 'lodash';
+    import { formatCurrency } from '@/util/formatCurrency';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string };
@@ -274,7 +275,7 @@
 
     const setCorrectBalance = () => {
         if (selectedBalanceWithoutFee.value == 0) return;
-        amount.value = selectedBalanceWithoutFee.value;
+        amount.value = Math.floor(selectedBalanceWithoutFee.value * 100) / 100;
     };
 
     const selectedChain = ref('stellar');
@@ -326,7 +327,7 @@
         if (newAmount <= 0) {
             return;
         }
-        amount.value = newAmount;
+        amount.value = Math.floor(newAmount * 100) / 100;
     };
 
     const validateAddress = () => {

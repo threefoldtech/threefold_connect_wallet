@@ -5,12 +5,12 @@
                 <template #before>
                     <ArrowLeftIcon @click="router.back()" />
                 </template>
-                <h1>ConfirmSend</h1>
+                <h1>{{ $t('transfer.confirmSend.title') }}</h1>
             </PageHeader>
         </template>
 
         <div class="p-4">
-            <h1 class="font-bold">Confirm your transaction</h1>
+            <h1 class="font-bold">{{ $t('transfer.confirmSend.message') }}</h1>
             <div v-if="chainName === ChainTypes.SUBSTRATE">
                 <div class="mt-4">
                     <div class="flex flex-row justify-between">
@@ -21,20 +21,20 @@
                             <AssetIcon name="TFT" />
                         </div>
                     </div>
-                    <div>Threefold Token (TFT)</div>
+                    <div>{{ $t('currency.long.TFT') }} ({{ $t('currency.short.TFT') }})</div>
 
-                    <p class="mt-10 text-sm font-semibold">Pay with</p>
+                    <p class="mt-10 text-sm font-semibold">{{ $t('transfer.confirmSend.payWith') }}</p>
                     <p class="mb-2 truncate text-gray-500">
                         {{ fromWallet?.keyPair.getSubstrateKeyring().address }}
                     </p>
                     <hr />
-                    <p class="mt-2 text-sm font-semibold">To</p>
+                    <p class="mt-2 text-sm font-semibold">{{ $t('transfer.confirmSend.to') }}</p>
                     <p class="mb-2 truncate text-gray-500">
                         {{ toAddress }}
                     </p>
 
                     <hr />
-                    <p class="mt-2 text-sm font-semibold">Fee</p>
+                    <p class="mt-2 text-sm font-semibold">{{ $t('transfer.confirmSend.fee') }}</p>
                     <p class="truncate text-gray-500">{{ fee }} {{ asset }}</p>
                 </div>
             </div>
@@ -49,9 +49,9 @@
                             <AssetIcon name="TFT" />
                         </div>
                     </div>
-                    <div>Threefold Token (TFT)</div>
+                    <div>{{ $t('currency.long.TFT') }} ({{ $t('currency.short.TFT') }})</div>
 
-                    <p class="mt-10 text-sm font-semibold">Pay with</p>
+                    <p class="mt-10 text-sm font-semibold">{{ $t('transfer.confirmSend.payWith') }}</p>
                     <p class="mb-2 truncate text-gray-500">
                         {{ fromWallet?.keyPair.getStellarKeyPair().publicKey() }}
                     </p>
@@ -69,16 +69,16 @@
                     </p>
 
                     <hr />
-                    <p class="mt-2 text-sm font-semibold">Fee</p>
+                    <p class="mt-2 text-sm font-semibold">{{ $t('transfer.confirmSend.fee') }}</p>
                     <p class="truncate text-gray-500">{{ fee }} {{ asset }}</p>
                 </div>
             </div>
 
-            <div v-else>Chain not found</div>
+            <div v-else>{{ $t('transfer.confirmSend.chainNotFound') }}</div>
 
             <div class="mt-4 flex">
                 <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white" @click="sendTransaction">
-                    Confirm
+                    {{ $t('transfer.confirmSend.confirm') }}
                 </button>
             </div>
         </div>
@@ -164,6 +164,7 @@
     import { sendSubstrateTokens } from '@/service/substrateService';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { ref } from 'vue';
+    import { translate } from '@/util/translate';
 
     const router = useRouter();
     const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
@@ -185,7 +186,7 @@
         if (!fromWallet || !toAddress || !amount || !asset) return router.push({ name: 'error' });
 
         isLoadingTransaction.value = true;
-        loadingSubtitle.value = 'Sending tokens';
+        loadingSubtitle.value = translate('transfer.confirmSend.sendingTokens');
 
         try {
             const fundedTransaction = await buildFundedPaymentTransaction(
@@ -200,7 +201,7 @@
             await router.push({ name: 'walletList' });
         } catch (e) {
             await router.back();
-            addNotification(NotificationType.error, 'Failed to transfer tokens');
+            addNotification(NotificationType.error, translate('transfer.confirmSend.failedToTransferTokens'));
         }
     };
 
@@ -210,15 +211,15 @@
         }
 
         isLoadingTransaction.value = true;
-        loadingSubtitle.value = 'Sending tokens';
+        loadingSubtitle.value = translate('transfer.confirmSend.sendingTokens');
 
         try {
             await sendSubstrateTokens(fromWallet.keyPair.getSubstrateKeyring(), toAddress, amount);
             await router.push({ name: 'walletList' });
-            addNotification(NotificationType.success, 'Successfully transferred tokens');
+            addNotification(NotificationType.success, translate('transfer.confirmSend.successfullyTransferTokens'));
         } catch (e) {
             await router.back();
-            addNotification(NotificationType.error, 'Failed to transfer tokens');
+            addNotification(NotificationType.error, translate('transfer.confirmSend.failedToTransferTokens'));
         }
     };
 

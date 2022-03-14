@@ -5,29 +5,29 @@
                 <template #before>
                     <ArrowLeftIcon @click="router.back()" />
                 </template>
-                <h1>Transfer to TFChain</h1>
+                <h1>{{ $t('transfer.bridge.title') }}</h1>
             </PageHeader>
         </template>
         <div class="flex h-full flex-col p-4 pb-8" v-if="!isLoading">
             <div>
                 <div class="mb-2 border-2 border-gray-200 p-4">
-                    <div class="text-2xl font-semibold">Stellar tokens</div>
-                    <div class="text-lg text-gray-500">{{ stellarBalance }} TFT</div>
+                    <div class="text-2xl font-semibold">{{ $t('transfer.bridge.stellarTokens') }}</div>
+                    <div class="text-lg text-gray-500">{{ stellarBalance }} {{ $t('currency.short.TFT') }}</div>
                 </div>
                 <div class="flex w-full items-center justify-center">
                     <ArrowDownIcon class="h-6 text-primary-500"></ArrowDownIcon>
                     <ArrowDownIcon class="h-6 text-primary-500"></ArrowDownIcon>
                 </div>
                 <div class="mt-2 border-2 border-gray-200 p-4">
-                    <div class="text-2xl font-semibold">TFChain tokens</div>
-                    <div class="text-lg text-gray-500">{{ substrateBalance }} TFT</div>
+                    <div class="text-2xl font-semibold">{{ $t('transfer.bridge.tfChainTokens') }}</div>
+                    <div class="text-lg text-gray-500">{{ substrateBalance }} {{ $t('currency.short.TFT') }}</div>
                 </div>
                 <div class="mt-8">
                     <label class="block text-sm font-medium text-gray-700" for="amount">
                         <div class="pr-3">
-                            <span class="pr-2">Amount</span>
+                            <span class="pr-2">{{ $t('transfer.bridge.amount') }}</span>
                             <span class="text-xs text-gray-400" @click="amount = stellarBalance ?? 0"
-                                >( {{ stellarBalance }})</span
+                                >( {{ formatCurrency(stellarBalance) }})</span
                             >
                         </div>
                     </label>
@@ -35,7 +35,7 @@
                         <input
                             id="amount"
                             v-model="amount"
-                            :placeholder="stellarBalance === 0 ? 'No funds on this wallet' : '0.00'"
+                            :placeholder="stellarBalance === 0 ? $t('transfer.bridge.noFunds') : '0.00'"
                             class="block w-full rounded-md border-gray-300 pl-4 pr-20 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
                             name="amount"
                             type="number"
@@ -60,7 +60,7 @@
                     @click="goToConfirmBridge"
                     class="bg-button-colored mt-4 w-full rounded-md py-2 px-4 text-lg font-semibold text-white"
                 >
-                    Transfer
+                    {{ $t('transfer.bridge.confirm') }}
                 </button>
             </div>
         </div>
@@ -86,7 +86,7 @@
     import { bridgeToSubstrate } from '@/service/stellarService';
     import { nanoid } from 'nanoid';
     import { getSubstrateApi } from '@/service/substrateService';
-
+    import { formatCurrency } from '@/util/formatCurrency';
     const selectedWallet = ref<Wallet>() as Ref<Wallet>;
 
     const isLoading = ref<boolean>(true);
@@ -123,7 +123,7 @@
             return;
         }
 
-        amount.value = newAmount;
+        amount.value = Math.floor(newAmount * 100) / 100;
     };
 
     const goToConfirmBridge = async () => {

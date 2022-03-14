@@ -5,7 +5,7 @@
                 <MainLayout>
                     <template #header>
                         <PageHeader>
-                            <h1>Operation info</h1>
+                            <h1>{{ $t('component.operationInfo.title') }}</h1>
 
                             <template #after>
                                 <XIcon class="h-8 cursor-pointer text-gray-600" @click="isOpen = false" />
@@ -48,7 +48,7 @@
                         'text-red-600': operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                     }"
                 >
-                    {{ operation?.asset_code }} {{ Number(operation?.amount).toLocaleString() }}
+                    {{ operation?.asset_code }} {{ formatCurrency(operation?.amount) }}
                 </div>
             </div>
             <div class="shrink-0">
@@ -60,13 +60,15 @@
                 <LinkIcon class="h- w-5 text-white" />
             </div>
             <div class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                {{ operation.asset_code }} Asset Added
+                {{ $t('component.operationInfo.operation.ASSET_ADDED', { asset: operation.asset_code }) }}
             </div>
             <div>
                 {{ formatTime(operation.created_at) }}
             </div>
         </div>
-        <div class="shrink-0" v-else-if="operation.type === 'create_account'">Account CSreated</div>
+        <div class="shrink-0" v-else-if="operation.type === 'create_account'">
+            {{ $t('component.operationInfo.operation.ACCOUNT_CREATED') }}
+        </div>
     </div>
 </template>
 
@@ -80,7 +82,8 @@
     import { ref } from 'vue';
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import { formatTime } from '../util/time';
+    import { formatTime } from '@/util/time';
+    import { formatCurrency } from '@/util/formatCurrency';
 
     interface IProps {
         operation: OperationRecord;

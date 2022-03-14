@@ -10,9 +10,7 @@
                 </div>
             </div>
             <div>
-                {{
-                    balance.amount.toLocaleString(undefined, { maximumFractionDigits: 6, minimumSignificantDigits: 4 })
-                }}
+                {{ formatCurrency(balance.amount) }}
             </div>
         </div>
         <hr class="my-2" v-if="$slots['actions']" />
@@ -23,7 +21,7 @@
 <script lang="ts" setup>
     import { AssetBalance } from '@/service/walletService';
     import AssetIcon from '@/components/AssetIcon.vue';
-
+    import { formatCurrency } from '@/util/formatCurrency';
     interface IProps {
         balance: AssetBalance;
     }

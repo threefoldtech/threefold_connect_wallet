@@ -6,7 +6,7 @@
                 <div class="flex animate-pulse justify-between text-transparent">
                     <span>
                         <small class="rounded-xl bg-slate-200 px-1">TFT</small>
-                        <small class="ml-2 rounded-xl bg-slate-200">$t(`chain.substrate`)</small>
+                        <small class="ml-2 rounded-xl bg-slate-200">{{ $t(`chain.substrate`) }}</small>
                     </span>
                     <span class="rounded-xl bg-slate-200 px-1">100.12</span>
                 </div>
@@ -36,12 +36,7 @@
                             $t(`chain.${assetBalance.type}`)
                         }}</span>
                     </div>
-                    {{
-                        assetBalance.amount.toLocaleString(undefined, {
-                            maximumFractionDigits: 6,
-                            minimumSignificantDigits: 4,
-                        })
-                    }}
+                    {{ formatCurrency(assetBalance.amount) }}
                 </div>
             </div>
         </div>
@@ -52,6 +47,7 @@
     import { Balance } from '../service/walletService';
     import LoadingSpinner from '@/components/global/LoadingSpinner.vue';
     import AssetIcon from '@/components/AssetIcon.vue';
+    import { formatCurrency } from '@/util/formatCurrency';
 
     interface IProps {
         name: string;

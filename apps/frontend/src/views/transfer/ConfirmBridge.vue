@@ -5,12 +5,12 @@
                 <template #before>
                     <ArrowLeftIcon @click="router.back()" />
                 </template>
-                <h1>Confirm transaction</h1>
+                <h1>{{ $t('transfer.confirmBridge.title') }}</h1>
             </PageHeader>
         </template>
         <div class="p-4">
             <div class="mt-4 break-words">
-                <h1 class="font-bold">Confirm your transaction</h1>
+                <h1 class="font-bold">{{ $t('transfer.confirmBridge.message') }}</h1>
 
                 <div class="mt-4">
                     <div class="flex flex-row justify-between">
@@ -21,20 +21,20 @@
                             <AssetIcon class="h-2" name="TFT" />
                         </div>
                     </div>
-                    <div>Threefold Token (TFT)</div>
+                    <div>{{ $t('currency.long.TFT') }} ({{ $t('currency.short.TFT') }})</div>
 
-                    <p class="mt-10 text-sm font-semibold">Pay with</p>
+                    <p class="mt-10 text-sm font-semibold">{{ $t('transfer.confirmBridge.payWith') }}</p>
                     <p class="mb-2 truncate text-gray-500">
                         {{ selectedWallet?.keyPair.getStellarKeyPair().publicKey() }}
                     </p>
                     <hr />
-                    <p class="mt-2 text-sm font-semibold">To</p>
+                    <p class="mt-2 text-sm font-semibold">{{ $t('transfer.confirmBridge.to') }}</p>
                     <p class="mb-2 truncate text-gray-500">
                         {{ selectedWallet?.keyPair.getSubstrateKeyring().address }}
                     </p>
 
                     <hr />
-                    <p class="mt-2 text-sm font-semibold">Fee</p>
+                    <p class="mt-2 text-sm font-semibold">{{ $t('transfer.confirmBridge.fee') }}</p>
                     <!--              @TODO: make dynamic-->
                     <p class="truncate text-gray-500">1 TFT</p>
                 </div>
@@ -42,7 +42,7 @@
 
             <div class="mt-4 flex">
                 <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white" @click="bridgeTokens">
-                    Confirm
+                    {{ $t('transfer.confirmBridge.confirm') }}
                 </button>
             </div>
         </div>
@@ -130,13 +130,13 @@
     import { toNumber } from 'lodash';
     import { onBeforeMount } from '@vue/runtime-core';
     import AssetIcon from '@/components/AssetIcon.vue';
+    import { translate } from '@/util/translate';
 
     const router = useRouter();
     const route = useRoute();
 
     const selectedWallet = ref<Wallet>();
     const amount = toNumber(route.params.amount);
-    console.log(amount);
     const isLoadingTransaction = ref<boolean>(false);
     const loadingSubtitle = ref<string>('');
 
@@ -151,7 +151,7 @@
             await submitBridge();
         } catch (e) {
             isLoadingTransaction.value = false;
-            addNotification(NotificationType.error, 'Failed to transfer tokens, please contact support', '', 5000);
+            addNotification(NotificationType.error, translate('transfer.confirmBridge.errorSendTokens'), '', 5000);
             console.error('Transaction failed');
             console.error(e);
 
@@ -165,7 +165,7 @@
         const substrateAddressTo = selectedWallet.value.keyPair.getSubstrateKeyring().address;
         const api = await getSubstrateApi();
 
-        loadingSubtitle.value = 'Using activation service';
+        loadingSubtitle.value = translate('transfer.confirmBridge.usingActivationService');
         console.info('Using activation service for substrate');
         await activationServiceForSubstrate(substrateAddressTo);
 
@@ -174,12 +174,12 @@
 
         if (!name) return;
 
-        loadingSubtitle.value = 'Getting entity ID';
+        loadingSubtitle.value = translate('transfer.confirmBridge.gettingEntityId');
         console.info('Getting entityId for user ', name);
         let entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
 
         if (entityId == 0) {
-            loadingSubtitle.value = 'Entity not found, creating one';
+            loadingSubtitle.value = translate('transfer.confirmBridge.entityIdNotFound');
             console.info("Can't find entity, creating one");
 
             const country = 'Unknown';
@@ -194,7 +194,7 @@
             console.info('Created nonce: ', nonce.toHuman);
 
             const signAndSendCallback = async (res: any) => {
-                loadingSubtitle.value = 'Transacting the funds';
+                loadingSubtitle.value = translate('transfer.confirmBridge.transactingTheFunds');
                 console.info('Callback from signAndSend.');
 
                 if (res instanceof Error) {
@@ -206,7 +206,7 @@
                 console.info(`Current status is ${status.type}`);
 
                 if (status.isFinalized) {
-                    loadingSubtitle.value = 'Transaction done';
+                    loadingSubtitle.value = translate('transfer.confirmBridge.transactionDone');
                     console.info(`Transaction included at blockHash ${status.asFinalized}`);
 
                     // @ts-ignore
@@ -224,11 +224,16 @@
             await entity.signAndSend(substrateKeyRing, { nonce }, signAndSendCallback);
         }
 
-        await bridgeToSubstrate(amount, selectedWallet.value.keyPair.getStellarKeyPair(), entityId);
-        loadingSubtitle.value = 'Finishing up';
+        const entityIdToMakeTheBridge = await getEntityIDByAccountId(api, substrateKeyRing.address);
+
+        if (entityIdToMakeTheBridge == 0)
+            addNotification(NotificationType.error, translate('transfer.confirmBridge.entityIdNotFound'), '', 5000);
+
+        await bridgeToSubstrate(amount, selectedWallet.value.keyPair.getStellarKeyPair(), entityIdToMakeTheBridge);
+        loadingSubtitle.value = translate('transfer.confirmBridge.finishingUp');
         isLoadingTransaction.value = false;
 
-        addNotification(NotificationType.success, 'Successfully transferred tokens', '', 5000);
+        addNotification(NotificationType.success, translate('transfer.confirmBridge.success'), '', 5000);
         console.log('Transaction done');
 
         await router.back();

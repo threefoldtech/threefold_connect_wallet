@@ -87,8 +87,8 @@ const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
 };
 
 export const getNodesByFarmId = async (farmId: number) => {
-    const query = `query MyQuery($farmId_eq: Int = ${farmId}) {
-  nodes(where: {farmId_eq: $farmId_eq}) {
+    const query = `query MyQuery($farmId: Int ) {
+  nodes(where: {farmId_eq: $farmId}) {
     nodeId
   }
 }

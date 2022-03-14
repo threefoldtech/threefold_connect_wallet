@@ -1,5 +1,11 @@
 <template>
-    <svg class="h-8 w-8" v-if="name === 'TFT'" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 31 31">
+    <svg
+        :class="`h-${height} w-${width}`"
+        v-if="name === 'TFT' || name === 'TFTA'"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 31 31"
+    >
         <path
             d="M27.3583 27.8796H0v-6.3653h31v3.0908c0 1.8209-1.6372 3.2745-3.6417 3.2745 2.0045 0 3.6264-1.4689 3.6264-3.2745v-3.0908H0v6.3653h27.3583Z"
             fill="url(#a)"
@@ -35,7 +41,13 @@
             </linearGradient>
         </defs>
     </svg>
-    <svg class="h-8 w-8" v-if="name === 'BTC'" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 31 31">
+    <svg
+        :class="`h-${height} w-${width}`"
+        v-if="name === 'BTC'"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 31 31"
+    >
         <g clip-path="url(#a)">
             <path
                 d="M30.5125 19.273c-2.0702 8.3036-10.4804 13.3571-18.7851 11.2864C3.4263 28.4892-1.6272 20.0785.4439 11.7755 2.513 3.4709 10.9234-1.5829 19.2254.4873c8.3041 2.07 13.3572 10.4818 11.2868 18.7858l.0002-.0001h.0001Z"
@@ -56,7 +68,9 @@
 <script lang="ts" setup>
     interface IProps {
         name?: string;
+        height?: number;
+        width?: number;
     }
 
-    const { name } = withDefaults(defineProps<IProps>(), { name: 'TFT' });
+    const { name, height, width } = withDefaults(defineProps<IProps>(), { name: 'TFT', height: 8, width: 8 });
 </script>

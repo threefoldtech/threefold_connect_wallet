@@ -22,12 +22,20 @@
                 <div
                     v-for="assetBalance in balance?.assets"
                     :class="{ hidden: assetBalance.amount <= 0 }"
-                    class="flex justify-between"
+                    class="flex justify-between p-1"
                 >
-                    <span>
-                        {{ assetBalance.name }}
-                        <small class="capitalize text-gray-400">{{ $t(`chain.${assetBalance.type}`) }}</small>
-                    </span>
+                    <div class="flex flex-row items-center">
+                        <AssetIcon
+                            :key="assetBalance.name"
+                            :height="6"
+                            :width="6"
+                            :name="assetBalance.name"
+                        ></AssetIcon>
+                        <span class="pl-2"> {{ assetBalance.name }}</span>
+                        <span class="pl-2 text-sm capitalize text-gray-400">{{
+                            $t(`chain.${assetBalance.type}`)
+                        }}</span>
+                    </div>
                     {{
                         assetBalance.amount.toLocaleString(undefined, {
                             maximumFractionDigits: 6,
@@ -43,6 +51,7 @@
 <script lang="ts" setup>
     import { Balance } from '../service/walletService';
     import LoadingSpinner from '@/components/global/LoadingSpinner.vue';
+    import AssetIcon from '@/components/AssetIcon.vue';
 
     interface IProps {
         name: string;

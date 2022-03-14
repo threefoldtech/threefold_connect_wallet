@@ -27,6 +27,7 @@
                 <FAB :title="$t('walletImport.tooltip')" @click="router.push({ name: 'walletImport' })" />
             </div>
         </template>
+
         <div v-if="!showMove" class="flex flex-col space-y-4 p-4">
             <WalletCard
                 v-for="wallet in sortedWallets"
@@ -67,7 +68,7 @@
                 <p class="font-semibold">Daily</p>
             </div>
             <div class="">
-                <button class="rounded-md bg-primary-600 px-4 py-2 text-white">create initial wallet</button>
+                <button class="rounded-md bg-primary-600 px-4 py-2 text-white">Create initial wallet</button>
             </div>
         </div>
     </MainLayout>

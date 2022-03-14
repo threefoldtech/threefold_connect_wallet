@@ -145,9 +145,13 @@ export const activationServiceForSubstrate = async (id: string) => {
     }
 };
 
-export const submitExtrensic = async (submittableExtrinsic: SubmittableExtrinsic<any>, keyringPair: IKeyringPair) => {
+export const submitExtrensic = async (
+    submittableExtrinsic: SubmittableExtrinsic<any>,
+    keyringPair: IKeyringPair,
+    options = {}
+) => {
     const promise = new Promise((resolve, reject) => {
-        submittableExtrinsic.signAndSend(keyringPair, (result: ISubmittableResult) => {
+        submittableExtrinsic.signAndSend(keyringPair, options, (result: ISubmittableResult) => {
             if (result.isFinalized) {
                 resolve(result.toHuman(true));
                 return;

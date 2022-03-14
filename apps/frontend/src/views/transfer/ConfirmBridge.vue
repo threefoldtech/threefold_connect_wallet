@@ -122,7 +122,7 @@
     import { useRoute, useRouter } from 'vue-router';
     import { Wallet, wallets } from '@/service/walletService';
     import { ref } from 'vue';
-    import { activationServiceForSubstrate, getSubstrateApi } from '@/service/substrateService';
+    import { activationServiceForSubstrate, getSubstrateApi, submitExtrensic } from '@/service/substrateService';
     import { userInitialized } from '@/service/cryptoService';
     import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/service/entityService';
     import { bridgeToSubstrate } from '@/service/stellarService';
@@ -189,57 +189,34 @@
             const signature = createEntitySign(substrateKeyRing, name, country, city);
             console.info('Signature: ', signature);
 
-            const entity = await api.tx.tfgridModule.createEntity(substrateAddressTo, name, country, city, signature);
+            const submittableExtrinsic = api.tx.tfgridModule.createEntity(
+                substrateAddressTo,
+                name,
+                country,
+                city,
+                signature
+            );
             const nonce = await api.rpc.system.accountNextIndex(substrateAddressTo);
-            console.info('Created entity: ', entity.toHuman());
-            console.info('Created nonce: ', nonce.toHuman);
 
-            const signAndSendCallback = async (res: any) => {
-                loadingSubtitle.value = translate('transfer.confirmBridge.transactingTheFunds');
-                console.info('Callback from signAndSend.');
+            await submitExtrensic(submittableExtrinsic, substrateKeyRing, { nonce });
 
-                if (res instanceof Error) {
-                    console.error('Error in signAndSendCallback');
-                    throw new Error();
+            let i = 0;
+            while (entityId === 0) {
+                if (i > 10) {
+                    console.error('Entity not found after 10 tries');
+                    addNotification(
+                        NotificationType.error,
+                        translate('transfer.confirmBridge.errorCreateEntity'),
+                        '',
+                        5000
+                    );
+                    throw new Error('Entity not found after 10 tries');
                 }
-
-                const { events = [], status } = res;
-                console.info(`Current status is ${status.type}`);
-
-                if (status.isFinalized) {
-                    loadingSubtitle.value = translate('transfer.confirmBridge.transactionDone');
-                    console.info(`Transaction included at blockHash ${status.asFinalized}`);
-
-                    // @ts-ignore
-                    events.forEach(({ phase, event: { data, method, section } }) => {
-                        console.info(`\t' ${phase}: ${section}.${method}:: ${data}`);
-                    });
-
-                    entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
-                    console.log('We found entityId: ', entityId);
-
-                    let i = 0;
-                    // loop until we find the entity
-                    while (entityId === 0) {
-                        if (i > 10) {
-                            console.error('Entity not found after 10 tries');
-                            addNotification(
-                                NotificationType.error,
-                                translate('transfer.confirmBridge.errorCreateEntity'),
-                                '',
-                                5000
-                            );
-                            throw new Error('Entity not found after 10 tries');
-                        }
-                        console.info('Entity not found, retrying...');
-                        entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        i++;
-                    }
-                }
-            };
-
-            await entity.signAndSend(substrateKeyRing, { nonce }, signAndSendCallback);
+                console.info('Entity not found, retrying...');
+                entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                i++;
+            }
         }
 
         const entityIdToMakeTheBridge = await getEntityIDByAccountId(api, substrateKeyRing.address);

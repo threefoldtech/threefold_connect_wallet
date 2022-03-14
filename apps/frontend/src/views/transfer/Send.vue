@@ -420,7 +420,6 @@
         const isValidAmount = validateAmount();
 
         if (!isValidAmount || !isValidAddress) return;
-        alert(`Scanned ${currency} address: ${address}`);
     };
 </script>
 

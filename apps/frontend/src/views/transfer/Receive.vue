@@ -66,7 +66,7 @@
                         type="number"
                     />
                 </div>
-                <div v-if="!isValidAmount" class="text-xs text-red-500">Please enter a valid amount</div>
+                <div v-if="isValidAmount === false" class="text-xs text-red-500">Please enter a valid amount</div>
             </div>
             <div class="w-1/12"></div>
             <div class="w-5/12">
@@ -140,7 +140,9 @@
                     type="text"
                 />
             </div>
-            <div v-if="!isValidMemo" class="text-xs text-red-500">Maximum length of message is 29 characters</div>
+            <div v-if="isValidMemo === false" class="text-xs text-red-500">
+                Maximum length of message is 29 characters
+            </div>
         </div>
         <div class="mx-4 mt-4 flex">
             <button

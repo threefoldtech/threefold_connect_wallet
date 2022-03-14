@@ -73,3 +73,7 @@ export const validateStellarAddress = (walletAddress: string | undefined) => {
     if (!walletAddress) return false;
     return StrKey.isValidEd25519PublicKey(walletAddress);
 };
+
+export const isValidMemoOfTransaction = (memo: string) => {
+    return memo.trim().length <= 29;
+};

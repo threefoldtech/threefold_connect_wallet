@@ -66,7 +66,7 @@
                         type="number"
                     />
                 </div>
-                <div v-if="amountNotValid" class="text-xs text-red-500">Please enter a valid amount</div>
+                <div v-if="!isValidAmount" class="text-xs text-red-500">Please enter a valid amount</div>
             </div>
             <div class="w-1/12"></div>
             <div class="w-5/12">
@@ -140,6 +140,7 @@
                     type="text"
                 />
             </div>
+            <div v-if="!isValidMemo" class="text-xs text-red-500">Maximum length of message is 29 characters</div>
         </div>
         <div class="mx-4 mt-4 flex">
             <button
@@ -198,6 +199,8 @@
     import { balances, Wallet, wallets } from '@/service/walletService';
     import uniq from 'lodash/uniq';
     import flagsmith from 'flagsmith';
+    import { isValidMemoOfTransaction } from '@/util/validate';
+    import { ChainTypes } from '@/enums/chains.enums';
 
     interface IProps {
         assetCode?: string;
@@ -208,12 +211,13 @@
 
     const { toAddress } = defineProps<IProps>();
 
-    const amountNotValid = ref<boolean>(false);
+    const isValidAmount = ref<boolean>();
     const selectedChain = ref('stellar');
     const receiveAmount = ref<Number>(0);
     const receiveMessage = ref<string>('');
     const imageUrl = ref();
     const showImage = ref(false);
+    const isValidMemo = ref<boolean>();
     const selectedWallet = ref<Wallet>(
         wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === toAddress) || wallets.value[0]
     );
@@ -238,17 +242,36 @@
 
     watch(relevantChainAssets, () => (selectedAsset.value = <Asset>relevantChainAssets.value[0]));
 
-    // selectedCurrency:selectedAccountId?amount=givenAmount.tofixed(7)&message=encodeURIComponent(message)&sender=me
-    const generateQRCode = () => {
-        if (receiveAmount.value <= 0) {
-            return (amountNotValid.value = true);
+    const validateMemoAddress = () => {
+        const isValidTransactionMemo = isValidMemoOfTransaction(receiveMessage.value);
+
+        if (!isValidTransactionMemo && selectedChain.value === ChainTypes.STELLAR) {
+            return (isValidMemo.value = false);
         }
 
-        amountNotValid.value = false;
+        return (isValidMemo.value = true);
+    };
+
+    const validateReceiveAmount = () => {
+        if (receiveAmount.value <= 0) {
+            return (isValidAmount.value = false);
+        }
+
+        return (isValidAmount.value = true);
+    };
+
+    // selectedCurrency:selectedAccountId?amount=givenAmount.tofixed(7)&message=encodeURIComponent(message)&sender=me
+    const generateQRCode = () => {
+        const isValidMemo = validateMemoAddress();
+        const isValidReceiveAmount = validateReceiveAmount();
+
+        if (!isValidMemo || !isValidReceiveAmount) {
+            return;
+        }
 
         const data = `${selectedAsset.value.asset_code}:${withdrawToAddress.value}?amount=${receiveAmount.value.toFixed(
             7
-        )}&message=${encodeURIComponent(receiveMessage.value)}&sender=me`;
+        )}&message=${encodeURIComponent(receiveMessage.value.trim())}&sender=me`;
 
         const qr = new QRCodeStyling({
             data: data,

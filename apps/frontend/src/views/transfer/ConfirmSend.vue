@@ -18,7 +18,7 @@
                             {{ amount.toFixed(2) }}
                         </p>
                         <div>
-                            <AssetIcon class="h-2" name="TFT" />
+                            <AssetIcon name="TFT" />
                         </div>
                     </div>
                     <div>Threefold Token (TFT)</div>
@@ -46,7 +46,7 @@
                             {{ amount.toFixed(2) }}
                         </p>
                         <div>
-                            <AssetIcon class="h-2" name="TFT" />
+                            <AssetIcon name="TFT" />
                         </div>
                     </div>
                     <div>Threefold Token (TFT)</div>
@@ -59,6 +59,13 @@
                     <p class="mt-2 text-sm font-semibold">To</p>
                     <p class="mb-2 truncate text-gray-500">
                         {{ toAddress }}
+                    </p>
+
+                    <hr />
+                    <hr />
+                    <p class="mt-2 text-sm font-semibold">Message</p>
+                    <p class="mb-2 truncate text-gray-500">
+                        {{ transactionMessage }}
                     </p>
 
                     <hr />
@@ -172,6 +179,7 @@
     const asset = <string>route.params.asset;
     const fee = Number(<string>flagsmith.getValue('fee-amount'));
     const chainName = route.params.chainName;
+    const transactionMessage = <string>route.params.message;
 
     const sendStellarTokens = async () => {
         if (!fromWallet || !toAddress || !amount || !asset) return router.push({ name: 'error' });
@@ -184,7 +192,7 @@
                 fromWallet.keyPair.getStellarKeyPair(),
                 toAddress,
                 amount,
-                undefined,
+                transactionMessage,
                 asset
             );
 

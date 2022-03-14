@@ -230,7 +230,12 @@
     import flagsmith from 'flagsmith';
     import { AssetBalance, Balance, balances, Wallet, wallets } from '@/service/walletService';
     import uniq from 'lodash/uniq';
-    import { validateStellarAddress, validateSubstrateAddress, validateWalletAddress } from '@/util/validate';
+    import {
+        isValidMemoOfTransaction,
+        validateStellarAddress,
+        validateSubstrateAddress,
+        validateWalletAddress,
+    } from '@/util/validate';
     import { ChainTypes } from '@/enums/chains.enums';
     import { toNumber } from 'lodash';
 
@@ -302,12 +307,12 @@
     });
 
     const toAddress = ref(to);
-    const amount = ref<Number>(toNumber(initialAmount));
+    const amount = ref<number>(toNumber(initialAmount));
     const fee = Number(flagsmith.getValue('fee-amount'));
     const isValidToAddress = ref<boolean>();
     const isValidAmount = ref<boolean>();
     const isValidMessage = ref<boolean>();
-    const transactionMessage = ref<string | undefined>('');
+    const transactionMessage = ref<string | null>('');
 
     const setAmount = (multiplier: number) => {
         const assetBalance = selectedBalance.value?.assets.find(
@@ -345,10 +350,10 @@
     };
 
     const validateMessage = () => {
-        if (transactionMessage.value === undefined) {
+        if (transactionMessage.value === null) {
             return (isValidMessage.value = true);
         }
-        if (transactionMessage.value.length <= 29) {
+        if (isValidMemoOfTransaction(transactionMessage.value)) {
             return (isValidMessage.value = true);
         }
 
@@ -372,9 +377,10 @@
             params: {
                 from: selectedWallet.value?.keyPair.getStellarKeyPair().publicKey(),
                 to: toAddress.value,
-                amount: toNumber(amount.value),
+                amount: amount.value.toString(),
                 asset: selectedAsset.value.asset_code,
                 chainName: selectedChain.value,
+                message: transactionMessage.value,
             },
         });
     };
@@ -389,7 +395,7 @@
         const address = url.hostname === '' ? url.pathname.replace('//', '') : url.hostname;
         const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0].toUpperCase();
         amount.value = toNumber(url.searchParams.get('amount'));
-        transactionMessage.value = url.searchParams.get('message')?.toString();
+        transactionMessage.value = url.searchParams.get('message');
 
         toAddress.value = address;
         if (currency && relevantAssets.value.findIndex(ra => ra.asset_code === currency) !== -1) {

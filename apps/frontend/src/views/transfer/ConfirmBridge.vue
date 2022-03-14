@@ -131,6 +131,7 @@
     import { onBeforeMount } from '@vue/runtime-core';
     import AssetIcon from '@/components/AssetIcon.vue';
     import { translate } from '@/util/translate';
+    import en from '@/translates/en';
 
     const router = useRouter();
     const route = useRoute();
@@ -217,7 +218,24 @@
                     entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
                     console.log('We found entityId: ', entityId);
 
-                    const entity = await getEntity(api, entityId);
+                    let i = 0;
+                    // loop until we find the entity
+                    while (entityId === 0) {
+                        if (i > 10) {
+                            console.error('Entity not found after 10 tries');
+                            addNotification(
+                                NotificationType.error,
+                                translate('transfer.confirmBridge.errorCreateEntity'),
+                                '',
+                                5000
+                            );
+                            throw new Error('Entity not found after 10 tries');
+                        }
+                        console.info('Entity not found, retrying...');
+                        entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        i++;
+                    }
                 }
             };
 

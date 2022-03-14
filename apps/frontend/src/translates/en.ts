@@ -167,6 +167,7 @@ export default <Translation>{
             transactionDone: 'Transaction done...',
             finishingUp: 'Finishing up...',
             success: 'Successfully transferred tokens',
+            errorCreateEntity: 'Failed to create entity, please contact support',
         },
     },
     chain: {

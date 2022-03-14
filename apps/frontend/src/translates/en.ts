@@ -131,7 +131,7 @@ export default <Translation>{
             failedToTransferTokens: 'Failed to transfer tokens',
             successfullyTransferTokens: 'Successfully transferred tokens',
         },
-        recieve: {
+        receive: {
             title: 'Receive',
             chain: 'Chain',
             scanQR: 'Scan QR',

@@ -99,7 +99,7 @@ export default <Translation>{
             fee: 'Fee',
             sendTokensButton: 'Send Tokens',
         },
-        recieve: {
+        receive: {
             title: 'Receive',
             chain: 'Chain',
             scanQR: 'Scan QR',

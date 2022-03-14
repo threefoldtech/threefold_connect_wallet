@@ -55,7 +55,7 @@
         </div>
 
         <div class="mx-4 mt-4 flex flex-row">
-            <div class="w-6/12">
+            <div class="w-7/12">
                 <label class="block text-sm font-medium text-gray-700" for="amount">Amount</label>
                 <div class="relative mt-1 rounded-md shadow-sm">
                     <input
@@ -66,6 +66,7 @@
                         type="number"
                     />
                 </div>
+                <div v-if="amountNotValid" class="text-xs text-red-500">Please enter a valid amount</div>
             </div>
             <div class="w-1/12"></div>
             <div class="w-5/12">
@@ -145,7 +146,7 @@
                 @click="generateQRCode"
                 class="flex-1 rounded-md bg-blue-600 px-4 py-2 uppercase text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:hover:animate-wiggle"
             >
-                Generate QR Code
+                {{ $t('transfer.receive.generateQRButton') }}
             </button>
         </div>
 
@@ -207,6 +208,7 @@
 
     const { toAddress } = defineProps<IProps>();
 
+    const amountNotValid = ref<boolean>(false);
     const selectedChain = ref('stellar');
     const receiveAmount = ref<Number>(0);
     const receiveMessage = ref<string>('');
@@ -238,6 +240,12 @@
 
     // selectedCurrency:selectedAccountId?amount=givenAmount.tofixed(7)&message=encodeURIComponent(message)&sender=me
     const generateQRCode = () => {
+        if (receiveAmount.value <= 0) {
+            return (amountNotValid.value = true);
+        }
+
+        amountNotValid.value = false;
+
         const data = `${selectedAsset.value.asset_code}:${withdrawToAddress.value}?amount=${receiveAmount.value.toFixed(
             7
         )}&message=${encodeURIComponent(receiveMessage.value)}&sender=me`;

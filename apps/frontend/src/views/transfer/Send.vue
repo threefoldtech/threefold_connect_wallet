@@ -177,6 +177,23 @@
                     <button class="flex-1 rounded-md border border-gray-300 p-1" @click="setAmount(1)">100%</button>
                 </div>
             </div>
+            <div v-if="selectedChain === 'stellar'" class="mt-4">
+                <label class="block text-sm font-medium text-gray-700" for="message">Message</label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <div class="relative flex grow items-stretch focus-within:z-10">
+                        <input
+                            id="message"
+                            v-model="transactionMessage"
+                            class="block w-full rounded-md border-gray-300 pl-3 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
+                            name="to"
+                            type="text"
+                        />
+                    </div>
+                </div>
+                <div class="text-sm text-red-500" v-if="isValidMessage === false">
+                    Maximum length of message is 29 characters
+                </div>
+            </div>
             <div class="mt-4">
                 <p>Fee {{ fee.toFixed(7) }} {{ asset?.asset_code }}</p>
             </div>
@@ -289,6 +306,8 @@
     const fee = Number(flagsmith.getValue('fee-amount'));
     const isValidToAddress = ref<boolean>();
     const isValidAmount = ref<boolean>();
+    const isValidMessage = ref<boolean>();
+    const transactionMessage = ref<string | undefined>('');
 
     const setAmount = (multiplier: number) => {
         const assetBalance = selectedBalance.value?.assets.find(
@@ -325,6 +344,17 @@
         return (isValidAmount.value = true);
     };
 
+    const validateMessage = () => {
+        if (transactionMessage.value === undefined) {
+            return (isValidMessage.value = true);
+        }
+        if (transactionMessage.value.length <= 29) {
+            return (isValidMessage.value = true);
+        }
+
+        return (isValidMessage.value = false);
+    };
+
     const selectedBalanceWithoutFee = computed(() => {
         if (selectedAssetBalance.value == undefined || selectedAssetBalance.value <= 0) return 0;
         return selectedAssetBalance.value - fee;
@@ -333,8 +363,9 @@
     const goToConfirm = async () => {
         const isValidAddress = validateAddress();
         const isValidAmount = validateAmount();
+        const isValidMessage = validateMessage();
 
-        if (!isValidAmount || !isValidAddress) return;
+        if (!isValidAmount || !isValidAddress || !isValidMessage) return;
 
         await router.replace({
             name: 'confirmSend',
@@ -351,10 +382,11 @@
         if (!(<any>window).flutter_inappwebview) alert('not supported in this browser');
 
         const code = await (<any>window).flutter_inappwebview?.callHandler('SCAN_QR');
-
         const url = new URL(code);
         const address = url.hostname === '' ? url.pathname.replace('//', '') : url.hostname;
-        const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0];
+        const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0].toUpperCase();
+        amount.value = Number(url.searchParams.get('amount'));
+        transactionMessage.value = url.searchParams.get('message')?.toString();
 
         toAddress.value = address;
         if (currency && relevantAssets.value.findIndex(ra => ra.asset_code === currency) !== -1) {
@@ -372,9 +404,13 @@
         }
 
         if (selectedBalance.value?.assets.find(a => a.name === selectedAsset.value.asset_code)?.amount === 0) {
-            alert(`no wallets with balance for ${selectedAsset.value}`); /// @todo: change to notification
+            alert(`No wallets with balance for ${selectedAsset.value}`); /// @todo: change to notification
         }
 
+        const isValidAddress = validateAddress();
+        const isValidAmount = validateAmount();
+
+        if (!isValidAmount || !isValidAddress) return;
         alert(`Scanned ${currency} address: ${address}`);
     };
 </script>

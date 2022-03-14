@@ -221,8 +221,10 @@
 
         const entityIdToMakeTheBridge = await getEntityIDByAccountId(api, substrateKeyRing.address);
 
-        if (entityIdToMakeTheBridge == 0)
+        if (entityIdToMakeTheBridge == 0) {
             addNotification(NotificationType.error, translate('transfer.confirmBridge.entityIdNotFound'), '', 5000);
+            return;
+        }
 
         await bridgeToSubstrate(amount, selectedWallet.value.keyPair.getStellarKeyPair(), entityIdToMakeTheBridge);
         loadingSubtitle.value = translate('transfer.confirmBridge.finishingUp');

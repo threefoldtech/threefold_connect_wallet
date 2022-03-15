@@ -107,7 +107,6 @@
         if (secret.value.split(' ').length === 29) {
             const entropyBytes = getEntropyFromPhrase(secret.value.split(' '));
             const mnemonic = entropyToMnemonic(entropyBytes);
-            console.log({ mnemonic });
             const entropy = calculateWalletEntropyFromAccount(mnemonic, walletIndex.value);
             seed = bytesToHex(entropy);
         }

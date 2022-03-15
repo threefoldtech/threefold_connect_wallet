@@ -84,8 +84,9 @@
     import { bytesToHex } from '@/util/crypto';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import { getEntropyFromPhrase } from 'mnemonicconversion2924';
-    import { mnemonicToEntropy } from '@jimber/simple-bip39';
+    import { entropyToMnemonic, mnemonicToEntropy } from '@jimber/simple-bip39';
     import { addNotification, NotificationType } from '@/service/notificationService';
+    import { calculateWalletEntropyFromAccount } from '@jimber/stellar-crypto';
 
     const walletIndex = ref(0);
 
@@ -104,12 +105,16 @@
 
         console.log(secret.value.split(' ').length);
         if (secret.value.split(' ').length === 29) {
-            const entropyBytes = getEntropyFromPhrase(secret.value);
-            seed = bytesToHex(entropyBytes);
+            const entropyBytes = getEntropyFromPhrase(secret.value.split(' '));
+            const mnemonic = entropyToMnemonic(entropyBytes);
+            console.log({ mnemonic });
+            const entropy = calculateWalletEntropyFromAccount(mnemonic, walletIndex.value);
+            seed = bytesToHex(entropy);
         }
 
         if (secret.value.split(' ').length === 24) {
-            seed = mnemonicToEntropy(secret.value);
+            const entropy = calculateWalletEntropyFromAccount(secret.value, walletIndex.value);
+            seed = bytesToHex(entropy);
         }
 
         if (!seed) {

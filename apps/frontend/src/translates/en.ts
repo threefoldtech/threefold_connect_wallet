@@ -152,7 +152,7 @@ export default <Translation>{
             noFunds: 'No funds on this wallet',
         },
         confirmBridge: {
-            title: 'Confirm transaction',
+            title: 'Confirm Transaction',
             message: 'Confirm your transaction',
             payWith: 'Pay with',
             to: 'To',

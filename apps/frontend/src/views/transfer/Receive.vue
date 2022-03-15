@@ -166,14 +166,16 @@
             <div class="flex min-h-screen text-center md:block md:px-2 lg:px-4" @click="showImage = false">
                 <span class="hidden md:inline-block md:h-screen md:align-middle" aria-hidden="true">&#8203;</span>
                 <div class="flex h-screen w-screen flex-col justify-center p-4">
-                    <img
-                        class="z-50 h-full w-full object-contain"
-                        v-if="imageUrl"
-                        :src="imageUrl"
-                        alt="qr-code"
-                        crossorigin="anonymous"
-                        @click="showImage = true"
-                    />
+                    <div class="z-50">
+                        <img
+                            class="z-50 h-full w-full bg-white object-contain p-8"
+                            v-if="imageUrl"
+                            :src="imageUrl"
+                            alt="qr-code"
+                            crossorigin="anonymous"
+                            @click="showImage = true"
+                        />
+                    </div>
                 </div>
             </div>
             <div class="fixed top-4 right-4">

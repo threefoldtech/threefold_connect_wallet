@@ -83,6 +83,9 @@
     import { PkidWalletTypes } from '@/service/initializationService';
     import { bytesToHex } from '@/util/crypto';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
+    import { getEntropyFromPhrase } from 'mnemonicconversion2924';
+    import { mnemonicToEntropy } from '@jimber/simple-bip39';
+    import { addNotification, NotificationType } from '@/service/notificationService';
 
     const walletIndex = ref(0);
 
@@ -92,9 +95,37 @@
     const secret = ref();
 
     const importWallet = async () => {
-        const importedKeypair = Keypair.fromSecret(secret.value);
+        let seed: string | null = null;
+        if (secret.value.length === 56) {
+            const importedKeypair = Keypair.fromSecret(secret.value);
+            const entropyBytes = importedKeypair.rawSecretKey();
+            seed = bytesToHex(entropyBytes);
+        }
+
+        console.log(secret.value.split(' ').length);
+        if (secret.value.split(' ').length === 29) {
+            const entropyBytes = getEntropyFromPhrase(secret.value.split(' '));
+            seed = bytesToHex(entropyBytes);
+        }
+
+        if (secret.value.split(' ').length === 24) {
+            seed = mnemonicToEntropy(secret.value);
+        }
+
+        if (!seed) {
+            addNotification(NotificationType.error, 'Invalid secret', 'Please enter a valid secret', 5000);
+            return;
+        }
+
+        //check if seed is already in use
+        const foundWallet = wallets.value.find(w => w.keyPair.getSeed() === seed);
+        if (foundWallet) {
+            addNotification(NotificationType.error, 'Wallet already exists', 'Please enter a different secret', 5000);
+            return;
+        }
+
         wallets.value.push({
-            keyPair: new WalletKeyPair(bytesToHex(importedKeypair.rawSecretKey())),
+            keyPair: new WalletKeyPair(seed),
             name: name.value,
             meta: {
                 index: -1,

@@ -103,7 +103,6 @@
             seed = bytesToHex(entropyBytes);
         }
 
-        console.log(secret.value.split(' ').length);
         if (secret.value.split(' ').length === 29) {
             const entropyBytes = getEntropyFromPhrase(secret.value.split(' '));
             const mnemonic = entropyToMnemonic(entropyBytes);

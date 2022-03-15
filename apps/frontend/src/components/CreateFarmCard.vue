@@ -421,8 +421,6 @@
         const api = await getSubstrateApi();
 
         console.debug('this is the provided info', farmName, publicIps);
-        console.log(desiredWallet.value.keyPair.getSubstrateKeyring());
-
         const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, publicIps);
 
         console.debug(

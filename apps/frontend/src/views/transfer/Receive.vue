@@ -68,7 +68,7 @@
                         type="number"
                     />
                 </div>
-                <div v-if="isValidAmount === false" class="text-xs text-red-500">Please enter a valid amount</div>
+                <div v-if="isValidAmount === false" class="text-xs text-red-500">{{ $t('errors.validAmount') }}</div>
             </div>
             <div class="w-1/12"></div>
             <div class="w-5/12">

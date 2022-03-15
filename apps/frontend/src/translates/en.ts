@@ -199,4 +199,8 @@ export default <Translation>{
             TFT: 'Threefold Token',
         },
     },
+    errors: {
+        balanceTooLow: 'Balance too low',
+        validAmount: 'Transaction amount must be more than 1 TFT',
+    },
 };

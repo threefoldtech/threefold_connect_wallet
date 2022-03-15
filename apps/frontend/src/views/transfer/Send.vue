@@ -169,7 +169,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="text-sm text-red-500" v-if="isValidAmount === false">Please enter a valid amount</div>
+                <div class="text-sm text-red-500" v-if="isValidAmount === false">{{ $t('errors.balanceTooLow') }}</div>
                 <div class="mt-4 flex space-x-4">
                     <button class="flex-1 rounded-md border border-gray-300 p-1" @click="setAmount(0.25)">25%</button>
                     <button class="flex-1 rounded-md border border-gray-300 p-1" @click="setAmount(0.5)">50%</button>
@@ -294,6 +294,12 @@
 
     const selectedAsset = ref(asset || relevantAssets.value[0]);
 
+    watch(selectedChain, _ => {
+        toAddress.value = '';
+        amount.value = 0;
+        transactionMessage.value = '';
+    });
+
     watch(relevantAssets, (value: Asset[]) => {
         if (value.length === 0) {
             return;
@@ -416,11 +422,6 @@
         if (selectedBalance.value?.assets.find(a => a.name === selectedAsset.value.asset_code)?.amount === 0) {
             alert(`No wallets with balance for ${selectedAsset.value}`); /// @todo: change to notification
         }
-
-        const isValidAddress = validateAddress();
-        const isValidAmount = validateAmount();
-
-        if (!isValidAmount || !isValidAddress) return;
     };
 </script>
 

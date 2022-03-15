@@ -33,7 +33,7 @@
                 <div v-if="!migrationFarm" data-field="wallet">
                     <h2 class="pb-2 text-sm font-semibold uppercase">Choose a wallet</h2>
                     <div class="w-full">
-                        <Menu as="div" class="relative inline-block w-full text-left">
+                        <Menu as="div" class="scrollbar relative inline-block w-full text-left">
                             <div>
                                 <MenuButton
                                     class="inline-flex w-full justify-between rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"

@@ -104,7 +104,7 @@
 
         console.log(secret.value.split(' ').length);
         if (secret.value.split(' ').length === 29) {
-            const entropyBytes = getEntropyFromPhrase(secret.value.split(' '));
+            const entropyBytes = getEntropyFromPhrase(secret.value);
             seed = bytesToHex(entropyBytes);
         }
 

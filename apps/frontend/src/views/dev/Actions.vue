@@ -47,7 +47,7 @@
         const keyPair = Keypair.random();
         const wallet: Wallet = {
             keyPair: new WalletKeyPair(bytesToHex(keyPair.rawSecretKey())),
-            meta: { chain: 'stellar', type: PkidWalletTypes.Native },
+            meta: { type: PkidWalletTypes.Native },
             name: `testWallet-${nanoid()}`,
         };
         wallets.value.push(wallet);

@@ -97,6 +97,13 @@
 
     const importWallet = async () => {
         let seed: string | null = null;
+
+        //native seed
+        if (secret.value.length === 64) {
+            seed = secret.value;
+        }
+
+        //stellar secret
         if (secret.value.length === 56) {
             const importedKeypair = Keypair.fromSecret(secret.value);
             const entropyBytes = importedKeypair.rawSecretKey();
@@ -127,13 +134,20 @@
             return;
         }
 
+        let walletKeyPair: WalletKeyPair;
+        try {
+            walletKeyPair = new WalletKeyPair(seed);
+        } catch (e) {
+            addNotification(NotificationType.error, 'Invalid secret', 'Please enter a valid secret', 5000);
+            return;
+        }
+
         wallets.value.push({
-            keyPair: new WalletKeyPair(seed),
+            keyPair: walletKeyPair,
             name: name.value,
             meta: {
                 index: -1,
                 type: PkidWalletTypes.Imported,
-                chain: 'stellar',
             },
         });
 
@@ -142,8 +156,7 @@
                 type: wallet.meta.type,
                 name: wallet.name,
                 index: wallet.meta.index,
-                seed: bytesToHex(wallet.keyPair.getStellarKeyPair().rawSecretKey()),
-                chain: 'stellar',
+                seed: walletKeyPair.getSeed(),
             })
         );
 

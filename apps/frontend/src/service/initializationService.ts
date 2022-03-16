@@ -52,7 +52,6 @@ export const initFirstWallet = async () => {
     const pkid = getPkidClient();
 
     const initialWallet: PkidWallet = {
-        chain: 'stellar',
         index: 0,
         name: 'Daily',
         position: 0,
@@ -73,7 +72,6 @@ export const initFirstWallet = async () => {
                     index: initialWallet.index,
                     type: initialWallet.type,
                     position: initialWallet.position,
-                    chain: initialWallet.chain,
                 },
             },
         ];
@@ -105,7 +103,6 @@ export const initFirstWallet = async () => {
                 index: initialWallet.index,
                 type: initialWallet.type,
                 position: initialWallet.position,
-                chain: initialWallet.chain,
             },
         },
     ];
@@ -188,7 +185,6 @@ export const init = async (name: string, seedString: string) => {
                 index: wallet.index,
                 type: wallet.type,
                 position: wallet.position,
-                chain: wallet.chain,
             },
         };
     });
@@ -223,7 +219,6 @@ const mapV2toV3PkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet): Pk
     const walletKeypair: Keypair = keypairFromAccount(walletEntropy);
 
     return {
-        chain: 'stellar',
         index: wallet.index,
         name: wallet.walletName,
         position: wallet.position,

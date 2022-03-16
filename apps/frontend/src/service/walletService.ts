@@ -16,10 +16,8 @@ import BalanceLine = Horizon.BalanceLine;
 export interface Wallet {
     name: string;
     keyPair: WalletKeyPair;
-
     meta: {
         position?: number;
-        chain: 'stellar';
         type: PkidWalletTypes;
         index?: number;
     };
@@ -151,7 +149,6 @@ export const saveWallets = async () => {
             name: wallet.name,
             index: wallet.meta.index,
             seed: bytesToHex(wallet.keyPair.getStellarKeyPair().rawSecretKey()),
-            chain: 'stellar',
         })
     );
 

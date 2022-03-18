@@ -226,7 +226,7 @@
         RadioGroupLabel,
         RadioGroupOption,
     } from '@headlessui/vue';
-    import { computed, ref, watch } from 'vue';
+    import { computed, nextTick, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
     import { AssetBalance, Balance, balances, Wallet, wallets } from '@/service/walletService';
     import uniq from 'lodash/uniq';
@@ -410,11 +410,13 @@
             selectedChain.value = validatedAddress.type;
         }
 
-        const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0].toUpperCase();
-        amount.value = toNumber(url.searchParams.get('amount'));
-        transactionMessage.value = url.searchParams.get('message');
+        await new Promise(resolve =>
+            nextTick(() => {
+                resolve(true);
+            })
+        );
 
-        toAddress.value = address;
+        const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0].toUpperCase();
         if (currency && relevantAssets.value.findIndex(ra => ra.asset_code === currency) !== -1) {
             selectedAsset.value.asset_code = currency.toUpperCase();
         }
@@ -428,6 +430,10 @@
                 wallets.value.find(w => w.keyPair.getBasePublicKey() === firstBalance?.id) || selectedWallet.value;
             selectedAsset.value = { asset_code: currency.toUpperCase(), type: 'stellar' };
         }
+
+        amount.value = toNumber(url.searchParams.get('amount'));
+        transactionMessage.value = url.searchParams.get('message');
+        toAddress.value = address;
 
         if (selectedBalance.value?.assets.find(a => a.name === selectedAsset.value.asset_code)?.amount === 0) {
             alert(`No wallets with balance for ${selectedAsset.value}`); /// @todo: change to notification

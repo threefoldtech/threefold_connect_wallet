@@ -12,7 +12,6 @@ export const createEntitySign = (key: KeyringPair, name: string, country: string
         throw Error('You must pass a valid name');
     }
 
-    console.log(TextEncoder);
     const utf8Encode = new TextEncoder();
     const nameAsBytes = utf8Encode.encode(name);
     const countryAsBytes = utf8Encode.encode(country);

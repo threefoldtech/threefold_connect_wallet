@@ -8,7 +8,6 @@ export interface PkidWallet {
     name: string;
     position?: number;
     seed: string; //@TODO: should add seed instead of this
-    chain: 'stellar';
     type: PkidWalletTypes;
     index?: number;
 }

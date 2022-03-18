@@ -76,17 +76,15 @@
     import { Wallet } from '@/service/walletService';
     import { Dialog } from '@headlessui/vue';
     import { XIcon, ArrowUpIcon, ArrowDownIcon, LinkIcon } from '@heroicons/vue/solid';
-
     import { ServerApi } from 'stellar-sdk';
-    import OperationRecord = ServerApi.OperationRecord;
     import { ref } from 'vue';
-    import MainLayout from '@/layouts/MainLayout.vue';
-    import PageHeader from '@/components/header/PageHeader.vue';
     import { formatTime } from '@/util/time';
     import { formatCurrency } from '@/util/formatCurrency';
+    import MainLayout from '@/layouts/MainLayout.vue';
+    import PageHeader from '@/components/header/PageHeader.vue';
 
     interface IProps {
-        operation: OperationRecord;
+        operation: ServerApi.OperationRecord;
         wallet: Wallet;
     }
 

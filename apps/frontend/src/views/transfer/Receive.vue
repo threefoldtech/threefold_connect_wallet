@@ -203,16 +203,15 @@
         RadioGroupOption,
         DialogOverlay,
     } from '@headlessui/vue';
-    import { XIcon, SelectorIcon, CheckIcon } from '@heroicons/vue/solid';
-
-    const router = useRouter();
-
     import QRCodeStyling from 'qrcode-vue3/src/core/QRCodeStyling';
     import { balances, Wallet, wallets } from '@/service/walletService';
     import uniq from 'lodash/uniq';
     import flagsmith from 'flagsmith';
     import { isValidMemoOfTransaction } from '@/util/validate';
     import { ChainTypes } from '@/enums/chains.enums';
+    import { XIcon, SelectorIcon, CheckIcon } from '@heroicons/vue/solid';
+
+    const router = useRouter();
 
     interface IProps {
         assetCode?: string;
@@ -231,7 +230,7 @@
     const showImage = ref(false);
     const isValidMemo = ref<boolean>();
     const selectedWallet = ref<Wallet>(
-        wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === toAddress) || wallets.value[0]
+        wallets.value?.find((w: Wallet) => w.keyPair.getStellarKeyPair().publicKey() === toAddress) || wallets.value[0]
     );
 
     type Asset = { asset_code: string; type: string };
@@ -301,7 +300,7 @@
             cornersDotOptions: { type: 'dot', color: '#020054' },
         });
 
-        qr.getImageUrl('png').then(url => (imageUrl.value = url));
+        qr.getImageUrl('png').then((url: string) => (imageUrl.value = url));
         showImage.value = true;
     };
 </script>

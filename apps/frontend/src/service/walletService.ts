@@ -71,7 +71,7 @@ export const getOperations = async (wallet: Wallet, cursor?: string): Promise<Co
 };
 
 export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
-    const allowedAssets: AllowedAsset[] = JSON.parse(<string>flagsmith.getValue('currencies'));
+    const allowedAssets: AllowedAsset[] = JSON.parse(<string>flagsmith.getValue('supported-currencies'));
 
     const balance: Balance = balances.value.find(value => value.id === wallet.keyPair.getBasePublicKey()) || {
         id: wallet.keyPair.getBasePublicKey(),

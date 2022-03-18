@@ -3,6 +3,7 @@ import { ChainTypes } from '@/enums/chains.enums';
 import { decodeAddress, encodeAddress } from '@polkadot/keyring';
 import { hexToU8a, isHex } from '@polkadot/util';
 import { StrKey } from 'stellar-sdk';
+import { ValidateWalletAddress } from '@/types/wallet.types';
 
 export function validateWalletName(name: string, selectedWalletName: string): string | null {
     // Case when they just click change without changing the name
@@ -27,7 +28,7 @@ export function validateWalletName(name: string, selectedWalletName: string): st
     return null;
 }
 
-export const validateWalletAddress = (walletAddress: string | undefined): Object => {
+export const validateWalletAddress = (walletAddress: string | undefined): ValidateWalletAddress => {
     if (!walletAddress) {
         return {
             type: ChainTypes.UNKNOWN,

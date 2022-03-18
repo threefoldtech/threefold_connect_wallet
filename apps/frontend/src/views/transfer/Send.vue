@@ -213,7 +213,7 @@
 
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
-    import { CheckIcon, SelectorIcon, ArrowLeftIcon, QrcodeIcon } from '@heroicons/vue/outline';
+    import { ArrowLeftIcon, CheckIcon, QrcodeIcon, SelectorIcon } from '@heroicons/vue/outline';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRouter } from 'vue-router';
     import {
@@ -298,6 +298,10 @@
         toAddress.value = '';
         amount.value = 0;
         transactionMessage.value = '';
+
+        isValidToAddress.value = true;
+        isValidMessage.value = true;
+        isValidAmount.value = true;
     });
 
     watch(relevantAssets, (value: Asset[]) => {
@@ -392,7 +396,7 @@
         });
     };
     const scanQr = async () => {
-        if (!(<any>window).flutter_inappwebview) alert('not supported in this browser');
+        if (!(<any>window).flutter_inappwebview) alert('Not supported in this browser');
 
         const code = await (<any>window).flutter_inappwebview?.callHandler('SCAN_QR');
         const url = new URL(code);
@@ -400,6 +404,12 @@
         console.log('Received QR Data');
         console.log(url);
         const address = url.hostname === '' ? url.pathname.replace('//', '') : url.hostname;
+
+        const validatedAddress = await validateWalletAddress(address);
+        if (validatedAddress.valid && validatedAddress.type != ChainTypes.UNKNOWN) {
+            selectedChain.value = validatedAddress.type;
+        }
+
         const currency: string | undefined = url.protocol.match(/[a-zA-Z]+/g)?.[0].toUpperCase();
         amount.value = toNumber(url.searchParams.get('amount'));
         transactionMessage.value = url.searchParams.get('message');

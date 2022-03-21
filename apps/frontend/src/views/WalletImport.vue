@@ -48,7 +48,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700" for="walletindex">{{
                             $t('walletImport.addressIndex')
-                        }}</label>
+                        }} <small class="text-primary-500" @click="walletIndex = 0">{{ $t('walletImport.addressIndexInfo') }}</small></label>
                         <div class="mt-1">
                             <input
                                 id="walletindex"
@@ -118,11 +118,17 @@
         }
 
         if (secret.value.split(' ').length === 24) {
-            const entropy = calculateWalletEntropyFromAccount(secret.value, walletIndex.value);
-            seed = bytesToHex(entropy);
+          const entropy = calculateWalletEntropyFromAccount(secret.value, walletIndex.value);
+          //
+          // const entropy = mnemonicToEntropy(secret.value)
+          seed = bytesToHex(entropy);
         }
 
-        if (!seed) {
+        if (secret.value.split(' ').length === 25) {
+          seed = mnemonicToEntropy(secret.value.replace('wallet ', ''))
+        }
+
+      if (!seed) {
             addNotification(NotificationType.error, 'Invalid secret', 'Please enter a valid secret', 5000);
             return;
         }

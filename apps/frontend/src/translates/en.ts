@@ -42,6 +42,7 @@ export default <Translation>{
         addressIndex: 'Address Index',
         CTA: 'Import Wallet',
         advanced: 'Advanced',
+        addressIndexInfo: '(Default = 0)',
     },
     wallet: {
         overview: {

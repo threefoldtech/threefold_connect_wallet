@@ -7,6 +7,9 @@
         <hr />
         <CTA @click="deleteUnwantedFarms()">delete <span class="text-bold">unwanted</span> Farms</CTA>
         <hr />
+
+        <CTA @click="clearCache()"> Clear cache</CTA>
+
         <Disclosure as="div" class="mt-2" v-slot="{ open }">
             <DisclosureButton
                 class="flex w-full justify-between rounded-lg bg-red-600 px-4 py-2 text-left text-sm font-medium text-white focus:outline-none focus-visible:ring focus-visible:ring-red-500 focus-visible:ring-opacity-75"
@@ -22,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { saveWallets, Wallet, wallets } from '@/service/walletService';
+    import { balances, saveWallets, Wallet, wallets } from '@/service/walletService';
     import { PkidWalletTypes } from '@/service/initializationService';
     import { WalletKeyPair } from '@/lib/WalletKeyPair';
     import { bytesToHex, hexToBytes } from '@/util/crypto';
@@ -145,6 +148,20 @@
         addNotification(NotificationType.success, 'Done', 'Deleted farms');
     };
 
+    const clearCache = () => {
+        const notToClear = ['override', 'devSeed'];
+
+        const keys = Object.keys(localStorage);
+
+        notToClear.forEach(item => {
+            let itemIndex = keys.indexOf(item);
+            keys.splice(itemIndex, 1);
+        });
+
+        keys.forEach(item => {
+            localStorage.removeItem(item);
+        });
+    };
     const activate = async () => {
         await activationServiceForSubstrate('5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B');
         addNotification(NotificationType.success, 'Done', 'Activated');

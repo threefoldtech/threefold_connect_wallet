@@ -31,7 +31,7 @@
     import { computed } from 'vue';
 
     const location = computed(() => {
-        return window.location.toString();
+        return window.history.state;
     });
 </script>
 

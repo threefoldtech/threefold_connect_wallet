@@ -48,8 +48,14 @@ export interface Operation {
     cursor?: string;
 }
 
+export interface FlutterWallet {
+    name: string;
+    chain: string;
+    address: string;
+}
+
 export const wallets: Ref<Wallet[]> = <Ref<Wallet[]>>ref<Wallet[]>([]);
-export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', []); // @TODO: check when to clear cache
+export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', [], {}); // @TODO: check when to clear cache
 export const operations: Ref<Operation[]> = useLocalStorage<Operation[]>('operations_cache', []); // @TODO: check when to clear cache
 
 export const getStellarBalance = async (wallet: Wallet): Promise<AccountRecord> => {
@@ -163,4 +169,20 @@ export const addOrUpdateWallet = (wallet: Wallet) => {
         return;
     }
     wallets.value = [...wallets.value.slice(0, index), wallet, ...wallets.value.slice(index + 1)];
+};
+
+export const sendWalletDataToFlutter = () => {
+    if (!wallets.value) return;
+
+    //@TODO: implement this for substrate / stellar (Only hardcoded stellar atm)
+    const walletsToSend: FlutterWallet[] = wallets.value.map(wallet => {
+        return {
+            name: wallet.name,
+            chain: 'stellar',
+            address: wallet.keyPair.getStellarKeyPair().publicKey(),
+        };
+    });
+
+    //@ts-ignore
+    globalThis?.flutter_inappwebview?.callHandler.callHandler.callHandler('SAVE_WALLETS', walletsToSend);
 };

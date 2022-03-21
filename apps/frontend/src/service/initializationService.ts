@@ -8,7 +8,7 @@ import Pkid from '@jimber/pkid';
 import flagsmith from 'flagsmith';
 import sodium from 'libsodium-wrappers';
 import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from '@jimber/stellar-crypto';
-import { wallets } from '@/service/walletService';
+import { sendWalletDataToFlutter, wallets } from '@/service/walletService';
 import { getPkidClient, PkidWallet } from '@/service/pkidService';
 import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/service/cryptoService';
@@ -190,6 +190,8 @@ export const init = async (name: string, seedString: string) => {
     });
 
     userInitialized.value = name.slice(0, -5);
+
+    sendWalletDataToFlutter();
 };
 
 //@todo: make this prettier/more readable/better

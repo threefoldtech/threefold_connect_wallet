@@ -117,7 +117,7 @@
                                 class="my-8 inline-block w-full max-w-md transform overflow-hidden rounded-md bg-white p-6 text-left align-middle shadow-xl transition-all"
                             >
                                 <div class="flex w-full flex-col items-center justify-center">
-                                    <div class="pb-4 text-center">{{ loadingSubtitle }} ...</div>
+                                    <div class="pb-4 text-center">{{ loadingSubtitle }}</div>
                                     <div>
                                         <svg
                                             class="h-6 animate-spin text-center text-primary-600"

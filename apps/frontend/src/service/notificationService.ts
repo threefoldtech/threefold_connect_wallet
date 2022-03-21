@@ -22,8 +22,15 @@ export const addNotification = (
     type: NotificationType = NotificationType.info,
     message: string,
     subtitle?: string,
-    duration?: number
+    duration: number = 10000
 ) => {
+    const foundNotification = notifications.value.find(
+        (notification: Notification) => notification.message === message && notification.subtitle === subtitle
+    );
+    if (foundNotification) {
+        return;
+    }
+
     const notification: Notification = {
         duration,
         // @ts-ignore

@@ -13,8 +13,17 @@ import { SubstrateFarmDto } from '@/types/substrate.types';
 import { addNotification, NotificationType } from '@/service/notificationService';
 import { translate } from '@/util/translate';
 import router from '@/router';
+import throttle from 'lodash/throttle';
 
 const apiCache = ref<ApiPromise>();
+
+const throttleSubstrateDisconnectedNotification = throttle(
+    () => {
+        addNotification(NotificationType.error, translate('notification.substrateDisconnected'));
+    },
+    15000,
+    { leading: true }
+);
 
 export const getSubstrateApi = async (): Promise<ApiPromise> => {
     if (apiCache.value) return apiCache.value;
@@ -22,7 +31,7 @@ export const getSubstrateApi = async (): Promise<ApiPromise> => {
     const endpoint = <string>flagsmith.getValue('tfchain_endpoint');
     const provider = new WsProvider(endpoint);
     provider.on('disconnected', () => {
-        addNotification(NotificationType.error, translate('notification.substrateDisconnected'));
+        throttleSubstrateDisconnectedNotification();
     });
     const api = await ApiPromise.create({ provider, types });
     await api.isReady;

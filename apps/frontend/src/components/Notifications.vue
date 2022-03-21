@@ -6,7 +6,7 @@
         >
             <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
                 <!-- Notification panel, dynamically insert this into the live region when it needs to be displayed -->
-                <template v-for="notification in notifications">
+                <template v-for="notification in filteredNotifications">
                     <transition
                         enter-active-class="transform ease-out duration-300 transition"
                         enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
@@ -76,4 +76,9 @@
     import { notifications } from '@/service/notificationService';
     import { Portal } from '@headlessui/vue';
     import { NotificationType } from '@/service/notificationService';
+    import { computed } from 'vue';
+
+    const filteredNotifications = computed(() => {
+        return notifications.value.slice(0, 5).reverse();
+    });
 </script>

@@ -196,8 +196,8 @@ export default <Translation>{
             XLM: 'Stellar Lumens',
             btc: 'Bitcoin',
             BTC: 'Bitcoin',
-            tft: 'Threefold Token',
-            TFT: 'Threefold Token',
+            tft: 'ThreeFold Token',
+            TFT: 'ThreeFold Token',
         },
     },
     errors: {

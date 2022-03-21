@@ -191,7 +191,9 @@ export const init = async (name: string, seedString: string) => {
 
     userInitialized.value = name.slice(0, -5);
 
-    sendWalletDataToFlutter();
+    setTimeout(() => {
+        sendWalletDataToFlutter();
+    }, 5000);
 };
 
 //@todo: make this prettier/more readable/better

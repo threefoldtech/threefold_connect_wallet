@@ -197,14 +197,18 @@ export const sendWalletDataToFlutter = () => {
     if (!wallets.value) return;
 
     //@TODO: implement this for substrate / stellar (Only hardcoded stellar atm)
-    const walletsToSend: FlutterWallet[] = wallets.value.map(wallet => {
-        return {
-            name: wallet.name,
-            chain: 'stellar',
-            address: wallet.keyPair.getStellarKeyPair().publicKey(),
-        };
-    });
+    return new Promise(resolve => {
+        const walletsToSend: FlutterWallet[] = wallets.value.map(wallet => {
+            return {
+                name: wallet.name,
+                chain: 'stellar',
+                address: wallet.keyPair.getStellarKeyPair().publicKey(),
+            };
+        });
 
-    //@ts-ignore
-    globalThis?.flutter_inappwebview?.callHandler.callHandler.callHandler('SAVE_WALLETS', walletsToSend);
+        //@ts-ignore
+        globalThis?.flutter_inappwebview?.callHandler('SAVE_WALLETS', walletsToSend);
+
+        resolve(true);
+    });
 };

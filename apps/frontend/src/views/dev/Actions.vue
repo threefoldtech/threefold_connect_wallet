@@ -161,6 +161,8 @@
         keys.forEach(item => {
             localStorage.removeItem(item);
         });
+
+        addNotification(NotificationType.success, 'Done', 'Cleared cache');
     };
     const activate = async () => {
         await activationServiceForSubstrate('5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B');

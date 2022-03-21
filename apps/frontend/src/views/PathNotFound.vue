@@ -11,6 +11,7 @@
             <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
                 Uh oh! I think you’re lost.
             </h1>
+            <pre>{{ window.location }}</pre>
             <p class="mt-2 text-lg font-medium text-black text-opacity-50">
                 It looks like the page you’re looking for doesn't exist.
             </p>

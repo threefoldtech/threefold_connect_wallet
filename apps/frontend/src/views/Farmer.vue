@@ -110,14 +110,14 @@
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import { saveWallets, wallets } from '@/service/walletService';
+    import { saveWallets, Wallet, wallets } from '@/service/walletService';
 
     import { Dialog, DialogOverlay } from '@headlessui/vue';
 
     import { PlusCircleIcon } from '@heroicons/vue/outline';
     import { nanoid } from 'nanoid';
     import { PkidWalletTypes } from '@/service/initializationService';
-    import { WalletKeyPair } from '@/lib/WalletKeyPair';
+    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/lib/WalletKeyPair';
     import flagsmith from 'flagsmith';
     import { computed, onBeforeUnmount, ref } from 'vue';
     import axios from 'axios';
@@ -136,7 +136,11 @@
     const showCreateNewFarm = ref<boolean>(false);
 
     const createWallet = async () => {
-        const walletKeyPair = WalletKeyPair.random();
+        const walletKeyPairBuilder = new WalletKeyPairBuilder();
+        walletKeyPairBuilder.addRandomSeed();
+
+        const walletKeyPair = <IWalletKeyPair>walletKeyPairBuilder.build();
+
         console.log(walletKeyPair.getStellarKeyPair().publicKey());
         wallets.value.push({
             keyPair: walletKeyPair,

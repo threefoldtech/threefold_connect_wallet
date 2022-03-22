@@ -15,6 +15,12 @@
     </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+    import { computed } from 'vue';
+
+    const location = computed(() => {
+        return window.history.state;
+    });
+</script>
 
 <style scoped></style>

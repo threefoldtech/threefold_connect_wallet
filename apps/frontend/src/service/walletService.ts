@@ -4,7 +4,7 @@ import flagsmith from 'flagsmith';
 import { getStellarClient } from '@/service/stellarService';
 import { PkidWalletTypes } from '@/service/initializationService';
 import { useLocalStorage } from '@vueuse/core';
-import { WalletKeyPair } from '@/lib/WalletKeyPair';
+import { IWalletKeyPair } from '@/lib/WalletKeyPair';
 import { bytesToHex } from '@/util/crypto';
 import { getPkidClient, PkidWallet } from '@/service/pkidService';
 import AccountRecord = ServerApi.AccountRecord;
@@ -15,7 +15,7 @@ import BalanceLine = Horizon.BalanceLine;
 
 export interface Wallet {
     name: string;
-    keyPair: WalletKeyPair;
+    keyPair: IWalletKeyPair;
     meta: {
         position?: number;
         type: PkidWalletTypes;
@@ -61,7 +61,14 @@ export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cach
             if (!v) {
                 return null;
             }
-            const allowedAssets: AllowedAsset[] = JSON.parse(<string>flagsmith.getValue('supported-currencies'));
+            const allowedAssets: AllowedAsset[] = JSON.parse(<string>flagsmith.getValue('supported-currencies')) ?? [
+                {
+                    name: 'TFT',
+                    asset_code: 'TFT',
+                    type: 'stellar',
+                    issuer: 'GBOVQKJYHXRR3DX6NOX2RRYFRCUMSADGDESTDNBDS6CDVLGVESRTAC47',
+                },
+            ];
 
             const value: Balance[] = JSON.parse(v);
             const parsed = value.map((balance: Balance): Balance => {
@@ -176,7 +183,7 @@ export const saveWallets = async () => {
             type: wallet.meta.type,
             name: wallet.name,
             index: wallet.meta.index,
-            seed: bytesToHex(wallet.keyPair.getStellarKeyPair().rawSecretKey()),
+            seed: wallet.keyPair.getSeed(),
         })
     );
 

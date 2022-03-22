@@ -45,7 +45,11 @@
         <CopyToClipboardField
             :labelText="$t('wallet.info.tfChainSecret')"
             :disabled="true"
-            :fieldText="`0x${wallet?.keyPair.getSeed()}`"
+            :fieldText="
+                wallet?.keyPair.getSeed().split(' ').length === 12
+                    ? wallet.keyPair.getSeed()
+                    : `0x${wallet?.keyPair.getSeed()}`
+            "
             :isSensitiveData="true"
         >
             <template #icon>

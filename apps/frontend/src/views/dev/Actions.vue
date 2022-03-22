@@ -27,7 +27,7 @@
 <script lang="ts" setup>
     import { balances, saveWallets, Wallet, wallets } from '@/service/walletService';
     import { PkidWalletTypes } from '@/service/initializationService';
-    import { WalletKeyPair } from '@/lib/WalletKeyPair';
+    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/lib/WalletKeyPair';
     import { bytesToHex, hexToBytes } from '@/util/crypto';
     import { Keypair } from 'stellar-sdk';
     import { getPkidClient } from '@/service/pkidService';
@@ -48,8 +48,12 @@
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
+
+        const walletKeyPairBuilder = new WalletKeyPairBuilder();
+        walletKeyPairBuilder.addRandomSeed();
+
         const wallet: Wallet = {
-            keyPair: new WalletKeyPair(bytesToHex(keyPair.rawSecretKey())),
+            keyPair: <IWalletKeyPair>walletKeyPairBuilder.build(),
             meta: { type: PkidWalletTypes.Native },
             name: `testWallet-${nanoid()}`,
         };

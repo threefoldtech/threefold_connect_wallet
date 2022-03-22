@@ -14,7 +14,7 @@ import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/service/cryptoService';
 import { getStellarClient } from '@/service/stellarService';
 import { bytesToHex, hexToBytes } from '@/util/crypto';
-import { WalletKeyPair } from '@/lib/WalletKeyPair';
+import { IWalletKeyPair, WalletKeyPairBuilder } from '@/lib/WalletKeyPair';
 
 type LoadingText = {
     title: string;
@@ -59,6 +59,15 @@ export const initFirstWallet = async () => {
         type: PkidWalletTypes.Native,
     };
 
+    const walletKeyPairBuilder = new WalletKeyPairBuilder();
+    walletKeyPairBuilder.addSeed(bytesToHex(keyPair.rawSecretKey()));
+
+    const walletKeyPair = walletKeyPairBuilder.build();
+
+    if (!walletKeyPair) {
+        throw new Error('Failed to create wallet key pair');
+    }
+
     loadingText.value = { title: 'checkExist' };
 
     try {
@@ -66,7 +75,7 @@ export const initFirstWallet = async () => {
         await pkid.setDoc('purse', [initialWallet], true);
         wallets.value = [
             {
-                keyPair: new WalletKeyPair(bytesToHex(keyPair.rawSecretKey())),
+                keyPair: walletKeyPair,
                 name: initialWallet.name,
                 meta: {
                     index: initialWallet.index,
@@ -97,7 +106,7 @@ export const initFirstWallet = async () => {
     }
     wallets.value = [
         {
-            keyPair: new WalletKeyPair(bytesToHex(keyPair.rawSecretKey())),
+            keyPair: walletKeyPair,
             name: initialWallet.name,
             meta: {
                 index: initialWallet.index,
@@ -175,11 +184,27 @@ export const init = async (name: string, seedString: string) => {
     const pkidPurseWallets: PkidWallet[] = purseDoc.data;
 
     console.table(pkidPurseWallets.map(wallet => ({ ...wallet, seed: '*********************' })));
+    console.table(pkidPurseWallets.map(wallet => ({ ...wallet })));
     wallets.value = pkidPurseWallets.map(wallet => {
-        const keyPair = Keypair.fromRawEd25519Seed(<Buffer>hexToBytes(wallet.seed));
+        const walletKeyPairBuilder = new WalletKeyPairBuilder();
 
+        console.debug({ seed: wallet.seed });
+
+        if (wallet.seed.split(' ').length === 12) {
+            walletKeyPairBuilder.add12WordsSeed(wallet.seed);
+        }
+
+        if (wallet.seed.length === 64) {
+            walletKeyPairBuilder.addSeed(wallet.seed);
+        }
+
+        const walletKeyPair = walletKeyPairBuilder.build();
+
+        if (!walletKeyPair) {
+            throw new Error('Critical Initialization error: no walletKeyPair');
+        }
         return {
-            keyPair: new WalletKeyPair(wallet.seed),
+            keyPair: walletKeyPair,
             name: wallet.name,
             meta: {
                 index: wallet.index,

@@ -46,9 +46,12 @@
                 </DisclosureButton>
                 <DisclosurePanel class="pt-4 pb-2">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700" for="walletindex">{{
-                            $t('walletImport.addressIndex')
-                        }} <small class="text-primary-500" @click="walletIndex = 0">{{ $t('walletImport.addressIndexInfo') }}</small></label>
+                        <label class="block text-sm font-medium text-gray-700" for="walletindex"
+                            >{{ $t('walletImport.addressIndex') }}
+                            <small class="text-primary-500" @click="walletIndex = 0">{{
+                                $t('walletImport.addressIndexInfo')
+                            }}</small></label
+                        >
                         <div class="mt-1">
                             <input
                                 id="walletindex"
@@ -78,11 +81,11 @@
     import { ref } from 'vue';
     import { useRouter } from 'vue-router';
     import { Keypair } from 'stellar-sdk';
-    import { Wallet, wallets } from '@/service/walletService';
+    import { saveWallets, Wallet, wallets } from '@/service/walletService';
     import { getPkidClient, PkidWallet } from '@/service/pkidService';
     import { PkidWalletTypes } from '@/service/initializationService';
     import { bytesToHex } from '@/util/crypto';
-    import { WalletKeyPair } from '@/lib/WalletKeyPair';
+    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/lib/WalletKeyPair';
     import { getEntropyFromPhrase } from 'mnemonicconversion2924';
     import { entropyToMnemonic, mnemonicToEntropy } from '@jimber/simple-bip39';
     import { addNotification, NotificationType } from '@/service/notificationService';
@@ -96,55 +99,56 @@
     const secret = ref();
 
     const importWallet = async () => {
-        let seed: string | null = null;
+        const walletKeyPairBuilder = new WalletKeyPairBuilder();
 
         //native seed
         if (secret.value.length === 64) {
-            seed = secret.value;
+            walletKeyPairBuilder.addSeed(secret.value);
         }
 
         //stellar secret
         if (secret.value.length === 56) {
             const importedKeypair = Keypair.fromSecret(secret.value);
             const entropyBytes = importedKeypair.rawSecretKey();
-            seed = bytesToHex(entropyBytes);
+            walletKeyPairBuilder.addSeed(bytesToHex(entropyBytes));
         }
 
         if (secret.value.split(' ').length === 29) {
             const entropyBytes = getEntropyFromPhrase(secret.value.split(' '));
             const mnemonic = entropyToMnemonic(entropyBytes);
             const entropy = calculateWalletEntropyFromAccount(mnemonic, walletIndex.value);
-            seed = bytesToHex(entropy);
+
+            walletKeyPairBuilder.addSeed(bytesToHex(entropy));
         }
 
         if (secret.value.split(' ').length === 24) {
-          const entropy = calculateWalletEntropyFromAccount(secret.value, walletIndex.value);
-          //
-          // const entropy = mnemonicToEntropy(secret.value)
-          seed = bytesToHex(entropy);
+            const entropy = calculateWalletEntropyFromAccount(secret.value, walletIndex.value);
+            //
+            // const entropy = mnemonicToEntropy(secret.value)
+            walletKeyPairBuilder.addSeed(bytesToHex(entropy));
         }
 
-        if (secret.value.split(' ').length === 25) {
-          seed = mnemonicToEntropy(secret.value.replace('wallet ', ''))
+        if (secret.value.split(' ').length === 12) {
+            walletKeyPairBuilder.add12WordsSeed(secret.value);
         }
 
-      if (!seed) {
+        let walletKeyPair: IWalletKeyPair;
+        try {
+            walletKeyPair = <IWalletKeyPair>walletKeyPairBuilder.build();
+        } catch (e) {
+            addNotification(NotificationType.error, 'Invalid secret', 'Please enter a valid secret', 5000);
+            return;
+        }
+
+        if (!walletKeyPair) {
             addNotification(NotificationType.error, 'Invalid secret', 'Please enter a valid secret', 5000);
             return;
         }
 
         //check if seed is already in use
-        const foundWallet = wallets.value.find(w => w.keyPair.getSeed() === seed);
+        const foundWallet = wallets.value.find(w => w.keyPair.getSeed() === walletKeyPair.getSeed());
         if (foundWallet) {
             addNotification(NotificationType.error, 'Wallet already exists', 'Please enter a different secret', 5000);
-            return;
-        }
-
-        let walletKeyPair: WalletKeyPair;
-        try {
-            walletKeyPair = new WalletKeyPair(seed);
-        } catch (e) {
-            addNotification(NotificationType.error, 'Invalid secret', 'Please enter a valid secret', 5000);
             return;
         }
 
@@ -157,17 +161,7 @@
             },
         });
 
-        const pkidWallets: PkidWallet[] = wallets.value.map(
-            (wallet: Wallet): PkidWallet => ({
-                type: wallet.meta.type,
-                name: wallet.name,
-                index: wallet.meta.index,
-                seed: walletKeyPair.getSeed(),
-            })
-        );
-
-        const pkid = getPkidClient();
-        await pkid.setDoc('purse', pkidWallets, true);
+        await saveWallets(wallets.value);
 
         await router.replace({ name: 'walletList' });
     };

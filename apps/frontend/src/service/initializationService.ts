@@ -184,7 +184,6 @@ export const init = async (name: string, seedString: string) => {
     const pkidPurseWallets: PkidWallet[] = purseDoc.data;
 
     console.table(pkidPurseWallets.map(wallet => ({ ...wallet, seed: '*********************' })));
-    console.table(pkidPurseWallets.map(wallet => ({ ...wallet })));
     wallets.value = pkidPurseWallets.map(wallet => {
         const walletKeyPairBuilder = new WalletKeyPairBuilder();
 

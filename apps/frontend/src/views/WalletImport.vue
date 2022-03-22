@@ -161,7 +161,7 @@
             },
         });
 
-        await saveWallets(wallets.value);
+        await saveWallets();
 
         await router.replace({ name: 'walletList' });
     };

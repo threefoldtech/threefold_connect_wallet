@@ -55,36 +55,7 @@ export interface FlutterWallet {
 }
 
 export const wallets: Ref<Wallet[]> = <Ref<Wallet[]>>ref<Wallet[]>([]);
-export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', [], {
-    serializer: {
-        read: (v: any) => {
-            if (!v) {
-                return null;
-            }
-            const allowedAssets: AllowedAsset[] = JSON.parse(<string>flagsmith.getValue('supported-currencies')) ?? [
-                {
-                    name: 'TFT',
-                    asset_code: 'TFT',
-                    type: 'stellar',
-                    issuer: 'GBOVQKJYHXRR3DX6NOX2RRYFRCUMSADGDESTDNBDS6CDVLGVESRTAC47',
-                },
-            ];
-
-            const value: Balance[] = JSON.parse(v);
-            const parsed = value.map((balance: Balance): Balance => {
-                balance.assets = balance.assets.filter((assetBalance: AssetBalance) => {
-                    return allowedAssets.find(
-                        (allowedAsset: AllowedAsset) =>
-                            allowedAsset.name === assetBalance.name && allowedAsset.issuer === assetBalance.issuer
-                    );
-                });
-                return balance;
-            });
-            return <any>parsed;
-        },
-        write: (v: any) => JSON.stringify(v),
-    },
-}); // @TODO: check when to clear cache
+export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', []); // @TODO: check when to clear cache
 export const operations: Ref<Operation[]> = useLocalStorage<Operation[]>('operations_cache', []); // @TODO: check when to clear cache
 
 export const getStellarBalance = async (wallet: Wallet): Promise<AccountRecord> => {

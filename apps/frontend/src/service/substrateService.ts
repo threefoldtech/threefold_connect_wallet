@@ -19,7 +19,7 @@ const apiCache = ref<ApiPromise>();
 
 const throttleSubstrateDisconnectedNotification = throttle(
     () => {
-        addNotification(NotificationType.error, translate('notification.substrateDisconnected'));
+        // addNotification(NotificationType.error, translate('notification.substrateDisconnected'));
     },
     15000,
     { leading: true }

@@ -191,7 +191,7 @@
                     </div>
                 </div>
                 <div class="text-sm text-red-500" v-if="isValidMessage === false">
-                    Maximum length of message is 29 characters
+                    Maximum length of message is 28 characters
                 </div>
             </div>
             <div class="mt-4">

@@ -87,7 +87,7 @@
         :walletName="wallet.name"
     ></DeleteWalletDialog>
 
-    <div class="p-4" v-if="wallet.meta.type === PkidWalletTypes.Native">
+    <div class="p-4 hidden" v-if="wallet.meta.type === PkidWalletTypes.Native">
         <div class="mt-2 flex">
             <button
                 :disabled="wallet.meta.type === PkidWalletTypes.Native"

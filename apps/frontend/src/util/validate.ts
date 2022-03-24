@@ -76,5 +76,5 @@ export const validateStellarAddress = (walletAddress: string | undefined) => {
 };
 
 export const isValidMemoOfTransaction = (memo: string) => {
-    return memo.trim().length <= 29;
+    return memo.trim().length <= 28;
 };

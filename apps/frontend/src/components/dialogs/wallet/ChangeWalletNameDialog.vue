@@ -7,6 +7,7 @@
         <template #content>
             <div class="pb-2">{{ $t('dialog.wallet.changeName.input') }}</div>
             <input
+                @keyup="listenToKeyBindsForValidation"
                 v-model="newWalletName"
                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                 name="name"
@@ -59,6 +60,10 @@
     watch(newWalletName, newValue => {
         walletNameError.value = validateWalletName(newValue, walletName);
     });
+
+    const listenToKeyBindsForValidation = async (e: any) => {
+        walletNameError.value = validateWalletName(e.target?.value, walletName);
+    };
 
     const closeDialog = () => {
         emit('close');

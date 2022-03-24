@@ -149,7 +149,7 @@
                 />
             </div>
             <div v-if="isValidMemo === false" class="text-xs text-red-500">
-                Maximum length of message is 29 characters
+                Maximum length of message is 28 characters
             </div>
         </div>
         <div class="mx-4 mt-4 flex">

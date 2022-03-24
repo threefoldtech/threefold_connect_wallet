@@ -122,10 +122,13 @@
         }
 
         if (secret.value.split(' ').length === 24) {
-            const entropy = calculateWalletEntropyFromAccount(secret.value, walletIndex.value);
-            //
-            // const entropy = mnemonicToEntropy(secret.value)
-            walletKeyPairBuilder.addSeed(bytesToHex(entropy));
+            try {
+                const entropy = calculateWalletEntropyFromAccount(secret.value, walletIndex.value);
+                walletKeyPairBuilder.addSeed(bytesToHex(entropy));
+            } catch (e) {
+                addNotification(NotificationType.error, 'Invalid secret', 'Please enter a valid secret', 5000);
+                return;
+            }
         }
 
         if (secret.value.split(' ').length === 12) {

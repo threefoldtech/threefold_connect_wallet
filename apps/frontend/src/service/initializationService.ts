@@ -187,8 +187,6 @@ export const init = async (name: string, seedString: string) => {
     wallets.value = pkidPurseWallets.map(wallet => {
         const walletKeyPairBuilder = new WalletKeyPairBuilder();
 
-        console.debug({ seed: wallet.seed });
-
         if (wallet.seed.split(' ').length === 12) {
             walletKeyPairBuilder.add12WordsSeed(wallet.seed);
         }

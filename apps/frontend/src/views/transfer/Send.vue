@@ -142,7 +142,7 @@
                 <div class="block text-sm">
                     <span class="pr-2">Amount</span>
                     <span class="text-xs text-gray-400" @click="setCorrectBalance"
-                        >({{ formatCurrency(selectedBalanceWithoutFee) }})</span
+                        >({{ formatCurrency(selectedAssetBalance) }})</span
                     >
                 </div>
                 <div class="relative mt-1 rounded-md shadow-sm">
@@ -177,6 +177,9 @@
                     <button class="flex-1 rounded-md border border-gray-300 p-1" @click="setAmount(1)">100%</button>
                 </div>
             </div>
+            <div class="mt-4">
+                <p>Fee {{ fee.toFixed(7) }} {{ asset?.asset_code }}</p>
+            </div>
             <div v-if="selectedChain === 'stellar'" class="mt-4">
                 <label class="block text-sm font-medium text-gray-700" for="message">Message</label>
                 <div class="mt-1 flex rounded-md shadow-sm">
@@ -193,9 +196,6 @@
                 <div class="text-sm text-red-500" v-if="isValidMessage === false">
                     Maximum length of message is 28 characters
                 </div>
-            </div>
-            <div class="mt-4">
-                <p>Fee {{ fee.toFixed(7) }} {{ asset?.asset_code }}</p>
             </div>
             <div class="grow"></div>
             <div class="mt-4 flex">

@@ -259,7 +259,6 @@ const migratePkid2_xTo3_x = async () => {
     const walletsToMigrate: PkidWallet[] = [];
 
     const pkidAppWalletsDoc = await pkid.getDoc(appKeyPair.value.publicKey, 'wallets');
-    console.log(pkidAppWalletsDoc);
 
     if (pkidAppWalletsDoc?.success) {
         const pkid2_xAppWallets: PkidV2AppWallet[] = pkidAppWalletsDoc.data;

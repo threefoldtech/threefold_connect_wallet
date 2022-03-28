@@ -199,6 +199,7 @@
 
             await submitFundedTransaction(fundedTransaction, fromWallet.keyPair.getStellarKeyPair());
             await router.push({ name: 'walletList' });
+            addNotification(NotificationType.success, translate('transfer.confirmSend.successfullyTransferTokens'));
         } catch (e) {
             await router.back();
             addNotification(NotificationType.error, translate('transfer.confirmSend.failedToTransferTokens'));

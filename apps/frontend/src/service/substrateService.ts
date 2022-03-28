@@ -115,7 +115,6 @@ export const fetchAllFarms = async () => {
 }
 `;
     const ids = [...twinIds.value.values()];
-    console.log('ids', ids);
     const response = await axios.post(<string>flagsmith.getValue('tfchain_graphql_endpoint'), {
         query,
         variables: {
@@ -128,7 +127,6 @@ export const fetchAllFarms = async () => {
         newFarm.public_ips = farm.public_ips.map((ip: any) => ip.ip);
         return newFarm;
     });
-    console.log({ farms });
     // const farms = farmEntries.map(([, farm]) => {
     //     const newFarm = JSON.parse(JSON.stringify(farm));
     //     newFarm.name = bin2String((<any>farm)?.name);

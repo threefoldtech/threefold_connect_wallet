@@ -55,7 +55,6 @@ export class WalletKeyPairBuilder {
         const entropy = mnemonicToEntropy(words);
         const paddedEntropy = entropy.padEnd(64, '0');
 
-        console.log(paddedEntropy);
         const bytes = hexToBytes(paddedEntropy);
         this.baseKeyPair = libsodium.crypto_sign_seed_keypair(bytes);
         this.basePublicKey = bytesToHex(this.baseKeyPair.publicKey);

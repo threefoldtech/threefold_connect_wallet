@@ -187,7 +187,6 @@
             const city = 'Unknown';
 
             const signature = createEntitySign(substrateKeyRing, name, country, city);
-            console.info('Signature: ', signature);
 
             const submittableExtrinsic = api.tx.tfgridModule.createEntity(
                 substrateAddressTo,

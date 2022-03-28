@@ -60,10 +60,7 @@
     const copyToClipboard = () => {
         const isDev = import.meta.env.DEV;
 
-        // @TODO: find a better solution for this
-        // Developer mode doesn't use Flutter Webview so a copy won't work. This is a temporary fix
         if (isDev) {
-            console.log(navigator.clipboard);
             navigator.clipboard.writeText(fieldText);
             console.log('Copied');
             return addNotification(NotificationType.info, 'Text Has Been Copied to Clipboard', fieldText, 2000);

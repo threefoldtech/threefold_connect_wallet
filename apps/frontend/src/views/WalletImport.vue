@@ -101,38 +101,66 @@
     const importWallet = async () => {
         const walletKeyPairBuilder = new WalletKeyPairBuilder();
 
-        //native seed
+        // Native seed
         if (secret.value.length === 64) {
-            walletKeyPairBuilder.addSeed(secret.value);
-        }
-
-        //stellar secret
-        if (secret.value.length === 56) {
-            const importedKeypair = Keypair.fromSecret(secret.value);
-            const entropyBytes = importedKeypair.rawSecretKey();
-            walletKeyPairBuilder.addSeed(bytesToHex(entropyBytes));
-        }
-
-        if (secret.value.split(' ').length === 29) {
-            const entropyBytes = getEntropyFromPhrase(secret.value.split(' '));
-            const mnemonic = entropyToMnemonic(entropyBytes);
-            const entropy = calculateWalletEntropyFromAccount(mnemonic, walletIndex.value);
-
-            walletKeyPairBuilder.addSeed(bytesToHex(entropy));
-        }
-
-        if (secret.value.split(' ').length === 24) {
             try {
-                const entropy = calculateWalletEntropyFromAccount(secret.value, walletIndex.value);
-                walletKeyPairBuilder.addSeed(bytesToHex(entropy));
+                walletKeyPairBuilder.addSeed(secret.value);
             } catch (e) {
                 addNotification(NotificationType.error, 'Invalid secret', 'Please enter a valid secret', 5000);
                 return;
             }
         }
 
+        // Stellar secret
+        if (secret.value.length === 56) {
+            try {
+                const importedKeypair = Keypair.fromSecret(secret.value);
+                const entropyBytes = importedKeypair.rawSecretKey();
+                walletKeyPairBuilder.addSeed(bytesToHex(entropyBytes));
+            } catch (e) {
+                addNotification(NotificationType.error, 'Invalid stellar secret', 'Please enter a valid secret', 5000);
+                return;
+            }
+        }
+
+        // Revine secret
+        if (secret.value.split(' ').length === 29) {
+            try {
+                const entropyBytes = getEntropyFromPhrase(secret.value.split(' '));
+                const mnemonic = entropyToMnemonic(entropyBytes);
+                const entropy = calculateWalletEntropyFromAccount(mnemonic, walletIndex.value);
+
+                walletKeyPairBuilder.addSeed(bytesToHex(entropy));
+            } catch (e) {
+                addNotification(NotificationType.error, 'Invalid revine secret', 'Please enter a valid secret', 5000);
+                return;
+            }
+        }
+
+        // Stellar 24 words
+        if (secret.value.split(' ').length === 24) {
+            try {
+                const entropy = calculateWalletEntropyFromAccount(secret.value, walletIndex.value);
+                walletKeyPairBuilder.addSeed(bytesToHex(entropy));
+            } catch (e) {
+                addNotification(NotificationType.error, 'Invalid seedphrase', 'Please enter a valid seedphrase', 5000);
+                return;
+            }
+        }
+
+        // Substrate 12 words
         if (secret.value.split(' ').length === 12) {
-            walletKeyPairBuilder.add12WordsSeed(secret.value);
+            try {
+                walletKeyPairBuilder.add12WordsSeed(secret.value);
+            } catch (e) {
+                addNotification(
+                    NotificationType.error,
+                    'Invalid substrate seedphrase',
+                    'Please enter a valid seedphrase',
+                    5000
+                );
+                return;
+            }
         }
 
         let walletKeyPair: IWalletKeyPair;

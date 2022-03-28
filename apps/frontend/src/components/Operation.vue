@@ -24,15 +24,32 @@
             <div
                 class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
                 :class="{
-                    'bg-green-600': operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
-                    'bg-red-600': operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
+                    'bg-green-600':
+                        operation?.to === wallet.keyPair.getStellarKeyPair().publicKey() &&
+                        operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
+                    'bg-red-600':
+                        operation?.from === wallet.keyPair.getStellarKeyPair().publicKey() &&
+                        operation?.to !== wallet.keyPair.getStellarKeyPair().publicKey(),
+                    'bg-gray-600':
+                        operation?.to === wallet.keyPair.getStellarKeyPair().publicKey() &&
+                        operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                 }"
             >
                 <ArrowUpIcon
-                    v-if="operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey()"
+                    v-if="
+                        operation?.to === wallet.keyPair.getStellarKeyPair().publicKey() &&
+                        operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey()
+                    "
                     class="h-5 w-5 text-white"
                 />
-                <ArrowDownIcon v-else class="h-5 w-5 text-white" />
+                <ArrowDownIcon
+                    v-else-if="
+                        operation?.from === wallet.keyPair.getStellarKeyPair().publicKey() &&
+                        operation?.to !== wallet.keyPair.getStellarKeyPair().publicKey()
+                    "
+                    class="h-5 w-5 text-white"
+                />
+                <SwitchVerticalIcon v-else class="h-5 w-5 text-white" />
             </div>
             <div class="flex flex-1 flex-col overflow-hidden">
                 <div class="overflow-hidden overflow-ellipsis text-ellipsis">
@@ -75,7 +92,7 @@
 <script lang="ts" setup>
     import { Wallet } from '@/service/walletService';
     import { Dialog } from '@headlessui/vue';
-    import { XIcon, ArrowUpIcon, ArrowDownIcon, LinkIcon } from '@heroicons/vue/solid';
+    import { XIcon, ArrowUpIcon, ArrowDownIcon, LinkIcon, SwitchVerticalIcon } from '@heroicons/vue/solid';
     import { ServerApi } from 'stellar-sdk';
     import { ref } from 'vue';
     import { formatTime } from '@/util/time';

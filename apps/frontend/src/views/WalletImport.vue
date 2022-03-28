@@ -22,6 +22,9 @@
                         type="text"
                     />
                 </div>
+                <div class="pt-2 text-red-500 text-xs" v-if="walletNameError">
+                    {{ $t(`walletImport.error.${walletNameError}`) }}
+                </div>
             </div>
             <div class="mt-4">
                 <label class="block text-sm font-medium text-gray-700" for="secret">{{
@@ -90,16 +93,30 @@
     import { entropyToMnemonic, mnemonicToEntropy } from '@jimber/simple-bip39';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { calculateWalletEntropyFromAccount } from '@jimber/stellar-crypto';
+    import { validateWalletName } from '@/util/validate';
 
     const walletIndex = ref(0);
 
     const router = useRouter();
 
-    const name = ref();
+    const name = ref<string>('');
     const secret = ref();
+
+    const walletNameError = ref<string>();
 
     const importWallet = async () => {
         const walletKeyPairBuilder = new WalletKeyPairBuilder();
+        const errorNameMessage = validateWalletName(name.value, null);
+
+        if (errorNameMessage) {
+            walletNameError.value = errorNameMessage;
+            return;
+        }
+
+        if (!secret.value) {
+            addNotification(NotificationType.error, 'Invalid secret', 'Please enter a valid secret', 5000);
+            return;
+        }
 
         // Native seed
         if (secret.value.length === 64) {

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>{{ name }}</h2>
+        <h2 class="truncate">{{ name }}</h2>
         <div class="mt-2 flex flex-col rounded-2xl border p-4">
             <div v-if="!balance">
                 <div class="flex animate-pulse justify-between text-transparent">

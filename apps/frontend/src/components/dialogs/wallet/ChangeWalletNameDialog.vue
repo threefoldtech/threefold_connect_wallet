@@ -58,11 +58,11 @@
     const newWalletName = ref<string>(walletName);
 
     watch(newWalletName, newValue => {
-        walletNameError.value = validateWalletName(newValue, walletName);
+        walletNameError.value = validateWalletName(newValue.trim(), walletName);
     });
 
     const listenToKeyBindsForValidation = async (e: any) => {
-        walletNameError.value = validateWalletName(e.target?.value, walletName);
+        walletNameError.value = validateWalletName(e.target?.value.trim(), walletName);
     };
 
     const closeDialog = () => {

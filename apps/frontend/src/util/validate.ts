@@ -5,9 +5,9 @@ import { hexToU8a, isHex } from '@polkadot/util';
 import { StrKey } from 'stellar-sdk';
 import { ValidateWalletAddress } from '@/types/wallet.types';
 
-export function validateWalletName(name: string, selectedWalletName: string): string | null {
+export function validateWalletName(name: string, selectedWalletName: string | null): string | null {
     // Case when they just click change without changing the name
-    if (name.toLowerCase() == selectedWalletName.toLowerCase()) {
+    if (name.toLowerCase() == selectedWalletName?.toLowerCase()) {
         return null;
     }
 
@@ -17,6 +17,14 @@ export function validateWalletName(name: string, selectedWalletName: string): st
 
     if (name.length <= 0) {
         return 'empty';
+    }
+
+    const regex = new RegExp('^[a-zA-Z0-9s]+$');
+
+    const isValid = regex.test(name);
+
+    if (!isValid) {
+        return 'alphanumeric';
     }
 
     const walletNames: string[] = wallets.value.map(wallet => wallet.name.toLowerCase());

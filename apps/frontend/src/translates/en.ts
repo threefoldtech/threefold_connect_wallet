@@ -43,6 +43,13 @@ export default <Translation>{
         CTA: 'Import Wallet',
         advanced: 'Advanced',
         addressIndexInfo: '(Default = 0)',
+        error: {
+            maximum: 'The maximum length of the name is 50 characters',
+            empty: 'The name cannot be empty',
+            inUse: 'The name is already in use',
+            null: '',
+            alphanumeric: 'The name can only contain alphanumeric characters',
+        },
     },
     wallet: {
         overview: {
@@ -85,6 +92,7 @@ export default <Translation>{
                     empty: 'The name cannot be empty',
                     inUse: 'The name is already in use',
                     null: '',
+                    alphanumeric: 'The name can only contain alphanumeric characters',
                 },
             },
             delete: {

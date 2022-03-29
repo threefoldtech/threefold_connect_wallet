@@ -3,7 +3,7 @@
         <div class="mx-auto flex h-full max-w-3xl items-center justify-center">
             <div class="flex flex-col items-center justify-center space-y-4 text-center">
                 <div class="h-16 w-16 animate-spin rounded-full border-4 border-dashed border-secondary-600"></div>
-                <div>initializing your first wallet</div>
+                <div @click="inc()">initializing your first wallet</div>
             </div>
         </div>
     </div>
@@ -12,8 +12,20 @@
 <script lang="ts" setup>
     import { initFirstWallet } from '@/service/initializationService';
     import { useRouter } from 'vue-router';
+    import { useCounter } from '@vueuse/core';
+    import { watch } from 'vue';
 
+    const { count, inc, reset } = useCounter();
     const router = useRouter();
+
+    router.beforeEach(() => {
+        reset();
+    });
+
+    watch(count, newValue => {
+        if (newValue < 5) return;
+        router.push({ name: 'devLogs' });
+    });
 
     initFirstWallet().then(() => {
         router.push({ name: 'walletList' });

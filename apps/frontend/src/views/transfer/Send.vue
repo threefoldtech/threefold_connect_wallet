@@ -181,7 +181,7 @@
                 <div class="block text-sm">
                     <span class="pr-2">Fee</span>
                 </div>
-                <div class="text-gray-500">Max {{ assetFee.toFixed(2) }} {{ selectedAsset?.asset_code }}</div>
+                <div class="text-gray-500">Max {{ assetFee?.toFixed(2) }} {{ selectedAsset?.asset_code }}</div>
             </div>
             <div v-if="selectedChain === 'stellar'" class="mt-4">
                 <label class="block text-sm font-medium text-gray-700" for="message">Message</label>

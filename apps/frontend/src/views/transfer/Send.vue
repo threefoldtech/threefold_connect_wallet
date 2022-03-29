@@ -44,24 +44,24 @@
                     </div>
                 </RadioGroup>
             </div>
-            <Listbox v-model="selectedWallet" as="div" class="mt-2">
+            <Listbox v-model="selectedWallet" as="div" class="mt-2" disabled>
                 <ListboxLabel class="block text-sm font-medium text-gray-700">From</ListboxLabel>
-                <div class="relative mt-1">
+                <div class="relative">
                     <ListboxButton
-                        class="relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 sm:text-sm"
+                        class="relative w-full cursor-default bg-white py-1 text-left focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 sm:text-sm"
                     >
-                        <span class="inline-flex w-full truncate">
-                            <span class="shrink-0 truncate">{{ selectedWallet?.name }}</span>
-                            <span v-if="selectedChain === 'stellar'" class="ml-2 truncate text-gray-500">{{
-                                selectedWallet?.keyPair.getStellarKeyPair().publicKey()
-                            }}</span>
-                            <span v-if="selectedChain === 'substrate'" class="ml-2 truncate text-gray-500">{{
-                                selectedWallet?.keyPair.getSubstrateKeyring().address
-                            }}</span>
-                        </span>
-                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                            <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />
-                        </span>
+                        <div class="w-full truncate">
+                            <div class="shrink-0 truncate">{{ selectedWallet?.name }}</div>
+                            <div v-if="selectedChain === 'stellar'" class="truncate text-gray-500">
+                                {{ selectedWallet?.keyPair.getStellarKeyPair().publicKey() }}
+                            </div>
+                            <div v-if="selectedChain === 'substrate'" class="truncate text-gray-500">
+                                {{ selectedWallet?.keyPair.getSubstrateKeyring().address }}
+                            </div>
+                        </div>
+                        <!--                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">-->
+                        <!--                            <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />-->
+                        <!--                        </span>-->
                     </ListboxButton>
 
                     <transition
@@ -161,7 +161,7 @@
                             id="currency"
                             v-model="selectedAsset"
                             :disabled="relevantAssets.length === 0"
-                            class="h-full rounded-md border-transparent bg-transparent py-0 pl-2 pr-7 text-gray-500 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                            class="h-full rounded-md border-transparent bg-transparent py-0 pl-2 pr-8 text-gray-500 focus:border-primary-500 focus:ring-primary-500 sm:text-sm text-right"
                             name="currency"
                             :key="`${selectedAsset?.asset_code}-${selectedAsset?.type}`"
                         >
@@ -296,7 +296,7 @@
 
     watch(selectedChain, _ => {
         toAddress.value = '';
-        amount.value = 0;
+        amount.value = undefined;
         transactionMessage.value = '';
 
         isValidToAddress.value = true;
@@ -318,7 +318,7 @@
     });
 
     const toAddress = ref(to);
-    const amount = ref<number>(toNumber(initialAmount));
+    const amount = ref<number | undefined>(initialAmount);
     const fee = Number(flagsmith.getValue('fee-amount'));
     const isValidToAddress = ref<boolean>();
     const isValidAmount = ref<boolean>();

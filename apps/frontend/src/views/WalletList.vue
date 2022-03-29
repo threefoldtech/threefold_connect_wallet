@@ -29,6 +29,19 @@
         </template>
 
         <div v-if="!showMove" class="flex flex-col space-y-4 p-4">
+            <div
+                v-if="wallets.filter(w => w.meta.type === 'NATIVE').length === 0"
+                @click="router.push({ name: 'firstWalletInit' })"
+            >
+                <h2 class="truncate">Daily</h2>
+                <div class="mt-2 flex flex-col rounded-2xl border p-4">
+                    <div class="">
+                        <button class="rounded-md bg-primary-600 px-4 py-2 text-white">
+                            {{ $t('walletList.createInitialWallet') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
             <WalletCard
                 v-for="wallet in sortedWallets"
                 v-touch:hold="enableMove"
@@ -57,18 +70,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div
-            v-if="wallets.length === 0"
-            class="flex flex-col rounded-2xl border p-4"
-            @click="router.push({ name: 'firstWalletInit' })"
-        >
-            <div class="">
-                <p class="font-semibold">Daily</p>
-            </div>
-            <div class="">
-                <button class="rounded-md bg-primary-600 px-4 py-2 text-white">Create initial wallet</button>
             </div>
         </div>
     </MainLayout>

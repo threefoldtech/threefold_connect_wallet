@@ -30,6 +30,7 @@ export default <Translation>{
     },
     walletList: {
         title: 'My Wallets',
+        createInitialWallet: 'Create Initial Wallet',
     },
     walletCard: {
         noBalance: 'No balance found for this wallet',

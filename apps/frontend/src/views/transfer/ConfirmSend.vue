@@ -49,7 +49,7 @@
                             <AssetIcon name="TFT" />
                         </div>
                     </div>
-                    <div>{{ $t('currency.long.TFT') }} ({{ $t('currency.short.TFT') }})</div>
+                    <div>{{ $t(`currency.long.${asset}`) }} ({{ $t(`currency.short.${asset}`) }})</div>
 
                     <p class="mt-10 text-sm font-semibold">{{ $t('transfer.confirmSend.payWith') }}</p>
                     <p class="mb-2 truncate text-gray-500">

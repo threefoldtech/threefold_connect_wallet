@@ -211,6 +211,8 @@ export default <Translation>{
             BTC: 'Bitcoin',
             tft: 'ThreeFold Token',
             TFT: 'ThreeFold Token',
+            TFTA: 'ThreeFold Token',
+            FreeTFT: 'ThreeFold Token',
         },
     },
     errors: {

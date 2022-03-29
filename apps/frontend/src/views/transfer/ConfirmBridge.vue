@@ -35,8 +35,7 @@
 
                     <hr />
                     <p class="mt-2 text-sm font-semibold">{{ $t('transfer.confirmBridge.fee') }}</p>
-                    <!--              @TODO: make dynamic-->
-                    <p class="truncate text-gray-500">1 TFT</p>
+                    <p class="truncate text-gray-500">{{ fee }} {{ $t('currency.short.TFT') }}</p>
                 </div>
             </div>
 
@@ -138,6 +137,8 @@
 
     const selectedWallet = ref<Wallet>();
     const amount = toNumber(route.params.amount);
+    const fee = toNumber(route.params.fee);
+
     const isLoadingTransaction = ref<boolean>(false);
     const loadingSubtitle = ref<string>('');
 

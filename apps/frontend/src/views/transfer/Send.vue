@@ -178,7 +178,10 @@
                 </div>
             </div>
             <div class="mt-4">
-                <p>Fee {{ fee.toFixed(7) }} {{ asset?.asset_code }}</p>
+                <div class="block text-sm">
+                    <span class="pr-2">Fee</span>
+                </div>
+                <div class="text-gray-500">Max {{ assetFee.toFixed(2) }} {{ selectedAsset?.asset_code }}</div>
             </div>
             <div v-if="selectedChain === 'stellar'" class="mt-4">
                 <label class="block text-sm font-medium text-gray-700" for="message">Message</label>
@@ -241,11 +244,12 @@
     import { formatCurrency } from '@/util/formatCurrency';
 
     const router = useRouter();
-    type Asset = { asset_code: string; type: string };
+    type Asset = { asset_code: string; type: string; fee?: number };
     const allowedAssets: Asset[] = uniq<Asset>(
-        <any[]>JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => ({
+        <any[]>JSON.parse(<string>flagsmith.getValue('supported-currencies')).map((a: any) => ({
             asset_code: a.asset_code,
             type: a.type,
+            fee: a?.fee,
         }))
     );
 
@@ -255,6 +259,12 @@
         amount?: number;
         asset?: Asset;
     }
+
+    const assetFee = computed(() => {
+        return allowedAssets.find(
+            asset => asset.asset_code === selectedAsset.value.asset_code && asset.type === selectedChain.value
+        )?.fee;
+    });
 
     const { from, to, amount: initialAmount, asset } = defineProps<IProps>();
 
@@ -273,8 +283,14 @@
         )?.amount;
     });
 
+    const selectedBalanceWithoutFee = computed(() => {
+        if (assetFee.value == undefined) return;
+        if (selectedAssetBalance.value == undefined || selectedAssetBalance.value <= 0) return 0;
+        return selectedAssetBalance.value - assetFee.value;
+    });
+
     const setCorrectBalance = () => {
-        if (selectedBalanceWithoutFee.value == 0) return;
+        if (selectedBalanceWithoutFee.value == 0 || selectedBalanceWithoutFee.value == undefined) return;
         amount.value = Math.floor(selectedBalanceWithoutFee.value * 100) / 100;
     };
 
@@ -319,7 +335,6 @@
 
     const toAddress = ref(to);
     const amount = ref<number | undefined>(initialAmount);
-    const fee = Number(flagsmith.getValue('fee-amount'));
     const isValidToAddress = ref<boolean>();
     const isValidAmount = ref<boolean>();
     const isValidMessage = ref<boolean>();
@@ -331,8 +346,9 @@
         )?.amount;
 
         if (!assetBalance) return;
+        if (!assetFee.value) return;
 
-        const availableBalanceWithoutFee = assetBalance - fee;
+        const availableBalanceWithoutFee = assetBalance - assetFee.value;
         const newAmount = availableBalanceWithoutFee * multiplier;
         if (newAmount <= 0) {
             return;
@@ -353,10 +369,12 @@
     };
 
     const validateAmount = () => {
+        if (assetFee.value == undefined) return (isValidAmount.value = false);
+
         if (
-            amount.value === undefined ||
+            amount.value == undefined ||
             amount.value <= 0 ||
-            amount.value > toNumber(selectedAssetBalance.value) - fee
+            amount.value > toNumber(selectedAssetBalance.value) - assetFee.value
         ) {
             return (isValidAmount.value = false);
         }
@@ -374,11 +392,6 @@
 
         return (isValidMessage.value = false);
     };
-
-    const selectedBalanceWithoutFee = computed(() => {
-        if (selectedAssetBalance.value == undefined || selectedAssetBalance.value <= 0) return 0;
-        return selectedAssetBalance.value - fee;
-    });
 
     const goToConfirm = async () => {
         const isValidAddress = validateAddress();

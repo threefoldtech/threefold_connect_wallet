@@ -164,6 +164,7 @@ export default <Translation>{
             amount: 'Amount',
             confirm: 'Transfer',
             noFunds: 'No funds on this wallet',
+            fee: 'Fee',
         },
         confirmBridge: {
             title: 'Confirm Transaction',

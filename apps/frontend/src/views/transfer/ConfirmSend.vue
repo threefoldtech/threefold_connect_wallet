@@ -167,14 +167,21 @@
     import AssetIcon from '@/components/AssetIcon.vue';
     import { sendSubstrateTokens } from '@/service/substrateService';
     import { addNotification, NotificationType } from '@/service/notificationService';
-    import { ref } from 'vue';
+    import { computed, ref } from 'vue';
     import { translate } from '@/util/translate';
     import { getStellarClient } from '@/service/stellarService';
     import { AccountResponse } from 'stellar-sdk';
+    import uniq from 'lodash/uniq';
 
     const router = useRouter();
-    const currencies = JSON.parse(<string>flagsmith.getValue('currencies'));
-    const allowedAssets: string[] = currencies.map((a: any) => a.asset_code);
+    type Asset = { asset_code: string; type: string; fee?: number };
+    const allowedAssets: Asset[] = uniq<Asset>(
+        <any[]>JSON.parse(<string>flagsmith.getValue('supported-currencies')).map((a: any) => ({
+            asset_code: a.asset_code,
+            type: a.type,
+            fee: a?.fee,
+        }))
+    );
 
     const route = useRoute();
 
@@ -185,10 +192,14 @@
     const toAddress = <string>route.params.to;
     const amount = Number(route.params.amount);
     const asset = <string>route.params.asset;
-    const fee = Number(<string>flagsmith.getValue('fee-amount'));
+
     const chainName = route.params.chainName;
     const transactionMessage = <string>route.params.message;
     const activateConfirmButton = ref<boolean>(false);
+
+    const fee = computed(() => {
+        return allowedAssets.find(a => a.asset_code === asset && a.type === chainName)?.fee;
+    });
 
     const init = async () => {
         if (chainName === ChainTypes.STELLAR) {

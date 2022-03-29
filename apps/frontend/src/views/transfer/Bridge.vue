@@ -55,6 +55,13 @@
                 </div>
             </div>
 
+            <div class="mt-4">
+                <div class="pr-3 text-gray-700 font-medium">
+                    <span class="pr-2">{{ $t('transfer.bridge.fee') }}</span>
+                </div>
+                <span>{{ bridgeFee.toFixed(0) }} {{ $t('currency.short.TFT') }}</span>
+            </div>
+
             <div class="pt-4">
                 <button
                     @click="goToConfirmBridge"
@@ -82,11 +89,11 @@
     import { useDynamicBalance } from '@/util/useDynamicBalance';
     import { useAssets } from '@/util/useAssets';
     import flagsmith from 'flagsmith';
-    import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/service/entityService';
-    import { bridgeToSubstrate } from '@/service/stellarService';
-    import { nanoid } from 'nanoid';
-    import { getSubstrateApi } from '@/service/substrateService';
     import { formatCurrency } from '@/util/formatCurrency';
+    import uniq from 'lodash/uniq';
+    import { BridgeFee } from '@/types/wallet.types';
+    import { ChainTypes } from '@/enums/chains.enums';
+
     const selectedWallet = ref<Wallet>() as Ref<Wallet>;
 
     const isLoading = ref<boolean>(true);
@@ -94,7 +101,21 @@
     const router = useRouter();
     const route = useRoute();
 
-    const fee = Number(flagsmith.getValue('fee-amount'));
+    const bridgeFees: BridgeFee[] = uniq<BridgeFee>(
+        <any[]>JSON.parse(<string>flagsmith.getValue('bridge-fees')).map((a: any) => ({
+            toChain: a.to.split(':')[0],
+            toToken: a.to.split(':')[1],
+            fromChain: a.from.split(':')[0],
+            fromToken: a.from.split(':')[1],
+            fee: a?.fee,
+        }))
+    );
+
+    const bridgeFee = computed(() => {
+        return bridgeFees.find(fee => fee.fromChain === ChainTypes.STELLAR && fee.toChain === ChainTypes.SUBSTRATE)
+            ?.fee;
+    });
+
     const amount = ref(0);
 
     const errorAmountText = ref<Object | null>(null);
@@ -103,8 +124,10 @@
         if (!stellarBalance.value || stellarBalance.value == 0)
             return (errorAmountText.value = 'No stellar balance available');
 
+        if (!bridgeFee.value) return;
         if (stellarBalance.value < amount) return (errorAmountText.value = 'You do not have that many tokens');
-        if (amount <= fee) return (errorAmountText.value = `Please enter an amount above ${fee} TFT`);
+        if (amount <= bridgeFee.value)
+            return (errorAmountText.value = `Please enter an amount above ${bridgeFee.value} TFT`);
 
         return (errorAmountText.value = null);
     };
@@ -112,11 +135,10 @@
     const setAmount = (multiplier: number) => {
         const assetBalance = stellarBalance.value;
 
-        if (!assetBalance) {
-            return;
-        }
+        if (!assetBalance) return;
+        if (!bridgeFee.value) return;
 
-        const availableBalanceWithoutFee = assetBalance - fee;
+        const availableBalanceWithoutFee = assetBalance - bridgeFee.value;
 
         const newAmount = availableBalanceWithoutFee * multiplier;
         if (newAmount <= 0) {
@@ -136,6 +158,7 @@
             params: {
                 walletId: selectedWallet.value?.keyPair.getBasePublicKey(),
                 amount: Number(amount.value),
+                fee: bridgeFee.value,
             },
         });
     };
@@ -167,72 +190,6 @@
         const { cleanUp } = useDynamicBalance(selectedWallet.value);
         onBeforeUnmount(cleanUp);
         isLoading.value = false;
-    };
-
-    const submitBridge = async () => {
-        if (!selectedWallet.value.keyPair) return;
-
-        // Check if given amount is valid
-        await isValidAmount(amount.value);
-        if (errorAmountText.value != null) return;
-
-        const substrateAddressTo = selectedWallet.value?.keyPair.getSubstrateKeyring().address;
-        const api = await getSubstrateApi();
-
-        console.info('Using activation service for substrate');
-        // await activationServiceForSubstrate(substrateAddressTo);
-
-        const substrateKeyRing = selectedWallet.value.keyPair.getSubstrateKeyring();
-
-        let entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
-
-        if (entityId == 0) {
-            console.info("Can't find entity, creating one");
-
-            const country = 'Unknown';
-            const city = 'Unknown';
-            const name = nanoid(8);
-
-            const signature = createEntitySign(substrateKeyRing, name, country, city);
-            console.info('Signature: ', signature);
-
-            const entity = await api.tx.tfgridModule.createEntity(substrateAddressTo, name, country, city, signature);
-            const nonce = await api.rpc.system.accountNextIndex(substrateAddressTo);
-            console.info('Created entity: ', entity.toHuman());
-            console.info('Created nonce: ', nonce.toHuman);
-
-            const signAndSendCallback = async (res: any) => {
-                console.info('Callback from signAndSend.');
-
-                if (res instanceof Error) {
-                    console.error('Error in signAndSendCallback');
-                    return;
-                }
-
-                const { events = [], status } = res;
-                console.info(`Current status is ${status.type}`);
-
-                if (status.isFinalized) {
-                    console.info(`Transaction included at blockHash ${status.asFinalized}`);
-
-                    // @ts-ignore
-                    events.forEach(({ phase, event: { data, method, section } }) => {
-                        console.info(`\t' ${phase}: ${section}.${method}:: ${data}`);
-                    });
-
-                    entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
-                    console.log('We found entityId: ', entityId);
-
-                    const entity = await getEntity(api, entityId);
-                }
-            };
-
-            await entity.signAndSend(substrateKeyRing, { nonce }, signAndSendCallback);
-        }
-
-        await bridgeToSubstrate(amount.value, selectedWallet.value.keyPair.getStellarKeyPair(), entityId);
-
-        console.log('Transaction done');
     };
 
     init();

@@ -119,9 +119,10 @@
         }
 
         // Native seed
-        if (secret.value.length === 64) {
+        if (secret.value.length === 64 || (secret.value.length === 66 && secret.value.startsWith('0x'))) {
+            const secretToImport = secret.value.startsWith('0x') ? secret.value.slice(2) : secret.value;
             try {
-                walletKeyPairBuilder.addSeed(secret.value);
+                walletKeyPairBuilder.addSeed(secretToImport);
             } catch (e) {
                 addNotification(NotificationType.error, 'Invalid secret', 'Please enter a valid secret', 5000);
                 return;

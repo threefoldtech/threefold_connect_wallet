@@ -175,6 +175,7 @@
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
+    const currencies = JSON.parse(<string>flagsmith.getValue('currencies'));
     const allowedAssets: Asset[] = uniq<Asset>(
         <any[]>JSON.parse(<string>flagsmith.getValue('supported-currencies')).map((a: any) => ({
             asset_code: a.asset_code,

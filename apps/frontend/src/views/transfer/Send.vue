@@ -353,7 +353,11 @@
     };
 
     const validateAmount = () => {
-        if (amount.value <= 0 || amount.value > toNumber(selectedAssetBalance.value) - fee) {
+        if (
+            amount.value === undefined ||
+            amount.value <= 0 ||
+            amount.value > toNumber(selectedAssetBalance.value) - fee
+        ) {
             return (isValidAmount.value = false);
         }
 
@@ -388,7 +392,7 @@
             params: {
                 from: selectedWallet.value?.keyPair.getStellarKeyPair().publicKey(),
                 to: toAddress.value,
-                amount: amount.value.toString(),
+                amount: amount.value?.toString(),
                 asset: selectedAsset.value.asset_code,
                 chainName: selectedChain.value,
                 message: transactionMessage.value,

@@ -8,7 +8,7 @@ import Pkid from '@jimber/pkid';
 import flagsmith from 'flagsmith';
 import sodium from 'libsodium-wrappers';
 import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from '@jimber/stellar-crypto';
-import { sendWalletDataToFlutter, wallets } from '@/service/walletService';
+import { saveWallets, sendWalletDataToFlutter, wallets } from '@/service/walletService';
 import { getPkidClient, PkidWallet } from '@/service/pkidService';
 import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/service/cryptoService';
@@ -72,18 +72,16 @@ export const initFirstWallet = async () => {
 
     try {
         await server.loadAccount(keyPair.publicKey());
-        await pkid.setDoc('purse', [initialWallet], true);
-        wallets.value = [
-            {
-                keyPair: walletKeyPair,
-                name: initialWallet.name,
-                meta: {
-                    index: initialWallet.index,
-                    type: initialWallet.type,
-                    position: initialWallet.position,
-                },
+        wallets.value.unshift({
+            keyPair: walletKeyPair,
+            name: initialWallet.name,
+            meta: {
+                index: initialWallet.index,
+                type: initialWallet.type,
+                position: initialWallet.position,
             },
-        ];
+        });
+        await saveWallets();
         return;
     } catch (e) {
         console.log('no acc found');
@@ -100,12 +98,7 @@ export const initFirstWallet = async () => {
 
     try {
         await server.loadAccount(keyPair.publicKey());
-        await pkid.setDoc('purse', [initialWallet], true);
-    } catch (e) {
-        throw e;
-    }
-    wallets.value = [
-        {
+        wallets.value.unshift({
             keyPair: walletKeyPair,
             name: initialWallet.name,
             meta: {
@@ -113,8 +106,11 @@ export const initFirstWallet = async () => {
                 type: initialWallet.type,
                 position: initialWallet.position,
             },
-        },
-    ];
+        });
+        await saveWallets();
+    } catch (e) {
+        throw e;
+    }
 };
 
 const initKeys = (seedString: string) => {

@@ -131,6 +131,7 @@
     import AssetIcon from '@/components/AssetIcon.vue';
     import { translate } from '@/util/translate';
     import en from '@/translates/en';
+    import { nanoid } from 'nanoid';
 
     const router = useRouter();
     const route = useRoute();
@@ -172,7 +173,7 @@
         await activationServiceForSubstrate(substrateAddressTo);
 
         const substrateKeyRing = selectedWallet.value.keyPair.getSubstrateKeyring();
-        const name = userInitialized.value;
+        const name = `${userInitialized.value}${nanoid()}`;
 
         if (!name) return;
 

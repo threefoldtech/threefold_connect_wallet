@@ -69,17 +69,18 @@ export const initFirstWallet = async () => {
     }
 
     loadingText.value = { title: 'checkExist' };
-    wallets.value.unshift({
-        keyPair: walletKeyPair,
-        name: initialWallet.name,
-        meta: {
-            index: initialWallet.index,
-            type: initialWallet.type,
-            position: initialWallet.position,
-        },
-    });
+
     try {
         await server.loadAccount(keyPair.publicKey());
+        wallets.value.unshift({
+            keyPair: walletKeyPair,
+            name: initialWallet.name,
+            meta: {
+                index: initialWallet.index,
+                type: initialWallet.type,
+                position: initialWallet.position,
+            },
+        });
         await saveWallets();
         return;
     } catch (e) {
@@ -97,6 +98,15 @@ export const initFirstWallet = async () => {
 
     try {
         await server.loadAccount(keyPair.publicKey());
+        wallets.value.unshift({
+            keyPair: walletKeyPair,
+            name: initialWallet.name,
+            meta: {
+                index: initialWallet.index,
+                type: initialWallet.type,
+                position: initialWallet.position,
+            },
+        });
         await saveWallets();
     } catch (e) {
         throw e;

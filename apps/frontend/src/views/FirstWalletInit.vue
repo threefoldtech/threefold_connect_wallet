@@ -14,6 +14,8 @@
     import { useRouter } from 'vue-router';
     import { useCounter } from '@vueuse/core';
     import { watch } from 'vue';
+    import { addNotification, NotificationType } from '@/service/notificationService';
+    import { userInitialized } from '@/service/cryptoService';
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();
@@ -27,9 +29,24 @@
         router.push({ name: 'devLogs' });
     });
 
-    initFirstWallet().then(() => {
-        router.push({ name: 'walletList' });
-    });
+    const init = async (retries = 0) => {
+        try {
+            await initFirstWallet();
+        } catch (e) {
+            if (retries < 3) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                await init(retries + 1);
+                return;
+            }
+            addNotification(NotificationType.error, 'Failed to init first wallet', 'Please try again later');
+            userInitialized.value = null;
+            await router.push({ name: 'init' });
+            return;
+        }
+        await router.push({ name: 'walletList' });
+    };
+
+    init();
 </script>
 
 <style scoped></style>

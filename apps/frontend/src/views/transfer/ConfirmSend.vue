@@ -77,7 +77,11 @@
             <div v-else>{{ $t('transfer.confirmSend.chainNotFound') }}</div>
 
             <div class="mt-4 flex">
-                <button class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white" @click="sendTransaction">
+                <button
+                    :disabled="!activateConfirmButton"
+                    class="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white disabled:bg-gray-300 disabled:text-gray-600"
+                    @click="sendTransaction"
+                >
                     {{ $t('transfer.confirmSend.confirm') }}
                 </button>
             </div>
@@ -165,9 +169,12 @@
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { ref } from 'vue';
     import { translate } from '@/util/translate';
+    import { getStellarClient } from '@/service/stellarService';
+    import { AccountResponse } from 'stellar-sdk';
 
     const router = useRouter();
-    const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
+    const currencies = JSON.parse(<string>flagsmith.getValue('currencies'));
+    const allowedAssets: string[] = currencies.map((a: any) => a.asset_code);
 
     const route = useRoute();
 
@@ -181,6 +188,48 @@
     const fee = Number(<string>flagsmith.getValue('fee-amount'));
     const chainName = route.params.chainName;
     const transactionMessage = <string>route.params.message;
+    const activateConfirmButton = ref<boolean>(false);
+
+    const init = async () => {
+        if (chainName === ChainTypes.STELLAR) {
+            const client = getStellarClient();
+            let destAccount: AccountResponse;
+
+            try {
+                destAccount = await client.loadAccount(toAddress);
+            } catch (e) {
+                addNotification(NotificationType.error, translate('transfer.confirmSend.error.stellarAccountNotFound'));
+                return;
+            }
+
+            const availableBalances = destAccount.balances;
+
+            //@ts-ignore
+            const assetIssuer = currencies.find(c => c.asset_code === asset && c.type === 'stellar')?.issuer;
+
+            if (!assetIssuer) {
+                addNotification(NotificationType.error, translate('transfer.confirmSend.error.stellarAssetNotFound'));
+                return;
+            }
+
+            const relevantBalance = availableBalances.find(
+                //@ts-ignore
+                b => b?.asset_code === asset && b?.asset_issuer === assetIssuer
+            );
+
+            if (!relevantBalance) {
+                addNotification(
+                    NotificationType.error,
+                    translate('transfer.confirmSend.error.stellarTargetNoTrustline')
+                );
+                return;
+            }
+
+            activateConfirmButton.value = true;
+        }
+    };
+
+    init();
 
     const sendStellarTokens = async () => {
         if (!fromWallet || !toAddress || !amount || !asset) return router.push({ name: 'error' });

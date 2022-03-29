@@ -139,6 +139,11 @@ export default <Translation>{
             sendingTokens: 'Sending tokens...',
             failedToTransferTokens: 'Failed to transfer tokens',
             successfullyTransferTokens: 'Successfully transferred tokens',
+            error: {
+                stellarAccountNotFound: 'Destination account not found / not active',
+                stellarAssetNotFound: 'Destination account has no trustline for asset {asset}.',
+                stellarTargetNoTrustline: 'Destination account has no trustline for asset {asset}.',
+            },
         },
         receive: {
             title: 'Receive',

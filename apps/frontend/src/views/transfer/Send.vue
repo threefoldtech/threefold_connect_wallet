@@ -273,7 +273,11 @@
         wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0];
 
     const selectedBalance = computed(() =>
-        balances.value.find(t => t.id === selectedWallet?.value?.keyPair.getBasePublicKey())
+        balances.value.find(
+            t =>
+                t.id === selectedWallet?.value?.keyPair.getBasePublicKey() &&
+                t.assets.filter(balance => balance.type === selectedChain.value)
+        )
     );
 
     const selectedAssetBalance = computed(() => {
@@ -300,9 +304,7 @@
         return allowedAssets
             .filter(asset => {
                 return (
-                    (selectedBalance.value?.assets
-                        .filter(asset => asset.type === selectedChain.value)
-                        .find(balance => balance.name === asset.asset_code)?.amount || 0) > 0
+                    (selectedBalance.value?.assets.find(balance => balance.name === asset.asset_code)?.amount || 0) > 0
                 );
             })
             .filter(asset => {

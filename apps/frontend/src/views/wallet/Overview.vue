@@ -53,7 +53,12 @@
                         :balance="assetBalance"
                         @click="router.push({ name: 'walletTransactions', params: { assetCode: assetBalance.name } })"
                     >
-                        <template v-if="assetBalance.type === 'substrate' && assetBalance.name === 'TFT'" #actions>
+                        <template
+                            v-if="
+                                showSubstrateBridge && assetBalance.type === 'substrate' && assetBalance.name === 'TFT'
+                            "
+                            #actions
+                        >
                             <button
                                 type="button"
                                 class="inline-flex items-center rounded-md border border-transparent bg-primary-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
@@ -103,6 +108,7 @@
     import { checkVesting } from '@/service/vestingService';
     import { useLocalStorage } from '@vueuse/core';
     import { translate } from '@/util/translate';
+    import flagsmith from 'flagsmith';
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
@@ -117,6 +123,8 @@
         vestedAssetBalanceIsLoading.value = false;
     });
     const assets = useAssets(wallet);
+
+    const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
 </script>
 
 <style scoped></style>

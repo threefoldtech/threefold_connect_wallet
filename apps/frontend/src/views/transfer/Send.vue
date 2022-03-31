@@ -13,7 +13,6 @@
                 <QrcodeIcon class="h-5" />
                 <p class="text-sm font-medium">SCAN QR</p>
             </div>
-
             <div class="mt-1">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-medium text-gray-900">Chain</h2>
@@ -44,6 +43,7 @@
                     </div>
                 </RadioGroup>
             </div>
+
             <Listbox v-model="selectedWallet" as="div" class="mt-2" disabled>
                 <ListboxLabel class="block text-sm font-medium text-gray-700">From</ListboxLabel>
                 <div class="relative">
@@ -122,18 +122,28 @@
                 </div>
             </Listbox>
             <div class="mt-4">
-                <label class="block text-sm font-medium text-gray-700" for="to">To</label>
-                <div class="mt-1 flex rounded-md shadow-sm">
-                    <div class="relative flex grow items-stretch focus-within:z-10">
-                        <input
-                            id="to"
-                            v-model="toAddress"
-                            :disabled="relevantAssets.length <= 0"
-                            class="block w-full rounded-md border-gray-300 pl-3 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
-                            name="to"
-                            placeholder="..."
-                            type="text"
-                        />
+                <div>
+                    <label for="to" class="block text-sm font-medium text-gray-700">To</label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                        <div class="relative flex items-stretch flex-grow focus-within:z-10">
+                            <input
+                                id="to"
+                                v-model="toAddress"
+                                :disabled="relevantAssets.length <= 0"
+                                class="block w-full rounded-md border-gray-300 pl-3 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
+                                name="to"
+                                placeholder="..."
+                                type="text"
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            class="-ml-px relative inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <div @click="showContacts = true">
+                                <UserIcon class="h-5" />
+                            </div>
+                        </button>
                     </div>
                 </div>
                 <div class="text-sm text-red-500" v-if="isValidToAddress === false">Please enter a valid address</div>
@@ -212,11 +222,15 @@
             </div>
         </div>
     </MainLayout>
+
+    <div v-if="showContacts">
+        <Contact @chosenContact="chosenContact" @close="showContacts = false" :chain="selectedChain"></Contact>
+    </div>
 </template>
 
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
-    import { ArrowLeftIcon, CheckIcon, QrcodeIcon, SelectorIcon } from '@heroicons/vue/outline';
+    import { ArrowLeftIcon, CheckIcon, QrcodeIcon, SelectorIcon, UserIcon } from '@heroicons/vue/outline';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRouter } from 'vue-router';
     import {
@@ -242,6 +256,7 @@
     import { ChainTypes } from '@/enums/chains.enums';
     import { toNumber } from 'lodash';
     import { formatCurrency } from '@/util/formatCurrency';
+    import Contact from '@/views/transfer/Contact.vue';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
@@ -260,11 +275,7 @@
         asset?: Asset;
     }
 
-    const assetFee = computed(() => {
-        return allowedAssets.find(
-            asset => asset.asset_code === selectedAsset.value.asset_code && asset.type === selectedChain.value
-        )?.fee;
-    });
+    const showContacts = ref<boolean>(false);
 
     const { from, to, amount: initialAmount, asset } = defineProps<IProps>();
 
@@ -296,6 +307,17 @@
 
     const selectedChain = ref('stellar');
 
+    const chosenContact = (contact: Contact) => {
+        if (selectedChain.value === ChainTypes.STELLAR) {
+            toAddress.value = contact.stellarAddress;
+        }
+
+        if (selectedChain.value === ChainTypes.SUBSTRATE) {
+            toAddress.value = contact.substrateAddress;
+        }
+
+        showContacts.value = false;
+    };
     const relevantAssets = computed(() => {
         return allowedAssets
             .filter(asset => {
@@ -309,6 +331,12 @@
     });
 
     const selectedAsset = ref(asset || relevantAssets.value[0]);
+
+    const assetFee = computed(() => {
+        return allowedAssets?.find(
+            asset => asset?.asset_code === selectedAsset.value.asset_code && asset?.type === selectedChain.value
+        )?.fee;
+    });
 
     watch(selectedChain, _ => {
         toAddress.value = '';

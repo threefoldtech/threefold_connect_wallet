@@ -10,6 +10,8 @@
 
         <CTA @click="clearCache()"> Clear cache</CTA>
 
+        <CTA @click="clearContacts()"> Delete contacts</CTA>
+
         <Disclosure as="div" class="mt-2" v-slot="{ open }">
             <DisclosureButton
                 class="flex w-full justify-between rounded-lg bg-red-600 px-4 py-2 text-left text-sm font-medium text-white focus:outline-none focus-visible:ring focus-visible:ring-red-500 focus-visible:ring-opacity-75"
@@ -64,6 +66,12 @@
         const pkid = getPkidClient();
         await pkid.setDoc('purse', false, true);
         window.location.assign('/');
+    };
+
+    const clearContacts = async () => {
+        const pkid = getPkidClient();
+        await pkid.setDoc('contacts', [], true);
+        addNotification(NotificationType.info, 'Cleared contacts');
     };
 
     const addNote = () => {

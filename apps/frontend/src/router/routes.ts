@@ -21,6 +21,8 @@ import FirstWalletInit from '@/views/FirstWalletInit.vue';
 import ConfirmSend from '@/views/transfer/ConfirmSend.vue';
 import ConfirmBridge from '@/views/transfer/ConfirmBridge.vue';
 import Bridge from '@/views/transfer/Bridge.vue';
+import Contacts from '@/views/transfer/Contact.vue';
+import AddContact from '@/views/transfer/AddContact.vue';
 import {
     BeakerIcon,
     CashIcon,
@@ -157,6 +159,16 @@ export const routes: Route[] = [
                 name: 'send',
                 component: Send,
                 props: true,
+            },
+            {
+                path: 'contacts/:chain',
+                name: 'contacts',
+                component: Contacts,
+            },
+            {
+                path: 'addContact',
+                name: 'addContact',
+                component: AddContact,
             },
             {
                 path: 'receive/',

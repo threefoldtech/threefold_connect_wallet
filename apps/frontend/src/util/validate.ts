@@ -36,6 +36,26 @@ export function validateWalletName(name: string, selectedWalletName: string | nu
     return null;
 }
 
+export const validateContactName = (contactName: string): string | null => {
+    if (contactName.length >= 255) {
+        return 'maximum';
+    }
+
+    if (contactName.length <= 0) {
+        return 'empty';
+    }
+
+    const regex = new RegExp('^[a-zA-Z0-9s]+$');
+
+    const isValid = regex.test(contactName);
+
+    if (!isValid) {
+        return 'alphanumeric';
+    }
+
+    return null;
+};
+
 export const validateWalletAddress = (walletAddress: string | undefined): ValidateWalletAddress => {
     if (!walletAddress) {
         return {

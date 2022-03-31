@@ -300,7 +300,9 @@
         return allowedAssets
             .filter(asset => {
                 return (
-                    (selectedBalance.value?.assets.find(balance => balance.name === asset.asset_code)?.amount || 0) > 0
+                    (selectedBalance.value?.assets
+                        .filter(asset => asset.type === selectedChain.value)
+                        .find(balance => balance.name === asset.asset_code)?.amount || 0) > 0
                 );
             })
             .filter(asset => {

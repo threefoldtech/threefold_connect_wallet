@@ -55,7 +55,21 @@ export interface FlutterWallet {
 }
 
 export const wallets: Ref<Wallet[]> = <Ref<Wallet[]>>ref<Wallet[]>([]);
-export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', []); // @TODO: check when to clear cache
+export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', [], {
+    serializer: {
+        read(raw: string): Balance[] {
+            const balancesInCache: Balance[] = JSON.parse(raw);
+
+            return balancesInCache.filter((value, index, array) => {
+                return array.findIndex(v => v.id === value.id) === index;
+            });
+        },
+        write(value: Balance[]): string {
+            return JSON.stringify(value);
+        },
+    },
+}); // @TODO: check when to clear cache
+console.log(balances.value);
 export const operations: Ref<Operation[]> = useLocalStorage<Operation[]>('operations_cache', []); // @TODO: check when to clear cache
 
 export const getStellarBalance = async (wallet: Wallet): Promise<AccountRecord> => {

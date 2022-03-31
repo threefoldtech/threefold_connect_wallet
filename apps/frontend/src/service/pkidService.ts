@@ -3,7 +3,7 @@ import flagsmith from 'flagsmith';
 import Pkid from '@jimber/pkid';
 import { appKeyPair } from '@/service/cryptoService';
 import { PkidWalletTypes } from '@/service/initializationService';
-import { Contact } from '@/types/contact';
+import { Contact } from '@/types/contact.types';
 
 export interface PkidWallet {
     name: string;

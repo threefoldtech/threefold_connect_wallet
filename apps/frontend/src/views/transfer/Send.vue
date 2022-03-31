@@ -308,14 +308,7 @@
     const selectedChain = ref('stellar');
 
     const chosenContact = (contact: Contact) => {
-        if (selectedChain.value === ChainTypes.STELLAR) {
-            toAddress.value = contact.stellarAddress;
-        }
-
-        if (selectedChain.value === ChainTypes.SUBSTRATE) {
-            toAddress.value = contact.substrateAddress;
-        }
-
+        toAddress.value = contact.address;
         showContacts.value = false;
     };
     const relevantAssets = computed(() => {

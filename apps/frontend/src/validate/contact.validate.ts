@@ -1,20 +1,22 @@
-import { Contact, MyContact } from '@/types/contact';
+import { Contact } from '@/types/contact.types';
 import { Wallet, wallets } from '@/service/walletService';
 import { getPkidClient } from '@/service/pkidService';
 import { appKeyPair } from '@/service/cryptoService';
+import { ChainTypes } from '@/enums/chains.enums';
 
-export const isMyContact = (address: string): MyContact | undefined => {
-    const myContacts: MyContact[] = wallets.value.map((wallet: Wallet) => {
+export const isMyContact = (address: string, chain: string): Contact | undefined => {
+    const myContacts: Contact[] = wallets.value.map((wallet: Wallet) => {
         return {
-            stellarAddress: wallet.keyPair.stellarKeyPair.publicKey(),
-            substrateAddress: wallet.keyPair.getSubstrateKeyring().address,
+            address:
+                chain === ChainTypes.STELLAR
+                    ? wallet.keyPair.stellarKeyPair.publicKey()
+                    : wallet.keyPair.getSubstrateKeyring().address,
+            type: chain,
             name: wallet.name,
         };
     });
 
-    return myContacts.find(
-        (contact: MyContact) => contact.stellarAddress === address || contact.substrateAddress === address
-    );
+    return myContacts.find((contact: Contact) => contact.address === address);
 };
 
 export const isContactInPkid = async (address: string): Promise<Contact | undefined> => {

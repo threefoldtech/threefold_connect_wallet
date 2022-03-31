@@ -41,7 +41,7 @@
                     <div
                         v-if="selectedTab === Tabs.OWN_WALLETS"
                         class="text-gray-700 p-2 border-[1px] rounded-md mb-4"
-                        v-for="contact in ownedContacts"
+                        v-for="contact in myContacts"
                         @click="selectedContact(contact)"
                     >
                         <div class="flex flex-row items-center">
@@ -49,11 +49,8 @@
                                 <div class="text-black text-left text-sm font-bold">
                                     {{ contact.name }}
                                 </div>
-                                <div class="truncate" v-if="chain === ChainTypes.STELLAR">
-                                    {{ contact.stellarAddress }}
-                                </div>
-                                <div class="truncate" v-else-if="chain === ChainTypes.SUBSTRATE">
-                                    {{ contact.substrateAddress }}
+                                <div class="truncate">
+                                    {{ contact.address }}
                                 </div>
                             </div>
                             <div class="w-2/12 text-right flex justify-end pr-2">
@@ -102,7 +99,7 @@
         </MainLayout>
         <AddContact
             ref="completeButtonRef"
-            @cancel="closeModal"
+            @cancel="showAddContact = false"
             @confirm="saveNewContact"
             v-if="showAddContact"
         ></AddContact>
@@ -114,13 +111,12 @@
     import AddContact from '@/components/dialogs/wallet/AddContactModal.vue';
     import { XIcon, ArrowRightIcon } from '@heroicons/vue/outline';
     import PageHeader from '@/components/header/PageHeader.vue';
-    import { useRoute, useRouter } from 'vue-router';
     import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue';
-    import { ref } from 'vue';
+    import { computed, Ref, ref } from 'vue';
     import { useLocalStorage } from '@vueuse/core';
     import { appKeyPair } from '@/service/cryptoService';
     import { getPkidClient, savePkidContact } from '@/service/pkidService';
-    import { Contact } from '@/types/contact';
+    import { Contact } from '@/types/contact.types';
     import { Wallet, wallets } from '@/service/walletService';
     import { ChainTypes } from '@/enums/chains.enums';
     import { onBeforeMount } from '@vue/runtime-core';
@@ -130,35 +126,38 @@
         'OTHERS' = 'Others',
     }
 
+    interface IProps {
+        chain: string;
+    }
+
+    const { chain } = defineProps<IProps>();
+    const emit = defineEmits(['close', 'chosenContact']);
+    const selectedTab = ref<Tabs>(Tabs.OWN_WALLETS);
+
+    const showAddContact = ref<boolean>(false);
+    const pkidContacts = ref<Contact[]>([]);
+
     onBeforeMount(async () => {
         await getPkidContacts();
     });
-
-    const selectedTab = ref<Tabs>(Tabs.OWN_WALLETS);
 
     const showHint = useLocalStorage('show-add-contact-hint', true);
     const enableHint = () => {
         showHint.value = true;
     };
 
-    interface IProps {
-        chain: string;
-    }
-
-    const emit = defineEmits(['close', 'chosenContact']);
-
-    const showAddContact = ref<boolean>(false);
-
-    const { chain } = defineProps<IProps>();
-
-    const pkidContacts = ref<Contact[]>([]);
-    const ownedContacts = wallets.value.map((wallet: Wallet) => {
-        return {
-            stellarAddress: wallet.keyPair.stellarKeyPair.publicKey(),
-            substrateAddress: wallet.keyPair.getSubstrateKeyring().address,
-            name: wallet.name,
-        };
-    });
+    const myContacts: Ref<Contact[]> = computed(() =>
+        wallets.value.map((wallet: Wallet) => {
+            return {
+                address:
+                    chain === ChainTypes.STELLAR
+                        ? wallet.keyPair.stellarKeyPair.publicKey()
+                        : wallet.keyPair.getSubstrateKeyring().address,
+                type: chain,
+                name: wallet.name,
+            };
+        })
+    );
 
     const selectedContact = (contact: Contact) => {
         emit('chosenContact', contact);
@@ -169,10 +168,6 @@
         showAddContact.value = false;
 
         await getPkidContacts();
-    };
-
-    const closeModal = () => {
-        showAddContact.value = false;
     };
 
     const getPkidContacts = async () => {

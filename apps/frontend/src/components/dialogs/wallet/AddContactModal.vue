@@ -59,7 +59,7 @@
     import { ref } from 'vue';
     import { validateWalletAddress } from '@/validate/wallet.validate';
     import { ChainTypes } from '@/enums/chains.enums';
-    import { Contact } from '@/types/contact';
+    import { Contact } from '@/types/contact.types';
     import { isContactInPkid, isMyContact, validateContactName } from '@/validate/contact.validate';
 
     const emit = defineEmits(['cancel', 'confirm']);
@@ -88,7 +88,7 @@
         }
 
         // Check if address is one of my own wallets
-        const doesExistInMyContacts = isMyContact(contactAddress.value);
+        const doesExistInMyContacts = isMyContact(contactAddress.value, isValidWalletAddress.type);
         if (doesExistInMyContacts) {
             contactAddressError.value = 'This contact is available in own wallet';
             return;

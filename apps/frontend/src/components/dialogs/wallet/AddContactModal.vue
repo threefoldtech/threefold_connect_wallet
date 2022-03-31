@@ -44,10 +44,8 @@
                 {{ $t('dialog.wallet.changeName.cancel') }}
             </button>
             <button
-                :disabled="contactNameError != null || contactAddressError != null"
-                :class="contactNameError != null || contactAddressError != null ? 'bg-gray-200' : 'bg-button-colored'"
                 type="button"
-                class="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white hover:bg-blue-200"
+                class="bg-button-colored inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white hover:bg-blue-200"
                 @click="acceptDialog"
             >
                 Add contact
@@ -63,6 +61,8 @@
     import { validateContactName, validateWalletAddress } from '@/util/validate';
     import { ChainTypes } from '@/enums/chains.enums';
     import { PkidContact } from '@/types/conctact.types';
+    import { appKeyPair } from '@/service/cryptoService';
+    import { getPkidClient } from '@/service/pkidService';
 
     const router = useRouter();
 
@@ -78,7 +78,7 @@
         emit('cancel');
     };
 
-    const acceptDialog = () => {
+    const acceptDialog = async () => {
         contactNameError.value = null;
         contactAddressError.value = null;
 
@@ -92,6 +92,19 @@
         if (!isValidWalletAddress.valid || isValidWalletAddress.type === ChainTypes.UNKNOWN) {
             contactAddressError.value = 'Invalid address';
             return;
+        }
+
+        const pkidClient = getPkidClient();
+        const contacts = await pkidClient.getDoc(appKeyPair.value.publicKey, 'contacts');
+
+        // He has available contacts
+        if (contacts.success) {
+            const existingContacts: PkidContact[] = contacts.data;
+            const isContactExist = existingContacts.find(c => c.address === contactAddress.value);
+            if (isContactExist) {
+                contactAddressError.value = 'Contact address already exist';
+                return;
+            }
         }
 
         const contact: PkidContact = {

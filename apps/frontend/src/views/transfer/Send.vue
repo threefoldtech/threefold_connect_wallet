@@ -308,6 +308,10 @@
             });
     });
 
+    console.log('Relevant assets', relevantAssets.value);
+    console.log('Balance', balances.value);
+    console.log('Selected balance', selectedBalance.value);
+
     const selectedAsset = ref(asset || relevantAssets.value[0]);
 
     watch(selectedChain, _ => {

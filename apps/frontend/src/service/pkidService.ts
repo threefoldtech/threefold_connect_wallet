@@ -3,7 +3,7 @@ import flagsmith from 'flagsmith';
 import Pkid from '@jimber/pkid';
 import { appKeyPair } from '@/service/cryptoService';
 import { PkidWalletTypes } from '@/service/initializationService';
-import { PkidContact } from '@/types/conctact.types';
+import { Contact } from '@/types/contact';
 
 export interface PkidWallet {
     name: string;
@@ -38,7 +38,7 @@ export const getPkidClient: () => PkidClient = () => {
     return initializedPkidClient;
 };
 
-export const savePkidContact = async (contact: PkidContact) => {
+export const savePkidContact = async (contact: Contact) => {
     const pkidClient = getPkidClient();
     const pkidContacts = await pkidClient.getDoc(appKeyPair.value.publicKey, 'contacts');
 

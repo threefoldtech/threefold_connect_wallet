@@ -4,7 +4,7 @@
             <template #header>
                 <PageHeader>
                     <template #before>
-                        <XIcon @click="closeDialog" />
+                        <XIcon @click="emit('close')" />
                     </template>
                     <h1>Contacts</h1>
                 </PageHeader>
@@ -111,29 +111,28 @@
 
 <script lang="ts" setup>
     import MainLayout from '@/layouts/MainLayout.vue';
+    import AddContact from '@/components/dialogs/wallet/AddContactModal.vue';
     import { XIcon, ArrowRightIcon } from '@heroicons/vue/outline';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRoute, useRouter } from 'vue-router';
     import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue';
-    import { computed, onMounted, ref } from 'vue';
+    import { ref } from 'vue';
     import { useLocalStorage } from '@vueuse/core';
     import { appKeyPair } from '@/service/cryptoService';
     import { getPkidClient, savePkidContact } from '@/service/pkidService';
-    import { Contact, PkidContact } from '@/types/conctact.types';
+    import { Contact } from '@/types/contact';
     import { Wallet, wallets } from '@/service/walletService';
     import { ChainTypes } from '@/enums/chains.enums';
-
-    import AddContact from '@/components/dialogs/wallet/AddContactModal.vue';
+    import { onBeforeMount } from '@vue/runtime-core';
 
     enum Tabs {
         'OWN_WALLETS' = 'Own wallets',
         'OTHERS' = 'Others',
     }
 
-    const completeButtonRef = ref(null);
-
-    const router = useRouter();
-    const route = useRoute();
+    onBeforeMount(async () => {
+        await getPkidContacts();
+    });
 
     const selectedTab = ref<Tabs>(Tabs.OWN_WALLETS);
 
@@ -165,7 +164,7 @@
         emit('chosenContact', contact);
     };
 
-    const saveNewContact = async (contact: PkidContact) => {
+    const saveNewContact = async (contact: Contact) => {
         await savePkidContact(contact);
         showAddContact.value = false;
 
@@ -185,14 +184,6 @@
         }
 
         pkidContacts.value = contacts.data.filter((contact: Contact) => contact.type == chain);
-    };
-
-    onMounted(async () => {
-        await getPkidContacts();
-    });
-
-    const closeDialog = () => {
-        emit('close');
     };
 </script>
 

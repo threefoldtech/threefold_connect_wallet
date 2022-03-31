@@ -1,5 +1,5 @@
 <template>
-    <Modal @close="closeDialog">
+    <Modal @close="emit('cancel')">
         <template #title>
             <div>Add new contact</div>
         </template>
@@ -39,14 +39,14 @@
             <button
                 type="button"
                 class="mr-4 rounded-md bg-blue-100 py-2 px-4 text-sm font-medium text-blue-500 hover:bg-gray-50 focus:outline-none focus:ring-offset-2"
-                @click="closeDialog"
+                @click="emit('cancel')"
             >
                 {{ $t('dialog.wallet.changeName.cancel') }}
             </button>
             <button
                 type="button"
                 class="bg-button-colored inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white hover:bg-blue-200"
-                @click="acceptDialog"
+                @click="validateInputData"
             >
                 Add contact
             </button>
@@ -56,15 +56,11 @@
 
 <script lang="ts" setup>
     import Modal from '@/components/Modal.vue';
-    import { useRouter } from 'vue-router';
     import { ref } from 'vue';
-    import { validateContactName, validateWalletAddress } from '@/util/validate';
+    import { validateWalletAddress } from '@/validate/wallet.validate';
     import { ChainTypes } from '@/enums/chains.enums';
-    import { PkidContact } from '@/types/conctact.types';
-    import { appKeyPair } from '@/service/cryptoService';
-    import { getPkidClient } from '@/service/pkidService';
-
-    const router = useRouter();
+    import { Contact } from '@/types/contact';
+    import { isContactInPkid, isMyContact, validateContactName } from '@/validate/contact.validate';
 
     const emit = defineEmits(['cancel', 'confirm']);
 
@@ -74,40 +70,39 @@
     const contactAddress = ref<string>('');
     const contactAddressError = ref<string | null>(null);
 
-    const closeDialog = () => {
-        emit('cancel');
-    };
-
-    const acceptDialog = async () => {
+    const validateInputData = async () => {
         contactNameError.value = null;
         contactAddressError.value = null;
 
+        // Check if valid name
         const isValidContactName = validateContactName(contactName.value);
         if (isValidContactName != null) {
             return (contactNameError.value = isValidContactName);
         }
 
+        // Check if valid address
         const isValidWalletAddress = validateWalletAddress(contactAddress.value);
-
         if (!isValidWalletAddress.valid || isValidWalletAddress.type === ChainTypes.UNKNOWN) {
             contactAddressError.value = 'Invalid address';
             return;
         }
 
-        const pkidClient = getPkidClient();
-        const contacts = await pkidClient.getDoc(appKeyPair.value.publicKey, 'contacts');
-
-        // He has available contacts
-        if (contacts.success) {
-            const existingContacts: PkidContact[] = contacts.data;
-            const isContactExist = existingContacts.find(c => c.address === contactAddress.value);
-            if (isContactExist) {
-                contactAddressError.value = 'Contact address already exist';
-                return;
-            }
+        // Check if address is one of my own wallets
+        const doesExistInMyContacts = isMyContact(contactAddress.value);
+        if (doesExistInMyContacts) {
+            contactAddressError.value = 'This contact is available in own wallet';
+            return;
         }
 
-        const contact: PkidContact = {
+        // Check if address is already in PKID
+        const doesExistInPkidContacts = await isContactInPkid(contactAddress.value);
+        if (doesExistInPkidContacts) {
+            contactAddressError.value = 'This contact already exist';
+            return;
+        }
+
+        // Validation passed => create contact and send to parent
+        const contact: Contact = {
             name: contactName.value,
             address: contactAddress.value,
             type: isValidWalletAddress.type,

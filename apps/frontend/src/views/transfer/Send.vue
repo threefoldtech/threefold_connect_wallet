@@ -252,7 +252,7 @@
         validateStellarAddress,
         validateSubstrateAddress,
         validateWalletAddress,
-    } from '@/util/validate';
+    } from '@/validate/wallet.validate';
     import { ChainTypes } from '@/enums/chains.enums';
     import { toNumber } from 'lodash';
     import { formatCurrency } from '@/util/formatCurrency';

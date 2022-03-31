@@ -207,7 +207,7 @@
     import { balances, Wallet, wallets } from '@/service/walletService';
     import uniq from 'lodash/uniq';
     import flagsmith from 'flagsmith';
-    import { isValidMemoOfTransaction } from '@/util/validate';
+    import { isValidMemoOfTransaction } from '@/validate/wallet.validate';
     import { ChainTypes } from '@/enums/chains.enums';
     import { XIcon, SelectorIcon, CheckIcon } from '@heroicons/vue/solid';
 

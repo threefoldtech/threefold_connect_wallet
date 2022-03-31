@@ -301,15 +301,15 @@
     const selectedChain = ref('stellar');
 
     const relevantAssets = computed(() => {
-        return allowedAssets
-            .filter(asset => {
-                return (
-                    (selectedBalance.value?.assets.find(balance => balance.name === asset.asset_code)?.amount || 0) > 0
-                );
-            })
-            .filter(asset => {
-                return asset.type === selectedChain.value;
-            });
+        const selectedAssets = selectedBalance.value?.assets;
+
+        if (!selectedAssets) return [];
+
+        return allowedAssets.filter(asset => {
+            const foundBalance = selectedAssets.find(sa => sa.name === asset.asset_code && sa.type === asset.type);
+            const amount = foundBalance?.amount;
+            return amount && amount > 0;
+        });
     });
 
     console.log('Relevant assets', relevantAssets.value);

@@ -10,12 +10,9 @@ import axios from 'axios';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { ISubmittableResult } from '@polkadot/types/types';
 import { SubstrateFarmDto } from '@/types/substrate.types';
-import { addNotification, NotificationType } from '@/service/notificationService';
-import { translate } from '@/util/translate';
-import router from '@/router';
 import throttle from 'lodash/throttle';
 
-const apiCache = ref<ApiPromise>();
+const apiCache = ref<Promise<ApiPromise>>();
 
 const throttleSubstrateDisconnectedNotification = throttle(
     () => {
@@ -26,18 +23,22 @@ const throttleSubstrateDisconnectedNotification = throttle(
 );
 
 export const getSubstrateApi = async (): Promise<ApiPromise> => {
-    if (apiCache.value) return apiCache.value;
+    if (apiCache.value) {
+        const api = await apiCache.value;
+        await api.isReady;
+        return api;
+    }
 
     const endpoint = <string>flagsmith.getValue('tfchain_endpoint');
     const provider = new WsProvider(endpoint);
     provider.on('disconnected', () => {
         throttleSubstrateDisconnectedNotification();
     });
-    const api = await ApiPromise.create({ provider, types });
+    apiCache.value = ApiPromise.create({ provider, types });
+    const api = await apiCache.value;
     await api.isReady;
-    apiCache.value = api;
 
-    return apiCache.value;
+    return api;
 };
 
 export const getSubstrateAssetBalances = async (publicKey: string): Promise<AssetBalance[]> => {

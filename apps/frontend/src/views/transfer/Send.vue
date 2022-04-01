@@ -327,7 +327,7 @@
 
     const assetFee = computed(() => {
         return allowedAssets?.find(
-            asset => asset?.asset_code === selectedAsset.value.asset_code && asset?.type === selectedChain.value
+            asset => asset?.asset_code === selectedAsset.value?.asset_code && asset?.type === selectedChain.value
         )?.fee;
     });
 

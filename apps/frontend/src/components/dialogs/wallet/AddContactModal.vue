@@ -1,12 +1,12 @@
 <template>
     <Modal @close="emit('cancel')">
         <template #title>
-            <div>Add new contact</div>
+            <div>{{ $t('contacts.dialog.title') }}</div>
         </template>
 
         <template #content>
             <div>
-                <div class="pb-2 block text-sm font-medium text-gray-700">Name</div>
+                <div class="pb-2 block text-sm font-medium text-gray-700">{{ $t('contacts.dialog.name') }}</div>
                 <input
                     v-model="contactName"
                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
@@ -20,7 +20,7 @@
                 </div>
             </div>
             <div class="mt-4">
-                <div class="pb-2 block text-sm font-medium text-gray-700">Address</div>
+                <div class="pb-2 block text-sm font-medium text-gray-700">{{ $t('contacts.dialog.address') }}</div>
                 <input
                     v-model="contactAddress"
                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
@@ -48,7 +48,7 @@
                 class="bg-button-colored inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white hover:bg-blue-200"
                 @click="validateInputData"
             >
-                Add contact
+                {{ $t('contacts.dialog.save') }}
             </button>
         </template>
     </Modal>
@@ -61,6 +61,7 @@
     import { ChainTypes } from '@/enums/chains.enums';
     import { Contact } from '@/types/contact.types';
     import { isContactInPkid, isMyContact, validateContactName } from '@/validate/contact.validate';
+    import { translate } from '@/util/translate';
 
     const emit = defineEmits(['cancel', 'confirm']);
 
@@ -83,21 +84,21 @@
         // Check if valid address
         const isValidWalletAddress = validateWalletAddress(contactAddress.value);
         if (!isValidWalletAddress.valid || isValidWalletAddress.type === ChainTypes.UNKNOWN) {
-            contactAddressError.value = 'Invalid address';
+            contactAddressError.value = translate('contact.dialog.error.invalid');
             return;
         }
 
         // Check if address is one of my own wallets
         const doesExistInMyContacts = isMyContact(contactAddress.value, isValidWalletAddress.type);
         if (doesExistInMyContacts) {
-            contactAddressError.value = 'This contact is available in own wallet';
+            contactAddressError.value = translate('contact.dialog.error.myContactExists');
             return;
         }
 
         // Check if address is already in PKID
         const doesExistInPkidContacts = await isContactInPkid(contactAddress.value);
         if (doesExistInPkidContacts) {
-            contactAddressError.value = 'This contact already exist';
+            contactAddressError.value = translate('contact.dialog.error.contactExists');
             return;
         }
 

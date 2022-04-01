@@ -3,6 +3,7 @@ import { Wallet, wallets } from '@/service/walletService';
 import { getPkidClient } from '@/service/pkidService';
 import { appKeyPair } from '@/service/cryptoService';
 import { ChainTypes } from '@/enums/chains.enums';
+import { translate } from '@/util/translate';
 
 export const isMyContact = (address: string, chain: string): Contact | undefined => {
     const myContacts: Contact[] = wallets.value.map((wallet: Wallet) => {
@@ -34,11 +35,11 @@ export const isContactInPkid = async (address: string): Promise<Contact | undefi
 
 export const validateContactName = (contactName: string): string | null => {
     if (contactName.length >= 255) {
-        return 'maximum';
+        return translate('contact.dialog.error.maximum');
     }
 
     if (contactName.length <= 0) {
-        return 'empty';
+        return translate('contact.dialog.error.empty');
     }
 
     const regex = new RegExp('^[a-zA-Z0-9s]+$');
@@ -46,7 +47,7 @@ export const validateContactName = (contactName: string): string | null => {
     const isValid = regex.test(contactName);
 
     if (!isValid) {
-        return 'alphanumeric';
+        return translate('contact.dialog.error.alphanumeric');
     }
 
     return null;

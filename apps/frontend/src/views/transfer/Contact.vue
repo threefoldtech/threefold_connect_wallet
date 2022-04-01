@@ -6,7 +6,7 @@
                     <template #before>
                         <XIcon @click="emit('close')" />
                     </template>
-                    <h1>Contacts</h1>
+                    <h1>{{ $t('contacts.title') }}</h1>
                 </PageHeader>
             </template>
             <div class="p-4">

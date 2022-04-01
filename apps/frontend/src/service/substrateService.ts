@@ -30,8 +30,6 @@ export const getSubstrateApi = async (): Promise<ApiPromise> => {
     }
 
     const endpoint = <string>flagsmith.getValue('tfchain_endpoint');
-    console.log('TRIGGERING');
-    console.log(endpoint);
     const provider = new WsProvider(endpoint);
     provider.on('disconnected', () => {
         throttleSubstrateDisconnectedNotification();

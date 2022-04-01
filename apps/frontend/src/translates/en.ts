@@ -229,6 +229,7 @@ export default <Translation>{
             address: 'Address',
             save: 'Add contact',
             cancel: 'Cancel',
+            success: 'Successfully saved contact',
             error: {
                 maximum: 'There is a maximum character length of 255 characters',
                 empty: 'Contact name cannot be empty',

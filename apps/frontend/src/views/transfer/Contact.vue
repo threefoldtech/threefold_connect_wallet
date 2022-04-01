@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed top-0 bottom-0 left-0 right-0 z-10">
+    <div class="fixed top-0 bottom-0 left-0 right-0">
         <MainLayout>
             <template #header>
                 <PageHeader>
@@ -120,6 +120,8 @@
     import { Wallet, wallets } from '@/service/walletService';
     import { ChainTypes } from '@/enums/chains.enums';
     import { onBeforeMount } from '@vue/runtime-core';
+    import { addNotification, NotificationType } from '@/service/notificationService';
+    import { translate } from '@/util/translate';
 
     enum Tabs {
         'OWN_WALLETS' = 'Own wallets',
@@ -165,6 +167,7 @@
 
     const saveNewContact = async (contact: Contact) => {
         await savePkidContact(contact);
+        addNotification(NotificationType.success, translate('contacts.dialog.success'));
         showAddContact.value = false;
 
         await getPkidContacts();

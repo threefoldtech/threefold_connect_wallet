@@ -114,14 +114,13 @@
     import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue';
     import { computed, Ref, ref } from 'vue';
     import { useLocalStorage } from '@vueuse/core';
-    import { appKeyPair } from '@/service/cryptoService';
-    import { getPkidClient, savePkidContact } from '@/service/pkidService';
     import { Contact } from '@/types/contact.types';
     import { Wallet, wallets } from '@/service/walletService';
     import { ChainTypes } from '@/enums/chains.enums';
     import { onBeforeMount } from '@vue/runtime-core';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { translate } from '@/util/translate';
+    import { getContactsFromPkid, saveContactToPkid } from '@/service/contactService';
 
     enum Tabs {
         'OWN_WALLETS' = 'Own wallets',
@@ -140,7 +139,9 @@
     const pkidContacts = ref<Contact[]>([]);
 
     onBeforeMount(async () => {
-        await getPkidContacts();
+        // Load contacts related to chain
+        const contacts: Contact[] = await getContactsFromPkid();
+        pkidContacts.value = contacts.filter(c => c.type === chain);
     });
 
     const showHint = useLocalStorage('show-add-contact-hint', true);
@@ -166,22 +167,14 @@
     };
 
     const saveNewContact = async (contact: Contact) => {
-        await savePkidContact(contact);
+        await saveContactToPkid(contact);
+
         addNotification(NotificationType.success, translate('contacts.dialog.success'));
         showAddContact.value = false;
 
-        await getPkidContacts();
-    };
-
-    const getPkidContacts = async () => {
-        const pkidClient = getPkidClient();
-
-        const contacts = await pkidClient.getDoc(appKeyPair.value.publicKey, 'contacts');
-        if (!contacts.success) {
-            return;
-        }
-
-        pkidContacts.value = contacts.data.filter((contact: Contact) => contact.type == chain);
+        // Refresh contacts
+        const contacts: Contact[] = await getContactsFromPkid();
+        pkidContacts.value = contacts.filter(c => c.type === chain);
     };
 </script>
 

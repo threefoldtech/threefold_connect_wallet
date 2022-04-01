@@ -21,8 +21,6 @@ import FirstWalletInit from '@/views/FirstWalletInit.vue';
 import ConfirmSend from '@/views/transfer/ConfirmSend.vue';
 import ConfirmBridge from '@/views/transfer/ConfirmBridge.vue';
 import Bridge from '@/views/transfer/Bridge.vue';
-import Contacts from '@/views/transfer/Contact.vue';
-import AddContact from '@/components/dialogs/wallet/AddContactModal.vue';
 import {
     BeakerIcon,
     CashIcon,

@@ -3,3 +3,8 @@ export interface Contact {
     type: string;
     name: string;
 }
+
+export interface ContactValidation {
+    valid: boolean;
+    error?: string;
+}

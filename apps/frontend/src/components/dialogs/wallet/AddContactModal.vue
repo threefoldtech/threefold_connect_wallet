@@ -15,7 +15,7 @@
                 />
                 <div class="pt-1 text-xs text-red-500">
                     <template v-if="contactNameError">
-                        {{ contactNameError }}
+                        {{ $t(contactNameError) }}
                     </template>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                 />
                 <div class="pt-1 text-xs text-red-500">
                     <template v-if="contactAddressError">
-                        {{ contactAddressError }}
+                        {{ $t(contactAddressError) }}
                     </template>
                 </div>
             </div>
@@ -58,55 +58,42 @@
     import Modal from '@/components/Modal.vue';
     import { ref } from 'vue';
     import { validateWalletAddress } from '@/validate/wallet.validate';
-    import { ChainTypes } from '@/enums/chains.enums';
-    import { Contact } from '@/types/contact.types';
-    import { isContactInPkid, isMyContact, validateContactName } from '@/validate/contact.validate';
-    import { translate } from '@/util/translate';
+    import { Contact, ContactValidation } from '@/types/contact.types';
+    import { validateContactName, validateNewContactAddress } from '@/validate/contact.validate';
 
     const emit = defineEmits(['cancel', 'confirm']);
 
     const contactName = ref<string>('');
-    const contactNameError = ref<string | null>(null);
+    const contactNameError = ref<string | undefined>(undefined);
 
     const contactAddress = ref<string>('');
-    const contactAddressError = ref<string | null>(null);
+    const contactAddressError = ref<string | undefined>(undefined);
 
     const validateInputData = async () => {
-        contactNameError.value = null;
-        contactAddressError.value = null;
+        contactNameError.value = undefined;
+        contactAddressError.value = undefined;
 
         // Check if valid name
-        const isValidContactName = validateContactName(contactName.value);
-        if (isValidContactName != null) {
-            return (contactNameError.value = isValidContactName);
+        const isValidContactName: ContactValidation = validateContactName(contactName.value);
+        if (!isValidContactName.valid) {
+            return (contactNameError.value = isValidContactName.error);
         }
 
         // Check if valid address
-        const isValidWalletAddress = validateWalletAddress(contactAddress.value);
-        if (!isValidWalletAddress.valid || isValidWalletAddress.type === ChainTypes.UNKNOWN) {
-            contactAddressError.value = translate('contact.dialog.error.invalid');
-            return;
+        const isValidContactAddress: ContactValidation = await validateNewContactAddress(contactAddress.value);
+        if (!isValidContactAddress.valid) {
+            return (contactAddressError.value = isValidContactAddress.error);
         }
 
-        // Check if address is one of my own wallets
-        const doesExistInMyContacts = isMyContact(contactAddress.value, isValidWalletAddress.type);
-        if (doesExistInMyContacts) {
-            contactAddressError.value = translate('contact.dialog.error.myContactExists');
-            return;
-        }
-
-        // Check if address is already in PKID
-        const doesExistInPkidContacts = await isContactInPkid(contactAddress.value);
-        if (doesExistInPkidContacts) {
-            contactAddressError.value = translate('contact.dialog.error.contactExists');
-            return;
-        }
+        // Get the chain => this will always have a type but just to be sure
+        const chainType = validateWalletAddress(contactAddress.value).type;
+        if (!chainType) return;
 
         // Validation passed => create contact and send to parent
         const contact: Contact = {
             name: contactName.value,
             address: contactAddress.value,
-            type: isValidWalletAddress.type,
+            type: chainType,
         };
 
         emit('confirm', contact);

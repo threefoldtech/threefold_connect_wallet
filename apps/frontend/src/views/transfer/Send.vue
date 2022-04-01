@@ -125,7 +125,7 @@
                 <div>
                     <label for="to" class="block text-sm font-medium text-gray-700">To</label>
                     <div class="mt-1 flex rounded-md shadow-sm">
-                        <div class="relative flex items-stretch flex-grow focus-within:z-10">
+                        <div class="relative flex items-stretch w-full focus-within:z-10">
                             <input
                                 id="to"
                                 v-model="toAddress"

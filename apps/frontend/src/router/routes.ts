@@ -161,16 +161,6 @@ export const routes: Route[] = [
                 props: true,
             },
             {
-                path: 'contacts/:chain',
-                name: 'contacts',
-                component: Contacts,
-            },
-            {
-                path: 'addContact',
-                name: 'addContact',
-                component: AddContact,
-            },
-            {
                 path: 'receive/',
                 name: 'receive',
                 component: Receive,

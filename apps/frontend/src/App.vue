@@ -1,7 +1,11 @@
 <template>
     <RouterView />
     <Notifications />
-    <div class="fixed top-2 right-2 z-50 select-none text-xs font-light text-gray-300" @click="inc()">
+    <div
+        class="fixed top-2 right-2 z-50 select-none text-xs font-light text-gray-300"
+        v-on:touchend.prevent.stop="inc()"
+        @click.prevent.stop="inc()"
+    >
         {{ version }}
     </div>
 </template>

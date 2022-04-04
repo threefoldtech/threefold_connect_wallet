@@ -5,7 +5,8 @@
         </div>
         <div
             class="flex grow flex-col items-center justify-center overflow-auto px-0 text-lg font-semibold leading-tight"
-            @click="inc()"
+            v-on:touchend.prevent.stop="inc()"
+            @click.prevent.stop="inc()"
         >
             <slot></slot>
         </div>

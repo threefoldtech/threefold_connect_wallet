@@ -237,8 +237,9 @@
                 return;
             }
 
-            activateConfirmButton.value = true;
+            return (activateConfirmButton.value = true);
         }
+        activateConfirmButton.value = true;
     };
 
     init();

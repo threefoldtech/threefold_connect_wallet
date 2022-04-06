@@ -7,7 +7,7 @@ import {
     // fetchFundDetails,
     // getConfig,
     //@ts-ignore
-} from '@jimber/stellar-crypto';
+} from 'cryptolib';
 import { Keypair } from 'stellar-sdk';
 import { getStellarClient as _getStellarClient } from '../src/service/stellarService';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';

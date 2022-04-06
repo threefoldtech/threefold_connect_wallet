@@ -7,7 +7,7 @@ import { entropyToMnemonic } from '@jimber/simple-bip39';
 import Pkid from '@jimber/pkid';
 import flagsmith from 'flagsmith';
 import sodium from 'libsodium-wrappers';
-import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from '@jimber/stellar-crypto';
+import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from 'cryptolib';
 import { saveWallets, sendWalletDataToFlutter, wallets } from '@/service/walletService';
 import { getPkidClient, PkidWallet } from '@/service/pkidService';
 import { Keypair } from 'stellar-sdk';

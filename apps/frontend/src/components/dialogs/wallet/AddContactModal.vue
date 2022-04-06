@@ -58,8 +58,13 @@
     import Modal from '@/components/Modal.vue';
     import { ref } from 'vue';
     import { validateWalletAddress } from '@/validate/wallet.validate';
-    import { Contact, ContactValidation } from '@/types/contact.types';
-    import { validateContactName, validateNewContactAddress } from '@/validate/contact.validate';
+    import { Contact, ContactFormValidation, ContactValidation } from '@/types/contact.types';
+    import {
+        isValidContact,
+        validateContact,
+        validateContactName,
+        validateNewContactAddress,
+    } from '@/validate/contact.validate';
 
     const emit = defineEmits(['cancel', 'confirm']);
 
@@ -73,29 +78,29 @@
         contactNameError.value = undefined;
         contactAddressError.value = undefined;
 
-        // Check if valid name
-        const isValidContactName: ContactValidation = validateContactName(contactName.value);
-        if (!isValidContactName.valid) {
-            return (contactNameError.value = isValidContactName.error);
+        const contactValidation: ContactFormValidation = await validateContact(contactName.value, contactAddress.value);
+        if (!contactValidation.valid) {
+            return displayErrorMessage(contactValidation);
         }
-
-        // Check if valid address
-        const isValidContactAddress: ContactValidation = await validateNewContactAddress(contactAddress.value);
-        if (!isValidContactAddress.valid) {
-            return (contactAddressError.value = isValidContactAddress.error);
-        }
-
-        // Get the chain => this will always have a type but just to be sure
-        const chainType = validateWalletAddress(contactAddress.value).type;
-        if (!chainType) return;
 
         // Validation passed => create contact and send to parent
         const contact: Contact = {
             name: contactName.value,
             address: contactAddress.value,
-            type: chainType,
+            type: validateWalletAddress(contactAddress.value).type,
         };
 
         emit('confirm', contact);
+    };
+
+    const displayErrorMessage = (contactValidation: ContactFormValidation) => {
+        switch (contactValidation.field) {
+            case 'name':
+                contactNameError.value = contactValidation.error;
+                break;
+            case 'address':
+                contactAddressError.value = contactValidation.error;
+                break;
+        }
     };
 </script>

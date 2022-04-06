@@ -1,4 +1,4 @@
-import { Contact, ContactValidation } from '@/types/contact.types';
+import { Contact, ContactFormValidation, ContactValidation } from '@/types/contact.types';
 import { Wallet, wallets } from '@/service/walletService';
 import { getPkidClient } from '@/service/pkidService';
 import { appKeyPair } from '@/service/cryptoService';
@@ -25,13 +25,39 @@ export const isContactInPkid = async (address: string): Promise<boolean> => {
     const pkidClient = getPkidClient();
     const contacts = await pkidClient.getDoc(appKeyPair.value.publicKey, 'contacts');
 
-    if (contacts.success) {
-        const existingContacts: Contact[] = contacts.data;
-        const c = existingContacts.find(c => c.address === address);
-        return !!c;
+    if (!contacts.success) {
+        return false;
     }
 
-    return false;
+    const existingContacts: Contact[] = contacts.data;
+    const c = existingContacts.find(c => c.address === address);
+    return !!c;
+};
+
+export const validateContact = async (name: string, address: string): Promise<ContactFormValidation> => {
+    // Check if valid name
+    const isValidContactName: ContactValidation = validateContactName(name);
+    if (!isValidContactName.valid) {
+        return {
+            valid: false,
+            error: isValidContactName.error,
+            field: 'name',
+        };
+    }
+
+    // Check if valid address
+    const isValidContactAddress: ContactValidation = await validateNewContactAddress(address);
+    if (!isValidContactAddress.valid) {
+        return {
+            valid: false,
+            error: isValidContactAddress.error,
+            field: 'address',
+        };
+    }
+
+    return {
+        valid: true,
+    };
 };
 
 export const validateContactName = (contactName: string): ContactValidation => {

@@ -23,7 +23,7 @@ export const saveContactToPkid = async (contact: Contact) => {
         existingContacts = pkidContacts.data;
     }
 
-    existingContacts.push(contact);
+    existingContacts.push(contact); // @TODO: make this a list unique contacts (combined key) 
 
     await pkidClient.setDoc('contacts', existingContacts, true);
 };

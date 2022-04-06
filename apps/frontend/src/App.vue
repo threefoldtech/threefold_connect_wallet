@@ -8,7 +8,6 @@
     </div>
     <RouterView />
     <Notifications />
-  <test/>
     <div
         class="fixed top-2 right-2 z-50 select-none text-xs font-light text-gray-300"
         v-on:touchend.prevent.stop="inc()"
@@ -23,8 +22,6 @@
     import { useCounter } from '@vueuse/core';
     import { useRouter } from 'vue-router';
     import { watch } from 'vue';
-
-    import test from "ui/test.vue";
 
 
     const version = <string>(<any>globalThis)?.version;

@@ -242,6 +242,7 @@
     import { ChainTypes } from '@/enums/chains.enums';
     import { toNumber } from 'lodash';
     import { formatCurrency } from '@/util/formatCurrency';
+    import { useDynamicBalance } from '@/util/useDynamicBalance';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
@@ -258,6 +259,7 @@
         to?: string;
         amount?: number;
         asset?: Asset;
+        dd: string;
     }
 
     const assetFee = computed(() => {
@@ -271,6 +273,19 @@
     const selectedWallet = ref<Wallet>();
     selectedWallet.value =
         wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0];
+
+    const dynamicBalanceCleanUp = ref<() => void>(() => {});
+
+    watch(
+        selectedWallet,
+        () => {
+            if (!selectedWallet.value) return;
+
+            dynamicBalanceCleanUp.value();
+            dynamicBalanceCleanUp.value = useDynamicBalance(selectedWallet.value).cleanUp;
+        },
+        { immediate: true }
+    );
 
     const selectedBalance = computed(() =>
         balances.value.find(t => t.id === selectedWallet?.value?.keyPair.getBasePublicKey())
@@ -298,11 +313,12 @@
 
     const relevantAssets = computed(() => {
         const selectedAssets = selectedBalance.value?.assets;
-
         if (!selectedAssets) return [];
 
         return allowedAssets.filter(asset => {
-            const foundBalance = selectedAssets.find(sa => sa.name === asset.asset_code && sa.type === asset.type);
+            const foundBalance = selectedAssets.find(
+                sa => sa.name === asset.asset_code && sa.type === asset.type && sa.type === selectedChain.value
+            );
             const amount = foundBalance?.amount;
             return amount && amount > 0;
         });

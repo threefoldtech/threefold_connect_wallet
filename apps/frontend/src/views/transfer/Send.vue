@@ -259,7 +259,6 @@
         to?: string;
         amount?: number;
         asset?: Asset;
-        dd: string;
     }
 
     const assetFee = computed(() => {

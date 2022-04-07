@@ -86,7 +86,7 @@
             <h2>Vested Tokens</h2>
             <div class="mt-4 space-y-2">
                 <template v-for="assetBalance in vestedAssetBalance">
-                    <BalanceCard :balance="assetBalance"> </BalanceCard>
+                    <BalanceCard :balance="assetBalance"></BalanceCard>
                 </template>
             </div>
         </div>
@@ -113,7 +113,8 @@
     import { useLocalStorage } from '@vueuse/core';
     import { translate } from '@/util/translate';
     import flagsmith from 'flagsmith';
-    import { fetchLockedTokens } from '@/service/lockService';
+    import { checkLockedTokens, fetchLockedTokens } from '@/service/lockService';
+
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
@@ -122,17 +123,21 @@
         []
     );
     const vestedAssetBalanceIsLoading = ref(true);
+    const lockedBalanceIsLoading = ref(true);
 
-    checkVesting(wallet).then(balances => {
-        vestedAssetBalance.value = balances;
-        vestedAssetBalanceIsLoading.value = false;
-    });
     const assets = useAssets(wallet);
 
     const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
 
+    const init = async () => {
+        vestedAssetBalance.value = await checkVesting(wallet);
+        vestedAssetBalanceIsLoading.value = false;
+    };
+
+    init();
     const testLockedTokens = async () => {
-        const abc = await fetchLockedTokens(wallet.keyPair.getStellarKeyPair());
+        const abc = await checkLockedTokens(wallet.keyPair.getStellarKeyPair());
+        console.log(abc);
     };
 </script>
 

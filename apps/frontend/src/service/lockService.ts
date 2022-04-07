@@ -5,8 +5,6 @@ import moment from 'moment';
 import { toNumber } from 'lodash';
 import { getStellarClient } from '@/service/stellarService';
 
-type LockedBalanceType = Horizon.BalanceLineAsset<'credit_alphanum4'>;
-
 type HorizonBalance =
     | Horizon.BalanceLineNative
     | Horizon.BalanceLineAsset<'credit_alphanum4'>
@@ -22,48 +20,89 @@ export interface TokenRecord {
     unlockTransaction?: Transaction | null;
 }
 
-export const fetchLockedTokens = async (kp: StellarKeypair) => {
-    const lockedTokens = await getLockedBalances(kp);
-    const tokens: TokenRecord[] = lockedTokens.filter((token: TokenRecord) => token.balance !== undefined);
-    const server = getStellarClient();
+export const fetchLockedTokens = async (kp: StellarKeypair): Promise<TokenRecord[]> => {
+    const allLockedBalances = await getLockedBalances(kp);
 
-    const t: TokenRecord = tokens[1];
-    console.log(t);
+    // Filter all tokens with available balance
+    return allLockedBalances.filter((token: TokenRecord) => token.balance !== undefined);
+};
 
-    if (!t.unlockHash) {
-        const b = t.balance as LockedBalanceType;
-        try {
-            await transferLockedTokens(t.keyPair, t.id, b.asset_code, Number(b.balance));
-            console.log('done');
-        } catch (e) {
-            console.log(e);
+export const checkLockedTokens = async (kp: StellarKeypair) => {
+    const availableLockedBalances: TokenRecord[] = await fetchLockedTokens(kp);
+
+    return (
+        await Promise.all(
+            availableLockedBalances.map(async b => {
+                return validateLockedBalance(b);
+            })
+        )
+    ).filter(b => !!b);
+};
+
+const validateLockedBalance = async (b: TokenRecord) => {
+    const unlockTx = await getUnlockTransactionByTxHash(b.unlockHash!);
+    if (!unlockTx) return;
+
+    const isValidMoment = moment.unix(toNumber(unlockTx?.timeBounds?.minTime)).isBefore();
+    if (!isValidMoment) return;
+
+    return b;
+};
+
+export const unlockTokens = async (kp: StellarKeypair) => {
+    const availableLockedBalances: TokenRecord[] = await fetchLockedTokens(kp);
+
+    for (let lockedBalance of availableLockedBalances) {
+        if (lockedBalance.unlockHash) {
+            const lBalance = await submitLockedTokenTxHash(lockedBalance);
+
+            if (lBalance == null) return;
+
+            lockedBalance = lBalance;
         }
-        return;
+
+        if (!lockedBalance.unlockHash) {
+            const balance = lockedBalance.balance as Horizon.BalanceLineAsset<'credit_alphanum4'>;
+            await transferLockedBalance(kp, lockedBalance.id, balance.asset_code, Number(balance.balance));
+            return;
+        }
     }
-
-    // for (const t of tokens) {
-    //     if (!t.unlockHash) return;
-    //
-    const unlockTx = await getUnlockTransactionByTxHash(t.unlockHash!);
-    //
-    //     console.log(unlockTx.timeBounds?.minTime);
-    //     if (!unlockTx) return;
-
-    t.unlockTransaction = unlockTx;
-    //
-    // if (!unlockTx.timeBounds?.minTime) return;
-    //
-    const isValidTime = moment.unix(toNumber(unlockTx.timeBounds?.minTime)).isBefore();
-    if (!isValidTime) {
-        console.log('Not a valid time');
-        return;
-    }
-    //
-
-    await server.submitTransaction(t.unlockTransaction);
-    console.log('yo');
 };
 
 export const getUnlockTransactionByTxHash = async (txHash: string) => {
-    return await fetchUnlockTransaction(txHash);
+    try {
+        return await fetchUnlockTransaction(txHash);
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+const submitLockedTokenTxHash = async (lockedBalance: TokenRecord): Promise<TokenRecord | null> => {
+    if (!lockedBalance.unlockHash) return null;
+
+    const unlockTx = await getUnlockTransactionByTxHash(lockedBalance.unlockHash);
+    if (!unlockTx) return null;
+
+    lockedBalance.unlockTransaction = unlockTx;
+    if (!moment.unix(toNumber(lockedBalance.unlockTransaction.timeBounds?.minTime)).isBefore()) {
+        console.log("Tokens can't be unlocked yet");
+        return null;
+    }
+    const server = getStellarClient();
+    await server.submitTransaction(lockedBalance.unlockTransaction);
+
+    lockedBalance.unlockHash = null;
+    lockedBalance.unlockTransaction = null;
+
+    return lockedBalance;
+};
+
+const transferLockedBalance = async (kp: StellarKeypair, address: string, asset: string, balance: number) => {
+    console.info('Unlocking tokens for address ' + address);
+
+    try {
+        await transferLockedTokens(kp, address, asset, balance);
+    } catch (e) {
+        console.error(e);
+    }
 };

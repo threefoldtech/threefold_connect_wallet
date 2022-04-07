@@ -113,7 +113,7 @@
     import { useLocalStorage } from '@vueuse/core';
     import { translate } from '@/util/translate';
     import flagsmith from 'flagsmith';
-    import { getLockedBalances } from 'cryptolib';
+    import { fetchLockedTokens } from '@/service/lockService';
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
@@ -132,9 +132,7 @@
     const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
 
     const testLockedTokens = async () => {
-        const abc = await getLockedBalances(wallet.keyPair.getStellarKeyPair());
-        console.log('hi');
-        console.log(abc);
+        const abc = await fetchLockedTokens(wallet.keyPair.getStellarKeyPair());
     };
 </script>
 

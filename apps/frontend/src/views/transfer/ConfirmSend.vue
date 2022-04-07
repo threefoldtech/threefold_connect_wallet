@@ -210,6 +210,7 @@
             try {
                 destAccount = await client.loadAccount(toAddress);
             } catch (e) {
+                console.log('asdf');
                 addNotification(NotificationType.error, translate('transfer.confirmSend.error.stellarAccountNotFound'));
                 return;
             }
@@ -220,6 +221,7 @@
             const assetIssuer = currencies.find(c => c.asset_code === asset && c.type === 'stellar')?.issuer;
 
             if (!assetIssuer) {
+                console.log('rrr');
                 addNotification(NotificationType.error, translate('transfer.confirmSend.error.stellarAssetNotFound'));
                 return;
             }

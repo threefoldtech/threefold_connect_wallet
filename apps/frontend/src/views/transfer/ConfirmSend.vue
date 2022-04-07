@@ -231,7 +231,8 @@
                 b => b?.asset_code === asset && b?.asset_issuer === assetIssuer
             );
 
-            if (!relevantBalance) {
+            // assetIssuer is the toAddress when sending to tfta
+            if (assetIssuer !== toAddress && !relevantBalance) {
                 addNotification(
                     NotificationType.error,
                     translate('transfer.confirmSend.error.stellarTargetNoTrustline')

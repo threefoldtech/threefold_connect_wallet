@@ -131,7 +131,7 @@
         []
     );
 
-    const lockedAssetBalance = useLocalStorage<(TokenItem | null)[]>(
+    const lockedAssetBalance = useLocalStorage<TokenItem[]>(
         `locked_asset_balance_${wallet.keyPair.getBasePublicKey()}`,
         []
     );

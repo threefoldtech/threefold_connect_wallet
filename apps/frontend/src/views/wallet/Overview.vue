@@ -95,17 +95,19 @@
                 <p class="animate-pulse text-gray-600">{{ $t('wallet.overview.checkVesting') }}</p>
             </div>
         </div>
-        <div class="py-2" v-if="lockedAssetBalance?.length >= 1 || lockedAssetBalanceIsLoading">
-            <h2>{{ $t('wallet.overview.lockedTokens') }}</h2>
-            <div class="mt-4 space-y-2">
-                <template v-if="lockedAssetBalance?.length >= 1">
-                    <locked-balance-card :lockedBalances="lockedAssetBalance"></locked-balance-card>
-                </template>
+        <div v-if="showLockedTokens">
+            <div class="py-2" v-if="lockedAssetBalance?.length >= 1 || lockedAssetBalanceIsLoading">
+                <h2>{{ $t('wallet.overview.lockedTokens') }}</h2>
+                <div class="mt-4 space-y-2">
+                    <template v-if="lockedAssetBalance?.length >= 1">
+                        <locked-balance-card :lockedBalances="lockedAssetBalance"></locked-balance-card>
+                    </template>
+                </div>
             </div>
-        </div>
-        <div v-if="lockedAssetBalanceIsLoading">
-            <div class="text-center">
-                <p class="animate-pulse text-gray-600">{{ $('wallet.overview.checkLocking') }}</p>
+            <div v-if="lockedAssetBalanceIsLoading">
+                <div class="text-center">
+                    <p class="animate-pulse text-gray-600">{{ $t('wallet.overview.checkLocking') }}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -123,6 +125,7 @@
     import flagsmith from 'flagsmith';
     import { getAllTokensDetails, TokenItem, unlockTokens } from '@/service/lockService';
     import LockedBalanceCard from '@/components/LockedBalanceCard.vue';
+
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
@@ -142,21 +145,29 @@
     const assets = useAssets(wallet);
 
     const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
+    const showLockedTokens = flagsmith.hasFeature('locked-tokens');
 
     const init = async () => {
-        if (lockedAssetBalance.value.length == 0) {
-            lockedAssetBalance.value = await getAllTokensDetails(wallet.keyPair.getStellarKeyPair());
-            lockedAssetBalanceIsLoading.value = false;
+        if (showLockedTokens) {
+            await lockedTokensFlow();
         }
-
-        lockedAssetBalanceIsLoading.value = false;
 
         vestedAssetBalance.value = await checkVesting(wallet);
         vestedAssetBalanceIsLoading.value = false;
+    };
 
-        // Trying to unlock ...
-        const availableUnlockedTokens = lockedAssetBalance.value.filter(t => t?.canBeUnlocked === true);
-        await unlockTokens(availableUnlockedTokens as TokenItem[], wallet.keyPair.getStellarKeyPair());
+    const lockedTokensFlow = async () => {
+        if (lockedAssetBalance.value.length == 0) {
+            lockedAssetBalance.value = await getAllTokensDetails(wallet.keyPair.getStellarKeyPair());
+        }
+
+        if (lockedAssetBalance.value.length >= 1) {
+            // Trying to unlock ...
+            const availableUnlockedTokens = lockedAssetBalance.value.filter(t => t?.canBeUnlocked === true);
+            await unlockTokens(availableUnlockedTokens as TokenItem[], wallet.keyPair.getStellarKeyPair());
+        }
+
+        lockedAssetBalanceIsLoading.value = false;
     };
 
     init();

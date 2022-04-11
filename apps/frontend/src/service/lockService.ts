@@ -20,39 +20,55 @@ export interface TokenRecord {
     unlockTransaction?: Transaction | null;
 }
 
-export const fetchLockedTokens = async (kp: StellarKeypair): Promise<TokenRecord[]> => {
+export interface TokenItem {
+    amount: number;
+    address: string;
+    unlockHash: string | null;
+    unlockFrom: string | undefined;
+    canBeUnlocked: boolean;
+    balance: HorizonBalance;
+}
+
+export const fetchAllLockedTokens = async (kp: StellarKeypair): Promise<TokenRecord[]> => {
     const allLockedBalances = await getLockedBalances(kp);
 
-    // Filter all tokens with available balance
+    // Remove all undefined balances
     return allLockedBalances.filter((token: TokenRecord) => token.balance !== undefined);
 };
 
-export const checkLockedTokens = async (kp: StellarKeypair) => {
-    const availableLockedBalances: TokenRecord[] = await fetchLockedTokens(kp);
+export const getAllTokensDetails = async (kp: StellarKeypair): Promise<TokenItem[]> => {
+    const lockedTokens = await fetchAllLockedTokens(kp);
 
-    return (
-        await Promise.all(
-            availableLockedBalances.map(async b => {
-                return validateLockedBalance(b);
-            })
-        )
-    ).filter(b => !!b);
+    if (lockedTokens.length === 0) {
+        return [];
+    }
+
+    const allLockedTokens = await Promise.all(
+        lockedTokens.map(async b => {
+            return getLockedTokenRecordDetails(b);
+        })
+    );
+
+    return allLockedTokens.filter(b => !!b);
 };
 
-const validateLockedBalance = async (b: TokenRecord) => {
-    const unlockTx = await getUnlockTransactionByTxHash(b.unlockHash!);
-    if (!unlockTx) return;
-
+const getLockedTokenRecordDetails = async (b: TokenRecord): Promise<TokenItem> => {
+    const unlockTx = await fetchUnlockTransaction(b.unlockHash!);
     const isValidMoment = moment.unix(toNumber(unlockTx?.timeBounds?.minTime)).isBefore();
-    if (!isValidMoment) return;
 
-    return b;
+    return {
+        amount: toNumber(b.balance?.balance),
+        address: b.id,
+        unlockHash: b.unlockHash,
+        unlockFrom: unlockTx?.timeBounds?.minTime,
+        canBeUnlocked: isValidMoment,
+        balance: b.balance,
+    };
 };
 
-export const unlockTokens = async (kp: StellarKeypair) => {
-    const availableLockedBalances: TokenRecord[] = await fetchLockedTokens(kp);
-
-    for (let lockedBalance of availableLockedBalances) {
+export const unlockTokens = async (lockedBalances: TokenItem[], kp: StellarKeypair) => {
+    if (!lockedBalances) return;
+    for (let lockedBalance of lockedBalances) {
         if (lockedBalance.unlockHash) {
             const lBalance = await submitLockedTokenTxHash(lockedBalance);
 
@@ -63,36 +79,26 @@ export const unlockTokens = async (kp: StellarKeypair) => {
 
         if (!lockedBalance.unlockHash) {
             const balance = lockedBalance.balance as Horizon.BalanceLineAsset<'credit_alphanum4'>;
-            await transferLockedBalance(kp, lockedBalance.id, balance.asset_code, Number(balance.balance));
+            await transferLockedBalance(kp, lockedBalance.address, balance.asset_code, Number(balance.balance));
             return;
         }
     }
 };
 
-export const getUnlockTransactionByTxHash = async (txHash: string) => {
-    try {
-        return await fetchUnlockTransaction(txHash);
-    } catch (e) {
-        console.log(e);
-    }
-};
-
-const submitLockedTokenTxHash = async (lockedBalance: TokenRecord): Promise<TokenRecord | null> => {
+const submitLockedTokenTxHash = async (lockedBalance: TokenItem): Promise<TokenItem | null> => {
     if (!lockedBalance.unlockHash) return null;
 
-    const unlockTx = await getUnlockTransactionByTxHash(lockedBalance.unlockHash);
+    const unlockTx = await fetchUnlockTransaction(lockedBalance.unlockHash);
     if (!unlockTx) return null;
 
-    lockedBalance.unlockTransaction = unlockTx;
-    if (!moment.unix(toNumber(lockedBalance.unlockTransaction.timeBounds?.minTime)).isBefore()) {
+    if (!moment.unix(toNumber(lockedBalance.unlockFrom)).isBefore()) {
         console.log("Tokens can't be unlocked yet");
         return null;
     }
     const server = getStellarClient();
-    await server.submitTransaction(lockedBalance.unlockTransaction);
+    await server.submitTransaction(unlockTx);
 
     lockedBalance.unlockHash = null;
-    lockedBalance.unlockTransaction = null;
 
     return lockedBalance;
 };

@@ -59,7 +59,11 @@ export default <Translation>{
             receiveCoins: 'Receive Coins',
             transferFromStellar: 'Transfer from Stellar',
             noAssetsFound: 'No Assets Found',
+            vestedTokens: 'Vested tokens',
             checkVesting: 'Checking vested tokens...',
+            lockedTokens: 'Locked tokens',
+            checkLocking: 'Checking locked tokens...',
+            lockedTokensDetails: '{amount} {asset_code} will be unlocked on {date}',
         },
         transactions: {
             tfchainHistoryBanner: 'Transaction history for TFChain coming soon.',

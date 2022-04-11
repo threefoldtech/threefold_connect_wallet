@@ -114,8 +114,8 @@
 <script lang="ts" setup>
     import BalanceCard from '@/components/BalanceCard.vue';
     import { useRouter } from 'vue-router';
-    import { AssetBalance, balances, Wallet } from '@/service/walletService';
-    import { computed, inject, ref } from 'vue';
+    import { AssetBalance, Wallet } from '@/service/walletService';
+    import { inject, ref } from 'vue';
     import { useAssets } from '@/util/useAssets';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
     import { checkVesting } from '@/service/vestingService';

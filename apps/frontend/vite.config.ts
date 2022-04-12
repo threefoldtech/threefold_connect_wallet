@@ -24,7 +24,7 @@ export default defineConfig({
     },
 
     build: {
-        minify: 'terser',
-        target: ['ESNext'],
+        minify: false,
+        target: ['ESNext', 'ES2015'],
     },
 });

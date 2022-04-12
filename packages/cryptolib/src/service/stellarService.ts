@@ -9,6 +9,7 @@ import StellarSdk, {
     Transaction,
     TransactionBuilder,
 } from 'stellar-sdk';
+
 import axios from 'axios';
 import { makeFundPayment } from './fundService';
 
@@ -245,6 +246,7 @@ export const submitFundedTransaction = async (fundedTransaction: Transaction, so
         return response.data;
     } catch (error) {
         console.error('Something went wrong!', error);
+        throw error;
     }
 };
 

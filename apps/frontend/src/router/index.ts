@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { userInitialized } from '@/service/cryptoService';
+import { Route } from '@/router/routes';
 
-// @ts-ignore
 export const createVueRouter = (routes: Route[]) => {
     const router = createRouter({
         routes: <RouteRecordRaw[]>routes,

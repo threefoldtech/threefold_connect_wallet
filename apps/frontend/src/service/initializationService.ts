@@ -13,8 +13,9 @@ import { getPkidClient, PkidWallet } from '@/service/pkidService';
 import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/service/cryptoService';
 import { getStellarClient } from '@/service/stellarService';
-import { bytesToHex, hexToBytes } from '@/util/crypto';
-import { IWalletKeyPair, WalletKeyPairBuilder } from '@/lib/WalletKeyPair';
+import { bytesToHex } from '@/util/crypto';
+import { WalletKeyPairBuilder } from '@/lib/WalletKeyPair';
+import { addNotification, NotificationType } from '@/service/notificationService';
 
 type LoadingText = {
     title: string;
@@ -173,6 +174,7 @@ export const init = async (name: string, seedString: string) => {
         : purseDocToCheckFirstWalletInit;
 
     if (!purseDoc?.success) {
+        addNotification(NotificationType.error, 'Critical Initialization error: please contact support');
         throw new Error('Critical Initialization error: no purseDoc');
     }
 

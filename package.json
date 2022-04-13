@@ -1,5 +1,5 @@
 {
-    "version": "1.22.17-r0",
+    "version": "1.22.17",
     "private": true,
     "workspaces": [
         "apps/*",

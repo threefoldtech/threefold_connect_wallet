@@ -5,6 +5,7 @@ import { decodeBase64 } from 'tweetnacl-util';
 import { entropyToMnemonic } from '@jimber/simple-bip39';
 // @ts-ignore
 import Pkid from '@jimber/pkid';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
 import flagsmith from 'flagsmith';
 import sodium from 'libsodium-wrappers';
 import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from 'cryptolib';
@@ -145,6 +146,10 @@ export const init = async (name: string, seedString: string) => {
         return;
     }
     await initFlags(name);
+
+    // https://polkadot.js.org/docs/util-crypto/FAQ/#i-am-having-trouble-initializing-the-wasm-interface
+    await cryptoWaitReady();
+
     initKeys(seedString);
     initStellarCryptoConfig();
 

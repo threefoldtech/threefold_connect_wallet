@@ -1,4 +1,4 @@
-import { Contact, ContactFormValidation, ContactValidation } from '@/types/contact.types';
+import { ContactType, ContactFormValidation, ContactValidation } from '@/types/contact.types';
 import { Wallet, wallets } from '@/service/walletService';
 import { getPkidClient } from '@/service/pkidService';
 import { appKeyPair } from '@/service/cryptoService';
@@ -6,7 +6,7 @@ import { ChainTypes } from '@/enums/chains.enums';
 import { validateWalletAddress } from '@/validate/wallet.validate';
 
 export const isContactInMyContacts = (address: string, chain: string): boolean => {
-    const myContacts: Contact[] = wallets.value.map((wallet: Wallet) => {
+    const myContacts: ContactType[] = wallets.value.map((wallet: Wallet) => {
         return {
             address:
                 chain === ChainTypes.STELLAR
@@ -17,7 +17,7 @@ export const isContactInMyContacts = (address: string, chain: string): boolean =
         };
     });
 
-    const c = myContacts.find((contact: Contact) => contact.address === address);
+    const c = myContacts.find((contact: ContactType) => contact.address === address);
     return !!c;
 };
 
@@ -29,7 +29,7 @@ export const isContactInPkid = async (address: string): Promise<boolean> => {
         return false;
     }
 
-    const existingContacts: Contact[] = contacts.data;
+    const existingContacts: ContactType[] = contacts.data;
     const c = existingContacts.find(c => c.address === address);
     return !!c;
 };

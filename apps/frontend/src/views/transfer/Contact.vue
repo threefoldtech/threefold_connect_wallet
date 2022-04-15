@@ -114,7 +114,7 @@
     import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue';
     import { computed, Ref, ref } from 'vue';
     import { useLocalStorage } from '@vueuse/core';
-    import { Contact } from '@/types/contact.types';
+    import { ContactType } from '@/types/contact.types';
     import { Wallet, wallets } from '@/service/walletService';
     import { ChainTypes } from '@/enums/chains.enums';
     import { onBeforeMount } from '@vue/runtime-core';
@@ -136,11 +136,11 @@
     const selectedTab = ref<Tabs>(Tabs.OWN_WALLETS);
 
     const showAddContact = ref<boolean>(false);
-    const pkidContacts = ref<Contact[]>([]);
+    const pkidContacts = ref<ContactType[]>([]);
 
     onBeforeMount(async () => {
         // Load contacts related to chain
-        const contacts: Contact[] = await getContactsFromPkid();
+        const contacts: ContactType[] = await getContactsFromPkid();
         pkidContacts.value = contacts.filter(c => c.type === chain);
     });
 
@@ -149,7 +149,7 @@
         showHint.value = true;
     };
 
-    const myContacts: Ref<Contact[]> = computed(() =>
+    const myContacts: Ref<ContactType[]> = computed(() =>
         wallets.value.map((wallet: Wallet) => {
             return {
                 address:
@@ -162,18 +162,18 @@
         })
     );
 
-    const selectedContact = (contact: Contact) => {
+    const selectedContact = (contact: ContactType) => {
         emit('chosenContact', contact);
     };
 
-    const saveNewContact = async (contact: Contact) => {
+    const saveNewContact = async (contact: ContactType) => {
         await saveContactToPkid(contact);
 
         addNotification(NotificationType.success, translate('contacts.dialog.success'));
         showAddContact.value = false;
 
         // Refresh contacts
-        const contacts: Contact[] = await getContactsFromPkid();
+        const contacts: ContactType[] = await getContactsFromPkid();
         pkidContacts.value = contacts.filter(c => c.type === chain);
     };
 </script>

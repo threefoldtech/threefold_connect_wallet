@@ -58,13 +58,8 @@
     import Modal from '@/components/Modal.vue';
     import { ref } from 'vue';
     import { validateWalletAddress } from '@/validate/wallet.validate';
-    import { Contact, ContactFormValidation, ContactValidation } from '@/types/contact.types';
-    import {
-        isValidContact,
-        validateContact,
-        validateContactName,
-        validateNewContactAddress,
-    } from '@/validate/contact.validate';
+    import { ContactType, ContactFormValidation } from '@/types/contact.types';
+    import { validateContact } from '@/validate/contact.validate';
 
     const emit = defineEmits(['cancel', 'confirm']);
 
@@ -84,7 +79,7 @@
         }
 
         // Validation passed => create contact and send to parent
-        const contact: Contact = {
+        const contact: ContactType = {
             name: contactName.value,
             address: contactAddress.value,
             type: validateWalletAddress(contactAddress.value).type,

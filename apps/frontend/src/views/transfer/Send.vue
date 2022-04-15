@@ -258,6 +258,7 @@
     import { formatCurrency } from '@/util/formatCurrency';
     import Contact from '@/views/transfer/Contact.vue';
     import { useDynamicBalance } from '@/util/useDynamicBalance';
+    import { ContactType } from '@/types/contact.types';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
@@ -321,8 +322,8 @@
 
     const selectedChain = ref('stellar');
 
-    const chosenContact = (contact: Contact) => {
-        toAddress.value = contact.address;
+    const chosenContact = (c: ContactType) => {
+        toAddress.value = c.address;
         showContacts.value = false;
     };
     const relevantAssets = computed(() => {

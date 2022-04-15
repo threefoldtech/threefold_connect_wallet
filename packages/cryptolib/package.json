@@ -20,7 +20,7 @@
         "@jimber/simple-bip39": "^1.0.0",
         "mnemonicconversion2924": "^1.1.2",
         "stellar-base": "^6.0.6",
-        "stellar-sdk": "10.0.1",
+        "stellar-sdk": "9.0.1",
         "tweetnacl-ts": "^1.0.3",
         "tweetnacl-util": "^0.15.1"
     },

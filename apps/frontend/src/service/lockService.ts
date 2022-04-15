@@ -5,6 +5,10 @@ import moment from 'moment';
 import { toNumber } from 'lodash';
 import { getStellarClient } from '@/service/stellarService';
 
+//
+// Types
+//
+
 type HorizonBalance =
     | Horizon.BalanceLineNative
     | Horizon.BalanceLineAsset<'credit_alphanum4'>
@@ -26,8 +30,12 @@ export interface TokenItem {
     unlockHash: string | null;
     unlockFrom: string | undefined;
     canBeUnlocked: boolean;
-    balance: HorizonBalance;
+    asset_code: string;
 }
+
+//
+// Fetch tokens functions
+//
 
 export const fetchAllLockedTokens = async (kp: StellarKeypair): Promise<TokenRecord[]> => {
     const allLockedBalances = await getLockedBalances(kp);
@@ -49,25 +57,40 @@ export const getAllTokensDetails = async (kp: StellarKeypair): Promise<TokenItem
         })
     );
 
-    return allLockedTokens.filter(b => !!b);
+    return allLockedTokens.filter(b => b != undefined || b != null) as TokenItem[];
 };
 
-const getLockedTokenRecordDetails = async (b: TokenRecord): Promise<TokenItem> => {
-    const unlockTx = await fetchUnlockTransaction(b.unlockHash!);
+const getLockedTokenRecordDetails = async (b: TokenRecord): Promise<TokenItem | undefined> => {
+    let unlockTx: Transaction | null = null;
+    try {
+        unlockTx = await fetchUnlockTransaction(b.unlockHash!);
+    } catch (e) {
+        console.error('Cant fetch unlock transaction');
+        console.log(e);
+        return;
+    }
+
     const isValidMoment = moment.unix(toNumber(unlockTx?.timeBounds?.minTime)).isBefore();
 
+    const balance = b.balance as Horizon.BalanceLineAsset<'credit_alphanum4'>;
+
     return {
-        amount: toNumber(b.balance?.balance),
+        amount: toNumber(balance.balance),
         address: b.id,
         unlockHash: b.unlockHash,
         unlockFrom: unlockTx?.timeBounds?.minTime,
         canBeUnlocked: isValidMoment,
-        balance: b.balance,
+        asset_code: balance.asset_code,
     };
 };
 
+//
+// Unlocking tokens functions
+//
+
 export const unlockTokens = async (lockedBalances: TokenItem[], kp: StellarKeypair) => {
     if (!lockedBalances) return;
+
     for (let lockedBalance of lockedBalances) {
         if (lockedBalance.unlockHash) {
             const lBalance = await submitLockedTokenTxHash(lockedBalance);
@@ -78,8 +101,12 @@ export const unlockTokens = async (lockedBalances: TokenItem[], kp: StellarKeypa
         }
 
         if (!lockedBalance.unlockHash) {
-            const balance = lockedBalance.balance as Horizon.BalanceLineAsset<'credit_alphanum4'>;
-            await transferLockedBalance(kp, lockedBalance.address, balance.asset_code, Number(balance.balance));
+            await transferLockedBalance(
+                kp,
+                lockedBalance.address,
+                lockedBalance.asset_code,
+                Number(lockedBalance.amount)
+            );
             return;
         }
     }

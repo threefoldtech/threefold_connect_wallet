@@ -19,9 +19,9 @@
             <span class="text-xs">
                 {{
                     $t('wallet.overview.lockedTokensDetails', {
-                        amount: formatCurrency(t.amount),
-                        asset_code: t.balance.asset_code,
-                        date: timeStampToReadableDate(t.unlockFrom),
+                        amount: formatCurrency(t?.amount),
+                        asset_code: t?.asset_code,
+                        date: timeStampToReadableDate(t?.unlockFrom),
                     })
                 }}
             </span>

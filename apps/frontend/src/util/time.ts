@@ -5,6 +5,8 @@ export const formatTime = (timeString: string) => {
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 };
 
-export const timeStampToReadableDate = (timestamp: string) => {
+// @TODO: discuss with Wijne to avoid this undefined timestamp issue without ts-ignore
+export const timeStampToReadableDate = (timestamp: string | undefined) => {
+    if (!timestamp) return;
     return new Date(toNumber(timestamp) * 1000).toLocaleDateString();
 };

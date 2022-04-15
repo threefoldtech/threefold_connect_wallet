@@ -3,7 +3,7 @@
         <div class="mx-auto flex h-full max-w-3xl items-center justify-center">
             <div class="flex flex-col items-center justify-center space-y-4 text-center">
                 <div class="h-16 w-16 animate-spin rounded-full border-4 border-dashed border-secondary-600"></div>
-                <div @click="inc()">initializing your first wallet</div>
+                <div v-on:touchend.prevent.stop="inc()" @click.prevent.stop="inc()">initializing your first wallet</div>
             </div>
         </div>
     </div>

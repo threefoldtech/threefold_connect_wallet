@@ -7,7 +7,7 @@ export default <Translation>{
         checkExist: 'Checking if an account already exists.',
         startFirstWallet: 'Initializing first wallet creation.',
         walletCreationFailed: 'Wallet creation failed.',
-        noDataYet: 'No data yet.',
+        noDataYet: 'No data yet',
         isThisFirstTime: 'Is this your first time?',
         loading: 'Loading...',
     },

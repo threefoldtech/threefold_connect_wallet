@@ -1,7 +1,7 @@
 import { Horizon } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
 import { AllowedAsset, AssetBalance, Wallet } from '@/service/walletService';
-import { checkVesting as stellarCryptocheckVesting } from '@jimber/stellar-crypto';
+import { checkVesting as stellarCryptocheckVesting } from 'cryptolib';
 import BalanceLine = Horizon.BalanceLine;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
 

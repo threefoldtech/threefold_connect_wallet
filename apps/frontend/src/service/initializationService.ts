@@ -5,16 +5,18 @@ import { decodeBase64 } from 'tweetnacl-util';
 import { entropyToMnemonic } from '@jimber/simple-bip39';
 // @ts-ignore
 import Pkid from '@jimber/pkid';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
 import flagsmith from 'flagsmith';
 import sodium from 'libsodium-wrappers';
-import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from '@jimber/stellar-crypto';
+import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from 'cryptolib';
 import { saveWallets, sendWalletDataToFlutter, wallets } from '@/service/walletService';
 import { getPkidClient, PkidWallet } from '@/service/pkidService';
 import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/service/cryptoService';
 import { getStellarClient } from '@/service/stellarService';
-import { bytesToHex, hexToBytes } from '@/util/crypto';
-import { IWalletKeyPair, WalletKeyPairBuilder } from '@/lib/WalletKeyPair';
+import { bytesToHex } from '@/util/crypto';
+import { WalletKeyPairBuilder } from '@/lib/WalletKeyPair';
+import { addNotification, NotificationType } from '@/service/notificationService';
 
 type LoadingText = {
     title: string;
@@ -144,6 +146,10 @@ export const init = async (name: string, seedString: string) => {
         return;
     }
     await initFlags(name);
+
+    // https://polkadot.js.org/docs/util-crypto/FAQ/#i-am-having-trouble-initializing-the-wasm-interface
+    await cryptoWaitReady();
+
     initKeys(seedString);
     initStellarCryptoConfig();
 
@@ -173,6 +179,7 @@ export const init = async (name: string, seedString: string) => {
         : purseDocToCheckFirstWalletInit;
 
     if (!purseDoc?.success) {
+        addNotification(NotificationType.error, 'Critical Initialization error: please contact support');
         throw new Error('Critical Initialization error: no purseDoc');
     }
 

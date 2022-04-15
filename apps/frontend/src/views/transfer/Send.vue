@@ -257,6 +257,7 @@
     import { toNumber } from 'lodash';
     import { formatCurrency } from '@/util/formatCurrency';
     import Contact from '@/views/transfer/Contact.vue';
+    import { useDynamicBalance } from '@/util/useDynamicBalance';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
@@ -282,6 +283,19 @@
     const selectedWallet = ref<Wallet>();
     selectedWallet.value =
         wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0];
+
+    const dynamicBalanceCleanUp = ref<() => void>(() => {});
+
+    watch(
+        selectedWallet,
+        () => {
+            if (!selectedWallet.value) return;
+
+            dynamicBalanceCleanUp.value();
+            dynamicBalanceCleanUp.value = useDynamicBalance(selectedWallet.value).cleanUp;
+        },
+        { immediate: true }
+    );
 
     const selectedBalance = computed(() =>
         balances.value.find(t => t.id === selectedWallet?.value?.keyPair.getBasePublicKey())
@@ -312,16 +326,21 @@
         showContacts.value = false;
     };
     const relevantAssets = computed(() => {
-        return allowedAssets
-            .filter(asset => {
-                return (
-                    (selectedBalance.value?.assets.find(balance => balance.name === asset.asset_code)?.amount || 0) > 0
-                );
-            })
-            .filter(asset => {
-                return asset.type === selectedChain.value;
-            });
+        const selectedAssets = selectedBalance.value?.assets;
+        if (!selectedAssets) return [];
+
+        return allowedAssets.filter(asset => {
+            const foundBalance = selectedAssets.find(
+                sa => sa.name === asset.asset_code && sa.type === asset.type && sa.type === selectedChain.value
+            );
+            const amount = foundBalance?.amount;
+            return amount && amount > 0;
+        });
     });
+
+    console.log('Relevant assets', relevantAssets.value);
+    console.log('Balance', balances.value);
+    console.log('Selected balance', selectedBalance.value);
 
     const selectedAsset = ref(asset || relevantAssets.value[0]);
 

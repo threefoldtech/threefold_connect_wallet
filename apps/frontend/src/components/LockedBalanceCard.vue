@@ -21,7 +21,7 @@
                     $t('wallet.overview.lockedTokensDetails', {
                         amount: formatCurrency(t?.amount),
                         asset_code: t?.asset_code,
-                        date: timeStampToReadableDate(t?.unlockFrom),
+                        date: convertToString(t?.unlockFrom),
                     })
                 }}
             </span>
@@ -47,6 +47,11 @@
     const lockedTokens = computed(() => {
         return lockedBalances.filter(token => token?.canBeUnlocked === false);
     });
+
+    const convertToString = (timestamp: string | undefined) => {
+        const t = timestamp as string;
+        return timeStampToReadableDate(t);
+    };
 
     const totalLockedTokens = computed(() => {
         return lockedBalances.reduce((acc, cur) => {

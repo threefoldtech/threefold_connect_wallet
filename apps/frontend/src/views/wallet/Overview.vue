@@ -157,9 +157,7 @@
     };
 
     const lockedTokensFlow = async () => {
-        if (lockedAssetBalance.value.length == 0) {
-            lockedAssetBalance.value = await getAllTokensDetails(wallet.keyPair.getStellarKeyPair());
-        }
+        lockedAssetBalance.value = await getAllTokensDetails(wallet.keyPair.getStellarKeyPair());
 
         if (lockedAssetBalance.value.length >= 1) {
             // Trying to unlock ...

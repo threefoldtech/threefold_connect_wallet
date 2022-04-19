@@ -1,9 +1,10 @@
 import { Keypair as StellarKeypair } from 'stellar-base';
 import { fetchUnlockTransaction, getLockedBalances, transferLockedTokens } from 'cryptolib';
 import { Horizon, Keypair, Transaction } from 'stellar-sdk';
-import moment from 'moment';
 import { toNumber } from 'lodash';
 import { getStellarClient } from '@/service/stellarService';
+import { addNotification, NotificationType } from '@/service/notificationService';
+import { isBefore } from '@/util/time';
 
 //
 // Types
@@ -65,12 +66,12 @@ const getLockedTokenRecordDetails = async (b: TokenRecord): Promise<TokenItem | 
     try {
         unlockTx = await fetchUnlockTransaction(b.unlockHash!);
     } catch (e) {
+        addNotification(NotificationType.error, 'Unable to fetch unlock transaction');
         console.error('Cant fetch unlock transaction');
-        console.log(e);
         return;
     }
 
-    const isValidMoment = moment.unix(toNumber(unlockTx?.timeBounds?.minTime)).isBefore();
+    const isValidMoment = isBefore(toNumber(unlockTx?.timeBounds?.minTime));
 
     const balance = b.balance as Horizon.BalanceLineAsset<'credit_alphanum4'>;
 
@@ -118,7 +119,7 @@ const submitLockedTokenTxHash = async (lockedBalance: TokenItem): Promise<TokenI
     const unlockTx = await fetchUnlockTransaction(lockedBalance.unlockHash);
     if (!unlockTx) return null;
 
-    if (!moment.unix(toNumber(lockedBalance.unlockFrom)).isBefore()) {
+    if (!isBefore(toNumber(lockedBalance.unlockFrom))) {
         console.log("Tokens can't be unlocked yet");
         return null;
     }
@@ -135,6 +136,8 @@ const transferLockedBalance = async (kp: StellarKeypair, address: string, asset:
 
     try {
         await transferLockedTokens(kp, address, asset, balance);
+
+        addNotification(NotificationType.success, 'Successfully unlocked tokens');
     } catch (e) {
         console.error(e);
     }

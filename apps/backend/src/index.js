@@ -69,6 +69,23 @@ fastify.get('/api/v1/farms/:name/:stellar_wallet_address', (request, reply) => {
         });
 });
 
+// Dummy data API for testing purposes
+fastify.post('/api/v1/vesting_accounts', (req, reply) => {
+    const owner_address = req.body.owner_address;
+
+    return {
+        owner_address: owner_address,
+        vesting_accounts: [
+            {
+                address: 'GBQIZ5G4OY7SIYFUWJWJEKGGMTCW5SX54GCC3TF6REDFW7P2IBGMWJ3T',
+                balance: '50.0000000',
+                free: '10.0000000',
+                vested: '40.0000000',
+            },
+        ],
+    };
+});
+
 fastify.listen(5000, function (err, address) {
     console.log(`server listening on ${address}`);
     if (err) {

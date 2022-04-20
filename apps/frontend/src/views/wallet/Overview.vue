@@ -86,7 +86,18 @@
             <h2>Vested Tokens</h2>
             <div class="mt-4 space-y-2">
                 <template v-for="assetBalance in vestedAssetBalance">
-                    <BalanceCard :balance="assetBalance"> </BalanceCard>
+                    <BalanceCard :balance="assetBalance">
+                        <template #actions>
+                            <button
+                                @click="click"
+                                type="button"
+                                class="inline-flex items-center rounded-md border border-transparent bg-primary-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                            >
+                                Unvest tokens
+                                <SwitchHorizontalIcon class="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
+                            </button>
+                        </template>
+                    </BalanceCard>
                 </template>
             </div>
         </div>
@@ -107,8 +118,10 @@
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
     import { checkVesting } from '@/service/vestingService';
     import { useLocalStorage } from '@vueuse/core';
-    import { translate } from '@/util/translate';
     import flagsmith from 'flagsmith';
+    import { getTransferVestedTokensXDR, getVestedRecords } from 'cryptolib';
+    import { toNumber } from 'lodash';
+
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
@@ -125,6 +138,22 @@
     const assets = useAssets(wallet);
 
     const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
+
+    const click = async () => {
+        const t = await getVestedRecords(wallet.keyPair.getStellarKeyPair().publicKey());
+        for (const vAcc of t.vesting_accounts) {
+            if (toNumber(vAcc.free) <= 0) return;
+
+            const fundedTransaction = await getTransferVestedTokensXDR(
+                wallet.keyPair.getStellarKeyPair(),
+                vAcc.address,
+                'TFT',
+                toNumber(vAcc.free)
+            );
+
+            console.log(fundedTransaction);
+        }
+    };
 </script>
 
 <style scoped></style>

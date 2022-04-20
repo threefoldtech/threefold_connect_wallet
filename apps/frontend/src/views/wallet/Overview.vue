@@ -89,7 +89,7 @@
                     <BalanceCard :balance="assetBalance">
                         <template #actions>
                             <button
-                                @click="click"
+                                @click="unvest"
                                 type="button"
                                 class="inline-flex items-center rounded-md border border-transparent bg-primary-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                             >
@@ -116,12 +116,9 @@
     import { inject, ref } from 'vue';
     import { useAssets } from '@/util/useAssets';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
-    import { checkVesting } from '@/service/vestingService';
+    import { checkVesting, unvestTokens } from '@/service/vestingService';
     import { useLocalStorage } from '@vueuse/core';
     import flagsmith from 'flagsmith';
-    import { getTransferVestedTokensXDR, getVestedRecords } from 'cryptolib';
-    import { toNumber } from 'lodash';
-
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
@@ -139,20 +136,8 @@
 
     const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
 
-    const click = async () => {
-        const t = await getVestedRecords(wallet.keyPair.getStellarKeyPair().publicKey());
-        for (const vAcc of t.vesting_accounts) {
-            if (toNumber(vAcc.free) <= 0) return;
-
-            const fundedTransaction = await getTransferVestedTokensXDR(
-                wallet.keyPair.getStellarKeyPair(),
-                vAcc.address,
-                'TFT',
-                toNumber(vAcc.free)
-            );
-
-            console.log(fundedTransaction);
-        }
+    const unvest = async () => {
+        await unvestTokens(wallet.keyPair.stellarKeyPair);
     };
 </script>
 

@@ -64,6 +64,7 @@ export default <Translation>{
             lockedTokens: 'Locked tokens',
             checkLocking: 'Checking locked tokens...',
             lockedTokensDetails: '{amount} {asset_code} will be unlocked on {date}',
+            unlockManually: 'Unlock tokens manually',
         },
         transactions: {
             tfchainHistoryBanner: 'Transaction history for TFChain coming soon.',
@@ -224,5 +225,14 @@ export default <Translation>{
     errors: {
         balanceTooLow: 'Balance too low',
         validAmount: 'Transaction amount must be more than 1 TFT',
+    },
+    locking: {
+        errors: {
+            unableToFetch: 'Unable to fetch unlock transaction',
+            cantBeUnlockedYet: "Tokens can't be unlocked yet",
+            failedToUnlock: 'Failed to unlock tokens',
+        },
+        tryingToUnlock: 'Trying to unlock the tokens...',
+        successfullyUnlocked: 'Successfully unlocked tokens',
     },
 };

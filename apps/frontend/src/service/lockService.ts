@@ -5,6 +5,7 @@ import { toNumber } from 'lodash';
 import { getStellarClient } from '@/service/stellarService';
 import { addNotification, NotificationType } from '@/service/notificationService';
 import { isBefore } from '@/util/time';
+import { translate } from '@/util/translate';
 
 //
 // Types
@@ -66,7 +67,7 @@ const getLockedTokenRecordDetails = async (b: TokenRecord): Promise<TokenItem | 
     try {
         unlockTx = await fetchUnlockTransaction(b.unlockHash!);
     } catch (e) {
-        addNotification(NotificationType.error, 'Unable to fetch unlock transaction');
+        addNotification(NotificationType.error, translate('locking.errors.unableToFetch'));
         console.error('Cant fetch unlock transaction');
         return;
     }
@@ -120,6 +121,7 @@ const submitLockedTokenTxHash = async (lockedBalance: TokenItem): Promise<TokenI
     if (!unlockTx) return null;
 
     if (!isBefore(toNumber(lockedBalance.unlockFrom))) {
+        addNotification(NotificationType.error, translate('locking.errors.cantBeUnlockedYet'));
         console.log("Tokens can't be unlocked yet");
         return null;
     }
@@ -137,8 +139,9 @@ const transferLockedBalance = async (kp: StellarKeypair, address: string, asset:
     try {
         await transferLockedTokens(kp, address, asset, balance);
 
-        addNotification(NotificationType.success, 'Successfully unlocked tokens');
+        addNotification(NotificationType.success, translate('locking.successfullyUnlocked'));
     } catch (e) {
+        addNotification(NotificationType.error, translate('locking.errors.failedToUnlock'));
         console.error(e);
     }
 };

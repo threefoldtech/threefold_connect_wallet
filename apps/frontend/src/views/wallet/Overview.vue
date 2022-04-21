@@ -107,8 +107,8 @@
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
     import { checkVesting } from '@/service/vestingService';
     import { useLocalStorage } from '@vueuse/core';
-    import { translate } from '@/util/translate';
     import flagsmith from 'flagsmith';
+    import { orderAssets } from '@/util/order';
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
@@ -122,7 +122,7 @@
         vestedAssetBalance.value = balances;
         vestedAssetBalanceIsLoading.value = false;
     });
-    const assets = useAssets(wallet);
+    const assets = orderAssets(useAssets(wallet).value);
 
     const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
 </script>

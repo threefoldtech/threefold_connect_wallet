@@ -165,10 +165,10 @@
             <DialogOverlay class="pointer-events-none fixed inset-0 bg-gray-700/90"></DialogOverlay>
             <div class="flex min-h-screen text-center md:block md:px-2 lg:px-4" @click="showImage = false">
                 <span class="hidden md:inline-block md:h-screen md:align-middle" aria-hidden="true">&#8203;</span>
-                <div class="flex h-screen w-screen flex-col justify-center p-4">
-                    <div class="z-50">
+                <div class="flex h-screen w-full flex-col justify-center p-4">
+                    <div class="z-50 flex flex-row justify-center">
                         <img
-                            class="z-50 h-full max-h-[min(85vw,85vh)] w-full max-w-[min(85vw,85vh)] bg-white object-contain p-8"
+                            class="z-50 h-full w-4/5 bg-white object-contain p-8 text-center"
                             v-if="imageUrl"
                             :src="imageUrl"
                             alt="qr-code"
@@ -286,7 +286,7 @@
             7
         )}&message=${encodeURIComponent(receiveMessage.value.trim())}&sender=me`;
 
-        QRCode.toDataURL('some text', { errorCorrectionLevel: 'M', type: 'svg' }, (err: any, url: string) => {
+        QRCode.toDataURL(data, { errorCorrectionLevel: 'M', type: 'svg' }, (err: any, url: string) => {
             imageUrl.value = url;
             showImage.value = true;
         });

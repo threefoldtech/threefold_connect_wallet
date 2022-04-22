@@ -9,11 +9,7 @@ RUN yarn build
 
 FROM nginx:alpine
 RUN apk add --no-cache --repository http://nl.alpinelinux.org/alpine/edge/main libuv \
-<<<<<<< HEAD
-    && apk add --no-cache --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main nodejs  npm \
-=======
     && apk add --no-cache --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main nodejs npm \
->>>>>>> e163feb (change build)
     && apk add --no-cache --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community yarn \
     && echo "NodeJS Version:" "$(node -v)" \
     && echo "NPM Version:" "$(npm -v)" \

@@ -1,25 +1,7 @@
 <template>
-    <Dialog v-if="isOpen && false" as="div" open @close="isOpen = false">
-        <div class="fixed inset-0 z-10 overflow-y-auto">
-            <div class="h-screen w-full bg-blue-200">
-                <MainLayout>
-                    <template #header>
-                        <PageHeader>
-                            <h1>{{ $t('component.operationInfo.title') }}</h1>
-
-                            <template #after>
-                                <XIcon class="h-8 cursor-pointer text-gray-600" @click="isOpen = false" />
-                            </template>
-                        </PageHeader>
-                    </template>
-                    <div class="p-4">
-                        <pre class="whitespace-pre-wrap break-all text-sm">{{ operation }}</pre>
-                    </div>
-                </MainLayout>
-            </div>
-        </div>
-    </Dialog>
-    <div class="group py-2 text-sm tracking-tight" @click="isOpen = true">
+    <OperationInfoDialog @close="showOperationDetails = false" v-if="showOperationDetails" :operation="operation">
+    </OperationInfoDialog>
+    <div class="group py-2 text-sm tracking-tight" @click="showOperationDetails = true">
         <div v-if="operation.type === 'payment'" class="flex items-center justify-between gap-4">
             <div
                 class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
@@ -91,14 +73,12 @@
 
 <script lang="ts" setup>
     import { Wallet } from '@/service/walletService';
-    import { Dialog } from '@headlessui/vue';
     import { XIcon, ArrowUpIcon, ArrowDownIcon, LinkIcon, SwitchVerticalIcon } from '@heroicons/vue/solid';
     import { ServerApi } from 'stellar-sdk';
     import { ref } from 'vue';
     import { formatTime } from '@/util/time';
     import { formatCurrency } from '@/util/formatCurrency';
-    import MainLayout from '@/layouts/MainLayout.vue';
-    import PageHeader from '@/components/header/PageHeader.vue';
+    import OperationInfoDialog from '@/components/dialogs/wallet/OperationInfoDialog.vue';
 
     interface IProps {
         operation: ServerApi.OperationRecord;
@@ -107,7 +87,7 @@
 
     const { operation, wallet } = defineProps<IProps>();
 
-    const isOpen = ref<boolean>(false);
+    const showOperationDetails = ref<boolean>(false);
 </script>
 
 <style scoped></style>

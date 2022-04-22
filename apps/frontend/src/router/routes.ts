@@ -1,4 +1,4 @@
-import { _RouteRecordBase, RouteComponent, RouteLocationNormalized, RouteRecordRaw, RouterView } from 'vue-router';
+import {_RouteRecordBase, RouteComponent, RouteLocationNormalized, RouteRecordRaw, RouterView} from 'vue-router';
 import WalletList from '@/views/WalletList.vue';
 import Overview from '@/views/wallet/Overview.vue';
 import Info from '@/views/wallet/Info.vue';
@@ -30,9 +30,9 @@ import {
     TrendingUpIcon,
 } from '@heroicons/vue/outline';
 import flagsmith from 'flagsmith';
-import { NavItem } from '@/types';
+import {NavItem} from '@/types';
 import axios from 'axios';
-import { RenderFunction } from 'vue';
+import {RenderFunction} from 'vue';
 
 interface Route extends _RouteRecordBase {
     component?: RouteComponent | (() => Promise<RouteComponent>);
@@ -44,9 +44,9 @@ interface Route extends _RouteRecordBase {
     };
 }
 
-const viteEnableFarmers = import.meta.env.VITE_ENABLE_FARMERS;
+const viteEnableFarmers = false;
 
-const farmerOnly = parseInt((await axios.get('/api/v1/env')).data.farmerOnly) ?? 1;
+const farmerOnly: number = 0;
 
 export const routes: Route[] = [
     {
@@ -83,8 +83,8 @@ export const routes: Route[] = [
         ],
         meta: {
             bottomNav: [
-                { name: 'devLogs', icon: <RenderFunction>TableIcon },
-                { name: 'devActions', icon: <RenderFunction>BeakerIcon },
+                {name: 'devLogs', icon: <RenderFunction>TableIcon},
+                {name: 'devActions', icon: <RenderFunction>BeakerIcon},
             ],
         },
     },
@@ -137,13 +137,13 @@ export const routes: Route[] = [
         ],
         meta: {
             bottomNav: () => [
-                { name: 'walletOverview', icon: <RenderFunction>CashIcon },
+                {name: 'walletOverview', icon: <RenderFunction>CashIcon},
                 ...(flagsmith.hasFeature('transactionOverview')
-                    ? [{ name: 'walletTransactions', icon: <RenderFunction>SwitchHorizontalIcon }]
+                    ? [{name: 'walletTransactions', icon: <RenderFunction>SwitchHorizontalIcon}]
                     : []),
-                { name: 'walletInfo', icon: <RenderFunction>InformationCircleIcon },
+                {name: 'walletInfo', icon: <RenderFunction>InformationCircleIcon},
                 ...(flagsmith.hasFeature('vesting')
-                    ? [{ name: 'walletVesting', icon: <RenderFunction>TrendingUpIcon }]
+                    ? [{name: 'walletVesting', icon: <RenderFunction>TrendingUpIcon}]
                     : []),
             ],
         },

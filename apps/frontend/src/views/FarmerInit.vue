@@ -27,6 +27,7 @@
     import { useCounter, useLocalStorage } from '@vueuse/core';
     import { watch } from 'vue';
     import { getSubstrateApi } from '@/service/substrateService';
+    import {isDev} from "@/util/enviroment";
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();
@@ -40,7 +41,6 @@
         router.push({ name: 'devLogs' });
     });
 
-    const isDev = import.meta.env.DEV;
 
     const seed = useLocalStorage('devSeed', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=');
     const overrideIsDev = useLocalStorage('override', false);

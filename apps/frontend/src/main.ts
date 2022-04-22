@@ -1,21 +1,7 @@
-import process from 'process';
-import { Buffer } from 'buffer';
-
-import { createI18n } from 'vue-i18n';
-
-import translates from './translates';
-
-import '@polkadot/api-augment'; //see: https://github.com/polkadot-js/api/releases/tag/v7.0.1
-
-window.Buffer = Buffer;
-window.process = process;
-
 import { createApp } from 'vue';
 import App from './App.vue';
 import './index.css';
 
-import '@/components/global';
-import { registerGlobalComponent } from './components/global';
 import router from './router';
 import { overrideConsole } from '@/util/log';
 import axios from 'axios';
@@ -27,14 +13,14 @@ import { i18n } from '@/util/translate';
 const init = async () => {
     await sodium.ready;
     // @ts-ignore
-    globalThis.version = import.meta.env.VITE_VERSION;
+    globalThis.version = 'development';
 
     try {
         overrideConsole();
         // @ts-ignore
         console.info(`running version: ${globalThis.version}`);
         axios.interceptors.response.use(undefined, error => {
-            const isDev = import.meta.env.DEV;
+            const isDev = true;
             if (isDev) return;
             console.error(
                 error?.config ? `${error.message}: ${error?.config?.method.toUpperCase()} ${error?.config?.url}` : error
@@ -48,7 +34,6 @@ const init = async () => {
         app.use(i18n);
         app.use(Vue3TouchEvents);
         app.use(router);
-        registerGlobalComponent(app);
 
         app.mount('#app');
     } catch (e) {

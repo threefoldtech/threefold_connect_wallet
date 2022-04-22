@@ -129,10 +129,11 @@
     import LandingFarmInformationDialog from '@/components/dialogs/farm/LandingFarmInformationDialog.vue';
 
     import { useLocalStorage } from '@vueuse/core';
+    import {isDev} from "@/util/enviroment";
     const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
     //@ts-ignore
-    const canCreateFarms = import.meta.env.DEV || flagsmith.hasFeature('can_create_farms_for_farmer');
+    const canCreateFarms = isDev || flagsmith.hasFeature('can_create_farms_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);
 
     const createWallet = async () => {

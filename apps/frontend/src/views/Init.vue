@@ -27,6 +27,7 @@
     import { useCounter, useLocalStorage } from '@vueuse/core';
     import { watch } from 'vue';
     import { balances, operations } from '@/service/walletService';
+    import {isDev} from "@/util/enviroment";
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();
@@ -39,7 +40,6 @@
         if (newValue < 5) return;
         router.push({ name: 'devLogs' });
     });
-    const isDev = import.meta.env.DEV;
 
     const seed = useLocalStorage('devSeed', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=');
     const overrideIsDev = useLocalStorage('override', false);

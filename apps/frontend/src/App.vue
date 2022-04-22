@@ -1,4 +1,11 @@
 <template>
+    <div
+        v-if="isBeta"
+        class="user-select-none pointer-events-none fixed right-0 mt-9 mr-9 w-72 origin-top bg-yellow-500 text-center opacity-80"
+        style="transform: translateX(50%) rotate(45deg)"
+    >
+        <div>BETA</div>
+    </div>
     <RouterView />
     <Notifications />
     <div
@@ -16,6 +23,7 @@
     import { useRouter } from 'vue-router';
     import { watch } from 'vue';
 
+
     const version = <string>(<any>globalThis)?.version;
 
     const { count, inc, reset } = useCounter();
@@ -29,6 +37,8 @@
         if (newValue < 5) return;
         router.push({ name: 'devLogs' });
     });
+
+    const isBeta = globalThis.location.hostname.includes('wallet-beta');
 </script>
 
 <style></style>

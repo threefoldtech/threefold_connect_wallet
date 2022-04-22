@@ -163,7 +163,7 @@
     import flagsmith from 'flagsmith';
     import { wallets } from '@/service/walletService';
     import { ChainTypes } from '@/enums/chains.enums';
-    import { buildFundedPaymentTransaction, submitFundedTransaction } from '@jimber/stellar-crypto';
+    import { buildFundedPaymentTransaction, submitFundedTransaction } from 'cryptolib';
     import AssetIcon from '@/components/AssetIcon.vue';
     import { sendSubstrateTokens } from '@/service/substrateService';
     import { addNotification, NotificationType } from '@/service/notificationService';

@@ -40,20 +40,20 @@
                 <div class="mt-4">
                     <div
                         v-if="selectedTab === Tabs.OWN_WALLETS"
-                        class="text-gray-700 p-2 border-[1px] rounded-md mb-4"
+                        class="mb-4 rounded-md border-[1px] p-2 text-gray-700"
                         v-for="contact in myContacts"
                         @click="selectedContact(contact)"
                     >
                         <div class="flex flex-row items-center">
                             <div class="w-10/12">
-                                <div class="text-black text-left text-sm font-bold">
+                                <div class="text-left text-sm font-bold text-black">
                                     {{ contact.name }}
                                 </div>
                                 <div class="truncate">
                                     {{ contact.address }}
                                 </div>
                             </div>
-                            <div class="w-2/12 text-right flex justify-end pr-2">
+                            <div class="flex w-2/12 justify-end pr-2 text-right">
                                 <ArrowRightIcon class="h-5" />
                             </div>
                         </div>
@@ -61,20 +61,20 @@
 
                     <div
                         v-if="selectedTab === Tabs.OTHERS"
-                        class="text-gray-700 p-2 border-[1px] rounded-md mb-4"
-                        v-for="contact in pkidContacts"
+                        class="mb-4 rounded-md border-[1px] p-2 text-gray-700"
+                        v-for="contact in contacts"
                         @click="selectedContact(contact)"
                     >
                         <div class="flex flex-row items-center">
                             <div class="w-10/12">
-                                <div class="text-black text-left text-sm font-bold">
+                                <div class="text-left text-sm font-bold text-black">
                                     {{ contact.name }}
                                 </div>
                                 <div class="truncate">
                                     {{ contact.address }}
                                 </div>
                             </div>
-                            <div class="w-2/12 text-right flex justify-end pr-2">
+                            <div class="flex w-2/12 justify-end pr-2 text-right">
                                 <ArrowRightIcon class="h-5" />
                             </div>
                         </div>
@@ -136,13 +136,13 @@
     const selectedTab = ref<Tabs>(Tabs.OWN_WALLETS);
 
     const showAddContact = ref<boolean>(false);
-    const pkidContacts = ref<ContactType[]>([]);
+    const contacts = ref<ContactType[]>([]);
 
-    onBeforeMount(async () => {
+    const init = async () => {
         // Load contacts related to chain
-        const contacts: ContactType[] = await getContactsFromPkid();
-        pkidContacts.value = contacts.filter(c => c.type === chain);
-    });
+        const pkidContacts: ContactType[] = await getContactsFromPkid();
+        contacts.value = pkidContacts.filter(c => c.type === chain);
+    };
 
     const showHint = useLocalStorage('show-add-contact-hint', true);
     const enableHint = () => {
@@ -173,9 +173,11 @@
         showAddContact.value = false;
 
         // Refresh contacts
-        const contacts: ContactType[] = await getContactsFromPkid();
-        pkidContacts.value = contacts.filter(c => c.type === chain);
+        const pkidContacts: ContactType[] = await getContactsFromPkid();
+        contacts.value = pkidContacts.filter(c => c.type === chain);
     };
+
+    init();
 </script>
 
 <style scoped></style>

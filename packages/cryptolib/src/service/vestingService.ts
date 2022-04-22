@@ -1,6 +1,7 @@
 import { getConfig } from './stellarService';
-import { AccountResponse } from 'stellar-sdk';
+import { AccountResponse, Asset, BASE_FEE, Operation, TransactionBuilder } from 'stellar-sdk';
 import axios, { AxiosResponse } from 'axios';
+import { Keypair as StellarKeypair } from 'stellar-base';
 
 export const checkVesting = async (publicKey: string): Promise<AccountResponse | null> => {
     const { server } = getConfig();
@@ -50,4 +51,65 @@ export const generateVestingAccount = async (publicKey: string): Promise<Account
     }
 
     return vestingAccount;
+};
+
+export interface IVestedResponse {
+    owner_address: string;
+    vesting_accounts: IVestedAccount[];
+}
+
+export interface IVestedAccount {
+    address: string;
+    balance: number;
+    free: number;
+    vested: number;
+}
+
+export const getVestedRecords = async (publicKey: string): Promise<IVestedResponse> => {
+    const { serviceUrl } = getConfig();
+
+    // @TODO: uncomment this when Rob released updates on prod
+    // return await axios.post(`${serviceUrl}/vesting_service/vesting_accounts`, {
+    //     owner_address: publicKey,
+    // });
+
+    // Dummy data API for testing purposes
+    return (
+        await axios.post('http://localhost:3000/api/v1/vesting_accounts', {
+            owner_address: publicKey,
+        })
+    ).data;
+};
+
+export const getTransferVestedTokensXDR = async (
+    destinationKeyPair: StellarKeypair,
+    from: string,
+    asset_code: string,
+    amount: number
+): Promise<string> => {
+    const { server, network, currencies } = getConfig();
+
+    const account = await server.loadAccount(destinationKeyPair.publicKey());
+
+    const builder = new TransactionBuilder(account, {
+        fee: BASE_FEE,
+        networkPassphrase: network,
+    });
+
+    const currency = currencies[asset_code];
+    builder
+        .addOperation(
+            Operation.payment({
+                destination: destinationKeyPair.publicKey(),
+                asset: new Asset(asset_code, currency.issuer),
+                amount: amount.toFixed(7),
+                source: from,
+            })
+        )
+        .setTimeout(86400);
+
+    const transaction = builder.build();
+    transaction.sign(destinationKeyPair);
+
+    return transaction.toXDR();
 };

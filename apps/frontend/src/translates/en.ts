@@ -53,6 +53,9 @@ export default <Translation>{
         },
     },
     wallet: {
+        shell: {
+            hint: 'My Wallets',
+        },
         overview: {
             assets: 'Assets',
             sendCoins: 'Send Coins',

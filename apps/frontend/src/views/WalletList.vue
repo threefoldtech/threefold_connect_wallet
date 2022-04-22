@@ -45,7 +45,7 @@
             <WalletCard
                 v-for="wallet in sortedWallets"
                 v-touch:hold="enableMove"
-                :balance="balances.find(t => t.id === wallet.keyPair.getBasePublicKey())"
+                :balance="sortedBalances(wallet.keyPair.getBasePublicKey())"
                 :name="wallet.name"
                 @click="
                     router.push({
@@ -85,10 +85,10 @@
     import { computed, onBeforeUnmount, ref } from 'vue';
     import WalletCard from '../components/WalletCard.vue';
 
-    import { getSubstrateAssetBalances } from '@/service/substrateService';
     import { useDynamicBalance } from '@/util/useDynamicBalance';
     import flagsmith from 'flagsmith';
     import { useLocalStorage, useToggle } from '@vueuse/core';
+    import { orderAssets } from '@/util/order';
 
     const router = useRouter();
 
@@ -97,9 +97,6 @@
         onBeforeUnmount(cleanUp);
     });
 
-    wallets.value.forEach(async (wallet: Wallet) => {
-        const assetBalances = await getSubstrateAssetBalances(wallet.keyPair.getSubstrateKeyring().address);
-    });
     const showMove = ref(false);
 
     const showHint = useLocalStorage('show-import-wallet-hint', true);
@@ -121,6 +118,16 @@
             return 0;
         });
     });
+
+    const sortedBalances = (basePublicKey: string) => {
+        const relevantBalances = balances.value.find(t => t.id === basePublicKey);
+
+        if (!relevantBalances) return;
+
+        relevantBalances.assets = orderAssets(relevantBalances.assets);
+
+        return relevantBalances;
+    };
 </script>
 
 <style scoped></style>

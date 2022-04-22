@@ -139,8 +139,18 @@ export default {
             Deleted: 'Cause',
         },
     },
+    ContractResources: {
+        contract_id: 'u64',
+        used: 'Resources',
+    },
     Cause: {
         _enum: ['CanceledByUser', 'OutOfFunds'],
+    },
+    NruConsumption: {
+        contract_id: 'u64',
+        timestamp: 'u64',
+        window: 'u64',
+        nru: 'u64',
     },
     Consumption: {
         contract_id: 'u64',
@@ -242,5 +252,16 @@ export default {
         timestamp: 'u64',
         document_link: 'Vec<u8>',
         document_hash: 'Vec<u8>',
+    },
+    Validator: {
+        validator_node_account: 'AccountId',
+        stash_account: 'AccountId',
+        description: 'Vec<u8>',
+        tf_connect_id: 'Vec<u8>',
+        info: 'Vec<u8>',
+        state: 'ValidatorRequestState',
+    },
+    ValidatorRequestState: {
+        _enum: ['Created', 'Approved', 'Validating'],
     },
 };

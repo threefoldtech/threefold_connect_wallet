@@ -116,16 +116,16 @@
 <script lang="ts" setup>
     import BalanceCard from '@/components/BalanceCard.vue';
     import { useRouter } from 'vue-router';
-    import { AssetBalance, Wallet } from '@/service/walletService';
-    import { inject, ref } from 'vue';
+    import { AssetBalance, balances, Wallet } from '@/service/walletService';
+    import { computed, inject, ref } from 'vue';
     import { useAssets } from '@/util/useAssets';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
     import { checkVesting } from '@/service/vestingService';
     import { useLocalStorage } from '@vueuse/core';
     import flagsmith from 'flagsmith';
+    import { orderAssets } from '@/util/order';
     import { getAllTokensDetails, TokenItem, unlockTokens } from '@/service/lockService';
     import LockedBalanceCard from '@/components/LockedBalanceCard.vue';
-
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
@@ -142,7 +142,12 @@
     const vestedAssetBalanceIsLoading = ref(true);
     const lockedAssetBalanceIsLoading = ref(true);
 
-    const assets = useAssets(wallet);
+    checkVesting(wallet).then(balances => {
+        vestedAssetBalance.value = balances;
+        vestedAssetBalanceIsLoading.value = false;
+    });
+    const assets = computed(() => orderAssets(useAssets(wallet).value));
+
 
     const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
     const showLockedTokens = flagsmith.hasFeature('locked-tokens');

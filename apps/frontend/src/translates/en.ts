@@ -7,7 +7,7 @@ export default <Translation>{
         checkExist: 'Checking if an account already exists.',
         startFirstWallet: 'Initializing first wallet creation.',
         walletCreationFailed: 'Wallet creation failed.',
-        noDataYet: 'No data yet.',
+        noDataYet: 'No data yet',
         isThisFirstTime: 'Is this your first time?',
         loading: 'Loading...',
     },
@@ -59,7 +59,12 @@ export default <Translation>{
             receiveCoins: 'Receive Coins',
             transferFromStellar: 'Transfer from Stellar',
             noAssetsFound: 'No Assets Found',
+            vestedTokens: 'Vested tokens',
             checkVesting: 'Checking vested tokens...',
+            lockedTokens: 'Locked tokens',
+            checkLocking: 'Checking locked tokens...',
+            lockedTokensDetails: '{amount} {asset_code} will be unlocked on {date}',
+            unlockManually: 'Unlock tokens manually',
         },
         transactions: {
             tfchainHistoryBanner: 'Transaction history for TFChain coming soon.',
@@ -220,5 +225,14 @@ export default <Translation>{
     errors: {
         balanceTooLow: 'Balance too low',
         validAmount: 'Transaction amount must be more than 1 TFT',
+    },
+    locking: {
+        errors: {
+            unableToFetch: 'Unable to fetch unlock transaction',
+            cantBeUnlockedYet: "Tokens can't be unlocked yet",
+            failedToUnlock: 'Failed to unlock tokens',
+        },
+        tryingToUnlock: 'Trying to unlock the tokens...',
+        successfullyUnlocked: 'Successfully unlocked tokens',
     },
 };

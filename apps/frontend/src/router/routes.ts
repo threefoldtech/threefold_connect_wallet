@@ -34,7 +34,7 @@ import {NavItem} from '@/types';
 import axios from 'axios';
 import {RenderFunction} from 'vue';
 
-interface Route extends _RouteRecordBase {
+export interface Route extends _RouteRecordBase {
     component?: RouteComponent | (() => Promise<RouteComponent>);
     props?: boolean | Record<string, any> | ((to: RouteLocationNormalized) => Record<string, any>);
     meta?: {
@@ -44,179 +44,180 @@ interface Route extends _RouteRecordBase {
     };
 }
 
-const viteEnableFarmers = false;
+let farmerOnly = 1;
 
-const farmerOnly: number = 0;
-
-export const routes: Route[] = [
-    {
-        path: '/farmer',
-        name: 'farmer',
-        component: Farmer,
-    },
-    {
-        path: '/',
-        name: 'walletList',
-        component: WalletList,
-    },
-    {
-        path: '/dev',
-        name: 'dev',
-        component: DevShell,
-        children: [
-            {
-                path: '',
-                name: 'devLogs',
-                component: Logs,
-                meta: {
-                    activeNav: 'devLogs',
+export const getRoutes = async () => {
+    farmerOnly = parseInt((await axios.get('/api/v1/env')).data.farmerOnly) ?? 1;
+    return [
+        {
+            path: '/farmer',
+            name: 'farmer',
+            component: Farmer,
+        },
+        {
+            path: '/',
+            name: 'walletList',
+            component: WalletList,
+        },
+        {
+            path: '/dev',
+            name: 'dev',
+            component: DevShell,
+            children: [
+                {
+                    path: '',
+                    name: 'devLogs',
+                    component: Logs,
+                    meta: {
+                        activeNav: 'devLogs',
+                    },
                 },
-            },
-            {
-                path: '',
-                name: 'devActions',
-                component: Actions,
-                meta: {
-                    activeNav: 'devActions',
+                {
+                    path: '',
+                    name: 'devActions',
+                    component: Actions,
+                    meta: {
+                        activeNav: 'devActions',
+                    },
                 },
+            ],
+            meta: {
+                bottomNav: [
+                    { name: 'devLogs', icon: <RenderFunction>TableIcon },
+                    { name: 'devActions', icon: <RenderFunction>BeakerIcon },
+                ],
             },
-        ],
-        meta: {
-            bottomNav: [
-                {name: 'devLogs', icon: <RenderFunction>TableIcon},
-                {name: 'devActions', icon: <RenderFunction>BeakerIcon},
+        },
+        {
+            path: '/listBalances',
+            name: 'test',
+            component: TestView,
+        },
+        {
+            path: '/import',
+            name: 'walletImport',
+            component: WalletImport,
+        },
+        {
+            path: '/wallet/:wallet',
+            component: WalletShell,
+            children: [
+                {
+                    path: '',
+                    name: 'walletOverview',
+                    component: Overview,
+                    meta: {
+                        activeNav: 'walletOverview',
+                    },
+                },
+                {
+                    path: 'transactions/:assetCode?',
+                    name: 'walletTransactions',
+                    component: Transactions,
+                    meta: {
+                        activeNav: 'walletTransactions',
+                    },
+                },
+                {
+                    path: 'info',
+                    name: 'walletInfo',
+                    component: Info,
+                    meta: {
+                        activeNav: 'walletInfo',
+                    },
+                },
+                {
+                    path: 'vesting',
+                    name: 'walletVesting',
+                    component: Vesting,
+                    meta: {
+                        activeNav: 'walletVesting',
+                    },
+                },
+            ],
+            meta: {
+                bottomNav: () => [
+                    { name: 'walletOverview', icon: <RenderFunction>CashIcon },
+                    ...(flagsmith.hasFeature('transactionOverview')
+                        ? [{ name: 'walletTransactions', icon: <RenderFunction>SwitchHorizontalIcon }]
+                        : []),
+                    { name: 'walletInfo', icon: <RenderFunction>InformationCircleIcon },
+                    ...(flagsmith.hasFeature('vesting')
+                        ? [{ name: 'walletVesting', icon: <RenderFunction>TrendingUpIcon }]
+                        : []),
+                ],
+            },
+        },
+        {
+            path: '/transfer',
+            component: RouterView,
+            children: [
+                {
+                    path: 'send',
+                    name: 'send',
+                    component: Send,
+                    props: true,
+                },
+                {
+                    path: 'receive/',
+                    name: 'receive',
+                    component: Receive,
+                    props: true,
+                },
+                {
+                    path: 'confirm/send/:from/:to/:amount/:asset',
+                    name: 'confirmSend',
+                    component: ConfirmSend,
+                },
+                {
+                    path: 'confirm/bridge/:walletId/:amount',
+                    name: 'confirmBridge',
+                    component: ConfirmBridge,
+                },
+                {
+                    path: 'bridge/:basePublicKey',
+                    name: 'bridge',
+                    component: Bridge,
+                },
             ],
         },
-    },
-    {
-        path: '/listBalances',
-        name: 'test',
-        component: TestView,
-    },
-    {
-        path: '/import',
-        name: 'walletImport',
-        component: WalletImport,
-    },
-    {
-        path: '/wallet/:wallet',
-        component: WalletShell,
-        children: [
-            {
-                path: '',
-                name: 'walletOverview',
-                component: Overview,
-                meta: {
-                    activeNav: 'walletOverview',
-                },
-            },
-            {
-                path: 'transactions/:assetCode?',
-                name: 'walletTransactions',
-                component: Transactions,
-                meta: {
-                    activeNav: 'walletTransactions',
-                },
-            },
-            {
-                path: 'info',
-                name: 'walletInfo',
-                component: Info,
-                meta: {
-                    activeNav: 'walletInfo',
-                },
-            },
-            {
-                path: 'vesting',
-                name: 'walletVesting',
-                component: Vesting,
-                meta: {
-                    activeNav: 'walletVesting',
-                },
-            },
-        ],
-        meta: {
-            bottomNav: () => [
-                {name: 'walletOverview', icon: <RenderFunction>CashIcon},
-                ...(flagsmith.hasFeature('transactionOverview')
-                    ? [{name: 'walletTransactions', icon: <RenderFunction>SwitchHorizontalIcon}]
-                    : []),
-                {name: 'walletInfo', icon: <RenderFunction>InformationCircleIcon},
-                ...(flagsmith.hasFeature('vesting')
-                    ? [{name: 'walletVesting', icon: <RenderFunction>TrendingUpIcon}]
-                    : []),
-            ],
+        {
+            path: '/init',
+            name: 'init',
+            component: farmerOnly === 1 ? FarmerInit : Init,
+            props: true,
         },
-    },
-    {
-        path: '/transfer',
-        component: RouterView,
-        children: [
-            {
-                path: 'send',
-                name: 'send',
-                component: Send,
-                props: true,
-            },
-            {
-                path: 'receive/',
-                name: 'receive',
-                component: Receive,
-                props: true,
-            },
-            {
-                path: 'confirm/send/:from/:to/:amount/:asset',
-                name: 'confirmSend',
-                component: ConfirmSend,
-            },
-            {
-                path: 'confirm/bridge/:walletId/:amount',
-                name: 'confirmBridge',
-                component: ConfirmBridge,
-            },
-            {
-                path: 'bridge/:basePublicKey',
-                name: 'bridge',
-                component: Bridge,
-            },
-        ],
-    },
-    {
-        path: '/init',
-        name: 'init',
-        component: farmerOnly === 1 ? FarmerInit : Init,
-        props: true,
-    },
-    {
-        path: '/firstWalletInit',
-        name: 'firstWalletInit',
-        component: FirstWalletInit,
-        props: true,
-    },
-    {
-        path: '/noWalletsScreen',
-        name: 'noWalletsScreen',
-        component: NoWalletsScreen,
-        props: true,
-    },
-    {
-        path: '/404',
-        name: '404',
-        component: PathNotFound,
-        // Allows props to be passed to the 404 page through route
-        // params, such as `resource` to define what wasn't found.
-        props: true,
-    },
-    {
-        path: '/error',
-        name: 'error',
-        component: PathNotFound,
-        // Allows props to be passed to the 404 page through route
-        // params, such as `resource` to define what wasn't found.
-        props: true,
-    },
-    {
-        path: '/:pathMatch(.*)',
-        redirect: '/404',
-    },
-];
+        {
+            path: '/firstWalletInit',
+            name: 'firstWalletInit',
+            component: FirstWalletInit,
+            props: true,
+        },
+        {
+            path: '/noWalletsScreen',
+            name: 'noWalletsScreen',
+            component: NoWalletsScreen,
+            props: true,
+        },
+        {
+            path: '/404',
+            name: '404',
+            component: PathNotFound,
+            // Allows props to be passed to the 404 page through route
+            // params, such as `resource` to define what wasn't found.
+            props: true,
+        },
+        {
+            path: '/error',
+            name: 'error',
+            component: PathNotFound,
+            // Allows props to be passed to the 404 page through route
+            // params, such as `resource` to define what wasn't found.
+            props: true,
+        },
+        {
+            path: '/:pathMatch(.*)',
+            redirect: '/404',
+        },
+    ];
+};

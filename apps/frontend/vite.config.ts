@@ -24,7 +24,8 @@ export default defineConfig({
     },
 
     build: {
-        minify: 'terser',
+        // Add terser breaks on IOS 14
+        minify: false,
         target: ['ESNext'],
     },
 });

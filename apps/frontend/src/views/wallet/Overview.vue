@@ -83,16 +83,31 @@
             </div>
         </div>
         <div class="py-2" v-if="vestedAssetBalance.length >= 1 || vestedAssetBalanceIsLoading">
-            <h2>Vested Tokens</h2>
+            <h2>{{ $t('wallet.overview.vestedTokens') }}</h2>
             <div class="mt-4 space-y-2">
                 <template v-for="assetBalance in vestedAssetBalance">
-                    <BalanceCard :balance="assetBalance"> </BalanceCard>
+                    <BalanceCard :balance="assetBalance"></BalanceCard>
                 </template>
             </div>
         </div>
         <div v-if="vestedAssetBalanceIsLoading && vestedAssetBalance.length === 0">
             <div class="text-center">
                 <p class="animate-pulse text-gray-600">{{ $t('wallet.overview.checkVesting') }}</p>
+            </div>
+        </div>
+        <div v-if="showLockedTokens">
+            <div class="py-2" v-if="lockedAssetBalance?.length >= 1 || lockedAssetBalanceIsLoading">
+                <h2>{{ $t('wallet.overview.lockedTokens') }}</h2>
+                <div class="mt-4 space-y-2">
+                    <template v-if="lockedAssetBalance?.length >= 1">
+                        <locked-balance-card :lockedBalances="lockedAssetBalance"></locked-balance-card>
+                    </template>
+                </div>
+            </div>
+            <div v-if="lockedAssetBalanceIsLoading">
+                <div class="text-center">
+                    <p class="animate-pulse text-gray-600">{{ $t('wallet.overview.checkLocking') }}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -102,13 +117,15 @@
     import BalanceCard from '@/components/BalanceCard.vue';
     import { useRouter } from 'vue-router';
     import { AssetBalance, balances, Wallet } from '@/service/walletService';
-    import { inject, ref } from 'vue';
+    import { computed, inject, ref } from 'vue';
     import { useAssets } from '@/util/useAssets';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
     import { checkVesting } from '@/service/vestingService';
     import { useLocalStorage } from '@vueuse/core';
-    import { translate } from '@/util/translate';
     import flagsmith from 'flagsmith';
+    import { orderAssets } from '@/util/order';
+    import { getAllTokensDetails, TokenItem, unlockTokens } from '@/service/lockService';
+    import LockedBalanceCard from '@/components/LockedBalanceCard.vue';
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
@@ -116,15 +133,47 @@
         `vested_asset_balance_${wallet.keyPair.getBasePublicKey()}`,
         []
     );
+
+    const lockedAssetBalance = useLocalStorage<TokenItem[]>(
+        `locked_asset_balance_${wallet.keyPair.getBasePublicKey()}`,
+        []
+    );
+
     const vestedAssetBalanceIsLoading = ref(true);
+    const lockedAssetBalanceIsLoading = ref(true);
 
     checkVesting(wallet).then(balances => {
         vestedAssetBalance.value = balances;
         vestedAssetBalanceIsLoading.value = false;
     });
-    const assets = useAssets(wallet);
+    const assets = computed(() => orderAssets(useAssets(wallet).value));
+
 
     const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
+    const showLockedTokens = flagsmith.hasFeature('locked-tokens');
+
+    const init = async () => {
+        if (showLockedTokens) {
+            await lockedTokensFlow();
+        }
+
+        vestedAssetBalance.value = await checkVesting(wallet);
+        vestedAssetBalanceIsLoading.value = false;
+    };
+
+    const lockedTokensFlow = async () => {
+        lockedAssetBalance.value = await getAllTokensDetails(wallet.keyPair.getStellarKeyPair());
+
+        if (lockedAssetBalance.value.length >= 1) {
+            // Trying to unlock ...
+            const availableUnlockedTokens = lockedAssetBalance.value.filter(t => t?.canBeUnlocked === true);
+            await unlockTokens(availableUnlockedTokens as TokenItem[], wallet.keyPair.getStellarKeyPair());
+        }
+
+        lockedAssetBalanceIsLoading.value = false;
+    };
+
+    init();
 </script>
 
 <style scoped></style>

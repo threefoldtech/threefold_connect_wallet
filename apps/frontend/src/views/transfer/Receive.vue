@@ -190,7 +190,7 @@
     import ArrowLeftIcon from '@heroicons/vue/outline/ArrowLeftIcon';
     import PageHeader from '@/components/header/PageHeader.vue';
     import { useRouter } from 'vue-router';
-    import { computed, onMounted, ref, watch } from 'vue';
+    import { computed, ref, watch } from 'vue';
     import {
         Dialog,
         Listbox,

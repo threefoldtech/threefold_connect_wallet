@@ -247,6 +247,7 @@ export default <Translation>{
                 contactExists: 'This contact already exists in other wallets',
             },
         },
+    },
     locking: {
         errors: {
             unableToFetch: 'Unable to fetch unlock transaction',

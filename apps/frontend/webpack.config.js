@@ -1,11 +1,11 @@
 const path = require('path');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const {VueLoaderPlugin} = require('vue-loader');
+const { VueLoaderPlugin } = require('vue-loader');
 
-const TsconfigPathsPlugin  = require('tsconfig-paths-webpack-plugin')
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const mode = process.env.NODE_ENV || 'development';
 
@@ -23,13 +23,18 @@ module.exports = {
         topLevelAwait: true,
     },
     devServer: {
+        proxy: {
+            '/api': {
+                target: 'http://localhost:5000',
+            },
+        },
         static: {
             directory: path.join(__dirname, 'public'),
         },
         compress: true,
         port: 3000,
     },
-    performance: {hints: mode === 'production' ? 'warning' : false},
+    performance: { hints: mode === 'production' ? 'warning' : false },
     plugins: [
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
@@ -108,10 +113,10 @@ module.exports = {
             crypto: 'crypto-browserify',
             path: 'path-browserify',
             buffer: 'buffer',
-            url: require.resolve("url"),
-            https: require.resolve("https-browserify"),
-            http: require.resolve("stream-http")
+            url: require.resolve('url'),
+            https: require.resolve('https-browserify'),
+            http: require.resolve('stream-http'),
         },
-        plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
+        plugins: [new TsconfigPathsPlugin({ configFile: './tsconfig.json' })],
     },
 };

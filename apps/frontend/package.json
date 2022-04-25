@@ -3,8 +3,8 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "build": "webpack --config webpack.config.prod.js",
-        "dev": "webpack-dev-server --config webpack.config.prod.js --profile",
+        "build": "webpack --config webpack.config.js",
+        "dev": "webpack-dev-server --config webpack.config.js --profile",
         "serve": "vite preview",
         "prebuild": "find ../../node_modules/@polkadot -type f -name 'packageInfo.js' | xargs sed -i \"s/URL('.', import.meta.url).pathname,/String('path'),/\"",
         "postbuild": "find ../../node_modules/@polkadot -type f -name 'packageInfo.js' | xargs sed -i \"s/String('path'),/URL('.', import.meta.url).pathname,/\"",

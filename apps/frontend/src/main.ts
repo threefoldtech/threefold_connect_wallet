@@ -22,7 +22,7 @@ import { getRoutes } from '@/router/routes';
 const init = async () => {
     await sodium.ready;
     // @ts-ignore
-    globalThis.version = 'development';
+    globalThis.version = 'not applicable';
 
     try {
         overrideConsole();

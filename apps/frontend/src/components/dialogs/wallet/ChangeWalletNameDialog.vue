@@ -44,7 +44,7 @@
 <script lang="ts" setup>
     import Modal from '@/components/Modal.vue';
     import { ref, watch } from 'vue';
-    import { validateWalletName } from '@/util/validate';
+    import { validateWalletName } from '@/validate/wallet.validate';
 
     const emit = defineEmits(['close', 'confirm', 'update:newWalletName']);
 

@@ -112,7 +112,7 @@
     import CopyToClipboardField from '@/components/misc/CopyToClipboardField.vue';
     import EditTextField from '@/components/misc/EditTextField.vue';
     import ChangeWalletNameDialog from '@/components/dialogs/wallet/ChangeWalletNameDialog.vue';
-    import { validateWalletName } from '@/util/validate';
+    import { validateWalletName } from '@/validate/wallet.validate';
     import DeleteWalletDialog from '@/components/dialogs/wallet/DeleteWalletDialog.vue';
     import { translate } from '@/util/translate';
 

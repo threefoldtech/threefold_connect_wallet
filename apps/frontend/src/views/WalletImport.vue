@@ -93,7 +93,7 @@
     import { entropyToMnemonic, mnemonicToEntropy } from '@jimber/simple-bip39';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { calculateWalletEntropyFromAccount } from 'cryptolib';
-    import { validateWalletName } from '@/util/validate';
+    import { validateWalletName } from '@/validate/wallet.validate';
 
     const walletIndex = ref(0);
 

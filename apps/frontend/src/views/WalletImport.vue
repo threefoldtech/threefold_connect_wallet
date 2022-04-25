@@ -22,7 +22,7 @@
                         type="text"
                     />
                 </div>
-                <div class="pt-2 text-red-500 text-xs" v-if="walletNameError">
+                <div class="pt-2 text-xs text-red-500" v-if="walletNameError">
                     {{ $t(`walletImport.error.${walletNameError}`) }}
                 </div>
             </div>

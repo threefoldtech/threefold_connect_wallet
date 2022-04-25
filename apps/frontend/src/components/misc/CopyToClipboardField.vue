@@ -43,7 +43,7 @@
     import { EyeIcon, EyeOffIcon } from '@heroicons/vue/solid';
     import { addNotification, NotificationType } from '@/service/notificationService';
     import { ref } from 'vue';
-    import {isDev} from "@/util/enviroment";
+    import { isDev } from '@/util/enviroment';
 
     interface IProps {
         fieldText: string;
@@ -59,7 +59,6 @@
     const showSensitive = ref<boolean>(!isSensitiveData);
 
     const copyToClipboard = () => {
-
         if (isDev) {
             navigator.clipboard.writeText(fieldText);
             console.log('Copied');

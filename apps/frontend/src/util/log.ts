@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import {isDev} from "@/util/enviroment";
+import { isDev } from '@/util/enviroment';
 
 export const logs = ref<any[]>([]);
 

@@ -161,7 +161,7 @@
                             id="currency"
                             v-model="selectedAsset"
                             :disabled="relevantAssets.length === 0"
-                            class="h-full rounded-md border-transparent bg-transparent py-0 pl-2 pr-8 text-gray-500 focus:border-primary-500 focus:ring-primary-500 sm:text-sm text-right"
+                            class="h-full rounded-md border-transparent bg-transparent py-0 pl-2 pr-8 text-right text-gray-500 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                             name="currency"
                             :key="`${selectedAsset?.asset_code}-${selectedAsset?.type}`"
                         >

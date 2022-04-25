@@ -129,7 +129,7 @@
     import LandingFarmInformationDialog from '@/components/dialogs/farm/LandingFarmInformationDialog.vue';
 
     import { useLocalStorage } from '@vueuse/core';
-    import {isDev} from "@/util/enviroment";
+    import { isDev } from '@/util/enviroment';
     const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
     //@ts-ignore

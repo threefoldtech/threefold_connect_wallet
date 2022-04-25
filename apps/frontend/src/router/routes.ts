@@ -1,4 +1,4 @@
-import {_RouteRecordBase, RouteComponent, RouteLocationNormalized, RouteRecordRaw, RouterView} from 'vue-router';
+import { _RouteRecordBase, RouteComponent, RouteLocationNormalized, RouteRecordRaw, RouterView } from 'vue-router';
 import WalletList from '@/views/WalletList.vue';
 import Overview from '@/views/wallet/Overview.vue';
 import Info from '@/views/wallet/Info.vue';
@@ -30,9 +30,9 @@ import {
     TrendingUpIcon,
 } from '@heroicons/vue/outline';
 import flagsmith from 'flagsmith';
-import {NavItem} from '@/types';
+import { NavItem } from '@/types';
 import axios from 'axios';
-import {RenderFunction} from 'vue';
+import { RenderFunction } from 'vue';
 
 export interface Route extends _RouteRecordBase {
     component?: RouteComponent | (() => Promise<RouteComponent>);

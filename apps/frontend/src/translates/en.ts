@@ -53,6 +53,9 @@ export default <Translation>{
         },
     },
     wallet: {
+        shell: {
+            hint: 'My Wallets',
+        },
         overview: {
             assets: 'Assets',
             sendCoins: 'Send Coins',
@@ -226,6 +229,24 @@ export default <Translation>{
         balanceTooLow: 'Balance too low',
         validAmount: 'Transaction amount must be more than 1 TFT',
     },
+    contacts: {
+        title: 'Contacts',
+        dialog: {
+            title: 'Add Contact',
+            name: 'Name',
+            address: 'Address',
+            save: 'Add contact',
+            cancel: 'Cancel',
+            success: 'Successfully saved contact',
+            error: {
+                maximum: 'There is a maximum character length of 255 characters',
+                empty: 'Contact name cannot be empty',
+                alphanumeric: 'Only alphanumeric characters are allowed',
+                invalid: 'Invalid address',
+                myContactExists: 'This contact already exists in own wallets',
+                contactExists: 'This contact already exists in other wallets',
+            },
+        },
     locking: {
         errors: {
             unableToFetch: 'Unable to fetch unlock transaction',

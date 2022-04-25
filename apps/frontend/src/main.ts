@@ -10,8 +10,6 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import './index.css';
 
-import '@/components/global';
-import { registerGlobalComponent } from './components/global';
 import { createVueRouter } from './router';
 import { overrideConsole } from '@/util/log';
 import axios from 'axios';

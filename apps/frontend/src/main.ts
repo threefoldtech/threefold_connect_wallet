@@ -18,6 +18,7 @@ import Vue3TouchEvents from 'vue3-touch-events';
 import sodium from 'libsodium-wrappers';
 import { i18n } from '@/util/translate';
 import { getRoutes } from '@/router/routes';
+import { isDev } from '@/util/enviroment';
 
 const init = async () => {
     await sodium.ready;
@@ -29,7 +30,6 @@ const init = async () => {
         // @ts-ignore
         console.info(`running version: ${globalThis.version}`);
         axios.interceptors.response.use(undefined, error => {
-            const isDev = true;
             if (isDev) return;
             console.error(
                 error?.config ? `${error.message}: ${error?.config?.method.toUpperCase()} ${error?.config?.url}` : error

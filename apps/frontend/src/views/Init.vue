@@ -23,10 +23,10 @@
 
 <script lang="ts" setup>
     import { useRouter } from 'vue-router';
-    import { init, loadingText } from '@/service/initializationService';
+    import { init as walletInitialisation, loadingText } from '@/service/initializationService';
     import { useCounter, useLocalStorage } from '@vueuse/core';
     import { watch } from 'vue';
-    import { balances, operations } from '@/service/walletService';
+    import { balances, operations, wallets } from '@/service/walletService';
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();
@@ -43,40 +43,39 @@
 
     const seed = useLocalStorage('devSeed', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=');
     const overrideIsDev = useLocalStorage('override', false);
-    if (isDev || overrideIsDev.value) {
-        balances.value = [];
-        operations.value = [];
-        init('testseed.3bot', seed.value)
-            .then(() => {
-                router.push({ name: 'walletList' }).catch(e => {
-                    console.error(e);
-                    router.push({ name: 'error' });
+    const initClearCache = useLocalStorage('initClearCache', true);
+
+    const initApp = async (name: string, seedString: string) => {
+        if (initClearCache.value) {
+            balances.value = [];
+            operations.value = [];
+        }
+        await walletInitialisation(name, seedString);
+
+        try {
+            if (wallets.value.length === 1) {
+                await router.push({
+                    name: 'walletOverview',
+                    params: { wallet: wallets.value[0].keyPair.getStellarKeyPair().publicKey() },
                 });
-            })
-            .catch((e: any) => {
-                console.error(e);
-                router.push({ name: 'error' });
-            });
+                return;
+            }
+            await router.push({ name: 'walletList' });
+        } catch (error) {
+            console.error(error);
+            await router.push({ name: 'error' });
+        }
+    };
+
+    //@ts-ignore
+    globalThis.init = initApp;
+
+    if (overrideIsDev.value) {
+        initApp('testseed.3bot', seed.value);
     }
 
-    if (!isDev && !overrideIsDev.value) {
-        //@ts-ignore
-        globalThis.init = (name: string, seedString: string) => {
-            init(name, seedString)
-                .then(() => {
-                    router.push({ name: 'walletList' }).catch(e => {
-                        console.error(e);
-                        router.push({ name: 'error' });
-                    });
-                })
-                .catch((e: any) => {
-                    console.error(e);
-                    router.push({ name: 'error' });
-                });
-        };
-        //@ts-ignore
-        globalThis?.flutter_inappwebview?.callHandler('VUE_INITIALIZED');
-    }
+    //@ts-ignore
+    globalThis?.flutter_inappwebview?.callHandler('VUE_INITIALIZED');
 </script>
 
 <style scoped></style>

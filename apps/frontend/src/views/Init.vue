@@ -27,7 +27,7 @@
     import { useCounter, useLocalStorage } from '@vueuse/core';
     import { watch } from 'vue';
     import { balances, operations } from '@/service/walletService';
-    import {isDev} from "@/util/enviroment";
+    import { isDev } from '@/util/enviroment';
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();

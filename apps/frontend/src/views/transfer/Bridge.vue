@@ -56,7 +56,7 @@
             </div>
 
             <div class="mt-4">
-                <div class="pr-3 text-gray-700 font-medium">
+                <div class="pr-3 font-medium text-gray-700">
                     <span class="pr-2">{{ $t('transfer.bridge.fee') }}</span>
                 </div>
                 <span>{{ bridgeFee?.toFixed(0) }} {{ $t('currency.short.TFT') }}</span>

@@ -23,7 +23,6 @@
     import { useRouter } from 'vue-router';
     import { watch } from 'vue';
 
-
     const version = <string>(<any>globalThis)?.version;
 
     const { count, inc, reset } = useCounter();

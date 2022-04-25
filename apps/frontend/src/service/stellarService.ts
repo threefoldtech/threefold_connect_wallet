@@ -1,6 +1,5 @@
-import { Server } from 'stellar-sdk';
+import { Server, Keypair as StellarKeypair } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
-import { Keypair as StellarKeypair } from 'stellar-sdk';
 import { buildFundedPaymentTransaction, submitFundedTransaction } from 'cryptolib';
 
 export const getStellarClient = () => {

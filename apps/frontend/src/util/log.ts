@@ -1,10 +1,11 @@
 import { ref } from 'vue';
+import { isDev } from '@/util/enviroment';
 
 export const logs = ref<any[]>([]);
 
 export const overrideConsole = () => {
     // @ts-ignore
-    if (import.meta.env.DEV) return;
+    if (isDev) return;
     const console: any = window.console;
     if (!console) {
         return;

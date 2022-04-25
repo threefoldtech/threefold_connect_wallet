@@ -1,12 +1,12 @@
 import flagsmith from 'flagsmith';
 import axios from 'axios';
+import { isDev } from '@/util/enviroment';
 
 export const initFlags = async (name: string) => {
-    const isDev = import.meta.env.DEV;
-    const flagsmithEnvironmentOverideID = import.meta.env.VITE_FLAGSMITH_ENV_ID ?? 'VGR7Kmd6qWqnYaZxXU7Gyw';
+    const flagsmithEnvironmentOverideID = 'VGR7Kmd6qWqnYaZxXU7Gyw';
 
     const environmentID = isDev ? flagsmithEnvironmentOverideID : (await axios.get('/api/v1/env')).data.flagsmith;
-    console.log({flagsmithEnv: environmentID});
+    console.log({ flagsmithEnv: environmentID });
 
     await flagsmith.init({
         environmentID,

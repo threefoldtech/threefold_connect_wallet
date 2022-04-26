@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-    import Notifications from '@/components/Notifications.vue';
+    import Notifications from '@/modules/Core/components/Notifications.vue';
     import { useCounter } from '@vueuse/core';
     import { useRouter } from 'vue-router';
     import { watch } from 'vue';

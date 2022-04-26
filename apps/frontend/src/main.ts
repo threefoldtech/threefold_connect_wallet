@@ -18,7 +18,6 @@ import axios from 'axios';
 import Vue3TouchEvents from 'vue3-touch-events';
 import sodium from 'libsodium-wrappers';
 import { i18n } from '@/modules/Core/utils/translate';
-import { getRoutes } from '@/router/routes';
 import { isDev } from '@/modules/Core/utils/enviroment';
 import { registerModules } from '@/router/registerRouters';
 

@@ -130,7 +130,7 @@
                                 id="to"
                                 v-model="toAddress"
                                 :disabled="relevantAssets.length <= 0"
-                                class="block w-full rounded-md border-gray-300 pl-3 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
+                                class="block w-full rounded-l-md border-gray-300 pl-3 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
                                 name="to"
                                 placeholder="..."
                                 type="text"
@@ -138,9 +138,10 @@
                         </div>
                         <button
                             type="button"
+                            @click="showContacts = true"
                             class="-ml-px relative inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                         >
-                            <div @click="showContacts = true">
+                            <div>
                                 <UserIcon class="h-5" />
                             </div>
                         </button>

@@ -4,8 +4,7 @@ import { isDev } from '@/modules/Core/utils/enviroment';
 export const logs = ref<any[]>([]);
 
 export const overrideConsole = () => {
-    // @ts-ignore
-    if (isDev) return;
+    // if (isDev) return;
     const console: any = window.console;
     if (!console) {
         return;

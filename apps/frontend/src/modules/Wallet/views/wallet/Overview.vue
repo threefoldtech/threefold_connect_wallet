@@ -148,7 +148,7 @@
     });
     const assets = computed(() => orderAssets(useAssets(wallet).value));
 
-    const showSubstrateBridge = true || flagsmith.hasFeature('can_bridge_stellar_substrate');
+    const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
     const showLockedTokens = flagsmith.hasFeature('locked-tokens');
 
     const init = async () => {

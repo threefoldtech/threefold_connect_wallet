@@ -22,8 +22,10 @@ import { isDev } from '@/util/enviroment';
 
 const init = async () => {
     await sodium.ready;
+
+    // should be implemented
     // @ts-ignore
-    globalThis.version = 'not applicable';
+    globalThis.version = '';
 
     try {
         overrideConsole();

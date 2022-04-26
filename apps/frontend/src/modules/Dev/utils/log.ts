@@ -1,7 +1,10 @@
 import { ref } from 'vue';
 import { isDev } from '@/modules/Core/utils/enviroment';
 
-export const logs = ref<any[]>([]);
+export type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug' | 'trace' | 'table';
+
+export type Log = { args: any; level: LogLevel; timestamp: string };
+export const logs = ref<Log[]>([]);
 
 export const overrideConsole = () => {
     window.console.info({ isDev });
@@ -33,7 +36,7 @@ export const overrideConsole = () => {
             if (args[0]?.toString() === '[object ErrorEvent]') {
                 args[0] = `[${name.toUpperCase()}] ${args[0].message}`;
             }
-            logs.value.push({ level: name, args, timestamp: new Date().toISOString() });
+            logs.value.push({ level: <LogLevel>name, args, timestamp: new Date().toISOString() });
 
             originalFns[name].apply(console, args);
         };

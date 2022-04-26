@@ -3,10 +3,10 @@
     <MainLayout>
         <template #header>
             <PageHeader>
-                <h1>Farms</h1>
-                <template v-if="canCreateFarms && showCreateNewFarm === false" #after>
-                    <PlusCircleIcon class="h-8 cursor-pointer text-gray-600" @click="showCreateNewFarm = true" />
+                <template #after>
+                    <PlusCircleIcon v-if="canCreateFarms && !showCreateNewFarm" @click="showCreateNewFarm = true" />
                 </template>
+                <h1>Farms</h1>
             </PageHeader>
         </template>
         <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
@@ -110,7 +110,7 @@
 <script lang="ts" setup>
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
-    import { saveWallets, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { saveWallets, wallets } from '@/modules/Wallet/services/walletService';
 
     import { Dialog, DialogOverlay } from '@headlessui/vue';
 
@@ -132,8 +132,7 @@
     import { isDev } from '@/modules/Core/utils/enviroment';
     const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
-    //@ts-ignore
-    const canCreateFarms = isDev || flagsmith.hasFeature('can_create_farms_for_farmer');
+    const canCreateFarms: boolean = isDev || <boolean>flagsmith.hasFeature('can_create_farms_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);
 
     const createWallet = async () => {

@@ -121,6 +121,7 @@
     import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
     import { translate } from '@/modules/Core/utils/translate';
     import { getContactsFromPkid, saveContactToPkid } from '@/modules/Contact/services/contactService';
+    import FAB from '@/modules/Misc/components/global/FAB.vue';
 
     enum Tabs {
         'OWN_WALLETS' = 'Own wallets',

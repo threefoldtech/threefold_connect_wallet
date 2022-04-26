@@ -25,7 +25,7 @@
                 :placeholder="$t('component.clipboard.searchPlaceholder')"
                 autocomplete="off"
                 :disabled="disabled"
-                v-model="fieldText"
+                :value="fieldText"
             />
 
             <span

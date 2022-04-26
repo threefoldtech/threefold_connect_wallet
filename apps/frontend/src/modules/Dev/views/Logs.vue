@@ -17,22 +17,20 @@
                     <div
                         v-for="(log, index) in logs"
                         :class="{
-                            'bg-blue-100': log.level === 'info' && index % 2 === 1,
-                            'bg-blue-300': log.level === 'info' && index % 2 === 0,
-                            'bg-red-100': log.level === 'error' && index % 2 === 1,
-                            'bg-red-300': log.level === 'error' && index % 2 === 0,
-                            'bg-green-100': log.level === 'success' && index % 2 === 1,
-                            'bg-green-300': log.level === 'success' && index % 2 === 0,
-                            'bg-yellow-100': log.level === 'warning' && index % 2 === 1,
-                            'bg-yellow-300': log.level === 'warning' && index % 2 === 0,
-                            'bg-gray-100': log.level === 'debug' && index % 2 === 1,
-                            'bg-gray-300': log.level === 'debug' && index % 2 === 0,
-                            'bg-gray-100': log.level === 'notice' && index % 2 === 1,
-                            'bg-gray-300': log.level === 'notice' && index % 2 === 0,
-                            'bg-gray-100': log.level === 'table' && index % 2 === 1,
-                            'bg-gray-300': log.level === 'table' && index % 2 === 0,
-                            'bg-gray-100': log.level === 'log' && index % 2 === 1,
-                            'bg-gray-300': log.level === 'log' && index % 2 === 0,
+                            'bg-blue-100 log-info': log.level === 'info' && index % 2 === 1,
+                            'bg-blue-300 log-info': log.level === 'info' && index % 2 === 0,
+                            'bg-red-100 log-error': log.level === 'error' && index % 2 === 1,
+                            'bg-red-300 log-error': log.level === 'error' && index % 2 === 0,
+                            'bg-yellow-100 log-warn': log.level === 'warn' && index % 2 === 1,
+                            'bg-yellow-300 log-warn': log.level === 'warn' && index % 2 === 0,
+                            'bg-gray-100 log-debug': log.level === 'debug' && index % 2 === 1,
+                            'bg-gray-300 log-debug': log.level === 'debug' && index % 2 === 0,
+                            'bg-gray-100 log-trace': log.level === 'trace' && index % 2 === 1,
+                            'bg-gray-300 log-trace': log.level === 'trace' && index % 2 === 0,
+                            'bg-gray-100 log-table': log.level === 'table' && index % 2 === 1,
+                            'bg-gray-300 log-table': log.level === 'table' && index % 2 === 0,
+                            'bg-gray-100 log-log': log.level === 'log' && index % 2 === 1,
+                            'bg-gray-300 log-log': log.level === 'log' && index % 2 === 0,
                         }"
                         class="relative px-4 py-5 sm:p-6"
                     >
@@ -61,13 +59,13 @@
 </template>
 
 <script lang="ts" setup>
-    import { logs } from '@/modules/Dev/utils/log';
+    import { Log, logs } from '@/modules/Dev/utils/log';
     import { watch } from 'vue';
     import { ClipboardCopyIcon } from '@heroicons/vue/solid';
 
     const stringify = (val: any) => JSON.stringify(val, null, 2);
 
-    watch(logs, val => {
+    watch(logs, (val: Log[]) => {
         //@ts-ignore
         window.logs = logs.value;
     });

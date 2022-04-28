@@ -16,7 +16,7 @@ ingress:
     hosts:
         - name: farmer-beta.threefold.me
           path: /
-          service: wallet-farmer-beta
+          service: wallet-farmer-beta-prod
           port: 80
 
 acme:

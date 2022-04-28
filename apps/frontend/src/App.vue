@@ -44,7 +44,7 @@
         router.push({ name: 'devLogs' });
     });
 
-    const isBeta = globalThis.location.hostname.includes('wallet-beta');
+    const isBeta = globalThis.location.hostname.includes('-beta');
 </script>
 
 <style></style>

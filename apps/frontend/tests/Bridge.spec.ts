@@ -7,14 +7,14 @@ import {
     // fetchFundDetails,
     // getConfig,
     //@ts-ignore
-} from '@jimber/stellar-crypto';
+} from 'cryptolib';
 import { Keypair } from 'stellar-sdk';
-import { getStellarClient as _getStellarClient } from '../src/service/stellarService';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import types from './types.json';
 import axios from 'axios';
 
 import { web3FromAddress } from '@polkadot/extension-dapp';
+import { getStellarClient as _getStellarClient } from '../src/modules/Stellar/services/stellarService';
 
 beforeEach(() => {
     var window = global;

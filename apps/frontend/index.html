@@ -12,15 +12,6 @@
         <script>
             window.global = window;
         </script>
-
-        <script type="module">
-            import process from 'process';
-            import { Buffer } from 'buffer';
-
-            window.Buffer = Buffer;
-            window.process = process;
-        </script>
         <!-- End of hack -->
-        <script src="./src/main.ts" type="module"></script>
     </body>
 </html>

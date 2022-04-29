@@ -1,5 +1,3 @@
-import { NotificationType } from '@/service/notificationService';
-
 type Translation = { [key: string]: string | Translation };
 export default <Translation>{
     init: {

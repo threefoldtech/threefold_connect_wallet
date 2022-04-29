@@ -123,7 +123,7 @@ const initKeys = (seedString: string) => {
 const initStellarCryptoConfig = () => {
     (<any>window).stellarServerUrl = flagsmith.getValue('stellar-url');
     (<any>window).stellarNetwork = flagsmith.getValue('stellar-network');
-    (<any>window).serviceUrl = flagsmith.getValue('threefold-services-url');
+    (<any>window).serviceUrl = flagsmith.getValue('threefold-service-url');
     (<any>window).stellarBridgeAddress = flagsmith.getValue('stellar-bridge-address');
     (<any>window).supportedCurrencies = flagsmith.getValue('supported-currencies');
     (<any>window).bridgeFees = flagsmith.getValue('stellar-url');

@@ -198,19 +198,26 @@ export const hasAcceptedTermsAndConditions = async (id: string): Promise<boolean
 
     const listTermsAndConditions = (await api.query.tfgridModule.usersTermsAndConditions(id)).toJSON();
 
-    // @ts-ignore
-    return Object.keys(listTermsAndConditions).length > 0;
+    return Object.keys(listTermsAndConditions as Object).length > 0;
 };
 
 // Method to check if a specific user by substrateId has their terms and conditions accepted
 // Returns a boolean
-export const abc = async (id: string, url: string): Promise<boolean> => {
+export const checkIfTermsAndConditionsAreAccepted = async (id: string, retries = 0): Promise<boolean> => {
     const api = await getSubstrateApi();
 
-    const listTermsAndConditions = await api.query.tfgridModule.usersTermsAndConditions(id);
+    while (retries < 5) {
+        const listTermsAndConditions = (await api.query.tfgridModule.usersTermsAndConditions(id)).toJSON();
 
-    // @ts-ignore
-    return Object.keys(listTermsAndConditions).length > 0;
+        if (Object.keys(listTermsAndConditions as Object).length > 0) {
+            return true;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await checkIfTermsAndConditionsAreAccepted(id, (retries += 1));
+    }
+
+    return false;
 };
 
 // Sign terms and condition to blockchain
@@ -243,6 +250,6 @@ export const acceptTermsAndConditions = async (keyRing: KeyringPair) => {
     if (!signed) throw new Error('Unable to sign terms and conditions');
 
     // Getting terms and conditions
-
-    //    @TODO: rework TOC cause URL check and make typing
+    const accepted = await checkIfTermsAndConditionsAreAccepted(keyRing.address);
+    if (!accepted) throw new Error("Can't fetch signed terms and conditions");
 };

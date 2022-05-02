@@ -75,10 +75,9 @@ export const hex2a = (hex: string) => {
 export const getTwinId = async (id: string) => {
     const api = await getSubstrateApi();
 
-    const entity = await api.query.tfgridModule.twinIdByAccountID(id);
+    const entity = (await api.query.tfgridModule.twinIdByAccountID(id)).toJSON();
 
-    const res = <any>entity.toJSON();
-    return <number>res;
+    return entity as number;
 };
 
 export const getUsersTermsAndConditions = async (

@@ -105,7 +105,6 @@
                 </div>
             </div>
         </div>
-        <div class="bg-button-colored p-4 text-white" @click="test">Test</div>
     </div>
 </template>
 
@@ -122,7 +121,6 @@
     import { orderAssets } from '@/modules/Currency/utils/order';
     import { getAllTokensDetails, TokenItem, unlockTokens } from '@/modules/LockedTokens/services/lockService';
     import LockedBalanceCard from '@/modules/LockedTokens/components/LockedBalanceCard.vue';
-    import { addTwin, getTwinId, hasAcceptedTermsAndConditions } from '@/modules/TFChain/services/tfchainService';
 
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
@@ -131,16 +129,6 @@
         `vested_asset_balance_${wallet.keyPair.getBasePublicKey()}`,
         []
     );
-
-    const test = async () => {
-        // const toc = await hasAcceptedTermsAndConditions(wallet.keyPair.getSubstrateKeyring().address);
-
-        const abc = await addTwin(wallet.keyPair.getSubstrateKeyring());
-
-        console.log(abc);
-        // if (!toc) {
-        // }
-    };
 
     const lockedAssetBalance = useLocalStorage<TokenItem[]>(
         `locked_asset_balance_${wallet.keyPair.getBasePublicKey()}`,
@@ -156,7 +144,7 @@
     });
     const assets = computed(() => orderAssets(useAssets(wallet).value));
 
-    const showSubstrateBridge = true;
+    const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
     const showLockedTokens = flagsmith.hasFeature('locked-tokens');
 
     const init = async () => {

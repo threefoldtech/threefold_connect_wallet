@@ -11,6 +11,8 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { ISubmittableResult } from '@polkadot/types/types';
 import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
 import throttle from 'lodash/throttle';
+import { KeyringPair } from '@polkadot/keyring/types';
+import { isSubstrateBalanceAvailable } from '@/modules/Currency/services/currencyService';
 
 const apiCache = ref<Promise<ApiPromise>>();
 
@@ -69,6 +71,7 @@ export const hex2a = (hex: string) => {
     }
     return str;
 };
+
 export const getTwinId = async (id: string) => {
     const api = await getSubstrateApi();
 
@@ -186,4 +189,60 @@ export const doesFarmExistByName = async (name: string): Promise<boolean> => {
 
     const readableFarm = farm.toJSON();
     return readableFarm != 0;
+};
+
+// Method to check if a specific user by substrateId has their terms and conditions accepted
+// Returns a boolean
+export const hasAcceptedTermsAndConditions = async (id: string): Promise<boolean> => {
+    const api = await getSubstrateApi();
+
+    const listTermsAndConditions = (await api.query.tfgridModule.usersTermsAndConditions(id)).toJSON();
+
+    // @ts-ignore
+    return Object.keys(listTermsAndConditions).length > 0;
+};
+
+// Method to check if a specific user by substrateId has their terms and conditions accepted
+// Returns a boolean
+export const abc = async (id: string, url: string): Promise<boolean> => {
+    const api = await getSubstrateApi();
+
+    const listTermsAndConditions = await api.query.tfgridModule.usersTermsAndConditions(id);
+
+    // @ts-ignore
+    return Object.keys(listTermsAndConditions).length > 0;
+};
+
+// Sign terms and condition to blockchain
+// Returns a boolean for success
+export const signTermsAndConditions = async (keyRing: KeyringPair): Promise<boolean> => {
+    const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
+    const api = await getSubstrateApi();
+
+    try {
+        const submittableExtrinsic = api.tx.tfgridModule.userAcceptTc(termsAndConditionsUrl, 'NO_HASH');
+        await submitExtrensic(submittableExtrinsic, keyRing);
+        return true;
+    } catch {
+        console.error('Unable to sign terms and conditions');
+        return false;
+    }
+};
+
+// Accept terms and conditions for a specific user by substrateId
+export const acceptTermsAndConditions = async (keyRing: KeyringPair) => {
+    // Using activation service to make sure we have balance available
+    await activationServiceForSubstrate(keyRing.address);
+
+    // Check if balance is available => if no throw error
+    const isBalanceAvailable = isSubstrateBalanceAvailable(keyRing.address);
+    if (!isBalanceAvailable) throw new Error('Unable to load substrate balance');
+
+    // Sign terms and conditions to blockchain
+    const signed = await signTermsAndConditions(keyRing);
+    if (!signed) throw new Error('Unable to sign terms and conditions');
+
+    // Getting terms and conditions
+
+    //    @TODO: rework TOC cause URL check and make typing
 };

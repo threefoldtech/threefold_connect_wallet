@@ -11,7 +11,7 @@ export const timeStampToReadableDate = (timestamp: string) => {
     return new Date(toNumber(timestamp) * 1000).toLocaleDateString();
 };
 
-export const isBefore = (timestamp: number) => {
+export const isBefore = (timestampInMs: number) => {
     const now = new Date().getTime();
-    return now < timestamp;
+    return timestampInMs < now;
 };

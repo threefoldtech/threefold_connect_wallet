@@ -136,6 +136,8 @@
     import en from '@/translates/en';
     import { nanoid } from 'nanoid';
     import { bridgeToSubstrate } from '@/modules/TFChain/services/transfer.service';
+    import { KeyringPair } from '@polkadot/keyring/types';
+    import { Keypair } from 'stellar-sdk';
 
     const router = useRouter();
     const route = useRoute();
@@ -153,30 +155,21 @@
 
     const bridgeTokens = async () => {
         isLoadingTransaction.value = true;
+        if (!selectedWallet.value) return;
+
+        const substrateKeyRing: KeyringPair = selectedWallet.value.keyPair.getSubstrateKeyring();
+        const stellarKeyPair: Keypair = selectedWallet.value.keyPair.getStellarKeyPair();
 
         try {
-            await submitBridge();
+            await bridgeToSubstrate(substrateKeyRing, stellarKeyPair, amount);
+
+            addNotification(NotificationType.success, translate('transfer.confirmBridge.success'), '', 5000);
+            console.info('Transaction done');
         } catch (e) {
             isLoadingTransaction.value = false;
             addNotification(NotificationType.error, translate('transfer.confirmBridge.errorSendTokens'), '', 5000);
-            console.error('Transaction failed');
             console.error(e);
-
-            await router.back();
         }
-    };
-
-    const submitBridge = async () => {
-        if (!selectedWallet.value) return;
-
-        await bridgeToSubstrate(
-            selectedWallet.value.keyPair.getSubstrateKeyring(),
-            selectedWallet.value.keyPair.getStellarKeyPair(),
-            amount
-        );
-
-        addNotification(NotificationType.success, translate('transfer.confirmBridge.success'), '', 5000);
-        console.log('Transaction done');
 
         await router.back();
     };

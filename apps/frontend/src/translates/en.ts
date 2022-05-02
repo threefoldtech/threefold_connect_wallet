@@ -172,6 +172,7 @@ export default <Translation>{
             confirm: 'Transfer',
             noFunds: 'No funds on this wallet',
             fee: 'Fee',
+            bridging: 'Bridging tokens, this could take a while...',
         },
         confirmBridge: {
             title: 'Confirm Transaction',

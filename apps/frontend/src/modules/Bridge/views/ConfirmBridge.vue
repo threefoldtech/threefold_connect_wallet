@@ -121,20 +121,11 @@
     import { useRoute, useRouter } from 'vue-router';
     import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
     import { ref } from 'vue';
-    import {
-        activationServiceForSubstrate,
-        getSubstrateApi,
-        submitExtrensic,
-    } from '@/modules/TFChain/services/tfchainService';
-    import { userInitialized } from '@/modules/Core/services/cryptoService';
-    import { createEntitySign, getEntityIDByAccountId } from '@/modules/TFChain/services/entityService';
     import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
     import { toNumber } from 'lodash';
     import { onBeforeMount } from '@vue/runtime-core';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
     import { translate } from '@/modules/Core/utils/translate';
-    import en from '@/translates/en';
-    import { nanoid } from 'nanoid';
     import { bridgeToSubstrate } from '@/modules/TFChain/services/transfer.service';
     import { KeyringPair } from '@polkadot/keyring/types';
     import { Keypair } from 'stellar-sdk';

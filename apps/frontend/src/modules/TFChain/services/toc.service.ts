@@ -22,7 +22,7 @@ export const hasAcceptedTermsAndConditions = async (id: string): Promise<boolean
 export const checkIfTermsAndConditionsAreAccepted = async (id: string, retries = 0): Promise<boolean> => {
     const api = await getSubstrateApi();
 
-    while (retries < 5) {
+    while (retries < 10) {
         const listTermsAndConditions = (await api.query.tfgridModule.usersTermsAndConditions(id)).toJSON();
 
         if (Object.keys(listTermsAndConditions as Object).length > 0) {

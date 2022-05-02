@@ -16,7 +16,7 @@ export const addTwin = async (keyRing: KeyringPair): Promise<number> => {
 export const getTwinId = async (id: string, retries = 0): Promise<number> => {
     const api = await getSubstrateApi();
 
-    while (retries < 5) {
+    while (retries < 10) {
         const twinId = (await api.query.tfgridModule.twinIdByAccountID(id)).toJSON();
 
         if (twinId != 0) {

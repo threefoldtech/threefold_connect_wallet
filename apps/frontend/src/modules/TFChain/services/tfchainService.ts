@@ -72,14 +72,6 @@ export const hex2a = (hex: string) => {
     return str;
 };
 
-export const getTwinId = async (id: string) => {
-    const api = await getSubstrateApi();
-
-    const entity = (await api.query.tfgridModule.twinIdByAccountID(id)).toJSON();
-
-    return entity as number;
-};
-
 export const getUsersTermsAndConditions = async (
     id: string
 ): Promise<{ document_link: string; account_id: string; document_hash: string; timestamp: number }[]> => {
@@ -251,4 +243,33 @@ export const acceptTermsAndConditions = async (keyRing: KeyringPair) => {
     // Getting terms and conditions
     const accepted = await checkIfTermsAndConditionsAreAccepted(keyRing.address);
     if (!accepted) throw new Error("Can't fetch signed terms and conditions");
+};
+
+export const addTwin = async (keyRing: KeyringPair, retries = 0): Promise<number> => {
+    const api = await getSubstrateApi();
+
+    const submittableExtrinsic = api.tx.tfgridModule.createTwin('127.0.0.1');
+    await submitExtrensic(submittableExtrinsic, keyRing);
+
+    const twinId = await getTwinId(keyRing.address);
+    if (twinId == 0) return 0;
+
+    return twinId;
+};
+
+export const getTwinId = async (id: string, retries = 0): Promise<number> => {
+    const api = await getSubstrateApi();
+
+    while (retries < 5) {
+        const twinId = (await api.query.tfgridModule.twinIdByAccountID(id)).toJSON();
+
+        if (twinId != 0) {
+            return twinId as number;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await getTwinId(id, (retries += 1));
+    }
+
+    return 0;
 };

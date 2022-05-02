@@ -122,7 +122,7 @@
     import { orderAssets } from '@/modules/Currency/utils/order';
     import { getAllTokensDetails, TokenItem, unlockTokens } from '@/modules/LockedTokens/services/lockService';
     import LockedBalanceCard from '@/modules/LockedTokens/components/LockedBalanceCard.vue';
-    import { hasAcceptedTermsAndConditions } from '@/modules/TFChain/services/tfchainService';
+    import { addTwin, getTwinId, hasAcceptedTermsAndConditions } from '@/modules/TFChain/services/tfchainService';
 
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
@@ -133,10 +133,13 @@
     );
 
     const test = async () => {
-        const toc = await hasAcceptedTermsAndConditions(wallet.keyPair.getSubstrateKeyring().address);
+        // const toc = await hasAcceptedTermsAndConditions(wallet.keyPair.getSubstrateKeyring().address);
 
-        if (!toc) {
-        }
+        const abc = await addTwin(wallet.keyPair.getSubstrateKeyring());
+
+        console.log(abc);
+        // if (!toc) {
+        // }
     };
 
     const lockedAssetBalance = useLocalStorage<TokenItem[]>(

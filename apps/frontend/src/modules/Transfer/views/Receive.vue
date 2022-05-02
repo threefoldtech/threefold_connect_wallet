@@ -210,9 +210,6 @@
     import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
     import { XIcon, SelectorIcon, CheckIcon } from '@heroicons/vue/solid';
 
-    //@ts-ignore
-    import QRCode from '@/modules/Transfer/views/QRCode.vue';
-
     const router = useRouter();
 
     interface IProps {
@@ -286,6 +283,8 @@
             7
         )}&message=${encodeURIComponent(receiveMessage.value.trim())}&sender=me`;
 
+        // Needed to make transpiling the qr code possible
+        const QRCode = require('qrcode');
         QRCode.toDataURL(data, { errorCorrectionLevel: 'M', type: 'svg' }, (err: any, url: string) => {
             imageUrl.value = url;
             showImage.value = true;

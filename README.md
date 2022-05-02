@@ -67,3 +67,34 @@ For support, got to support in the threefold connect app.
 [MIT](https://choosealicense.com/licenses/mit/)
 
 ![Threefold](https://threefold.io/assets/static/footer_logo2.7a5182b.f5242b4436c182c40f7f53a060a6422e.png)
+
+## Acceptance testing
+
+- Fully new 3bot account => Open wallet, create daily wallet.
+- Fully new 3bot account => Open wallet, import wallet, then create daily wallet.
+- Delete 3bot account with wallets, recover account. => Same state.
+- Open farmers tab without openings wallet tab => Clear error telling me I need to open wallet tab first.
+- Send each token available.
+- Generate QR code for each token available.
+- Scan QR code for each token available.
+- Use max length message for a transfer.
+- Use no message.
+- Attempt to send more currency than you have.
+- Have 10 TFT, send 9.9999 TFT ( with fee it goes over your max amount, without fee it doesn't ).
+- Be on shitty 3g internet, open wallet after clearing the app cache (make sure bundle isn't cached).
+- Test copy/paste functionality in various fields in the wallet.
+- Test back buttons both on wallet menu and on device back button itself.
+- Have a wallet with some locked tokens, see if locked tokens appear.
+- Have a wallet with tokens to unlock, see if they actually unlock.
+- Have vested tokens, see if they appear.
+- Have a wallet with vasted tokens to unvest, see if they actually unvest.
+- Test copy buttons for Stellar/TFChain address.
+- Test display secret, also try to import each secret in another 3bot account.
+- Rename wallet to max length.
+- Rename wallet to weird characters.
+- Rename wallet to existing wallet name.
+- See transaction history.
+- Filter transaction history.
+- Import using invalid secret.
+- Import using invalid seed phrase.
+- Import with address index (advanced).

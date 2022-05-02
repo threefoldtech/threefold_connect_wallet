@@ -245,7 +245,7 @@ export const acceptTermsAndConditions = async (keyRing: KeyringPair) => {
     if (!accepted) throw new Error("Can't fetch signed terms and conditions");
 };
 
-export const addTwin = async (keyRing: KeyringPair, retries = 0): Promise<number> => {
+export const addTwin = async (keyRing: KeyringPair): Promise<number> => {
     const api = await getSubstrateApi();
 
     const submittableExtrinsic = api.tx.tfgridModule.createTwin('127.0.0.1');

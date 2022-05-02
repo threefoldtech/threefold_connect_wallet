@@ -39,7 +39,6 @@
     import {
         activationServiceForSubstrate,
         getSubstrateApi,
-        getTwinId,
         submitExtrensic,
     } from '@/modules/TFChain/services/tfchainService';
     import { KeyringPair } from '@polkadot/keyring/types';
@@ -47,6 +46,7 @@
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
     import CTA from '@/modules/Misc/components/global/CTA.vue';
     import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
+    import { getTwinId } from '@/modules/TFChain/services/twin.service';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();

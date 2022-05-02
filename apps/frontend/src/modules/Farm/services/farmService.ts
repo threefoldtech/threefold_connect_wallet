@@ -1,11 +1,5 @@
 import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
-import {
-    allFarms,
-    fetchAllFarms,
-    getSubstrateApi,
-    getTwinId,
-    twinIds,
-} from '@/modules/TFChain/services/tfchainService';
+import { allFarms, fetchAllFarms, getSubstrateApi, twinIds } from '@/modules/TFChain/services/tfchainService';
 import toNumber from 'lodash/toNumber';
 import { BCFarm, Farm, StellarPayoutResponse } from '@/modules/Farm/types/farms.types';
 import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
@@ -16,6 +10,7 @@ import { parseBCInt } from '@/modules/Farm/utils/farm';
 import { useLocalStorage } from '@vueuse/core';
 import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
 import flagsmith from 'flagsmith';
+import { getTwinId } from '@/modules/TFChain/services/twin.service';
 
 export const v2Farms = ref<Farm[]>([]);
 export const v3Farms = ref(<Farm[]>[]);

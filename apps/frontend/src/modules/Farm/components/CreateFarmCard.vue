@@ -193,7 +193,6 @@
         doesFarmExistByName,
         getSubstrateApi,
         getSubstrateAssetBalances,
-        getTwinId,
         getUsersTermsAndConditions,
         submitExtrensic,
     } from '@/modules/TFChain/services/tfchainService';
@@ -204,6 +203,7 @@
     import { onBeforeMount } from '@vue/runtime-core';
     import { toNumber } from 'lodash';
     import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
+    import { getTwinId } from '@/modules/TFChain/services/twin.service';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});

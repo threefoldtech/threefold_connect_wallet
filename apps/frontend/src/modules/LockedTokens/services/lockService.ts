@@ -65,6 +65,11 @@ export const getAllTokensDetails = async (kp: StellarKeypair): Promise<TokenItem
 const getLockedTokenRecordDetails = async (b: TokenRecord): Promise<TokenItem | undefined> => {
     let unlockTx: Transaction | null = null;
     try {
+        if (!b.unlockHash) {
+            await transferLockedBalance(b.keyPair, b.id, 'TFT', toNumber(b.balance?.balance));
+            return;
+        }
+
         unlockTx = await fetchUnlockTransaction(b.unlockHash!);
     } catch (e) {
         addNotification(NotificationType.error, translate('locking.errors.unableToFetch'));

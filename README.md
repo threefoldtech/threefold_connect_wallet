@@ -1,4 +1,4 @@
-# Wallet V3.x
+# Threefold wallet
 
 Project to manage cryptographic currency from **[Threefold](https://threefold.io/)** on the [Stellar blockchain](https://www.stellar.org/) and on [Substrate(TFChain)](https://substrate.io/).
 

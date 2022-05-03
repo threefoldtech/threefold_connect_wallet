@@ -1,5 +1,3 @@
-import { NotificationType } from '@/service/notificationService';
-
 type Translation = { [key: string]: string | Translation };
 export default <Translation>{
     init: {
@@ -53,13 +51,21 @@ export default <Translation>{
         },
     },
     wallet: {
+        shell: {
+            hint: 'My Wallets',
+        },
         overview: {
             assets: 'Assets',
             sendCoins: 'Send Coins',
             receiveCoins: 'Receive Coins',
             transferFromStellar: 'Transfer from Stellar',
             noAssetsFound: 'No Assets Found',
+            vestedTokens: 'Vested tokens',
             checkVesting: 'Checking vested tokens...',
+            lockedTokens: 'Locked tokens',
+            checkLocking: 'Checking locked tokens...',
+            lockedTokensDetails: '{amount} {asset_code} will be unlocked on {date}',
+            unlockManually: 'Unlock tokens manually',
         },
         transactions: {
             tfchainHistoryBanner: 'Transaction history for TFChain coming soon.',
@@ -220,5 +226,33 @@ export default <Translation>{
     errors: {
         balanceTooLow: 'Balance too low',
         validAmount: 'Transaction amount must be more than 1 TFT',
+    },
+    contacts: {
+        title: 'Contacts',
+        dialog: {
+            title: 'Add Contact',
+            name: 'Name',
+            address: 'Address',
+            save: 'Add contact',
+            cancel: 'Cancel',
+            success: 'Successfully saved contact',
+            error: {
+                maximum: 'There is a maximum character length of 255 characters',
+                empty: 'Contact name cannot be empty',
+                alphanumeric: 'Only alphanumeric characters are allowed',
+                invalid: 'Invalid address',
+                myContactExists: 'This contact already exists in own wallets',
+                contactExists: 'This contact already exists in other wallets',
+            },
+        },
+    },
+    locking: {
+        errors: {
+            unableToFetch: 'Unable to fetch unlock transaction',
+            cantBeUnlockedYet: "Tokens can't be unlocked yet",
+            failedToUnlock: 'Failed to unlock tokens',
+        },
+        tryingToUnlock: 'Trying to unlock the tokens...',
+        successfullyUnlocked: 'Successfully unlocked tokens',
     },
 };

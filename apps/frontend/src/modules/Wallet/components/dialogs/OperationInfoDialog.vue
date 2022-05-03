@@ -12,22 +12,38 @@
                             </template>
                         </PageHeader>
                     </template>
-                    <div class="p-4">
-                        <pre class="whitespace-pre-wrap break-all text-sm">{{ operation }}</pre>
-                    </div>
 
-                    <div>From</div>
-                    <div>{{ operation.from }}</div>
-                    <div>To</div>
-                    <div>{{ operation.to }}</div>
-                    <div>Amount</div>
-                    <div>{{ operation.amount }}</div>
-                    <div>Created at</div>
-                    <div>{{ operation.created_at }}</div>
-                    <div>Tx hash</div>
-                    <div>{{ operation.transaction_hash }}</div>
-                    <div>Asset</div>
-                    <div>{{ operation.asset_code }}</div>
+                    <div class="p-4">
+                        <p class="mt-4 text-sm font-semibold">From</p>
+                        <p class="mb-2 truncate text-gray-500">
+                            {{ operation.from }}
+                        </p>
+                        <hr />
+                        <p class="mt-4 text-sm font-semibold">To</p>
+                        <p class="mb-2 truncate text-gray-500">
+                            {{ operation.to }}
+                        </p>
+                        <hr />
+                        <p class="mt-4 text-sm font-semibold">Amount</p>
+                        <p class="mb-2 truncate text-gray-500">
+                            {{ operation.amount }}
+                        </p>
+                        <p class="mt-4 text-sm font-semibold">Asset</p>
+                        <p class="mb-2 truncate text-gray-500">
+                            {{ operation.asset_code }}
+                        </p>
+                        <hr />
+                        <hr />
+                        <p class="mt-4 text-sm font-semibold">Created at</p>
+                        <p class="mb-2 truncate text-gray-500">
+                            {{ operation.created_at }}
+                        </p>
+                        <hr />
+                        <p class="mt-4 text-sm font-semibold">Transaction hash</p>
+                        <p class="mb-2 truncate text-gray-500">
+                            {{ operation.transaction_hash }}
+                        </p>
+                    </div>
                 </MainLayout>
             </div>
         </div>

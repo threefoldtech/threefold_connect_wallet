@@ -25,14 +25,18 @@
                         </p>
                         <hr />
                         <p class="mt-4 text-sm font-semibold">Type</p>
-                        <div
-                            class="mb-2 truncate text-gray-500"
-                            v-if="wallet.keyPair.getStellarKeyPair().publicKey() === operation.from"
-                        >
-                            Payment
+                        <div class="mb-2 mt-2" v-if="wallet.keyPair.getStellarKeyPair().publicKey() === operation.from">
+                            <Badge :type="BadgeType.NEGATIVE" :text="'Payment'"></Badge>
                         </div>
-                        <div v-else-if="wallet.keyPair.getStellarKeyPair().publicKey() === operation.to">Receive</div>
-                        <div v-else>Unknown</div>
+                        <div
+                            class="mb-2 mt-2"
+                            v-else-if="wallet.keyPair.getStellarKeyPair().publicKey() === operation.to"
+                        >
+                            <Badge :type="BadgeType.POSITIVE" :text="'Receive'"></Badge>
+                        </div>
+                        <div class="mb-2 mt-2" v-else>
+                            <Badge :type="BadgeType.NEUTRAL" :text="'Unknown'"></Badge>
+                        </div>
                         <hr />
                         <p class="mt-4 text-sm font-semibold">Amount</p>
                         <p class="mb-2 truncate text-gray-500">
@@ -68,6 +72,8 @@
     import { ServerApi } from 'stellar-sdk';
     import { Wallet } from '@/modules/Wallet/services/walletService';
     import { inject } from 'vue';
+    import Badge from '@/modules/Misc/components/global/Badge.vue';
+    import { BadgeType } from '@/modules/Misc/enums/badge.enum';
 
     const wallet: Wallet = <Wallet>inject('wallet');
 

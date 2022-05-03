@@ -24,6 +24,16 @@
                             {{ operation.to }}
                         </p>
                         <hr />
+                        <p class="mt-4 text-sm font-semibold">Type</p>
+                        <div
+                            class="mb-2 truncate text-gray-500"
+                            v-if="wallet.keyPair.getStellarKeyPair().publicKey() === operation.from"
+                        >
+                            Payment
+                        </div>
+                        <div v-else-if="wallet.keyPair.getStellarKeyPair().publicKey() === operation.to">Receive</div>
+                        <div v-else>Unknown</div>
+                        <hr />
                         <p class="mt-4 text-sm font-semibold">Amount</p>
                         <p class="mb-2 truncate text-gray-500">
                             {{ operation.amount }}
@@ -56,6 +66,10 @@
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { ServerApi } from 'stellar-sdk';
+    import { Wallet } from '@/modules/Wallet/services/walletService';
+    import { inject } from 'vue';
+
+    const wallet: Wallet = <Wallet>inject('wallet');
 
     interface IProps {
         operation: ServerApi.OperationRecord;

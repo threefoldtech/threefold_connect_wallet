@@ -17,14 +17,14 @@
                         operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                 }"
             >
-                <ArrowUpIcon
+                <ArrowDownIcon
                     v-if="
                         operation?.to === wallet.keyPair.getStellarKeyPair().publicKey() &&
                         operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey()
                     "
                     class="h-5 w-5 text-white"
                 />
-                <ArrowDownIcon
+                <ArrowUpIcon
                     v-else-if="
                         operation?.from === wallet.keyPair.getStellarKeyPair().publicKey() &&
                         operation?.to !== wallet.keyPair.getStellarKeyPair().publicKey()

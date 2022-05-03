@@ -37,10 +37,9 @@
 <script lang="ts" setup>
     import { Dialog } from '@headlessui/vue';
     import { XIcon } from '@heroicons/vue/solid';
-    import MainLayout from '@/layouts/MainLayout.vue';
-    import PageHeader from '@/components/header/PageHeader.vue';
+    import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
+    import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { ServerApi } from 'stellar-sdk';
-    import { Wallet } from '@/service/walletService';
 
     interface IProps {
         operation: ServerApi.OperationRecord;

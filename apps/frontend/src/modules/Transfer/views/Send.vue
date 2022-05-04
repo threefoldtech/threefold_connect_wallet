@@ -362,17 +362,25 @@
         isValidAmount.value = true;
     });
 
-    watch(relevantAssets, (value: Asset[]) => {
-        if (value.length === 0) {
+    watch(relevantAssets, (newAssets: Asset[], oldAssets: Asset[]) => {
+        if (newAssets.length === 0) {
             return;
         }
         if (
-            value.findIndex(v => v.type === selectedAsset.value?.type && v.asset_code === selectedAsset?.value.type) !==
-            -1
+            newAssets.findIndex(
+                v => v.type === selectedAsset.value?.type && v.asset_code === selectedAsset?.value.type
+            ) !== -1
         ) {
             return;
         }
-        selectedAsset.value = value[0];
+
+        if (
+            newAssets.every(v => oldAssets.findIndex(v2 => v2.type === v.type && v2.asset_code === v.asset_code) !== -1)
+        ) {
+            return;
+        }
+
+        selectedAsset.value = newAssets[0];
     });
 
     const toAddress = ref(to);

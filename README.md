@@ -8,7 +8,7 @@ Project to manage cryptographic currency from **[Threefold](https://threefold.io
 
 ## Tech Stack
 
-**Client:** Vue, Vite, TailwindCSS
+**Client:** Vue, Webpack, TailwindCSS
 
 **Server:** Node, Fastify
 

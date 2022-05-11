@@ -95,8 +95,8 @@ const checkV2FarmsForWallets = async (v2Wallets: Wallet[]) => {
 
 export const getNodesByFarmId = async (farmId: number) => {
     const query = `query MyQuery($farmId: Int ) {
-  nodes(where: {farmId_eq: $farmId}) {
-    nodeId
+  nodes(where: {farmID_eq: $farmId}) {
+    nodeID
   }
 }
 `;
@@ -132,14 +132,13 @@ export const getAllStellarPayoutAddresses = async () => {
     const query = `query farmQuery($stellarAddresses: [String!]) {
   farms(where: {stellarAddress_in: $stellarAddresses}) {
     name
-    twin_id: twinId
+    twin_id: twinID
     public_ips: publicIPs {
       ip
     }
-    pricing_policy_id: pricingPolicyId
-    id: farmId
+    pricing_policy_id: pricingPolicyID
+    id: farmID
     certification_type: certificationType
-    version
   }
 }
 `;

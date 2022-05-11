@@ -102,20 +102,20 @@ export const fetchAllFarms = async () => {
     // const farmEntries = await api.query.tfgridModule.farms.entries();
 
     const query = `query farmQuery($twinIds: [Int!]) {
-  farms(where: {twinId_in: $twinIds}) {
+  farms(where: {twinID_in: $twinIds}) {
     name
-    twin_id: twinId
+    twin_id: twinID
     public_ips: publicIPs {
       ip
     }
-    pricing_policy_id: pricingPolicyId
-    id: farmId
+    pricing_policy_id: pricingPolicyID
+    id: farmID
     certification_type: certificationType
-    version
   }
 }
 `;
     const ids = [...twinIds.value.values()];
+
     const response = await axios.post(<string>flagsmith.getValue('tfchain_graphql_endpoint'), {
         query,
         variables: {

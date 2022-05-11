@@ -7,6 +7,7 @@ export default {
         pricing_policy_id: 'u32',
         certification_type: 'CertificationType',
         public_ips: 'Vec<PublicIP>',
+        dedicated_farm: 'bool',
     },
     PublicIP: {
         ip: 'Vec<u8>',
@@ -97,6 +98,7 @@ export default {
         domain_name: 'Policy',
         foundation_account: 'AccountId',
         certified_sales_account: 'AccountId',
+        discount_for_dedicated_nodes: 'u8',
     },
     Policy: {
         value: 'u32',
@@ -116,6 +118,7 @@ export default {
         _enum: {
             NodeContract: 'NodeContract',
             NameContract: 'NameContract',
+            RentContract: 'RentContract',
         },
     },
     NodeContract: {
@@ -127,6 +130,9 @@ export default {
     },
     NameContract: {
         name: 'Vec<u8>',
+    },
+    RentContract: {
+        node_id: 'u32',
     },
     ContractBillingInformation: {
         previous_nu_reported: 'u64',
@@ -263,5 +269,10 @@ export default {
     },
     ValidatorRequestState: {
         _enum: ['Created', 'Approved', 'Validating'],
+    },
+    ContractLock: {
+        amount_locked: 'Balance',
+        lock_updated: 'u64',
+        cycles: 'u16',
     },
 };

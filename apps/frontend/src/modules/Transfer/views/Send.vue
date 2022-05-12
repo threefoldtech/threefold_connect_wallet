@@ -260,6 +260,8 @@
     import Contact from '@/modules/Contact/views/Contact.vue';
     import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
     import { ContactType } from '@/modules/Contact/types/contact.types';
+    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { translate } from '@/modules/Core/utils/translate';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
@@ -503,7 +505,10 @@
         toAddress.value = address;
 
         if (selectedBalance.value?.assets.find(a => a.name === selectedAsset.value.asset_code)?.amount === 0) {
-            alert(`No wallets with balance for ${selectedAsset.value}`); /// @todo: change to notification
+            addNotification(
+                NotificationType.error,
+                translate('errors.noWalletsWithBalance', { asset: selectedAsset.value.asset_code })
+            );
         }
     };
 </script>

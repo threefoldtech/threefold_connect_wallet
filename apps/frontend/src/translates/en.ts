@@ -226,6 +226,7 @@ export default <Translation>{
     errors: {
         balanceTooLow: 'Balance too low',
         validAmount: 'Transaction amount must be more than 1 TFT',
+        noWalletsWithBalance: 'No wallets with balance for {asset}',
     },
     contacts: {
         title: 'Contacts',

@@ -13,7 +13,7 @@
                 {{ formatCurrency(balance.amount) }}
             </div>
         </div>
-        <hr class="my-2" v-if="$slots['actions']" />
+        <hr class="my-2 last:hidden" />
         <slot name="actions" />
     </div>
 </template>

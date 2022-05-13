@@ -41,7 +41,11 @@
         router.push({ name: 'devLogs' });
     });
 
-    const seed = useLocalStorage('devSeed', '7IZiTghoAbJKdQbBqQoJrSCBD33SMTQAmIrrzfMaHLU=');
+    localStorage.removeItem('devSeed');
+
+    const devSeed = useLocalStorage('DEV_SEED', '0000000000000000000000000000000000000000000=');
+    const devName = useLocalStorage('DEV_NAME', 'testseed.3bot');
+
     const overrideIsDev = useLocalStorage('override', false);
     const initClearCache = useLocalStorage('initClearCache', true);
 
@@ -71,7 +75,7 @@
     globalThis.init = initApp;
 
     if (overrideIsDev.value) {
-        initApp('testseed.3bot', seed.value);
+        initApp(devName.value, devSeed.value);
     }
 
     //@ts-ignore

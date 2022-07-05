@@ -16,24 +16,21 @@
                     <div class="p-4">
                         <p class="mt-4 text-sm font-semibold">From</p>
                         <p class="mb-2 truncate text-gray-500">
-                            {{ props.operation.from }}
+                            {{ operation.from }}
                         </p>
                         <hr />
                         <p class="mt-4 text-sm font-semibold">To</p>
                         <p class="mb-2 truncate text-gray-500">
-                            {{ props.operation.to }}
+                            {{ operation.to }}
                         </p>
                         <hr />
                         <p class="mt-4 text-sm font-semibold">Type</p>
-                        <div
-                            class="mb-2 mt-2"
-                            v-if="wallet.keyPair.getStellarKeyPair().publicKey() === props.operation.from"
-                        >
+                        <div class="mb-2 mt-2" v-if="wallet.keyPair.getStellarKeyPair().publicKey() === operation.from">
                             <Badge :type="BadgeType.NEGATIVE" :text="'Payment'"></Badge>
                         </div>
                         <div
                             class="mb-2 mt-2"
-                            v-else-if="wallet.keyPair.getStellarKeyPair().publicKey() === props.operation.to"
+                            v-else-if="wallet.keyPair.getStellarKeyPair().publicKey() === operation.to"
                         >
                             <Badge :type="BadgeType.POSITIVE" :text="'Receive'"></Badge>
                         </div>
@@ -43,22 +40,22 @@
                         <hr />
                         <p class="mt-4 text-sm font-semibold">Amount</p>
                         <p class="mb-2 truncate text-gray-500">
-                            {{ props.operation.amount }}
+                            {{ operation.amount }}
                         </p>
                         <p class="mt-4 text-sm font-semibold">Asset</p>
                         <p class="mb-2 truncate text-gray-500">
-                            {{ props.operation.asset_code }}
+                            {{ operation.asset_type }}
                         </p>
                         <hr />
                         <hr />
                         <p class="mt-4 text-sm font-semibold">Created at</p>
                         <p class="mb-2 truncate text-gray-500">
-                            {{ props.operation.created_at }}
+                            {{ operation.created_at }}
                         </p>
                         <hr />
                         <p class="mt-4 text-sm font-semibold">Transaction hash</p>
                         <p class="mb-2 truncate text-gray-500">
-                            {{ props.operation.transaction_hash }}
+                            {{ operation.transaction_hash }}
                         </p>
                     </div>
                 </MainLayout>
@@ -84,5 +81,5 @@
         operation: ServerApi.OperationRecord;
     }
 
-    const props = defineProps<IProps>();
+    const { operation } = defineProps<IProps>();
 </script>

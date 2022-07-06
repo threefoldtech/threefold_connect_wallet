@@ -1,51 +1,33 @@
 <template>
-    <Dialog v-if="isOpen && false" as="div" open @close="isOpen = false">
-        <div class="fixed inset-0 z-10 overflow-y-auto">
-            <div class="h-screen w-full bg-blue-200">
-                <MainLayout>
-                    <template #header>
-                        <PageHeader>
-                            <h1>{{ $t('component.operationInfo.title') }}</h1>
-
-                            <template #after>
-                                <XIcon class="h-8 cursor-pointer text-gray-600" @click="isOpen = false" />
-                            </template>
-                        </PageHeader>
-                    </template>
-                    <div class="p-4">
-                        <pre class="whitespace-pre-wrap break-all text-sm">{{ operation }}</pre>
-                    </div>
-                </MainLayout>
-            </div>
-        </div>
-    </Dialog>
-    <div class="group py-2 text-sm tracking-tight" @click="isOpen = true">
+    <OperationInfoDialog @close="showOperationDetails = false" v-if="showOperationDetails" :operation="operation">
+    </OperationInfoDialog>
+    <div class="group py-2 text-sm tracking-tight" @click="showOperationDetails = true">
         <div v-if="operation.type === 'payment'" class="flex items-center justify-between gap-4">
             <div
                 class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
                 :class="{
                     'bg-green-600':
-                        operation?.to === wallet.keyPair.getStellarKeyPair().publicKey() &&
-                        operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
+                        operation.to === wallet.keyPair.getStellarKeyPair().publicKey() &&
+                        operation.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
                     'bg-red-600':
-                        operation?.from === wallet.keyPair.getStellarKeyPair().publicKey() &&
-                        operation?.to !== wallet.keyPair.getStellarKeyPair().publicKey(),
+                        operation.from === wallet.keyPair.getStellarKeyPair().publicKey() &&
+                        operation.to !== wallet.keyPair.getStellarKeyPair().publicKey(),
                     'bg-gray-600':
-                        operation?.to === wallet.keyPair.getStellarKeyPair().publicKey() &&
-                        operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
+                        operation.to === wallet.keyPair.getStellarKeyPair().publicKey() &&
+                        operation.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                 }"
             >
-                <ArrowUpIcon
+                <ArrowDownIcon
                     v-if="
-                        operation?.to === wallet.keyPair.getStellarKeyPair().publicKey() &&
-                        operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey()
+                        operation.to === wallet.keyPair.getStellarKeyPair().publicKey() &&
+                        operation.from !== wallet.keyPair.getStellarKeyPair().publicKey()
                     "
                     class="h-5 w-5 text-white"
                 />
-                <ArrowDownIcon
+                <ArrowUpIcon
                     v-else-if="
-                        operation?.from === wallet.keyPair.getStellarKeyPair().publicKey() &&
-                        operation?.to !== wallet.keyPair.getStellarKeyPair().publicKey()
+                        operation.from === wallet.keyPair.getStellarKeyPair().publicKey() &&
+                        operation.to !== wallet.keyPair.getStellarKeyPair().publicKey()
                     "
                     class="h-5 w-5 text-white"
                 />
@@ -54,18 +36,18 @@
             <div class="flex flex-1 flex-col overflow-hidden">
                 <div class="overflow-hidden overflow-ellipsis text-ellipsis">
                     {{
-                        operation?.from === wallet.keyPair.getStellarKeyPair().publicKey()
-                            ? operation?.to
-                            : operation?.from
+                        operation.from === wallet.keyPair.getStellarKeyPair().publicKey()
+                            ? operation.to
+                            : operation.from
                     }}
                 </div>
                 <div
                     :class="{
-                        'text-green-600': operation?.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
-                        'text-red-600': operation?.from === wallet.keyPair.getStellarKeyPair().publicKey(),
+                        'text-green-600': operation.from !== wallet.keyPair.getStellarKeyPair().publicKey(),
+                        'text-red-600': operation.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                     }"
                 >
-                    {{ operation?.asset_code }} {{ formatCurrency(operation?.amount ?? 0) }}
+                    {{ operation.asset_code }} {{ formatCurrency(operation.amount ?? 0) }}
                 </div>
             </div>
             <div class="shrink-0">
@@ -91,14 +73,12 @@
 
 <script lang="ts" setup>
     import { Wallet } from '@/modules/Wallet/services/walletService';
-    import { Dialog } from '@headlessui/vue';
-    import { XIcon, ArrowUpIcon, ArrowDownIcon, LinkIcon, SwitchVerticalIcon } from '@heroicons/vue/solid';
+    import { ArrowUpIcon, ArrowDownIcon, LinkIcon, SwitchVerticalIcon } from '@heroicons/vue/solid';
     import { ServerApi } from 'stellar-sdk';
     import { ref } from 'vue';
     import { formatTime } from '@/modules/Core/utils/time';
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
-    import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
-    import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
+    import OperationInfoDialog from '@/modules/Wallet/components/dialogs/OperationInfoDialog.vue';
 
     interface IProps {
         operation: ServerApi.OperationRecord;
@@ -107,7 +87,7 @@
 
     const { operation, wallet } = defineProps<IProps>();
 
-    const isOpen = ref<boolean>(false);
+    const showOperationDetails = ref<boolean>(false);
 </script>
 
 <style scoped></style>

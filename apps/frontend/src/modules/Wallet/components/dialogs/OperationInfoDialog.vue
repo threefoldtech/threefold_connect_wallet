@@ -44,7 +44,7 @@
                         </p>
                         <p class="mt-4 text-sm font-semibold">Asset</p>
                         <p class="mb-2 truncate text-gray-500">
-                            {{ operation.asset_type }}
+                            {{ operation.asset_code }}
                         </p>
                         <hr />
                         <hr />

@@ -67,6 +67,8 @@
                     <div>{{ node.nodeID }}</div>
                 </div>
             </div>
+
+            <div class="mt-1 bg-blue-400 p-4 text-white" @click="testing">Create contract</div>
         </div>
         <div class="border-t border-gray-200" v-if="!payoutLoading && !payoutAddress">
             <div class="-pt-px flex divide-x divide-gray-200">
@@ -86,7 +88,7 @@
 <script lang="ts" setup>
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
     import { Farm } from '@/modules/Farm/types/farms.types';
-    import { ClipboardCopyIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
+    import { ChevronUpIcon, ClipboardCopyIcon } from '@heroicons/vue/solid';
     import { DocumentAddIcon } from '@heroicons/vue/outline';
     import { getSubstrateApi, submitExtrensic } from '@/modules/TFChain/services/tfchainService';
     import { ref } from 'vue';
@@ -101,6 +103,32 @@
 
     const payoutAddress = ref<string | undefined>();
     const payoutLoading = ref<boolean>(true);
+
+    const testing = async () => {
+        console.log('hoi');
+
+        const api = await getSubstrateApi();
+        //
+        // const result4 = await api.tx.smartContractModule.createRentContract(1990);
+        // console.log(result4);
+        //
+        // const submittableExtrinsic = api.tx.smartContractModule.createRentContract(1990);
+        // const result = await submitExtrensic(submittableExtrinsic, farm.wallet.keyPair.getSubstrateKeyring());
+        //
+        // console.log(result);
+
+        const result2 = await api.query.smartContractModule.activeRentContractForNode(1990);
+        console.log(result2.toHuman());
+
+        const result3 = await api.query.smartContractModule.activeNodeContracts(1990);
+        console.log(result3.toHuman());
+        // const result3 = await api.query.smartContractModule.activeRentContractForNode(1990);
+
+        // console.log('Active rent contracts for node');
+        // console.log(result2.toHuman());
+        // console.log('Active rent contracts for node');
+        // console.log(result3.toHuman());
+    };
 
     const fetchStellarPayoutAddress = async () => {
         payoutLoading.value = true;

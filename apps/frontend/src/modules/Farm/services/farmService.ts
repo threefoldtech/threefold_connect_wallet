@@ -40,7 +40,6 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
         for (const farm of allV3Farms) {
             const allNodes = await getNodesByFarmId(farm.id);
 
-            console.log(allNodes, farm.id);
             const f: Farm = {
                 name: farm.name,
                 wallet_id: v3Wallet.keyPair.getBasePublicKey(),
@@ -169,7 +168,7 @@ export const getAllStellarPayoutAddresses = async () => {
         }
 
         const allNodes = await getNodesByFarmId(v3PortalFarm.farmId);
-        console.log(allNodes, v3PortalFarm.farmId);
+        // console.log(allNodes, v3PortalFarm.farmId);
         const f: Farm = {
             name: foundFarm.name,
             wallet_id: v3Wallet.keyPair.getBasePublicKey(),

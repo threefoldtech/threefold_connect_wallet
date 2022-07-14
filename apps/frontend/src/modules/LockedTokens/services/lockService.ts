@@ -49,9 +49,6 @@ export const fetchAllLockedTokens = async (kp: StellarKeypair): Promise<TokenRec
 export const getAllTokensDetails = async (kp: StellarKeypair): Promise<TokenItem[]> => {
     const lockedTokens = await fetchAllLockedTokens(kp);
 
-    console.log('Fetched data from bc');
-    console.log(lockedTokens);
-
     if (lockedTokens.length === 0) {
         return [];
     }

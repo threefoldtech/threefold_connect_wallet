@@ -1,7 +1,7 @@
 <template>
     <OperationInfoDialog @close="showOperationDetails = false" v-if="showOperationDetails" :operation="operation">
     </OperationInfoDialog>
-    <div class="group py-2 text-sm tracking-tight" @click="showOperationDetails = true">
+    <div class="group py-2 text-sm tracking-tight" @click="showOperationDetailsDialog">
         <div v-if="operation.type === 'payment'" class="flex items-center justify-between gap-4">
             <div
                 class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
@@ -73,12 +73,16 @@
 
 <script lang="ts" setup>
     import { Wallet } from '@/modules/Wallet/services/walletService';
-    import { ArrowUpIcon, ArrowDownIcon, LinkIcon, SwitchVerticalIcon } from '@heroicons/vue/solid';
+    import { ArrowDownIcon, ArrowUpIcon, LinkIcon, SwitchVerticalIcon } from '@heroicons/vue/solid';
     import { ServerApi } from 'stellar-sdk';
     import { ref } from 'vue';
     import { formatTime } from '@/modules/Core/utils/time';
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
-    import OperationInfoDialog from '@/modules/Wallet/components/dialogs/OperationInfoDialog.vue';
+    import OperationInfoDialog from '@/modules/Transfer/components/OperationDetails.vue';
+    import { selectedTransaction } from '@/modules/Transfer/services/transfer.service';
+    import { useRouter } from 'vue-router';
+
+    const router = useRouter();
 
     interface IProps {
         operation: ServerApi.OperationRecord;
@@ -88,6 +92,11 @@
     const { operation, wallet } = defineProps<IProps>();
 
     const showOperationDetails = ref<boolean>(false);
+
+    const showOperationDetailsDialog = async () => {
+        selectedTransaction.value = JSON.stringify(operation);
+        await router.push({ name: 'transactionDetails' });
+    };
 </script>
 
 <style scoped></style>

@@ -125,7 +125,7 @@
                 <div>
                     <label for="to" class="block text-sm font-medium text-gray-700">To</label>
                     <div class="mt-1 flex rounded-md shadow-sm">
-                        <div class="relative flex items-stretch w-full focus-within:z-10">
+                        <div class="relative flex w-full items-stretch focus-within:z-10">
                             <input
                                 id="to"
                                 v-model="toAddress"
@@ -139,7 +139,7 @@
                         <button
                             type="button"
                             @click="showContacts = true"
-                            class="-ml-px relative inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                            class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         >
                             <div>
                                 <UserIcon class="h-5" />
@@ -195,7 +195,7 @@
                 <div class="text-gray-500">Max {{ assetFee?.toFixed(2) }} {{ selectedAsset?.asset_code }}</div>
             </div>
             <div v-if="selectedChain === 'stellar'" class="mt-4">
-                <label class="block text-sm font-medium text-gray-700" for="message">Message</label>
+                <label class="block text-sm font-medium text-gray-700" for="message">Memo</label>
                 <div class="mt-1 flex rounded-md shadow-sm">
                     <div class="relative flex grow items-stretch focus-within:z-10">
                         <input

@@ -104,7 +104,8 @@
 
     const isMemoLoading = ref<boolean>(true);
 
-    let operation = ref<ServerApi.OperationRecord>();
+    // @TODO: fix typing (cant use ServerApi.OperationRecord since webpack errors
+    let operation = ref();
 
     const init = async () => {
         operation.value = JSON.parse(selectedTransaction.value) as ServerApi.OperationRecord;

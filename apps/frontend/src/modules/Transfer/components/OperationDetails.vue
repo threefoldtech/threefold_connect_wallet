@@ -111,6 +111,8 @@
         operation.value = JSON.parse(selectedTransaction.value) as ServerApi.OperationRecord;
         if (!operation.value) return;
 
+        console.log(operation.value);
+
         transactionMemo.value = await obtainMemoFromTransactionUrl(operation.value._links.transaction.href);
         isMemoLoading.value = false;
     };

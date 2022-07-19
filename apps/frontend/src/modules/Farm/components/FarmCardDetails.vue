@@ -63,10 +63,12 @@
             </div>
             <div v-for="node in farm?.nodes">
                 <div class="flex flex-row justify-between whitespace-normal text-sm text-gray-500">
-                    <div>Connected node id:</div>
+                    <div>Connected nodes:</div>
                     <div>{{ node.nodeID }}</div>
                 </div>
             </div>
+
+            <div @click="test" class="bg-blue-600 p-4">test</div>
         </div>
         <div class="border-t border-gray-200" v-if="!payoutLoading && !payoutAddress">
             <div class="-pt-px flex divide-x divide-gray-200">
@@ -91,6 +93,7 @@
     import { getSubstrateApi, submitExtrensic } from '@/modules/TFChain/services/tfchainService';
     import { ref } from 'vue';
     import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { getNodeStatus, isNodeOnline } from '@/modules/Farm/services/nodeService';
 
     interface Props {
         farm: Farm;
@@ -101,6 +104,15 @@
 
     const payoutAddress = ref<string | undefined>();
     const payoutLoading = ref<boolean>(true);
+
+    const test = async () => {
+        const t = await getNodeStatus(1990);
+
+        if (!t) return;
+        await isNodeOnline(t.timestamp);
+        console.log('node');
+        console.log(t);
+    };
 
     const fetchStellarPayoutAddress = async () => {
         payoutLoading.value = true;

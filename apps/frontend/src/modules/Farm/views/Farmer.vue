@@ -1,6 +1,11 @@
 <template>
     <landing-farm-information-dialog v-if="showInformationDialog"></landing-farm-information-dialog>
-    <MainLayout>
+
+    <div v-if="true">
+        <div class="bg-blue-600 p-4 text-white" @click="test">test</div>
+    </div>
+
+    <MainLayout v-else>
         <template #header>
             <PageHeader>
                 <template #after>
@@ -119,7 +124,7 @@
     import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
     import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/WalletKeyPair';
     import flagsmith from 'flagsmith';
-    import { computed, onBeforeUnmount, ref } from 'vue';
+    import { computed, onBeforeUnmount, Ref, ref } from 'vue';
     import axios from 'axios';
     import FarmCard from '@/modules/Farm/components/FarmCard.vue';
     import { Farm } from '@/modules/Farm/types/farms.types';
@@ -130,6 +135,8 @@
 
     import { useLocalStorage } from '@vueuse/core';
     import { isDev } from '@/modules/Core/utils/enviroment';
+    import { generateRandomString, ThreefoldLogin } from '@threefoldjimber/threefold_login';
+
     const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
     const canCreateFarms: boolean = isDev || <boolean>flagsmith.hasFeature('can_create_farms_for_farmer');
@@ -153,6 +160,31 @@
     const router = useRouter();
     const addressesIsLoading = ref(true);
     const addresses = ref<string[]>([]);
+
+    const threeFoldAPIHost = 'https://login.threefold.me';
+    const appId = 'localhost:3000';
+    const seedPhrase =
+        'upgrade math cigar submit resist grape peace better chaos jewel scrap surround bench public jazz evidence gas media slender venture harsh equal bulk gap';
+    const redirectUrl = 'callback';
+
+    let state: Ref<string> = useLocalStorage('state', '');
+
+    let username: Ref<string> = useLocalStorage('username', '');
+    let derivedSeed: Ref<string> = useLocalStorage('derivedSeed', '');
+
+    const test = async () => {
+        const login = new ThreefoldLogin(threeFoldAPIHost, appId, seedPhrase, redirectUrl, '');
+        await login.init();
+
+        console.log(login.seedPhrase);
+        state.value = generateRandomString();
+
+        const extraParams = {
+            scope: JSON.stringify({ derivedSeed: true }),
+        };
+
+        return login.generateLoginUrl(state.value, extraParams);
+    };
 
     const newCreatedFarms = ref(<Farm[]>[]);
 

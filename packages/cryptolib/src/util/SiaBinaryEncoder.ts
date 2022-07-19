@@ -12,10 +12,11 @@ const bytesFromInt = (num: any, order: 'little' | 'big' = 'little') => {
         (num & 0xff00000000000000) >> 56,
     ];
 
-    if (order == 'big') {
+    if (order != 'big') {
+        return new Uint8Array(buf);
+    } else {
         return new Uint8Array(buf.reverse());
     }
-    return new Uint8Array(buf);
 };
 
 const concat = (a: Uint8Array, b: Uint8Array) => {

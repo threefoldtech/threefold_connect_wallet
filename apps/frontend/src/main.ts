@@ -34,6 +34,7 @@ import TransferModule from '@/modules/Transfer';
 import VestingModule from '@/modules/Vesting';
 import WalletModule from '@/modules/Wallet';
 import CoreModule from '@/modules/Core';
+import { getNodeStatus } from '@/modules/Farm/services/nodeService';
 
 const init = async () => {
     await sodium.ready;

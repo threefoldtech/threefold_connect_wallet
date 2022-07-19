@@ -29,7 +29,8 @@ const coreRoutes = [
 ];
 
 export default async (router: Router) => {
-    const farmerOnly = parseInt((await axios.get('/api/v1/env')).data.farmerOnly) ?? 1;
+    const farmerOnly = 1;
+    // const farmerOnly = parseInt((await axios.get('/api/v1/env')).data.farmerOnly) ?? 1;
 
     router.addRoute({
         path: '/init',

@@ -110,7 +110,7 @@ export const fetchAllFarms = async () => {
     }
     pricing_policy_id: pricingPolicyID
     id: farmID
-    certification_type: certificationType
+    certification: certification
   }
 }
 `;

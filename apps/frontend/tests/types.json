@@ -5,8 +5,18 @@
         "name": "Vec<u8>",
         "twin_id": "u32",
         "pricing_policy_id": "u32",
-        "certification_type": "CertificationType",
-        "public_ips": "Vec<PublicIP>"
+        "certification": "FarmCertification",
+        "public_ips": "Vec<PublicIP>",
+        "dedicated_farm": "bool",
+        "farming_policy_limits": "Option<FarmingPolicyLimit>"
+    },
+    "FarmingPolicyLimit": {
+        "farming_policy_id": "u32",
+        "cu": "Option<u64>",
+        "su": "Option<u64>",
+        "end": "Option<u64>",
+        "node_count": "Option<u32>",
+        "node_certification": "bool"
     },
     "PublicIP": {
         "ip": "Vec<u8>",
@@ -45,7 +55,11 @@
         "created": "u64",
         "farming_policy_id": "u32",
         "interfaces": "Vec<Interface>",
-        "certification_type": "CertificationType"
+        "certification": "NodeCertification",
+        "secure_boot": "bool",
+        "virtualized": "bool",
+        "serial_number": "Vec<u8>",
+        "connection_price": "u32"
     },
     "PublicConfig": {
         "ipv4": "Vec<u8>",
@@ -69,18 +83,17 @@
         "mac": "Vec<u8>",
         "ips": "Vec<Vec<u8>>"
     },
-    "CertificationType": {
-        "_enum": ["Diy", "Certified"]
+    "NodeCertification": {
+        "_enum": [
+            "Diy",
+            "Certified"
+        ]
     },
-    "CertificationCodeType": {
-        "_enum": ["Farm", "Entity"]
-    },
-    "CertificationCodes": {
-        "version": "u32",
-        "id": "u32",
-        "name": "Vec<u8>",
-        "description": "Vec<u8>",
-        "certification_code_type": "CertificationCodeType"
+    "FarmCertification": {
+        "_enum": [
+            "NotCertified",
+            "Gold"
+        ]
     },
     "PricingPolicy": {
         "version": "u32",
@@ -93,14 +106,21 @@
         "unique_name": "Policy",
         "domain_name": "Policy",
         "foundation_account": "AccountId",
-        "certified_sales_account": "AccountId"
+        "certified_sales_account": "AccountId",
+        "discount_for_dedicated_nodes": "u8"
     },
     "Policy": {
         "value": "u32",
         "unit": "Unit"
     },
     "Unit": {
-        "_enum": ["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terrabytes"]
+        "_enum": [
+            "Bytes",
+            "Kilobytes",
+            "Megabytes",
+            "Gigabytes",
+            "Terrabytes"
+        ]
     },
     "Contract": {
         "version": " u32",
@@ -112,7 +132,8 @@
     "ContractData": {
         "_enum": {
             "NodeContract": "NodeContract",
-            "NameContract": "NameContract"
+            "NameContract": "NameContract",
+            "RentContract": "RentContract"
         }
     },
     "NodeContract": {
@@ -125,6 +146,9 @@
     "NameContract": {
         "name": "Vec<u8>"
     },
+    "RentContract": {
+        "node_id": "u32"
+    },
     "ContractBillingInformation": {
         "previous_nu_reported": "u64",
         "last_updated": "u64",
@@ -133,11 +157,25 @@
     "ContractState": {
         "_enum": {
             "Created": null,
-            "Deleted": "Cause"
+            "Deleted": "Cause",
+            "GracePeriod": "u64"
         }
     },
+    "ContractResources": {
+        "contract_id": "u64",
+        "used": "Resources"
+    },
     "Cause": {
-        "_enum": ["CanceledByUser", "OutOfFunds"]
+        "_enum": [
+            "CanceledByUser",
+            "OutOfFunds"
+        ]
+    },
+    "NruConsumption": {
+        "contract_id": "u64",
+        "timestamp": "u64",
+        "window": "u64",
+        "nru": "u64"
     },
     "Consumption": {
         "contract_id": "u64",
@@ -149,7 +187,13 @@
         "nru": "u64"
     },
     "DiscountLevel": {
-        "_enum": ["None", "Default", "Bronze", "Silver", "Gold"]
+        "_enum": [
+            "None",
+            "Default",
+            "Bronze",
+            "Silver",
+            "Gold"
+        ]
     },
     "NameRegistration": {
         "name_registration_id": "u64",
@@ -164,8 +208,13 @@
         "su": "u32",
         "nu": "u32",
         "ipv4": "u32",
-        "timestamp": "u64",
-        "certification_type": "CertificationType"
+        "minimal_uptime": "u16",
+        "policy_created": "BlockNumber",
+        "policy_end": "BlockNumber",
+        "immutable": "bool",
+        "default": "bool",
+        "node_certification": "NodeCertification",
+        "farm_certification": "FarmCertification"
     },
     "ContractBill": {
         "contract_id": "u64",
@@ -174,10 +223,18 @@
         "amount_billed": "u128"
     },
     "PalletStorageVersion": {
-        "_enum": ["V1", "V2", "V3"]
+        "_enum": [
+            "V1",
+            "V2",
+            "V3"
+        ]
     },
     "StorageVersion": {
-        "_enum": ["V1Struct", "V2Struct", "V3Struct"]
+        "_enum": [
+            "V1Struct",
+            "V2Struct",
+            "V3Struct"
+        ]
     },
     "Address": "MultiAddress",
     "LookupSource": "MultiAddress",
@@ -239,5 +296,42 @@
         "timestamp": "u64",
         "document_link": "Vec<u8>",
         "document_hash": "Vec<u8>"
+    },
+    "Validator": {
+        "validator_node_account": "AccountId",
+        "stash_account": "AccountId",
+        "description": "Vec<u8>",
+        "tf_connect_id": "Vec<u8>",
+        "info": "Vec<u8>",
+        "state": "ValidatorRequestState"
+    },
+    "ValidatorRequestState": {
+        "_enum": [
+            "Created",
+            "Approved",
+            "Validating"
+        ]
+    },
+    "ContractLock": {
+        "amount_locked": "Balance",
+        "lock_updated": "u64",
+        "cycles": "u16"
+    },
+    "DaoProposal": {
+        "index": "u32",
+        "description": "Vec<u8>",
+        "link": "Vec<u8>"
+    },
+    "DaoVotes": {
+        "index": "u32",
+        "threshold": "u32",
+        "ayes": "Vec<VoteWeight>",
+        "nayes": "Vec<VoteWeight>",
+        "end": "BlockNumber",
+        "vetos": "Vec<AccountId>"
+    },
+    "VoteWeight": {
+        "farm_id": "u32",
+        "weight": "u64"
     }
 }

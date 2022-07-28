@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { useRoute, useRouter } from 'vue-router';
+    import { useRoute } from 'vue-router';
     import {
         Balance,
         balances,
@@ -79,17 +79,15 @@
         handleOperationRecordPage,
         operations,
         Wallet,
-        wallets,
     } from '@/modules/Wallet/services/walletService';
     import { computed, ComputedRef, inject, ref } from 'vue';
-    import { Listbox, ListboxLabel, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue';
+    import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
     import { CheckIcon, SelectorIcon } from '@heroicons/vue/outline';
     import flagsmith from 'flagsmith';
     import Operation from '@/modules/Transfer/components/Operation.vue';
     import { ServerApi } from 'stellar-sdk';
     import { NetworkError } from 'stellar-sdk/lib/errors';
 
-    const router = useRouter();
     const route = useRoute();
 
     const wallet: Wallet = <Wallet>inject('wallet');

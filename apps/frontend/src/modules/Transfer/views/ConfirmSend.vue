@@ -63,7 +63,7 @@
 
                     <hr />
                     <hr />
-                    <p class="mt-2 text-sm font-semibold">Message</p>
+                    <p class="mt-2 text-sm font-semibold">Memo</p>
                     <p class="mb-2 truncate text-gray-500">
                         {{ transactionMessage }}
                     </p>

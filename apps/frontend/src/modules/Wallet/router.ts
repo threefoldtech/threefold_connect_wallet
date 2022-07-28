@@ -3,6 +3,7 @@ import WalletImport from '@/modules/Wallet/views/WalletImport.vue';
 import WalletShell from '@/modules/Wallet/views/wallet/WalletShell.vue';
 import Overview from '@/modules/Wallet/views/wallet/Overview.vue';
 import Transactions from '@/modules/Wallet/views/wallet/Transactions.vue';
+import OperationDetails from '@/modules/Transfer/components/OperationDetails.vue';
 import Info from '@/modules/Wallet/views/wallet/Info.vue';
 import Vesting from '@/modules/Wallet/views/wallet/Vesting.vue';
 import { RenderFunction } from 'vue';
@@ -42,6 +43,11 @@ export const walletRoutes = [
                 meta: {
                     activeNav: 'walletTransactions',
                 },
+            },
+            {
+                path: 'transactions/details',
+                name: 'transactionDetails',
+                component: OperationDetails,
             },
             {
                 path: 'info',

@@ -87,10 +87,11 @@
         :walletName="wallet.name"
     ></DeleteWalletDialog>
 
-    <div class="hidden p-4" v-if="wallet.meta.type === PkidWalletTypes.Native">
-        <div class="mt-2 flex">
+    {{ wallet.keyPair.basePublicKey }}
+    <div class="px-4 pt-4 font-bold text-black">Danger zone</div>
+    <div class="p-4">
+        <div class="mt-2 w-full">
             <button
-                :disabled="wallet.meta.type === PkidWalletTypes.Native"
                 class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-500 focus:disabled:ring-0"
                 type="button"
                 @click="showDeleteWalletDialog = true"
@@ -103,7 +104,12 @@
 </template>
 
 <script lang="ts" setup>
-    import { addOrUpdateWallet, saveWallets, Wallet } from '@/modules/Wallet/services/walletService';
+    import {
+        addOrUpdateWallet,
+        deleteWalletFromPkid,
+        saveWallets,
+        Wallet,
+    } from '@/modules/Wallet/services/walletService';
     import { computed, inject, ref, watch } from 'vue';
     import { getSubstrateApi } from '@/modules/TFChain/services/tfchainService';
     import { TrashIcon, PencilIcon, ClipboardCopyIcon, XIcon } from '@heroicons/vue/solid';
@@ -158,9 +164,10 @@
         );
     };
 
-    const deleteWallet = () => {
+    const deleteWallet = async () => {
         showDeleteWalletDialog.value = false;
         addNotification(NotificationType.info, translate(`notification.notPossible`), undefined, 2000);
+        await deleteWalletFromPkid();
     };
 </script>
 

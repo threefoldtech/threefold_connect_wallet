@@ -12,6 +12,7 @@ import BalanceLineAsset = Horizon.BalanceLineAsset;
 import OperationRecord = ServerApi.OperationRecord;
 import BalanceLine = Horizon.BalanceLine;
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
+import { appKeyPair } from '@/modules/Core/services/cryptoService';
 
 export interface Wallet {
     name: string;
@@ -203,4 +204,20 @@ export const sendWalletDataToFlutter = () => {
 
         resolve(true);
     });
+};
+
+export const deleteWalletFromPkid = async () => {
+    const pKid = getPkidClient();
+
+    const docs = await pKid.getDoc(appKeyPair.value.publicKey, 'purse');
+
+    const success = docs?.success;
+    if (!success) {
+        console.log('No success from PKID');
+    }
+
+    const pkidData = docs?.data;
+    if (!pkidData) {
+        console.log('No success from PKID');
+    }
 };

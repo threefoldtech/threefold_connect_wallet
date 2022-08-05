@@ -78,7 +78,6 @@ const getLockedTokenRecordDetails = async (b: TokenRecord): Promise<TokenItem | 
     }
 
     const isValidMoment = isBefore(toNumber(unlockTx?.timeBounds?.minTime));
-
     const balance = b.balance as Horizon.BalanceLineAsset<'credit_alphanum4'>;
 
     return {
@@ -102,7 +101,7 @@ export const unlockTokens = async (lockedBalances: TokenItem[], kp: StellarKeypa
         if (lockedBalance.unlockHash) {
             const lBalance = await submitLockedTokenTxHash(lockedBalance);
 
-            if (lBalance == null) return;
+            if (lBalance == null) continue;
 
             lockedBalance = lBalance;
         }
@@ -114,7 +113,6 @@ export const unlockTokens = async (lockedBalances: TokenItem[], kp: StellarKeypa
                 lockedBalance.asset_code,
                 Number(lockedBalance.amount)
             );
-            return;
         }
     }
 };

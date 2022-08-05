@@ -99,20 +99,28 @@ export const unlockTokens = async (lockedBalances: TokenItem[], kp: StellarKeypa
 
     for (let lockedBalance of lockedBalances) {
         if (lockedBalance.unlockHash) {
-            const lBalance = await submitLockedTokenTxHash(lockedBalance);
+            try {
+                const lBalance = await submitLockedTokenTxHash(lockedBalance);
 
-            if (lBalance == null) continue;
+                if (lBalance == null) continue;
 
-            lockedBalance = lBalance;
+                lockedBalance = lBalance;
+            } catch (e) {
+                continue;
+            }
         }
 
         if (!lockedBalance.unlockHash) {
-            await transferLockedBalance(
-                kp,
-                lockedBalance.address,
-                lockedBalance.asset_code,
-                Number(lockedBalance.amount)
-            );
+            try {
+                await transferLockedBalance(
+                    kp,
+                    lockedBalance.address,
+                    lockedBalance.asset_code,
+                    Number(lockedBalance.amount)
+                );
+            } catch (e) {
+                continue;
+            }
         }
     }
 };

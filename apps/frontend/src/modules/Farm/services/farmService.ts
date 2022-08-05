@@ -22,7 +22,7 @@ export const v3Farms = ref(<Farm[]>[]);
 export const allStellarPayoutAddresses = ref<StellarPayoutResponse[]>([]);
 export const v3SpecialFarms = ref<any>([]);
 export const v3PortalFarms = ref<any>([]);
-export const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
+// export const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
 const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
     const api = await getSubstrateApi();

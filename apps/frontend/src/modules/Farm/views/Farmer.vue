@@ -1,5 +1,5 @@
 <template>
-    <landing-farm-information-dialog v-if="showInformationDialog"></landing-farm-information-dialog>
+    <!--    <landing-farm-information-dialog v-if="showInformationDialog"></landing-farm-information-dialog>-->
     <MainLayout>
         <template #header>
             <PageHeader>
@@ -61,6 +61,7 @@
                         <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
                             Create farm on grid v3
                         </h1>
+                        wallet-frontend:dev: 22 ms -> 208 ms -> 0 ms -> 0 ms
                         <div class="mt-6">
                             <a
                                 href="#"
@@ -130,7 +131,7 @@
 
     import { useLocalStorage } from '@vueuse/core';
     import { isDev } from '@/modules/Core/utils/enviroment';
-    const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
+    // const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
     const canCreateFarms: boolean = isDev || <boolean>flagsmith.hasFeature('can_create_farms_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);

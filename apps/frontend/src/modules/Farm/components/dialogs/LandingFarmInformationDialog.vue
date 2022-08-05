@@ -67,12 +67,12 @@
     import { ref } from 'vue';
     import { TransitionRoot, TransitionChild, Dialog, DialogOverlay, DialogTitle } from '@headlessui/vue';
     import { XIcon } from '@heroicons/vue/solid';
-    import { showInformationDialog } from '@/modules/Farm/services/farmService';
+    // import { showInformationDialog } from '@/modules/Farm/services/farmService';
 
     const isOpen = ref<boolean>(true);
 
     const acceptDialog = () => {
         isOpen.value = false;
-        showInformationDialog.value = false;
+        // showInformationDialog.value = false;
     };
 </script>

@@ -9,7 +9,7 @@ import { cryptoWaitReady } from '@polkadot/util-crypto';
 import flagsmith from 'flagsmith';
 import sodium from 'libsodium-wrappers';
 import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from 'cryptolib';
-import { saveWallets, sendWalletDataToFlutter, wallets } from '@/modules/Wallet/services/walletService';
+import { mapToWallet, saveWallets, sendWalletDataToFlutter, wallets } from '@/modules/Wallet/services/walletService';
 import { getPkidClient, PkidWallet } from '@/modules/Core/services/pkidService';
 import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/modules/Core/services/cryptoService';
@@ -186,32 +186,12 @@ export const init = async (name: string, seedString: string) => {
     const pkidPurseWallets: PkidWallet[] = purseDoc.data;
 
     console.table(pkidPurseWallets.map(wallet => ({ ...wallet, seed: '*********************' })));
-    wallets.value = pkidPurseWallets.map(wallet => {
-        const walletKeyPairBuilder = new WalletKeyPairBuilder();
 
-        if (wallet.seed.split(' ').length === 12) {
-            walletKeyPairBuilder.add12WordsSeed(wallet.seed);
-        }
-
-        if (wallet.seed.length === 64) {
-            walletKeyPairBuilder.addSeed(wallet.seed);
-        }
-
-        const walletKeyPair = walletKeyPairBuilder.build();
-
-        if (!walletKeyPair) {
-            throw new Error('Critical Initialization error: no walletKeyPair');
-        }
-        return {
-            keyPair: walletKeyPair,
-            name: wallet.name,
-            meta: {
-                index: wallet.index,
-                type: wallet.type,
-                position: wallet.position,
-            },
-        };
-    });
+    try {
+        wallets.value = mapToWallet(pkidPurseWallets);
+    } catch (e) {
+        throw Error('Something went wrong mapping your wallets to the desired format. Please contact support');
+    }
 
     userInitialized.value = name.slice(0, -5);
 

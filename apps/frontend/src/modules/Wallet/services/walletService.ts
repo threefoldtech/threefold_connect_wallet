@@ -3,16 +3,15 @@ import { Horizon, ServerApi } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
 import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
 import { useLocalStorage } from '@vueuse/core';
-import { IWalletKeyPair } from '@/modules/Core/models/WalletKeyPair';
-import { bytesToHex } from '@/modules/Core/utils/crypto';
+import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/WalletKeyPair';
 import { getPkidClient, PkidWallet } from '@/modules/Core/services/pkidService';
+import { getStellarClient } from '@/modules/Stellar/services/stellarService';
+import { appKeyPair } from '@/modules/Core/services/cryptoService';
 import AccountRecord = ServerApi.AccountRecord;
 import CollectionPage = ServerApi.CollectionPage;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
 import OperationRecord = ServerApi.OperationRecord;
 import BalanceLine = Horizon.BalanceLine;
-import { getStellarClient } from '@/modules/Stellar/services/stellarService';
-import { appKeyPair } from '@/modules/Core/services/cryptoService';
 
 export interface Wallet {
     name: string;
@@ -206,18 +205,77 @@ export const sendWalletDataToFlutter = () => {
     });
 };
 
-export const deleteWalletFromPkid = async () => {
+export const deleteWalletFromPkid = async (seed: string): Promise<boolean> => {
     const pKid = getPkidClient();
 
     const docs = await pKid.getDoc(appKeyPair.value.publicKey, 'purse');
 
     const success = docs?.success;
     if (!success) {
-        console.log('No success from PKID');
+        console.error('No success from PKID');
+        return false;
     }
 
-    const pkidData = docs?.data;
+    const pkidData: PkidWallet[] = docs?.data;
     if (!pkidData) {
-        console.log('No success from PKID');
+        console.error('No success from PKID');
+        return false;
     }
+
+    const remainingWallets = pkidData.filter((wallet: PkidWallet) => wallet.seed != seed);
+    if (!remainingWallets) {
+        console.error('Cant delete wallet - cannot find corresponding seed');
+        return false;
+    }
+
+    if (pkidData.length === remainingWallets.length) {
+        console.error('Edge case: array should be popped');
+        return false;
+    }
+
+    const pkid = getPkidClient();
+    const res = await pkid.setDoc('purse', remainingWallets, true);
+
+    if (res.status != 200) {
+        console.error('Error when saving to PKID');
+        return false;
+    }
+
+    try {
+        wallets.value = mapToWallet(remainingWallets);
+    } catch (e) {
+        console.error('Error in mapping wallets');
+        return false;
+    }
+
+    return true;
+};
+
+export const mapToWallet = (wallets: PkidWallet[]): Wallet[] => {
+    return wallets.map((wallet: PkidWallet) => {
+        const walletKeyPairBuilder = new WalletKeyPairBuilder();
+
+        if (wallet.seed.split(' ').length === 12) {
+            walletKeyPairBuilder.add12WordsSeed(wallet.seed);
+        }
+
+        if (wallet.seed.length === 64) {
+            walletKeyPairBuilder.addSeed(wallet.seed);
+        }
+
+        const walletKeyPair = walletKeyPairBuilder.build();
+
+        if (!walletKeyPair) {
+            throw new Error('Critical Initialization error: no walletKeyPair');
+        }
+        return {
+            keyPair: walletKeyPair,
+            name: wallet.name,
+            meta: {
+                index: wallet.index,
+                type: wallet.type,
+                position: wallet.position,
+            },
+        };
+    });
 };

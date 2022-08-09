@@ -15,7 +15,7 @@
     import { useCounter } from '@vueuse/core';
     import { watch } from 'vue';
     import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
-    import { userInitialized } from '@/modules/Core/services/cryptoService';
+    import { userInitialized } from '@/modules/Core/services/crypto.service';
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();

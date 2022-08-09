@@ -1,5 +1,6 @@
 export enum ChainTypes {
-    'STELLAR' = 'stellar',
-    'SUBSTRATE' = 'substrate',
+    'STELLAR' = 'STELLAR',
+    'SUBSTRATE' = 'SUBSTRATE',
+    'ALGORAND' = 'ALGORAND',
     'UNKNOWN' = 'unknown',
 }

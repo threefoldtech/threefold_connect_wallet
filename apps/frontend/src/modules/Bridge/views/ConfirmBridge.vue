@@ -126,7 +126,7 @@
         getSubstrateApi,
         submitExtrensic,
     } from '@/modules/TFChain/services/tfchainService';
-    import { userInitialized } from '@/modules/Core/services/cryptoService';
+    import { userInitialized } from '@/modules/Core/services/crypto.service';
     import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/modules/TFChain/services/entityService';
     import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
     import { toNumber } from 'lodash';

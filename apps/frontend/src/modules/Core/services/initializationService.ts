@@ -1,33 +1,27 @@
-import { initFlags } from './flagService';
-import { ref } from 'vue';
-import { decodeBase64 } from 'tweetnacl-util';
-// @ts-ignore
-import { entropyToMnemonic } from '@jimber/simple-bip39';
-// @ts-ignore
-import Pkid from '@jimber/pkid';
-import { cryptoWaitReady } from '@polkadot/util-crypto';
 import flagsmith from 'flagsmith';
 import sodium from 'libsodium-wrappers';
+
+import { initializeFlagsmith } from './flagsmith.service';
+import { ref } from 'vue';
+import { decodeBase64 } from 'tweetnacl-util';
+import { entropyToMnemonic } from '@jimber/simple-bip39';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from 'cryptolib';
 import { mapToWallet, saveWallets, sendWalletDataToFlutter, wallets } from '@/modules/Wallet/services/walletService';
 import { getPkidClient, PkidWallet } from '@/modules/Core/services/pkidService';
 import { Keypair } from 'stellar-sdk';
-import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/modules/Core/services/cryptoService';
+import { appKeyPair, appSeed, appSeedPhrase, userInitialized } from '@/modules/Core/services/crypto.service';
 import { bytesToHex } from '@/modules/Core/utils/crypto';
-import { WalletKeyPairBuilder } from '@/modules/Core/models/WalletKeyPair';
+import { WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
 import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
+import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
 
 type LoadingText = {
     title: string;
     subtitle?: string;
 };
 export const loadingText = ref<LoadingText>({ title: 'loading' });
-
-export enum PkidWalletTypes {
-    Native = 'NATIVE',
-    Imported = 'IMPORTED',
-}
 
 interface PkidV2AppWallet {
     index: number;
@@ -58,7 +52,7 @@ export const initFirstWallet = async () => {
         name: 'Daily',
         position: 0,
         seed: bytesToHex(keyPair.rawSecretKey()),
-        type: PkidWalletTypes.Native,
+        type: PkidWalletTypes.NATIVE,
     };
 
     const walletKeyPairBuilder = new WalletKeyPairBuilder();
@@ -145,7 +139,7 @@ export const init = async (name: string, seedString: string) => {
         console.error('should not be here twice');
         return;
     }
-    await initFlags(name);
+    await initializeFlagsmith(name);
 
     // https://polkadot.js.org/docs/util-crypto/FAQ/#i-am-having-trouble-initializing-the-wasm-interface
     await cryptoWaitReady();
@@ -156,7 +150,7 @@ export const init = async (name: string, seedString: string) => {
     const pkid = getPkidClient();
 
     const alwaysMigratePkid = flagsmith.hasFeature('always-migrate-pkid');
-    const purseDocToCheckMigration = await pkid.getDoc(appKeyPair.value.publicKey, 'purse');
+    const purseDocToCheckMigration = await pkid.getDoc(appKeyPair.value.publicKey, PkidNamedKeys.V3_PURSE);
     // checking not only if the purse is empty, but also if it is a valid purse see actions.vue
     if (alwaysMigratePkid || !purseDocToCheckMigration?.success || !purseDocToCheckMigration?.data) {
         loadingText.value = { title: 'startUpdating' };
@@ -165,17 +159,17 @@ export const init = async (name: string, seedString: string) => {
 
     const purseDocToCheckFirstWalletInit =
         !purseDocToCheckMigration?.success || !purseDocToCheckMigration?.data
-            ? await pkid.getDoc(appKeyPair.value.publicKey, 'purse')
+            ? await pkid.getDoc(appKeyPair.value.publicKey, PkidNamedKeys.V3_PURSE)
             : purseDocToCheckMigration;
 
     if (!purseDocToCheckFirstWalletInit?.success) {
         console.info('first wallet init');
         loadingText.value = { title: 'noDataYet', subtitle: 'isThisFirstTime' };
-        await pkid.setDoc('purse', [], true);
+        await pkid.setDoc(PkidNamedKeys.V3_PURSE, [], true);
     }
 
     const purseDoc = !purseDocToCheckFirstWalletInit?.success
-        ? await pkid.getDoc(appKeyPair.value.publicKey, 'purse')
+        ? await pkid.getDoc(appKeyPair.value.publicKey, PkidNamedKeys.V3_PURSE)
         : purseDocToCheckFirstWalletInit;
 
     if (!purseDoc?.success) {
@@ -231,7 +225,7 @@ const mapV2toV3PkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet): Pk
         name: wallet.walletName,
         position: wallet.position,
         seed: bytesToHex(walletKeypair.rawSecretKey()),
-        type: isImported ? PkidWalletTypes.Imported : PkidWalletTypes.Native,
+        type: isImported ? PkidWalletTypes.IMPORTED : PkidWalletTypes.NATIVE,
     };
 };
 
@@ -240,7 +234,7 @@ const migratePkid2_xTo3_x = async () => {
 
     const walletsToMigrate: PkidWallet[] = [];
 
-    const pkidAppWalletsDoc = await pkid.getDoc(appKeyPair.value.publicKey, 'wallets');
+    const pkidAppWalletsDoc = await pkid.getDoc(appKeyPair.value.publicKey, PkidNamedKeys.V2_WALLETS);
 
     if (pkidAppWalletsDoc?.success) {
         const pkid2_xAppWallets: PkidV2AppWallet[] = pkidAppWalletsDoc.data;
@@ -249,7 +243,7 @@ const migratePkid2_xTo3_x = async () => {
         walletsToMigrate.push(...pkid2_xAppWalletsToMigrate);
     }
 
-    const pkidImportedWalletsDoc = await pkid.getDoc(appKeyPair.value.publicKey, 'imported_accounts');
+    const pkidImportedWalletsDoc = await pkid.getDoc(appKeyPair.value.publicKey, PkidNamedKeys.V2_IMPORTED_ACCOUNTS);
     if (pkidImportedWalletsDoc?.success) {
         const pkid2_xImportedWallets: PkidV2ImportedWallet[] = pkidImportedWalletsDoc.data;
 
@@ -262,5 +256,5 @@ const migratePkid2_xTo3_x = async () => {
         return;
     }
 
-    await pkid.setDoc('purse', walletsToMigrate, true);
+    await pkid.setDoc(PkidNamedKeys.V3_PURSE, walletsToMigrate, true);
 };

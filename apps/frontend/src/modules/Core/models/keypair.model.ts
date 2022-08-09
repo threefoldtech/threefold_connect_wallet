@@ -1,7 +1,7 @@
 import { Keypair, Keypair as StellarKeypair } from 'stellar-sdk';
 import { bytesToHex, hexToBytes } from '@/modules/Core/utils/crypto';
 import { Keyring } from '@polkadot/api';
-import { KeyringPair } from '@polkadot/keyring/types'; // do not simplify => else libsodium.crypto_sign_seed_keypair will no longer work(probbaly some treeshaking issue)
+import { KeyringPair } from '@polkadot/keyring/types';
 import libsodium, { KeyPair as SodiumKeyPair } from 'libsodium-wrappers';
 import { mnemonicToEntropy } from '@jimber/simple-bip39';
 

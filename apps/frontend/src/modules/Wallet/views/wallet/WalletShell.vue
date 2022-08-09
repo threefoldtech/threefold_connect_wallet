@@ -3,7 +3,7 @@
         <template #header>
             <PageHeader>
                 <template #before>
-                    <div class="-mt-1 -ml-1 p-1 rounded-xl relative" v-touch:hold="enableHint">
+                    <div class="relative -mt-1 -ml-1 rounded-xl p-1" v-touch:hold="enableHint">
                         <svg
                             @click="
                                 showWalletListHint = false;
@@ -28,7 +28,7 @@
                                 :class="{
                                     hidden: !showWalletListHint,
                                 }"
-                                class="inline-flex items-center rounded-full rounded-tl-none bg-blue-100 px-3 w-max py-1 text-xs font-medium text-blue-800"
+                                class="inline-flex w-max items-center rounded-full rounded-tl-none bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800"
                             >
                                 {{ $t('wallet.shell.hint') }}
                             </span>
@@ -55,7 +55,7 @@
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import BottomNav from '@/modules/Misc/components/nav/BottomNav.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
-    import { userInitialized } from '@/modules/Core/services/cryptoService';
+    import { userInitialized } from '@/modules/Core/services/crypto.service';
     import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
     import { useLocalStorage } from '@vueuse/core';
 

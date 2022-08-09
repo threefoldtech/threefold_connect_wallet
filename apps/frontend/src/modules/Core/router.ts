@@ -2,7 +2,7 @@ import Init from '@/modules/Core/views/Init.vue';
 import PathNotFound from '@/modules/Core/views/PathNotFound.vue';
 import { Router } from 'vue-router';
 import FarmerInit from '@/modules/Farm/views/FarmerInit.vue';
-import { userInitialized } from '@/modules/Core/services/cryptoService';
+import { userInitialized } from '@/modules/Core/services/crypto.service';
 import axios from 'axios';
 
 const coreRoutes = [

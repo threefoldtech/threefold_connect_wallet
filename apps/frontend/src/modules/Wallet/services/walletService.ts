@@ -1,17 +1,17 @@
 import { Ref, ref } from 'vue';
 import { Horizon, ServerApi } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
-import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
 import { useLocalStorage } from '@vueuse/core';
-import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/WalletKeyPair';
+import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
 import { getPkidClient, PkidWallet } from '@/modules/Core/services/pkidService';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
-import { appKeyPair } from '@/modules/Core/services/cryptoService';
+import { appKeyPair } from '@/modules/Core/services/crypto.service';
 import AccountRecord = ServerApi.AccountRecord;
 import CollectionPage = ServerApi.CollectionPage;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
 import OperationRecord = ServerApi.OperationRecord;
 import BalanceLine = Horizon.BalanceLine;
+import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
 
 export interface Wallet {
     name: string;
@@ -173,7 +173,7 @@ export const saveWallets = async () => {
     );
 
     const pkid = getPkidClient();
-    await pkid.setDoc('purse', pkidWallets, true);
+    await pkid.setDoc(PkidNamedKeys.V3_PURSE, pkidWallets, true);
 };
 export const addOrUpdateWallet = (wallet: Wallet) => {
     const index = wallets.value.findIndex(w => w.keyPair.getBasePublicKey() === wallet.keyPair.getBasePublicKey());
@@ -208,7 +208,7 @@ export const sendWalletDataToFlutter = () => {
 export const deleteWalletFromPkid = async (seed: string): Promise<boolean> => {
     const pKid = getPkidClient();
 
-    const docs = await pKid.getDoc(appKeyPair.value.publicKey, 'purse');
+    const docs = await pKid.getDoc(appKeyPair.value.publicKey, PkidNamedKeys.V3_PURSE);
 
     const success = docs?.success;
     if (!success) {
@@ -234,7 +234,7 @@ export const deleteWalletFromPkid = async (seed: string): Promise<boolean> => {
     }
 
     const pkid = getPkidClient();
-    const res = await pkid.setDoc('purse', remainingWallets, true);
+    const res = await pkid.setDoc(PkidNamedKeys.V3_PURSE, remainingWallets, true);
 
     if (res.status != 200) {
         console.error('Error when saving to PKID');

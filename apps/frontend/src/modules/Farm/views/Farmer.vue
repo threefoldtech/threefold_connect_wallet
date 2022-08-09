@@ -117,8 +117,7 @@
 
     import { PlusCircleIcon } from '@heroicons/vue/outline';
     import { nanoid } from 'nanoid';
-    import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
-    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/WalletKeyPair';
+    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import flagsmith from 'flagsmith';
     import { computed, onBeforeUnmount, ref } from 'vue';
     import axios from 'axios';
@@ -131,6 +130,7 @@
 
     import { useLocalStorage } from '@vueuse/core';
     import { isDev } from '@/modules/Core/utils/enviroment';
+    import { PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
     // const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
     const canCreateFarms: boolean = isDev || <boolean>flagsmith.hasFeature('can_create_farms_for_farmer');
@@ -145,7 +145,7 @@
         console.log(walletKeyPair.getStellarKeyPair().publicKey());
         wallets.value.push({
             keyPair: walletKeyPair,
-            meta: { type: PkidWalletTypes.Imported },
+            meta: { type: PkidWalletTypes.IMPORTED },
             name: nanoid(),
         });
         await saveWallets();

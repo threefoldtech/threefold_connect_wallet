@@ -1,9 +1,10 @@
 import { ContactType, ContactFormValidation, ContactValidation } from '@/modules/Contact/types/contact.types';
 import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
 import { getPkidClient } from '@/modules/Core/services/pkidService';
-import { appKeyPair } from '@/modules/Core/services/cryptoService';
+import { appKeyPair } from '@/modules/Core/services/crypto.service';
 import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
 import { validateWalletAddress } from '@/modules/Wallet/validate/wallet.validate';
+import { PkidNamedKeys } from '@/modules/Pkid/enums/pkid.enums';
 
 export const isContactInMyContacts = (address: string, chain: string): boolean => {
     const myContacts: ContactType[] = wallets.value.map((wallet: Wallet) => {
@@ -23,7 +24,7 @@ export const isContactInMyContacts = (address: string, chain: string): boolean =
 
 export const isContactInPkid = async (address: string): Promise<boolean> => {
     const pkidClient = getPkidClient();
-    const contacts = await pkidClient.getDoc(appKeyPair.value.publicKey, 'contacts');
+    const contacts = await pkidClient.getDoc(appKeyPair.value.publicKey, PkidNamedKeys.V3_CONTACTS);
 
     if (!contacts.success) {
         return false;

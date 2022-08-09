@@ -28,8 +28,7 @@
 
 <script lang="ts" setup>
     import { balances, saveWallets, Wallet, wallets } from '@/modules/Wallet/services/walletService';
-    import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
-    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/WalletKeyPair';
+    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { bytesToHex, hexToBytes } from '@/modules/Core/utils/crypto';
     import { Keypair } from 'stellar-sdk';
     import { getPkidClient } from '@/modules/Core/services/pkidService';
@@ -47,6 +46,7 @@
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
     import CTA from '@/modules/Misc/components/global/CTA.vue';
     import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
+    import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
@@ -56,7 +56,7 @@
 
         const wallet: Wallet = {
             keyPair: <IWalletKeyPair>walletKeyPairBuilder.build(),
-            meta: { type: PkidWalletTypes.Native },
+            meta: { type: PkidWalletTypes.NATIVE },
             name: `testWallet-${nanoid()}`,
         };
         wallets.value.push(wallet);
@@ -64,13 +64,13 @@
     };
     const clearPkidPurse = async () => {
         const pkid = getPkidClient();
-        await pkid.setDoc('purse', false, true);
+        await pkid.setDoc(PkidNamedKeys.V3_PURSE, false, true);
         window.location.assign('/');
     };
 
     const clearContacts = async () => {
         const pkid = getPkidClient();
-        await pkid.setDoc('contacts', [], true);
+        await pkid.setDoc(PkidNamedKeys.V3_CONTACTS, [], true);
         addNotification(NotificationType.info, 'Cleared contacts');
     };
 

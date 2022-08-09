@@ -85,15 +85,14 @@
     import { useRouter } from 'vue-router';
     import { Keypair } from 'stellar-sdk';
     import { saveWallets, Wallet, wallets } from '@/modules/Wallet/services/walletService';
-    import { getPkidClient, PkidWallet } from '@/modules/Core/services/pkidService';
-    import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
     import { bytesToHex } from '@/modules/Core/utils/crypto';
-    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/WalletKeyPair';
+    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { getEntropyFromPhrase } from 'mnemonicconversion2924';
     import { entropyToMnemonic, mnemonicToEntropy } from '@jimber/simple-bip39';
     import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
     import { calculateWalletEntropyFromAccount } from 'cryptolib';
     import { validateWalletName } from '@/modules/Wallet/validate/wallet.validate';
+    import { PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
 
     const walletIndex = ref(0);
 
@@ -206,7 +205,7 @@
             name: name.value,
             meta: {
                 index: -1,
-                type: PkidWalletTypes.Imported,
+                type: PkidWalletTypes.IMPORTED,
             },
         });
 

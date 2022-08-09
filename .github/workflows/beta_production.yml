@@ -20,6 +20,12 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+            find: "{{version}}"
+            replace: ${{ github.ref_name }}
+            regex: false
       - uses: actions/checkout@v2
       - name: Create kubeconfig
         run: |

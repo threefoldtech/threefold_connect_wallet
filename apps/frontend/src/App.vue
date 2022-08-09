@@ -4,6 +4,11 @@
 
 <script lang="ts" setup>
     import version from '../public/config/version';
+    import { isDev } from '@/modules/Core/utils/enviroment';
 
-    console.log('Running on version: ', version);
+    console.info('Developer mode: ', isDev);
+
+    if (!isDev) {
+        console.info('Running on version: ', version);
+    }
 </script>

@@ -7,21 +7,13 @@ export type Log = { args: any; level: LogLevel; timestamp: string };
 export const logs = ref<Log[]>([]);
 
 export const overrideConsole = () => {
-    window.console.info({ isDev });
     if (isDev) return;
+
     const console: any = window.console;
     if (!console) {
         return;
     }
-    const logFnNames = [
-        'log',
-        'info',
-        // 'warn',
-        'error',
-        'debug',
-        'trace',
-        'table',
-    ];
+    const logFnNames = ['log', 'info', 'warn', 'error', 'debug', 'trace', 'table'];
     const originalFns = logFnNames.reduce((acc: { [key: string]: any }, name) => {
         acc[name] = console[name];
         return acc;
@@ -45,9 +37,9 @@ export const overrideConsole = () => {
     window.addEventListener('error', (e: ErrorEvent) => {
         console.error({ message: e.message, type: e?.type, stack: e?.error?.stack, line: e?.lineno, column: e?.colno });
     });
+
     window.addEventListener('unhandledrejection', (e: PromiseRejectionEvent) => {
         console.error(e.reason.toString());
-
         return false;
     });
 };

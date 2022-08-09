@@ -69,7 +69,7 @@ export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cach
         },
     },
 }); // @TODO: check when to clear cache
-console.log(balances.value);
+
 export const operations: Ref<Operation[]> = useLocalStorage<Operation[]>('operations_cache', []); // @TODO: check when to clear cache
 
 export const getStellarBalance = async (wallet: Wallet): Promise<AccountRecord> => {

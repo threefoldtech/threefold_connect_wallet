@@ -29,8 +29,7 @@
     import { useCounter } from '@vueuse/core';
     import { useRouter } from 'vue-router';
     import { watch } from 'vue';
-
-    const version = <string>(<any>globalThis)?.version;
+    import version from '../public/config/version';
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();
@@ -44,6 +43,7 @@
         router.push({ name: 'devLogs' });
     });
 
+    console.log('Running on version: ', version);
     const isBeta = globalThis.location.hostname.includes('-beta');
 </script>
 

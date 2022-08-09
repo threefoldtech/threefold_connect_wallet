@@ -86,17 +86,19 @@
         @confirm="deleteWallet"
         :walletName="wallet.name"
     ></DeleteWalletDialog>
-    <div class="px-4 pt-4 font-bold text-black">Danger zone</div>
-    <div class="p-4">
-        <div class="mt-2 w-full">
-            <button
-                class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-500 focus:disabled:ring-0"
-                type="button"
-                @click="showDeleteWalletDialog = true"
-            >
-                <TrashIcon aria-hidden="true" class="-ml-1 mr-2 h-5 w-5" />
-                {{ $t('wallet.info.deleteButton') }}
-            </button>
+    <div v-show="canSeeDangerZone" class="px-4 pt-4 font-bold text-black">
+        <span> Danger zone </span>
+        <div v-show="canDeleteWallet" class="py-2">
+            <div class="mt-2 w-full">
+                <button
+                    class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-500 focus:disabled:ring-0"
+                    type="button"
+                    @click="showDeleteWalletDialog = true"
+                >
+                    <TrashIcon aria-hidden="true" class="-ml-1 mr-2 h-5 w-5" />
+                    {{ $t('wallet.info.deleteButton') }}
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -119,8 +121,12 @@
     import DeleteWalletDialog from '@/modules/Wallet/components/dialogs/DeleteWalletDialog.vue';
     import { translate } from '@/modules/Core/utils/translate';
     import { useRouter } from 'vue-router';
+    import flagsmith from 'flagsmith';
 
     const wallet: Wallet = <Wallet>inject('wallet');
+
+    const canSeeDangerZone = flagsmith.hasFeature('can-see-danger-zone');
+    const canDeleteWallet = flagsmith.hasFeature('can-delete-wallet');
 
     const showEditWalletName = ref<boolean>(false);
     const walletName = ref<string>(wallet?.name);

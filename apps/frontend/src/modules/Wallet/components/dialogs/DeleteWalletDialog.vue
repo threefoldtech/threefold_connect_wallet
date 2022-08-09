@@ -8,6 +8,13 @@
             <div>
                 {{ $t('dialog.wallet.delete.message', { name: walletName }) }}
             </div>
+
+            <div
+                class="mt-4 mb-4 flex items-start rounded-lg bg-red-100 p-4 text-sm text-red-700 dark:bg-red-200 dark:text-red-800"
+                role="alert"
+            >
+                <div><span class="font-medium">Warning:</span> {{ $t('dialog.wallet.delete.subMessage') }}</div>
+            </div>
         </template>
 
         <template #actions>

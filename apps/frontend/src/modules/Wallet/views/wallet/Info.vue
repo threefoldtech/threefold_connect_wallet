@@ -86,7 +86,10 @@
         @confirm="deleteWallet"
         :walletName="wallet.name"
     ></DeleteWalletDialog>
-    <div v-show="canSeeDangerZone" class="px-4 pt-4 font-bold text-black">
+    <div
+        v-show="canSeeDangerZone && wallet.meta.type !== PkidWalletTypes.Native"
+        class="px-4 pt-4 font-bold text-black"
+    >
         <span> Danger zone </span>
         <div v-show="canDeleteWallet" class="py-2">
             <div class="mt-2 w-full">
@@ -122,6 +125,8 @@
     import { translate } from '@/modules/Core/utils/translate';
     import { useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
+
+    import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
 
     const wallet: Wallet = <Wallet>inject('wallet');
 

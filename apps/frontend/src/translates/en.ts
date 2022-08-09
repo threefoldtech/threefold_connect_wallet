@@ -105,6 +105,8 @@ export default <Translation>{
             delete: {
                 title: 'Delete Wallet?',
                 message: 'Are you sure you want to delete {name}?',
+                subMessage:
+                    ' If you delete this wallet you will only be able to recover it with the wallet secret. It will no longer be linked to your ThreeFold Connect account.',
                 confirm: 'Delete',
                 cancel: 'Cancel',
             },

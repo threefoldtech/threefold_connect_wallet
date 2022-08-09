@@ -43,6 +43,7 @@
         router.push({ name: 'devLogs' });
     });
 
+    console.log('Running on version: ', version);
     const isBeta = globalThis.location.hostname.includes('-beta');
 </script>
 

@@ -2,10 +2,11 @@ import { Keypair as StellarKeypair } from 'stellar-base';
 import { fetchUnlockTransaction, getLockedBalances, transferLockedTokens } from 'cryptolib';
 import { Horizon, Keypair, Transaction } from 'stellar-sdk';
 import { toNumber } from 'lodash';
-import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+import { addNotification } from '@/modules/Core/services/notification.service';
 import { isBefore } from '@/modules/Core/utils/time';
 import { translate } from '@/modules/Core/utils/translate';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
+import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
 //
 // Types

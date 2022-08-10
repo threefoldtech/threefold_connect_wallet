@@ -49,15 +49,12 @@
 </template>
 
 <script lang="ts" setup>
-    import { Farm } from '@/modules/Farm/types/farms.types';
-
     import CreateFarmCard from '@/modules/Farm/components/CreateFarmCard.vue';
     import { DisclosureButton, Disclosure, DisclosurePanel, DialogOverlay, Dialog } from '@headlessui/vue';
     import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
     import FarmCardDetails from '@/modules/Farm/components/FarmCardDetails.vue';
     import { ref } from 'vue';
 
-    // @TODO: make yarn build work on type: Farm
     interface Props {
         farm: any;
         isV3: boolean;

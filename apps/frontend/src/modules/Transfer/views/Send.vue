@@ -259,9 +259,10 @@
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
     import Contact from '@/modules/Contact/views/Contact.vue';
     import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
-    import { ContactType } from '@/modules/Contact/types/contact.types';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { IContactType } from '@/modules/Contact/interfaces/contact.interface';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
@@ -325,7 +326,7 @@
 
     const selectedChain = ref('stellar');
 
-    const chosenContact = (c: ContactType) => {
+    const chosenContact = (c: IContactType) => {
         toAddress.value = c.address;
         showContacts.value = false;
     };

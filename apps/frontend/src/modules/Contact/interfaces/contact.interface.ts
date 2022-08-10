@@ -1,15 +1,15 @@
-export interface ContactType {
+export interface IContactType {
     address: string;
     type: string;
     name: string;
 }
 
-export interface ContactValidation {
+export interface IContactValidation {
     valid: boolean;
     error?: string;
 }
 
-export interface ContactFormValidation {
+export interface IContactFormValidation {
     valid: boolean;
     error?: string;
     field?: string;

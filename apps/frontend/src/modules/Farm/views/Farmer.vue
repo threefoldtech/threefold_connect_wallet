@@ -129,7 +129,7 @@
     import LandingFarmInformationDialog from '@/modules/Farm/components/dialogs/LandingFarmInformationDialog.vue';
 
     import { useLocalStorage } from '@vueuse/core';
-    import { isDev } from '@/modules/Core/utils/enviroment';
+    import { isDev } from '@/modules/Core/utils/environment';
     import { PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
     // const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 

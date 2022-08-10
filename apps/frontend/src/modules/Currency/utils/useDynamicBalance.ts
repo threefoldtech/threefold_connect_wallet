@@ -1,5 +1,4 @@
 import {
-    AssetBalance,
     Balance,
     balances,
     getStellarBalance,
@@ -7,12 +6,10 @@ import {
     mergeAssets,
     Wallet,
 } from '@/modules/Wallet/services/walletService';
-import { computed, onBeforeUnmount, ref } from 'vue';
 import { NetworkError } from 'stellar-sdk/lib/errors';
 import { ServerApi } from 'stellar-sdk';
 import AccountRecord = ServerApi.AccountRecord;
 import { getSubstrateAssetBalances } from '@/modules/TFChain/services/tfchainService';
-import { merge } from 'lodash';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 
 const useDynamicStellarBalance = (wallet: Wallet) => {

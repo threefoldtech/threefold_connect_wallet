@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { isDev } from '@/modules/Core/utils/enviroment';
+    import { isDev } from '@/modules/Core/utils/environment';
 
     import BetaBanner from '@/modules/Core/components/BetaBanner.vue';
     import Notifications from '@/modules/Core/components/Notifications.vue';

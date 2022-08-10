@@ -3,15 +3,16 @@ import { Horizon, ServerApi } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
 import { useLocalStorage } from '@vueuse/core';
 import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
-import { getPkidClient, PkidWallet } from '@/modules/Core/services/pkidService';
+import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 import { appKeyPair } from '@/modules/Core/services/crypto.service';
+import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
+import { PkidWallet } from '@/modules/Pkid/interfaces/pkid.interfaces';
 import AccountRecord = ServerApi.AccountRecord;
 import CollectionPage = ServerApi.CollectionPage;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
 import OperationRecord = ServerApi.OperationRecord;
 import BalanceLine = Horizon.BalanceLine;
-import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
 
 export interface Wallet {
     name: string;
@@ -266,7 +267,7 @@ export const mapToWallet = (wallets: PkidWallet[]): Wallet[] => {
         const walletKeyPair = walletKeyPairBuilder.build();
 
         if (!walletKeyPair) {
-            throw new Error('Critical Initialization error: no walletKeyPair');
+            throw new Error('Error in building the wallet keypair');
         }
         return {
             keyPair: walletKeyPair,

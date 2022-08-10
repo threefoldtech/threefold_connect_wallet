@@ -84,7 +84,7 @@
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { ArrowLeftIcon, ArrowDownIcon } from '@heroicons/vue/solid';
-    import LoadingSpinner from '@/modules/Bridge/components/LoadingSpinner.vue';
+    import LoadingSpinner from '@/modules/Core/components/LoadingSpinner.vue';
     import { AssetsTypes } from '@/modules/Currency/enums/assets.enums';
     import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
     import { useAssets } from '@/modules/Currency/utils/useAssets';

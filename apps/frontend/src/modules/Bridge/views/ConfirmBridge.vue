@@ -126,9 +126,9 @@
         getSubstrateApi,
         submitExtrensic,
     } from '@/modules/TFChain/services/tfchainService';
-    import { userInitialized } from '@/modules/Core/services/crypto.service';
+    import { initializedUser } from '@/modules/Core/services/crypto.service';
     import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/modules/TFChain/services/entityService';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { toNumber } from 'lodash';
     import { onBeforeMount } from '@vue/runtime-core';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
@@ -136,6 +136,7 @@
     import en from '@/translates/en';
     import { nanoid } from 'nanoid';
     import { bridgeToSubstrate } from '@/modules/Bridge/services/bridgeService';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     const router = useRouter();
     const route = useRoute();
@@ -177,7 +178,7 @@
         await activationServiceForSubstrate(substrateAddressTo);
 
         const substrateKeyRing = selectedWallet.value.keyPair.getSubstrateKeyring();
-        const name = `${userInitialized.value}${nanoid()}`;
+        const name = `${initializedUser.value}${nanoid()}`;
 
         if (!name) return;
 

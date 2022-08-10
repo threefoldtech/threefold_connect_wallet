@@ -1,7 +1,7 @@
 <template>
     <svg
         :class="`h-${height} w-${width}`"
-        v-if="name === 'TFT' || name === 'TFTA' || name == 'FreeTFT'"
+        v-if="name === 'TFT' || name === 'TFTA' || name === 'FreeTFT'"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 31 31"

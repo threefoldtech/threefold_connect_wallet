@@ -41,9 +41,10 @@
 
 <script lang="ts" setup>
     import { EyeIcon, EyeOffIcon } from '@heroicons/vue/solid';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { ref } from 'vue';
-    import { isDev } from '@/modules/Core/utils/enviroment';
+    import { isDev } from '@/modules/Core/utils/environment';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     interface IProps {
         fieldText: string;

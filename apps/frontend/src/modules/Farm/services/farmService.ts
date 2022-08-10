@@ -7,13 +7,9 @@ import {
     twinIds,
 } from '@/modules/TFChain/services/tfchainService';
 import toNumber from 'lodash/toNumber';
-import { BCFarm, Farm, StellarPayoutResponse } from '@/modules/Farm/types/farms.types';
-import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
+import { Farm, StellarPayoutResponse } from '@/modules/Farm/types/farms.types';
 import axios from 'axios';
 import { ref } from 'vue';
-import { crypto_sign_keypair } from 'libsodium-wrappers';
-import { parseBCInt } from '@/modules/Farm/utils/farm';
-import { useLocalStorage } from '@vueuse/core';
 import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
 import flagsmith from 'flagsmith';
 
@@ -22,7 +18,6 @@ export const v3Farms = ref(<Farm[]>[]);
 export const allStellarPayoutAddresses = ref<StellarPayoutResponse[]>([]);
 export const v3SpecialFarms = ref<any>([]);
 export const v3PortalFarms = ref<any>([]);
-// export const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
 const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
     const api = await getSubstrateApi();

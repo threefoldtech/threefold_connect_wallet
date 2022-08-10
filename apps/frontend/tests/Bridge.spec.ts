@@ -130,7 +130,7 @@ function getStellarClient() {
 
 function getSubstrateApi() {
     const provider = new WsProvider('wss://tfchain.test.grid.tf'); //
-    // const api = await ApiPromise.create({ provider, types });
+    // const api = await ApiPromise.create({ provider, interfaces });
 
     // const [chain, nodeName, nodeVersion] = await Promise.all([
     //     api.rpc.system.chain(),

@@ -113,7 +113,7 @@
     import { computed, inject, ref } from 'vue';
     import { getSubstrateApi } from '@/modules/TFChain/services/tfchainService';
     import { ClipboardCopyIcon, PencilIcon, TrashIcon } from '@heroicons/vue/solid';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import CopyToClipboardField from '@/modules/Misc/components/misc/CopyToClipboardField.vue';
     import EditTextField from '@/modules/Misc/components/misc/EditTextField.vue';
     import ChangeWalletNameDialog from '@/modules/Wallet/components/dialogs/ChangeWalletNameDialog.vue';
@@ -122,6 +122,7 @@
     import { translate } from '@/modules/Core/utils/translate';
     import { useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     const wallet: Wallet = <Wallet>inject('wallet');
 

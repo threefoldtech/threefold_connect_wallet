@@ -199,11 +199,12 @@
     } from '@/modules/TFChain/services/tfchainService';
     import axios from 'axios';
     import flagsmith from 'flagsmith';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { fetchFarms, v2Farms } from '@/modules/Farm/services/farmService';
     import { onBeforeMount } from '@vue/runtime-core';
     import { toNumber } from 'lodash';
     import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
@@ -326,15 +327,6 @@
 
         delete farmFormErrors.value.farmName;
     };
-
-    // const validateCreatedFarm = async (evt: Event) => {
-    //     const formData = new FormData(evt.target as HTMLFormElement);
-    //
-    //     const farmName = <string>formData.get('farmName');
-    //
-    //     await validateFarmName(farmName, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
-    //     if (farmFormErrors.value?.farmName) return;
-    // };
 
     const createNewFarm = async (evt: Event) => {
         const formData = new FormData(evt.target as HTMLFormElement);

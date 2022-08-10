@@ -90,7 +90,8 @@
     import { DocumentAddIcon } from '@heroicons/vue/outline';
     import { getSubstrateApi, submitExtrensic } from '@/modules/TFChain/services/tfchainService';
     import { ref } from 'vue';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     interface Props {
         farm: Farm;

@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { isDev } from '@/modules/Core/utils/enviroment';
+import { isDev } from '@/modules/Core/utils/environment';
 
 export type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug' | 'trace' | 'table';
 

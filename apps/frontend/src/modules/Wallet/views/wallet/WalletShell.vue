@@ -36,7 +36,7 @@
                     </div>
                 </template>
                 <h1>{{ wallet.name }}</h1>
-                <h2 class="text-xs font-normal text-gray-500">{{ wallet.name }}@{{ userInitialized }}</h2>
+                <h2 class="text-xs font-normal text-gray-500">{{ wallet.name }}@{{ initializedUser }}</h2>
             </PageHeader>
         </template>
         <RouterView :key="`${$route.fullPath}`" />
@@ -55,7 +55,7 @@
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import BottomNav from '@/modules/Misc/components/nav/BottomNav.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
-    import { userInitialized } from '@/modules/Core/services/crypto.service';
+    import { initializedUser } from '@/modules/Core/services/crypto.service';
     import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
     import { useLocalStorage } from '@vueuse/core';
 

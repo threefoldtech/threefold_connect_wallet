@@ -72,7 +72,8 @@
 <script lang="ts" setup>
     import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/vue/outline';
     import { XIcon } from '@heroicons/vue/solid';
-    import { notifications, NotificationType } from '@/modules/Core/services/notificationService';
+    import { notifications } from '@/modules/Core/services/notification.service';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { Portal } from '@headlessui/vue';
     import { computed } from 'vue';
 

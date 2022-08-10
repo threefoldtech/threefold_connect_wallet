@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { isDev } from '@/modules/Core/utils/enviroment';
+import { isDev } from '@/modules/Core/utils/environment';
 
 export const useAxiosInterceptor = () => {
     axios.interceptors.response.use(undefined, error => {

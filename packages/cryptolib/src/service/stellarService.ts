@@ -232,7 +232,7 @@ export const buildFundedPaymentTransaction = async (
 };
 
 export const submitFundedTransaction = async (fundedTransaction: Transaction, sourceKeyPair: Keypair) => {
-    // this keypair is regenerated every time to prevent wrong types
+    // this keypair is regenerated every time to prevent wrong interfaces
     const signingKeypair = Keypair.fromSecret(sourceKeyPair.secret());
 
     // Sign the transaction to prove you are actually the person sending it.

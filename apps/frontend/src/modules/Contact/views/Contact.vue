@@ -114,14 +114,14 @@
     import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue';
     import { computed, Ref, ref } from 'vue';
     import { useLocalStorage } from '@vueuse/core';
-    import { ContactType } from '@/modules/Contact/types/contact.types';
+    import { IContactType } from '@/modules/Contact/interfaces/contact.interface';
     import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
     import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
-    import { onBeforeMount } from '@vue/runtime-core';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
     import { getContactsFromPkid, saveContactToPkid } from '@/modules/Contact/services/contactService';
     import FAB from '@/modules/Misc/components/global/FAB.vue';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     enum Tabs {
         'OWN_WALLETS' = 'Own wallets',
@@ -137,11 +137,11 @@
     const selectedTab = ref<Tabs>(Tabs.OWN_WALLETS);
 
     const showAddContact = ref<boolean>(false);
-    const contacts = ref<ContactType[]>([]);
+    const contacts = ref<IContactType[]>([]);
 
     const init = async () => {
         // Load contacts related to chain
-        const pkidContacts: ContactType[] = await getContactsFromPkid();
+        const pkidContacts: IContactType[] = await getContactsFromPkid();
         contacts.value = pkidContacts.filter(c => c.type === chain);
     };
 
@@ -150,7 +150,7 @@
         showHint.value = true;
     };
 
-    const myContacts: Ref<ContactType[]> = computed(() =>
+    const myContacts: Ref<IContactType[]> = computed(() =>
         wallets.value.map((wallet: Wallet) => {
             return {
                 address:
@@ -163,18 +163,18 @@
         })
     );
 
-    const selectedContact = (contact: ContactType) => {
+    const selectedContact = (contact: IContactType) => {
         emit('chosenContact', contact);
     };
 
-    const saveNewContact = async (contact: ContactType) => {
+    const saveNewContact = async (contact: IContactType) => {
         await saveContactToPkid(contact);
 
         addNotification(NotificationType.success, translate('contacts.dialog.success'));
         showAddContact.value = false;
 
         // Refresh contacts
-        const pkidContacts: ContactType[] = await getContactsFromPkid();
+        const pkidContacts: IContactType[] = await getContactsFromPkid();
         contacts.value = pkidContacts.filter(c => c.type === chain);
     };
 

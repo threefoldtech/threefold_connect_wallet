@@ -22,7 +22,7 @@ interface IModule {
 export const createRouterWithModules = async (): Promise<Router> => {
     const router = createVueRouter();
 
-    await registerModules(router, [
+    await registerAllModules(router, [
         BridgeModule,
         ContactModule,
         CurrencyModule,
@@ -48,7 +48,7 @@ const registerModule = async (router: Router, module: IModule) => {
     await module.router(router);
 };
 
-export const registerModules = async (router: Router, modules: IModule[]) => {
+export const registerAllModules = async (router: Router, modules: IModule[]) => {
     const promises = modules.map(module => registerModule(router, module));
     return await Promise.all(promises);
 };

@@ -31,9 +31,9 @@
     import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { bytesToHex, hexToBytes } from '@/modules/Core/utils/crypto';
     import { Keypair } from 'stellar-sdk';
-    import { getPkidClient } from '@/modules/Core/services/pkidService';
+    import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
     import { nanoid } from 'nanoid';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { Keyring } from '@polkadot/api';
     import {
         activationServiceForSubstrate,
@@ -47,6 +47,7 @@
     import CTA from '@/modules/Misc/components/global/CTA.vue';
     import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
     import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();

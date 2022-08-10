@@ -89,10 +89,11 @@
     import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { getEntropyFromPhrase } from 'mnemonicconversion2924';
     import { entropyToMnemonic, mnemonicToEntropy } from '@jimber/simple-bip39';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { calculateWalletEntropyFromAccount } from 'cryptolib';
     import { validateWalletName } from '@/modules/Wallet/validate/wallet.validate';
     import { PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     const walletIndex = ref(0);
 

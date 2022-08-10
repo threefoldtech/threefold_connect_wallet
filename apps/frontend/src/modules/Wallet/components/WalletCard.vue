@@ -45,7 +45,7 @@
 
 <script lang="ts" setup>
     import { Balance } from '../services/walletService';
-    import LoadingSpinner from '@/modules/Bridge/components/LoadingSpinner.vue';
+    import LoadingSpinner from '@/modules/Core/components/LoadingSpinner.vue';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
 

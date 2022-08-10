@@ -48,9 +48,10 @@
     import { timeStampToReadableDate } from '@/modules/Core/utils/time';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { Wallet } from '@/modules/Wallet/services/walletService';
     import { translate } from '@/modules/Core/utils/translate';
+    import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     interface IProps {
         lockedBalances: (TokenItem | null)[];

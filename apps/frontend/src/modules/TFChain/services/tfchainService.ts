@@ -48,12 +48,13 @@ export const getSubstrateAssetBalances = async (publicKey: string): Promise<Asse
     const { data: balances }: any = await api.query.system.account(publicKey);
     const balance = balances.free.toJSON() / 1e7;
 
-    const assetBalance: AssetBalance = {
+    const substrateBalance: AssetBalance = {
         amount: Number(balance),
         name: 'TFT',
         type: ChainTypes.SUBSTRATE,
     };
-    return [assetBalance];
+
+    return [substrateBalance];
 };
 
 export const sendSubstrateTokens = async (keyring: IKeyringPair, address: string, amount: number) => {

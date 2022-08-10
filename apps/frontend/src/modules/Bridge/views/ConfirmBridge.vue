@@ -135,7 +135,7 @@
     import { translate } from '@/modules/Core/utils/translate';
     import en from '@/translates/en';
     import { nanoid } from 'nanoid';
-    import { bridgeToSubstrate } from '@/modules/Bridge/services/bridgeService';
+    import { bridgeToSubstrate } from '@/modules/Bridge/services/bridge.service';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
 
     const router = useRouter();

@@ -101,7 +101,7 @@ export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
         .map((balance: BalanceLine): AssetBalance => {
             const assetCode =
                 balance.asset_type === 'native'
-                    ? 'xlm'
+                    ? 'XLM'
                     : (<BalanceLineAsset<'credit_alphanum4'> | BalanceLineAsset<'credit_alphanum12'>>balance)
                           ?.asset_code;
             return {
@@ -126,12 +126,11 @@ export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
 export const mergeAssets = (...assets: AssetBalance[]) => {
     return assets
         .filter(
-            (value, index, self) =>
-                self.findIndex(v => v.name === value.name && v.issuer === value.issuer && v.type === v.type) === index
+            (asset, index, self) =>
+                self.findIndex(a => a.name === asset.name && a.issuer === asset.issuer && a.type === a.type) === index
         )
         .sort((a, b) => {
             if (a.name === b.name) return b.type.localeCompare(a.type);
-
             return b.name.localeCompare(a.name);
         });
 };
@@ -280,4 +279,13 @@ export const mapToWallet = (wallets: PkidWallet[]): Wallet[] => {
             },
         };
     });
+};
+
+export const retrieveAllAssets = () => {
+    const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('supported-currencies')).map(
+        (a: any) => a.asset_code
+    );
+
+    console.log('All allowed assets');
+    console.log(wallets.value);
 };

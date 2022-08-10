@@ -7,7 +7,13 @@ import { decodeBase64 } from 'tweetnacl-util';
 import { entropyToMnemonic } from '@jimber/simple-bip39';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from 'cryptolib';
-import { mapToWallet, saveWallets, sendWalletDataToFlutter, wallets } from '@/modules/Wallet/services/walletService';
+import {
+    mapToWallet,
+    retrieveAllAssets,
+    saveWallets,
+    sendWalletDataToFlutter,
+    wallets,
+} from '@/modules/Wallet/services/walletService';
 import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
 import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, initializedUser } from '@/modules/Core/services/crypto.service';
@@ -116,6 +122,8 @@ export const init = async (name: string, derivedSeed: string) => {
 
     initializeKeys(derivedSeed);
     initializeStellarConfig();
+
+    retrieveAllAssets();
 
     const pkid = getPkidClient();
 

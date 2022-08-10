@@ -19,6 +19,7 @@ const useDynamicStellarBalance = (wallet: Wallet) => {
         let result: AccountRecord;
         try {
             result = await getStellarBalance(wallet);
+            console.log(result);
         } catch (error) {
             if ((<NetworkError>error)?.response?.status === 404) return;
             throw error;
@@ -28,7 +29,6 @@ const useDynamicStellarBalance = (wallet: Wallet) => {
         const closeHandler = server
             .accounts()
             .accountId(wallet.keyPair.getStellarKeyPair().publicKey())
-            // .join('transactions')
             .stream({
                 onmessage: res => handleAccountRecord(wallet, res),
             });

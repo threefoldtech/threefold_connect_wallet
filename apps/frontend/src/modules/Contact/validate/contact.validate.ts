@@ -9,6 +9,7 @@ import { appKeyPair } from '@/modules/Core/services/crypto.service';
 import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
 import { validateWalletAddress } from '@/modules/Wallet/validate/wallet.validate';
 import { PkidNamedKeys } from '@/modules/Pkid/enums/pkid.enums';
+import { ContactFields } from '@/modules/Contact/enums/contact.enums';
 
 export const isContactInMyContacts = (address: string, chain: string): boolean => {
     const myContacts: IContactType[] = wallets.value.map((wallet: Wallet) => {
@@ -46,7 +47,7 @@ export const validateContact = async (name: string, address: string): Promise<IC
         return {
             valid: false,
             error: isValidContactName.error,
-            field: 'name',
+            field: ContactFields.NAME,
         };
     }
 
@@ -56,7 +57,7 @@ export const validateContact = async (name: string, address: string): Promise<IC
         return {
             valid: false,
             error: isValidContactAddress.error,
-            field: 'address',
+            field: ContactFields.ADDRESS,
         };
     }
 

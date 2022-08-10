@@ -83,7 +83,7 @@
     import { computed, onBeforeUnmount, Ref, ref } from 'vue';
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
-    import { ArrowLeftIcon, ArrowDownIcon } from '@heroicons/vue/solid';
+    import { ArrowDownIcon, ArrowLeftIcon } from '@heroicons/vue/solid';
     import LoadingSpinner from '@/modules/Core/components/LoadingSpinner.vue';
     import { AssetsTypes } from '@/modules/Currency/enums/assets.enums';
     import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
@@ -165,13 +165,13 @@
 
     const stellarBalance = computed(() => {
         return useAssets(selectedWallet.value)
-            .value.filter(asset => asset.name === AssetsTypes.TFT && asset.type === 'stellar')
+            .value.filter(asset => asset.name === AssetsTypes.TFT && asset.type === ChainTypes.STELLAR)
             .shift()?.amount;
     });
 
     const substrateBalance = computed(() => {
         return useAssets(selectedWallet.value)
-            .value.filter(asset => asset.name === AssetsTypes.TFT && asset.type === 'substrate')
+            .value.filter(asset => asset.name === AssetsTypes.TFT && asset.type === ChainTypes.SUBSTRATE)
             .shift()?.amount;
     });
 

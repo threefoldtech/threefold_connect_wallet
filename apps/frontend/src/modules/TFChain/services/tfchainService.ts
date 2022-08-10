@@ -11,6 +11,7 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { ISubmittableResult } from '@polkadot/types/types';
 import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
 import throttle from 'lodash/throttle';
+import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
 
 const apiCache = ref<Promise<ApiPromise>>();
 
@@ -50,7 +51,7 @@ export const getSubstrateAssetBalances = async (publicKey: string): Promise<Asse
     const assetBalance: AssetBalance = {
         amount: Number(balance),
         name: 'TFT',
-        type: 'substrate',
+        type: ChainTypes.SUBSTRATE,
     };
     return [assetBalance];
 };

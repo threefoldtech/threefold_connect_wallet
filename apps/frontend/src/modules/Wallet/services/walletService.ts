@@ -8,6 +8,7 @@ import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 import { appKeyPair } from '@/modules/Core/services/crypto.service';
 import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
 import { PkidWallet } from '@/modules/Pkid/interfaces/pkid.interfaces';
+import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
 import AccountRecord = ServerApi.AccountRecord;
 import CollectionPage = ServerApi.CollectionPage;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
@@ -26,7 +27,7 @@ export interface Wallet {
 
 export interface AllowedAsset {
     name: string; //asset name
-    type: 'stellar' | 'substrate';
+    type: ChainTypes;
     asset_code: string;
     issuer?: string;
 }
@@ -34,7 +35,7 @@ export interface AllowedAsset {
 export interface AssetBalance {
     name: string; //asset name
     amount: number;
-    type: 'stellar' | 'substrate';
+    type: ChainTypes;
     issuer?: string;
 }
 
@@ -106,7 +107,7 @@ export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
             return {
                 name: assetCode,
                 amount: Number(balance.balance),
-                type: 'stellar',
+                type: ChainTypes.STELLAR,
                 issuer: (<BalanceLineAsset<'credit_alphanum4'> | BalanceLineAsset<'credit_alphanum12'>>balance)
                     ?.asset_issuer,
             };

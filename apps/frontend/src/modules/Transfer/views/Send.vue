@@ -21,7 +21,7 @@
                     <div class="flex gap-3">
                         <RadioGroupOption
                             as="template"
-                            v-for="option in ['stellar', 'substrate']"
+                            v-for="option in [ChainTypes.STELLAR, ChainTypes.SUBSTRATE]"
                             :key="option"
                             :value="option"
                             v-slot="{ active, checked }"
@@ -52,73 +52,15 @@
                     >
                         <div class="w-full truncate">
                             <div class="shrink-0 truncate">{{ selectedWallet?.name }}</div>
-                            <div v-if="selectedChain === 'stellar'" class="truncate text-gray-500">
+
+                            <div v-if="selectedChain === ChainTypes.STELLAR" class="truncate text-gray-500">
                                 {{ selectedWallet?.keyPair.getStellarKeyPair().publicKey() }}
                             </div>
-                            <div v-if="selectedChain === 'substrate'" class="truncate text-gray-500">
+                            <div v-if="selectedChain === ChainTypes.SUBSTRATE" class="truncate text-gray-500">
                                 {{ selectedWallet?.keyPair.getSubstrateKeyring().address }}
                             </div>
                         </div>
-                        <!--                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">-->
-                        <!--                            <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />-->
-                        <!--                        </span>-->
                     </ListboxButton>
-
-                    <transition
-                        leave-active-class="transition ease-in duration-100"
-                        leave-from-class="opacity-100"
-                        leave-to-class="opacity-0"
-                    >
-                        <ListboxOptions
-                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                        >
-                            <ListboxOption
-                                v-for="wallet in wallets"
-                                v-slot="{ active, selected }"
-                                :value="wallet"
-                                as="template"
-                            >
-                                <li
-                                    :class="[
-                                        active ? 'bg-primary-600 text-white' : 'text-gray-900',
-                                        'relative cursor-default select-none py-2 pl-3 pr-9',
-                                    ]"
-                                >
-                                    <div class="flex">
-                                        <span
-                                            :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']"
-                                            class="shrink-0"
-                                        >
-                                            {{ wallet?.name }}
-                                        </span>
-                                        <span
-                                            v-if="selectedChain === 'stellar'"
-                                            :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']"
-                                        >
-                                            {{ wallet?.keyPair.getStellarKeyPair().publicKey() }}
-                                        </span>
-
-                                        <span
-                                            v-if="selectedChain === 'substrate'"
-                                            :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']"
-                                        >
-                                            {{ wallet?.keyPair.getSubstrateKeyring().address }}
-                                        </span>
-                                    </div>
-
-                                    <span
-                                        v-if="selected"
-                                        :class="[
-                                            active ? 'text-white' : 'text-primary-600',
-                                            'absolute inset-y-0 right-0 flex items-center pr-4',
-                                        ]"
-                                    >
-                                        <CheckIcon aria-hidden="true" class="h-5 w-5" />
-                                    </span>
-                                </li>
-                            </ListboxOption>
-                        </ListboxOptions>
-                    </transition>
                 </div>
             </Listbox>
             <div class="mt-4">
@@ -141,9 +83,9 @@
                             @click="showContacts = true"
                             class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         >
-                            <div>
+                            <span>
                                 <UserIcon class="h-5" />
-                            </div>
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -231,15 +173,13 @@
 
 <script lang="ts" setup>
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
-    import { ArrowLeftIcon, CheckIcon, QrcodeIcon, SelectorIcon, UserIcon } from '@heroicons/vue/outline';
+    import { ArrowLeftIcon, QrcodeIcon, UserIcon } from '@heroicons/vue/outline';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { useRouter } from 'vue-router';
     import {
         Listbox,
         ListboxButton,
         ListboxLabel,
-        ListboxOption,
-        ListboxOptions,
         RadioGroup,
         RadioGroupLabel,
         RadioGroupOption,
@@ -269,7 +209,7 @@
     const allowedAssets: Asset[] = uniq<Asset>(
         <any[]>JSON.parse(<string>flagsmith.getValue('supported-currencies')).map((a: any) => ({
             asset_code: a.asset_code,
-            type: a.type,
+            type: a.type.toUpperCase(),
             fee: a?.fee,
         }))
     );
@@ -324,7 +264,7 @@
         amount.value = Math.floor(selectedBalanceWithoutFee.value * 100) / 100;
     };
 
-    const selectedChain = ref('stellar');
+    const selectedChain = ref(ChainTypes.STELLAR);
 
     const chosenContact = (c: IContactType) => {
         toAddress.value = c.address;
@@ -350,6 +290,7 @@
     const selectedAsset = ref(asset || relevantAssets.value[0]);
 
     const assetFee = computed(() => {
+        console.log(allowedAssets);
         return allowedAssets?.find(
             asset => asset?.asset_code === selectedAsset.value?.asset_code && asset?.type === selectedChain.value
         )?.fee;

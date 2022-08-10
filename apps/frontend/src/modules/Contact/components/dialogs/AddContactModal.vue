@@ -60,6 +60,7 @@
     import { validateWalletAddress } from '@/modules/Wallet/validate/wallet.validate';
     import { IContactFormValidation, IContactType } from '@/modules/Contact/interfaces/contact.interface';
     import { validateContact } from '@/modules/Contact/validate/contact.validate';
+    import { ContactFields } from '@/modules/Contact/enums/contact.enums';
 
     const emit = defineEmits(['cancel', 'confirm']);
 
@@ -93,10 +94,10 @@
 
     const displayErrorMessage = (contactValidation: IContactFormValidation) => {
         switch (contactValidation.field) {
-            case 'name':
+            case ContactFields.NAME:
                 contactNameError.value = contactValidation.error;
                 break;
-            case 'address':
+            case ContactFields.ADDRESS:
                 contactAddressError.value = contactValidation.error;
                 break;
         }

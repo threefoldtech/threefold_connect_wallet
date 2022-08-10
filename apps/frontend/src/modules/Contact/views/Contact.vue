@@ -58,7 +58,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div
                         v-if="selectedTab === Tabs.OTHERS"
                         class="mb-4 rounded-md border-[1px] p-2 text-gray-700"
@@ -119,7 +118,7 @@
     import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
-    import { getContactsFromPkid, saveContactToPkid } from '@/modules/Contact/services/contactService';
+    import { getContactsFromPkid, saveContactToPkid } from '@/modules/Contact/services/contact.service';
     import FAB from '@/modules/Misc/components/global/FAB.vue';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
 

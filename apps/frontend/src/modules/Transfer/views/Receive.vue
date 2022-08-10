@@ -43,10 +43,10 @@
                 <label class="block text-sm font-medium text-gray-700"> {{ $t(`transfer.receive.to`) }}</label>
                 <div class="relative mt-1 truncate">
                     <span class="shrink-0 truncate">{{ selectedWallet?.name }}</span>
-                    <span v-if="selectedChain === 'stellar'" class="ml-2 truncate text-gray-500">{{
+                    <span v-if="selectedChain === ChainTypes.STELLAR" class="ml-2 truncate text-gray-500">{{
                         selectedWallet?.keyPair.getStellarKeyPair().publicKey()
                     }}</span>
-                    <span v-if="selectedChain === 'substrate'" class="ml-2 truncate text-gray-500">{{
+                    <span v-if="selectedChain === ChainTypes.SUBSTRATE" class="ml-2 truncate text-gray-500">{{
                         selectedWallet?.keyPair.getSubstrateKeyring().address
                     }}</span>
                 </div>

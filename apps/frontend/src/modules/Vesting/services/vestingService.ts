@@ -2,6 +2,7 @@ import { Horizon } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
 import { AllowedAsset, AssetBalance, Wallet } from '@/modules/Wallet/services/walletService';
 import { checkVesting as stellarCryptocheckVesting } from 'cryptolib';
+import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
 import BalanceLine = Horizon.BalanceLine;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
 
@@ -24,7 +25,7 @@ export const checkVesting = async (wallet: Wallet): Promise<AssetBalance[]> => {
             return {
                 name: assetCode,
                 amount: Number(balance.balance),
-                type: 'stellar',
+                type: ChainTypes.STELLAR,
                 issuer: (<BalanceLineAsset<'credit_alphanum4'> | BalanceLineAsset<'credit_alphanum12'>>balance)
                     ?.asset_issuer,
             };

@@ -195,6 +195,8 @@ export default <Translation>{
     chain: {
         stellar: 'Stellar',
         substrate: 'TFChain',
+        STELLAR: 'Stellar',
+        SUBSTRATE: 'TFChain',
     },
     currency: {
         short: {

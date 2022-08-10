@@ -1,17 +1,13 @@
 import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
-import {
-    allFarms,
-    fetchAllFarms,
-    getSubstrateApi,
-    getTwinId,
-    twinIds,
-} from '@/modules/TFChain/services/tfchainService';
+import { allFarms, fetchAllFarms, twinIds } from '@/modules/TFChain/services/tfchainService';
 import toNumber from 'lodash/toNumber';
 import { Farm, StellarPayoutResponse } from '@/modules/Farm/types/farms.types';
 import axios from 'axios';
 import { ref } from 'vue';
 import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
 import flagsmith from 'flagsmith';
+import { getSubstrateApi } from 'tf-substrate/src/services/core.substrate';
+import { getTwinIdByAccountId } from 'tf-substrate/src/states/grid.module';
 
 export const v2Farms = ref<Farm[]>([]);
 export const v3Farms = ref(<Farm[]>[]);
@@ -25,7 +21,7 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
 
     for (const v3Wallet of v3Wallets) {
         const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
-        const twinId = await getTwinId(substrateAddress);
+        const twinId = await getTwinIdByAccountId(substrateAddress);
         if (twinId === 0) {
             continue; // can't have farm without twin id
         }
@@ -183,7 +179,7 @@ export const getAllStellarPayoutAddresses = async () => {
 export const fetchFarms = async () => {
     for (const v3Wallet of wallets.value) {
         const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
-        const twinId = await getTwinId(substrateAddress);
+        const twinId = await getTwinIdByAccountId(substrateAddress);
         if (twinId === 0) {
             continue; // can't have farm without twin id
         }

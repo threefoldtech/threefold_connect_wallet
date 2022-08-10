@@ -26,7 +26,6 @@
     import { init, loadingText } from '@/modules/Core/services/initialization.service';
     import { useCounter, useLocalStorage } from '@vueuse/core';
     import { watch } from 'vue';
-    import { getSubstrateApi } from '@/modules/TFChain/services/tfchainService';
     import { isDev } from '@/modules/Core/utils/environment';
 
     const { count, inc, reset } = useCounter();

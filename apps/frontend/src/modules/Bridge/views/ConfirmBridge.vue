@@ -121,11 +121,7 @@
     import { useRoute, useRouter } from 'vue-router';
     import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
     import { ref } from 'vue';
-    import {
-        activationServiceForSubstrate,
-        getSubstrateApi,
-        submitExtrensic,
-    } from '@/modules/TFChain/services/tfchainService';
+    import { activationServiceForSubstrate } from '@/modules/TFChain/services/tfchainService';
     import { initializedUser } from '@/modules/Core/services/crypto.service';
     import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/modules/TFChain/services/entityService';
     import { addNotification } from '@/modules/Core/services/notification.service';
@@ -137,6 +133,7 @@
     import { nanoid } from 'nanoid';
     import { bridgeToSubstrate } from '@/modules/Bridge/services/bridge.service';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.substrate';
 
     const router = useRouter();
     const route = useRoute();
@@ -204,7 +201,7 @@
             );
             const nonce = await api.rpc.system.accountNextIndex(substrateAddressTo);
 
-            await submitExtrensic(submittableExtrinsic, substrateKeyRing, { nonce });
+            await submitExtrinsic(submittableExtrinsic, substrateKeyRing, { nonce });
 
             let i = 0;
             while (entityId === 0) {

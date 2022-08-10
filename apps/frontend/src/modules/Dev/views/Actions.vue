@@ -35,12 +35,7 @@
     import { nanoid } from 'nanoid';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { Keyring } from '@polkadot/api';
-    import {
-        activationServiceForSubstrate,
-        getSubstrateApi,
-        getTwinId,
-        submitExtrensic,
-    } from '@/modules/TFChain/services/tfchainService';
+    import { activationServiceForSubstrate } from '@/modules/TFChain/services/tfchainService';
     import { KeyringPair } from '@polkadot/keyring/types';
     import { toNumber } from 'lodash';
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
@@ -48,6 +43,8 @@
     import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
     import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.substrate';
+    import { getTwinIdByAccountId } from 'tf-substrate/src/states/grid.module';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
@@ -98,7 +95,7 @@
 
             const keyringPair = keyring.addFromSeed(bytes);
 
-            const twinId = toNumber(await getTwinId(keyringPair.address));
+            const twinId = toNumber(await getTwinIdByAccountId(keyringPair.address));
             console.log('got twin id', twinId);
             if (twinId === 0) {
                 continue;
@@ -113,7 +110,7 @@
 
                 const submittableExtrinsic = api.tx.tfgridModule.deleteFarm(id);
 
-                await submitExtrensic(submittableExtrinsic, keyringPair);
+                await submitExtrinsic(submittableExtrinsic, keyringPair);
 
                 // wait 1 second
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -137,7 +134,7 @@
 
             const keyringPair = keyring.addFromSeed(bytes);
 
-            const twinId = toNumber(await getTwinId(keyringPair.address));
+            const twinId = toNumber(await getTwinIdByAccountId(keyringPair.address));
             console.log('got twin id', twinId);
             if (twinId === 0) {
                 continue;
@@ -151,7 +148,7 @@
                 addNotification(NotificationType.info, 'Deleting farm', `Farm ${id}`);
                 const submittableExtrinsic = api.tx.tfgridModule.deleteFarm(id);
 
-                await submitExtrensic(submittableExtrinsic, keyringPair);
+                await submitExtrinsic(submittableExtrinsic, keyringPair);
 
                 // wait 1 second
                 await new Promise(resolve => setTimeout(resolve, 1000));

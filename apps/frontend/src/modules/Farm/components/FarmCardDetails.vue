@@ -88,10 +88,10 @@
     import { Farm } from '@/modules/Farm/types/farms.types';
     import { ClipboardCopyIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
     import { DocumentAddIcon } from '@heroicons/vue/outline';
-    import { getSubstrateApi, submitExtrensic } from '@/modules/TFChain/services/tfchainService';
     import { ref } from 'vue';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.substrate';
 
     interface Props {
         farm: Farm;
@@ -119,7 +119,7 @@
             farm.farmId,
             farm.wallet.keyPair.getStellarKeyPair().publicKey()
         );
-        await submitExtrensic(submittableExtrinsic, farm.wallet.keyPair.getSubstrateKeyring());
+        await submitExtrinsic(submittableExtrinsic, farm.wallet.keyPair.getSubstrateKeyring());
         await fetchStellarPayoutAddress();
         addNotification(NotificationType.success, 'Payout address added', '', 5000);
     };

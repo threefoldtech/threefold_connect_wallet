@@ -1,46 +1,10 @@
-import types from '@/modules/TFChain/lib/substrateTypes';
-
-import { ApiPromise, WsProvider } from '@polkadot/api';
 import { ref } from 'vue';
 import { AssetBalance } from '@/modules/Wallet/services/walletService';
-import { IKeyringPair } from '@polkadot/types/types/interfaces';
-import { bin2String } from '@/modules/Core/utils/crypto';
 import flagsmith from 'flagsmith';
 import axios from 'axios';
-import { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { ISubmittableResult } from '@polkadot/types/types';
 import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
-import throttle from 'lodash/throttle';
 import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
-
-const apiCache = ref<Promise<ApiPromise>>();
-
-const throttleSubstrateDisconnectedNotification = throttle(
-    () => {
-        // addNotification(NotificationType.error, translate('notification.substrateDisconnected'));
-    },
-    15000,
-    { leading: true }
-);
-
-export const getSubstrateApi = async (): Promise<ApiPromise> => {
-    if (apiCache.value) {
-        const api = await apiCache.value;
-        await api.isReady;
-        return api;
-    }
-
-    const endpoint = <string>flagsmith.getValue('tfchain_endpoint');
-    const provider = new WsProvider(endpoint);
-    provider.on('disconnected', () => {
-        throttleSubstrateDisconnectedNotification();
-    });
-    apiCache.value = ApiPromise.create({ provider, types });
-    const api = await apiCache.value;
-    await api.isReady;
-
-    return api;
-};
+import { getSubstrateApi } from 'tf-substrate/src/services/core.substrate';
 
 export const getSubstrateAssetBalances = async (publicKey: string): Promise<AssetBalance[]> => {
     const api = await getSubstrateApi();
@@ -57,12 +21,6 @@ export const getSubstrateAssetBalances = async (publicKey: string): Promise<Asse
     return [substrateBalance];
 };
 
-export const sendSubstrateTokens = async (keyring: IKeyringPair, address: string, amount: number) => {
-    const api = await getSubstrateApi();
-
-    const submittableExtrinsic = api.tx.balances.transfer(address, amount * 1e7);
-    return await submitExtrensic(submittableExtrinsic, keyring);
-};
 export const hex2a = (hex: string) => {
     let str = '';
     for (let i = 0; i < hex.length; i += 2) {
@@ -70,30 +28,6 @@ export const hex2a = (hex: string) => {
         if (v) str += String.fromCharCode(v);
     }
     return str;
-};
-export const getTwinId = async (id: string) => {
-    const api = await getSubstrateApi();
-
-    const entity = await api.query.tfgridModule.twinIdByAccountID(id);
-
-    const res = <any>entity.toJSON();
-    return <number>res;
-};
-
-export const getUsersTermsAndConditions = async (
-    id: string
-): Promise<{ document_link: string; account_id: string; document_hash: string; timestamp: number }[]> => {
-    const api = await getSubstrateApi();
-    // @ts-ignore
-    const arr: any[] = await api.query.tfgridModule.usersTermsAndConditions(id);
-    return <any>arr.map((term: any) => {
-        const newTerm = JSON.parse(JSON.stringify(term));
-        //@ts-ignore
-        newTerm.document_link = bin2String(term.document_link);
-        //@ts-ignore
-        newTerm.document_hash = bin2String(term.document_hash);
-        return newTerm;
-    });
 };
 
 export const allFarms = ref<SubstrateFarmDto[]>([]);
@@ -153,33 +87,6 @@ export const activationServiceForSubstrate = async (id: string) => {
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
-};
-
-export const submitExtrensic = async (
-    submittableExtrinsic: SubmittableExtrinsic<any>,
-    keyringPair: IKeyringPair,
-    options = {}
-) => {
-    const promise = new Promise((resolve, reject) => {
-        submittableExtrinsic.signAndSend(keyringPair, options, (result: ISubmittableResult) => {
-            if (result.isFinalized) {
-                resolve(result.toHuman(true));
-                return;
-            }
-            if (result.isError) {
-                reject(result.toHuman(true));
-                return;
-            }
-
-            // @ts-ignore
-            if (result.status === 'Finalized' || result.status === 'Ready') {
-                resolve(result.toHuman(true));
-                return;
-            }
-        });
-    });
-
-    return await promise;
 };
 
 export const doesFarmExistByName = async (name: string): Promise<boolean> => {

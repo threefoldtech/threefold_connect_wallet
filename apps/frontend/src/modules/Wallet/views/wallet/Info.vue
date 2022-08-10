@@ -111,7 +111,6 @@
         Wallet,
     } from '@/modules/Wallet/services/walletService';
     import { computed, inject, ref } from 'vue';
-    import { getSubstrateApi } from '@/modules/TFChain/services/tfchainService';
     import { ClipboardCopyIcon, PencilIcon, TrashIcon } from '@heroicons/vue/solid';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import CopyToClipboardField from '@/modules/Misc/components/misc/CopyToClipboardField.vue';
@@ -123,6 +122,7 @@
     import { useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { getSubstrateApi } from 'tf-substrate/src/services/core.substrate';
 
     const wallet: Wallet = <Wallet>inject('wallet');
 

@@ -191,11 +191,7 @@
         activationServiceForSubstrate,
         allFarms,
         doesFarmExistByName,
-        getSubstrateApi,
         getSubstrateAssetBalances,
-        getTwinId,
-        getUsersTermsAndConditions,
-        submitExtrensic,
     } from '@/modules/TFChain/services/tfchainService';
     import axios from 'axios';
     import flagsmith from 'flagsmith';
@@ -205,6 +201,8 @@
     import { toNumber } from 'lodash';
     import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.substrate';
+    import { getTwinIdByAccountId, getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.module';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
@@ -346,7 +344,7 @@
 
         console.log('Going to accept terms and cs');
 
-        const termsAndConditions = await getUsersTermsAndConditions(
+        const termsAndConditions = await getUsersTermsAndConditionsByAccountId(
             desiredWallet.value.keyPair.getSubstrateKeyring().address
         );
         console.log('These are the terms and conditions', termsAndConditions);
@@ -383,10 +381,10 @@
         const api = await getSubstrateApi();
         const submittableExtrinsic = api.tx.tfgridModule.createTwin('127.0.0.1');
 
-        await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
+        await submitExtrinsic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
 
         while (true) {
-            newTwinId.value = await getTwinId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
+            newTwinId.value = await getTwinIdByAccountId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
             if (newTwinId.value !== 0) {
                 console.log('twinId', newTwinId.value);
                 break;
@@ -399,7 +397,7 @@
 
     const addFarm = async (farmName: string, publicIps: string[]) => {
         console.log('getting twinId');
-        newTwinId.value = await getTwinId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
+        newTwinId.value = await getTwinIdByAccountId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
         console.log('twinId', newTwinId.value);
 
         console.debug('this is the twinid, ', newTwinId.value);
@@ -420,7 +418,7 @@
             desiredWallet.value.keyPair.getSubstrateKeyring().address
         );
         try {
-            const res = await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
+            const res = await submitExtrinsic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
             console.log('this is the response', res);
         } catch (e) {
             isLoading.value = false;
@@ -466,7 +464,7 @@
             desiredWallet.value.keyPair.getStellarKeyPair().publicKey()
         );
 
-        await submitExtrensic(submittableExtrinsic1, desiredWallet.value.keyPair.getSubstrateKeyring());
+        await submitExtrinsic(submittableExtrinsic1, desiredWallet.value.keyPair.getSubstrateKeyring());
 
         await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -479,7 +477,7 @@
 
         const api = await getSubstrateApi();
         const submittableExtrinsic = api.tx.tfgridModule.userAcceptTc(termsAndConditionsUrl, 'NO_HASH');
-        await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
+        await submitExtrinsic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
     };
 
     const acceptTermsAndConditions = async () => {
@@ -522,7 +520,7 @@
         do {
             await new Promise(resolve => setTimeout(resolve, 1000));
             loadingSubtitle.value = 'Getting terms and conditions';
-            termsAndConditions.value = await getUsersTermsAndConditions(id);
+            termsAndConditions.value = await getUsersTermsAndConditionsByAccountId(id);
         } while (termsAndConditions.value.filter(t => t.document_link === termsAndConditionsUrl).length === 0);
 
         console.log('these are the terms and conditions');

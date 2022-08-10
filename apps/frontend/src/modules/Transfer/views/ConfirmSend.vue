@@ -165,7 +165,6 @@
     import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
     import { buildFundedPaymentTransaction, submitFundedTransaction } from 'cryptolib';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
-    import { sendSubstrateTokens } from '@/modules/TFChain/services/tfchainService';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { computed, ref } from 'vue';
     import { translate } from '@/modules/Core/utils/translate';
@@ -173,6 +172,7 @@
     import uniq from 'lodash/uniq';
     import { getStellarClient } from '@/modules/Stellar/services/stellarService';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { sendSubstrateTokens } from 'tf-substrate/src/services/send.substrate';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };

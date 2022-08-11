@@ -111,7 +111,7 @@
 <script lang="ts" setup>
     import BalanceCard from '@/modules/Currency/components/BalanceCard.vue';
     import { useRouter } from 'vue-router';
-    import { AssetBalance, retrieveAllAssets, Wallet } from '@/modules/Wallet/services/walletService';
+    import { retrieveAllAssets, Wallet } from '@/modules/Wallet/services/walletService';
     import { computed, inject, ref } from 'vue';
     import { useAssets } from '@/modules/Currency/utils/useAssets';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
@@ -121,11 +121,12 @@
     import { orderAssets } from '@/modules/Currency/utils/order';
     import { getAllTokensDetails, TokenItem, unlockTokens } from '@/modules/LockedTokens/services/lockService';
     import LockedBalanceCard from '@/modules/LockedTokens/components/LockedBalanceCard.vue';
+    import { IAssetBalance } from 'shared-types';
 
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
 
-    const vestedAssetBalance = useLocalStorage<AssetBalance[]>(
+    const vestedAssetBalance = useLocalStorage<IAssetBalance[]>(
         `vested_asset_balance_${wallet.keyPair.getBasePublicKey()}`,
         []
     );

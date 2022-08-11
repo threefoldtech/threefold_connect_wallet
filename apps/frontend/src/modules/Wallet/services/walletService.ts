@@ -8,7 +8,7 @@ import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 import { appKeyPair } from '@/modules/Core/services/crypto.service';
 import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
 import { PkidWallet } from '@/modules/Pkid/interfaces/pkid.interfaces';
-import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
+import { ChainTypes, IAllowedAsset, IAssetBalance, IBalance } from 'shared-types';
 import AccountRecord = ServerApi.AccountRecord;
 import CollectionPage = ServerApi.CollectionPage;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
@@ -25,25 +25,6 @@ export interface Wallet {
     };
 }
 
-export interface AllowedAsset {
-    name: string; //asset name
-    type: ChainTypes;
-    asset_code: string;
-    issuer?: string;
-}
-
-export interface AssetBalance {
-    name: string; //asset name
-    amount: number;
-    type: ChainTypes;
-    issuer?: string;
-}
-
-export interface Balance {
-    id: string; // walletId
-    assets: AssetBalance[];
-}
-
 export interface Operation {
     id: string;
     operations: OperationRecord[];
@@ -57,16 +38,16 @@ export interface FlutterWallet {
 }
 
 export const wallets: Ref<Wallet[]> = <Ref<Wallet[]>>ref<Wallet[]>([]);
-export const balances: Ref<Balance[]> = useLocalStorage<Balance[]>('balance_cache', [], {
+export const balances: Ref<IBalance[]> = useLocalStorage<IBalance[]>('balance_cache', [], {
     serializer: {
-        read(raw: string): Balance[] {
-            const balancesInCache: Balance[] = JSON.parse(raw);
+        read(raw: string): IBalance[] {
+            const balancesInCache: IBalance[] = JSON.parse(raw);
 
             return balancesInCache.filter((value, index, array) => {
                 return array.findIndex(v => v.id === value.id) === index;
             });
         },
-        write(value: Balance[]): string {
+        write(value: IBalance[]): string {
             return JSON.stringify(value);
         },
     },
@@ -91,14 +72,14 @@ export const getOperations = async (wallet: Wallet, cursor?: string): Promise<Co
 };
 
 export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
-    const allowedAssets: AllowedAsset[] = JSON.parse(<string>flagsmith.getValue('supported-currencies'));
+    const allowedAssets: IAllowedAsset[] = JSON.parse(<string>flagsmith.getValue('supported-currencies'));
 
-    const balance: Balance = balances.value.find(value => value.id === wallet.keyPair.getBasePublicKey()) || {
+    const balance: IBalance = balances.value.find(value => value.id === wallet.keyPair.getBasePublicKey()) || {
         id: wallet.keyPair.getBasePublicKey(),
         assets: [],
     };
-    const stellarAssets: AssetBalance[] = res.balances
-        .map((balance: BalanceLine): AssetBalance => {
+    const stellarAssets: IAssetBalance[] = res.balances
+        .map((balance: BalanceLine): IAssetBalance => {
             const assetCode =
                 balance.asset_type === 'native'
                     ? 'XLM'
@@ -123,7 +104,7 @@ export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
 };
 
 //@todo: make this better
-export const mergeAssets = (...assets: AssetBalance[]) => {
+export const mergeAssets = (...assets: IAssetBalance[]) => {
     return assets
         .filter(
             (asset, index, self) =>

@@ -1,5 +1,4 @@
-import { IAssetBalance } from 'shared-types';
-import { ChainTypes } from 'wallet-frontend/src/modules/Currency/enums/chains.enums';
+import { ChainTypes, IAssetBalance } from 'shared-types';
 import { AssetsTypes } from 'wallet-frontend/src/modules/Currency/enums/assets.enums';
 import { getSubstrateApi } from './core.substrate';
 

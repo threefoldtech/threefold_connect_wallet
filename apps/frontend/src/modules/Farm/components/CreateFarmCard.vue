@@ -173,7 +173,7 @@
 <script lang="ts" setup>
     import SiteModalFrame from '@/modules/Misc/components/SiteModalFrame.vue';
     import { Farm } from '@/modules/Farm/types/farms.types';
-    import { AssetBalance, balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
     import {
         Menu,
         MenuButton,
@@ -203,6 +203,7 @@
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.substrate';
     import { getTwinIdByAccountId, getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.module';
+    import { IAssetBalance } from 'shared-types';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
@@ -493,7 +494,7 @@
         while (true) {
             const substrateBalance = await getSubstrateAssetBalances(id);
             if (
-                substrateBalance.filter((assetBalance: AssetBalance) => {
+                substrateBalance.filter((assetBalance: IAssetBalance) => {
                     return assetBalance.amount >= 0;
                 }).length > 0
             ) {

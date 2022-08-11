@@ -1,5 +1,4 @@
 import {
-    Balance,
     balances,
     getStellarBalance,
     handleAccountRecord,
@@ -11,6 +10,7 @@ import { ServerApi } from 'stellar-sdk';
 import { getSubstrateAssetBalances } from '@/modules/TFChain/services/tfchainService';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 import AccountRecord = ServerApi.AccountRecord;
+import { IBalance } from 'shared-types';
 
 const useDynamicStellarBalance = (wallet: Wallet) => {
     const streams: (() => void)[] = [];
@@ -45,12 +45,12 @@ const useDynamicSubstrateBalance = (wallet: Wallet) => {
     const myInterval = setInterval(async () => {
         const substrateBalances = await getSubstrateAssetBalances(wallet.keyPair.getSubstrateKeyring().address);
 
-        const baseBalance: Balance = {
+        const baseBalance: IBalance = {
             id: wallet.keyPair.getBasePublicKey(),
             assets: [],
         };
 
-        const foundBalances: Balance =
+        const foundBalances: IBalance =
             balances.value.find(b => b.id === wallet.keyPair.getBasePublicKey()) || baseBalance;
 
         foundBalances.assets = mergeAssets(...substrateBalances, ...foundBalances.assets);

@@ -92,7 +92,7 @@
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
     import uniq from 'lodash/uniq';
     import { BridgeFee } from '@/modules/Wallet/types/wallet.types';
-    import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
+    import { ChainTypes } from 'shared-types';
 
     const selectedWallet = ref<Wallet>() as Ref<Wallet>;
 

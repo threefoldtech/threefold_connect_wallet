@@ -207,8 +207,8 @@
     import uniq from 'lodash/uniq';
     import flagsmith from 'flagsmith';
     import { isValidMemoOfTransaction } from '@/modules/Wallet/validate/wallet.validate';
-    import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
     import { XIcon, SelectorIcon, CheckIcon } from '@heroicons/vue/solid';
+    import { ChainTypes } from 'shared-types';
 
     const router = useRouter();
 

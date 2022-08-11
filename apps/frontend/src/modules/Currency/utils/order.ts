@@ -1,6 +1,6 @@
-import { AssetBalance } from '@/modules/Wallet/services/walletService';
+import { IAssetBalance } from 'shared-types';
 
-export const orderAssets = (assets: AssetBalance[]) => {
+export const orderAssets = (assets: IAssetBalance[]) => {
     const orderedList = {};
 
     const sortOrder = ['TFT:STELLAR', 'TFT:SUBSTRATE', 'TFTA:STELLAR', 'FREETFT:STELLAR'];

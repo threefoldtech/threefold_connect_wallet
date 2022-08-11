@@ -44,14 +44,14 @@
 </template>
 
 <script lang="ts" setup>
-    import { Balance } from '../services/walletService';
     import LoadingSpinner from '@/modules/Core/components/LoadingSpinner.vue';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
+    import { IBalance } from 'shared-types';
 
     interface IProps {
         name: string;
-        balance?: Balance;
+        balance?: IBalance;
     }
 
     const { name, balance } = defineProps<IProps>();

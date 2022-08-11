@@ -6,10 +6,10 @@ import {
 import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
 import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
 import { appKeyPair } from '@/modules/Core/services/crypto.service';
-import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
 import { validateWalletAddress } from '@/modules/Wallet/validate/wallet.validate';
 import { PkidNamedKeys } from '@/modules/Pkid/enums/pkid.enums';
 import { ContactFields } from '@/modules/Contact/enums/contact.enums';
+import { ChainTypes } from 'shared-types';
 
 export const isContactInMyContacts = (address: string, chain: string): boolean => {
     const myContacts: IContactType[] = wallets.value.map((wallet: Wallet) => {

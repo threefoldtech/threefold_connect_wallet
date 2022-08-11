@@ -1,12 +1,12 @@
 import { Horizon } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
-import { AllowedAsset, AssetBalance, Wallet } from '@/modules/Wallet/services/walletService';
+import { Wallet } from '@/modules/Wallet/services/walletService';
 import { checkVesting as stellarCryptocheckVesting } from 'cryptolib';
-import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
 import BalanceLine = Horizon.BalanceLine;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
+import { ChainTypes, IAllowedAsset, IAssetBalance } from 'shared-types';
 
-export const checkVesting = async (wallet: Wallet): Promise<AssetBalance[]> => {
+export const checkVesting = async (wallet: Wallet): Promise<IAssetBalance[]> => {
     const publicKey = wallet.keyPair.getStellarKeyPair().publicKey();
 
     const account = await stellarCryptocheckVesting(publicKey);
@@ -14,9 +14,9 @@ export const checkVesting = async (wallet: Wallet): Promise<AssetBalance[]> => {
     if (!account) {
         return [];
     }
-    const allowedAssets: AllowedAsset[] = JSON.parse(<string>flagsmith.getValue('currencies'));
+    const allowedAssets: IAllowedAsset[] = JSON.parse(<string>flagsmith.getValue('currencies'));
     return account.balances
-        .map((balance: BalanceLine): AssetBalance => {
+        .map((balance: BalanceLine): IAssetBalance => {
             const assetCode =
                 balance.asset_type === 'native'
                     ? 'xlm'

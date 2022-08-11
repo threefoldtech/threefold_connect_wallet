@@ -19,11 +19,11 @@
 </template>
 
 <script lang="ts" setup>
-    import { AssetBalance } from '@/modules/Wallet/services/walletService';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
+    import { IAssetBalance } from 'shared-types';
     interface IProps {
-        balance: AssetBalance;
+        balance: IAssetBalance;
     }
 
     const { balance } = defineProps<IProps>();

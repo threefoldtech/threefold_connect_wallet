@@ -162,7 +162,7 @@
     import { useRoute, useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
     import { wallets } from '@/modules/Wallet/services/walletService';
-    import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
+    import { ChainTypes } from 'shared-types';
     import { buildFundedPaymentTransaction, submitFundedTransaction } from 'cryptolib';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
     import { addNotification } from '@/modules/Core/services/notification.service';

@@ -186,7 +186,7 @@
     } from '@headlessui/vue';
     import { computed, nextTick, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
-    import { AssetBalance, Balance, balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
     import uniq from 'lodash/uniq';
     import {
         isValidMemoOfTransaction,
@@ -194,7 +194,6 @@
         validateSubstrateAddress,
         validateWalletAddress,
     } from '@/modules/Wallet/validate/wallet.validate';
-    import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
     import { toNumber } from 'lodash';
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
     import Contact from '@/modules/Contact/views/Contact.vue';
@@ -203,6 +202,7 @@
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { ChainTypes, IAssetBalance, IBalance } from 'shared-types';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
@@ -433,8 +433,8 @@
         }
 
         if (currency && relevantAssets.value.findIndex(ra => ra.asset_code === currency) === -1) {
-            const firstBalance = balances.value.find((b: Balance) =>
-                b.assets.find((a: AssetBalance) => a.name === currency?.toUpperCase() && a.amount > 0)
+            const firstBalance = balances.value.find((b: IBalance) =>
+                b.assets.find((a: IAssetBalance) => a.name === currency?.toUpperCase() && a.amount > 0)
             );
 
             selectedWallet.value =

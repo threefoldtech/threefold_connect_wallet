@@ -73,7 +73,6 @@
 <script lang="ts" setup>
     import { useRoute } from 'vue-router';
     import {
-        Balance,
         balances,
         getOperations,
         handleOperationRecordPage,
@@ -87,11 +86,12 @@
     import Operation from '@/modules/Transfer/components/Operation.vue';
     import { ServerApi } from 'stellar-sdk';
     import { NetworkError } from 'stellar-sdk/lib/errors';
+    import { IBalance } from 'shared-types';
 
     const route = useRoute();
 
     const wallet: Wallet = <Wallet>inject('wallet');
-    const balance: ComputedRef<Balance | undefined> = computed(() =>
+    const balance: ComputedRef<IBalance | undefined> = computed(() =>
         balances.value.find(b => b.id === wallet.keyPair.getBasePublicKey())
     );
 

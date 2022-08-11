@@ -1,18 +1,17 @@
 import { ref } from 'vue';
-import { AssetBalance } from '@/modules/Wallet/services/walletService';
 import flagsmith from 'flagsmith';
 import axios from 'axios';
 import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
-import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
 import { getSubstrateApi } from 'tf-substrate/src/services/core.substrate';
+import { ChainTypes, IAssetBalance } from 'shared-types';
 
-export const getSubstrateAssetBalances = async (publicKey: string): Promise<AssetBalance[]> => {
+export const getSubstrateAssetBalances = async (publicKey: string): Promise<IAssetBalance[]> => {
     const api = await getSubstrateApi();
 
     const { data: balances }: any = await api.query.system.account(publicKey);
     const balance = balances.free.toJSON() / 1e7;
 
-    const substrateBalance: AssetBalance = {
+    const substrateBalance: IAssetBalance = {
         amount: Number(balance),
         name: 'TFT',
         type: ChainTypes.SUBSTRATE,

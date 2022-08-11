@@ -1,4 +1,4 @@
-import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
+import { ChainTypes } from 'shared-types';
 
 export type ValidateWalletAddress = {
     type: ChainTypes;

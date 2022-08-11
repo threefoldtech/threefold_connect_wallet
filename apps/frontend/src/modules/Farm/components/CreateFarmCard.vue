@@ -187,23 +187,24 @@
     import { ChevronDownIcon, XIcon } from '@heroicons/vue/solid';
 
     import { ref, watch } from 'vue';
-    import {
-        activationServiceForSubstrate,
-        allFarms,
-        doesFarmExistByName,
-        getSubstrateAssetBalances,
-    } from '@/modules/TFChain/services/tfchainService';
+    import { activationServiceForSubstrate, allPersonalFarms } from '@/modules/TFChain/services/tfchainService';
     import axios from 'axios';
     import flagsmith from 'flagsmith';
     import { addNotification } from '@/modules/Core/services/notification.service';
-    import { fetchFarms, v2Farms } from '@/modules/Farm/services/farmService';
+    import { v2Farms } from '@/modules/Farm/services/farmService';
     import { onBeforeMount } from '@vue/runtime-core';
     import { toNumber } from 'lodash';
-    import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.substrate';
-    import { getTwinIdByAccountId, getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.module';
     import { IAssetBalance } from 'shared-types';
+    import { getSubstrateAssetBalances } from 'tf-substrate/src/services/balance.substrate';
+    import { IGqlFarm } from 'shared-types/src/interfaces/substrate/farm.interfaces';
+    import { addStellarPayoutAddress, createFarm, createTwin } from 'tf-substrate/src/extrinsics/grid.extrinsics';
+    import {
+        doesFarmExistByName,
+        getTwinIdByAccountId,
+        getUsersTermsAndConditionsByAccountId,
+    } from 'tf-substrate/src/states/grid.state';
 
     const desiredWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
@@ -217,7 +218,7 @@
     const termsAndConditionsIsAccepted = ref<boolean>(false);
     const termsAndConditions = ref<any[]>([]);
 
-    const farms = ref<SubstrateFarmDto[]>([]);
+    const farms = ref<IGqlFarm[]>([]);
     const newTwinId = ref();
 
     const emit = defineEmits(['close']);
@@ -368,7 +369,6 @@
             );
 
             v2Farms.value = [];
-            await fetchFarms();
             return;
         }
 
@@ -379,10 +379,7 @@
         isLoading.value = true;
         loadingSubtitle.value = 'Creating Twin';
 
-        const api = await getSubstrateApi();
-        const submittableExtrinsic = api.tx.tfgridModule.createTwin('127.0.0.1');
-
-        await submitExtrinsic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
+        await createTwin(desiredWallet.value.keyPair.substrateKeyring);
 
         while (true) {
             newTwinId.value = await getTwinIdByAccountId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
@@ -409,18 +406,9 @@
 
         isLoading.value = true;
         loadingSubtitle.value = 'Creating farm';
-        const api = await getSubstrateApi();
 
-        console.debug('this is the provided info', farmName, publicIps);
-        const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, publicIps);
-
-        console.debug(
-            'signing and sending substate address ',
-            desiredWallet.value.keyPair.getSubstrateKeyring().address
-        );
         try {
-            const res = await submitExtrinsic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
-            console.log('this is the response', res);
+            await createFarm(desiredWallet.value.keyPair.substrateKeyring, farmName);
         } catch (e) {
             isLoading.value = false;
             loadingSubtitle.value = '';
@@ -443,9 +431,9 @@
             }
             i++;
 
-            farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === newTwinId.value);
+            farms.value = allPersonalFarms.value.filter(farm => toNumber(farm.twinId) === newTwinId.value);
 
-            const myFarm = farms.value.find((farm: SubstrateFarmDto) => farm.name === farmName);
+            const myFarm = farms.value.find((farm: IGqlFarm) => farm.name === farmName);
 
             if (myFarm) {
                 break;
@@ -460,12 +448,11 @@
         }
         loadingSubtitle.value = 'Adding stellar payout address';
 
-        const submittableExtrinsic1 = api.tx.tfgridModule.addStellarPayoutV2address(
-            myFarm.id,
-            desiredWallet.value.keyPair.getStellarKeyPair().publicKey()
+        await addStellarPayoutAddress(
+            desiredWallet.value.keyPair.substrateKeyring,
+            desiredWallet.value.keyPair.getStellarKeyPair().publicKey(),
+            myFarm.farmId
         );
-
-        await submitExtrinsic(submittableExtrinsic1, desiredWallet.value.keyPair.getSubstrateKeyring());
 
         await new Promise(resolve => setTimeout(resolve, 1000));
 

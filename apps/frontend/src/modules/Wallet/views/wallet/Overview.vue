@@ -111,7 +111,7 @@
 <script lang="ts" setup>
     import BalanceCard from '@/modules/Currency/components/BalanceCard.vue';
     import { useRouter } from 'vue-router';
-    import { retrieveAllAssets, Wallet } from '@/modules/Wallet/services/walletService';
+    import { Wallet } from '@/modules/Wallet/services/walletService';
     import { computed, inject, ref } from 'vue';
     import { useAssets } from '@/modules/Currency/utils/useAssets';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
@@ -122,6 +122,7 @@
     import { getAllTokensDetails, TokenItem, unlockTokens } from '@/modules/LockedTokens/services/lockService';
     import LockedBalanceCard from '@/modules/LockedTokens/components/LockedBalanceCard.vue';
     import { IAssetBalance } from 'shared-types';
+    import { getNodesByFarmId } from 'tf-substrate/src/gql/calls/farms.calls';
 
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
@@ -155,6 +156,8 @@
             await lockedTokensFlow();
         }
 
+        const t = await getNodesByFarmId(1455);
+        console.log(t);
         vestedAssetBalance.value = await checkVesting(wallet);
         vestedAssetBalanceIsLoading.value = false;
     };

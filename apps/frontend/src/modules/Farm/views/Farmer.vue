@@ -10,7 +10,7 @@
             </PageHeader>
         </template>
         <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
-            <div v-if="v2Farms.length > 0 || v3Farms.length > 0 || v3PortalFarms.length > 0">
+            <div v-if="v2Farms.length > 0 || v3Farms.length > 0">
                 <div class="font-medium">Farms to be migrated from V2 to V3</div>
                 <div v-if="v2Farms.length > 0">
                     <h2 class="pb-2 text-xs">Farms connected to existing wallets in TF Grid v2</h2>
@@ -23,23 +23,23 @@
                 </div>
 
                 <div class="pt-3 font-medium">Farms on v3</div>
-                <div v-if="v3Farms.length > 0">
+                <div v-if="v3PersonalFarms.length > 0">
                     <h2 class="pb-2 text-xs">Farms connected to existing wallets should be migrated</h2>
                     <ul role="list" class="grid grid-cols-1 gap-3">
-                        <FarmCard :showSecrets="true" :isV3="true" :farm="farm" v-for="farm in v3Farms" />
+                        <FarmCard :showSecrets="true" :isV3="true" :farm="farm" v-for="farm in v3PersonalFarms" />
                     </ul>
                 </div>
                 <div v-else>
                     <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v3</h2>
                 </div>
 
-                <div v-if="v3PortalFarms.length > 0" class="pt-3 font-medium">Other v3 farms</div>
-                <div v-if="v3PortalFarms.length > 0">
+                <div v-if="v3OtherFarms.length > 0" class="pt-3 font-medium">Other v3 farms</div>
+                <div v-if="v3OtherFarms.length > 0">
                     <h2 class="pb-2 text-xs">
                         Farms created with other platforms that have a payout to your TF Connect wallet
                     </h2>
                     <ul role="list" class="grid grid-cols-1 gap-3">
-                        <FarmCard :showSecrets="false" :isV3="true" :farm="farm" v-for="farm in v3PortalFarms" />
+                        <FarmCard :showSecrets="false" :isV3="true" :farm="farm" v-for="farm in v3OtherFarms" />
                     </ul>
                 </div>
 
@@ -111,45 +111,30 @@
 <script lang="ts" setup>
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
-    import { saveWallets, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/walletService';
 
     import { Dialog, DialogOverlay } from '@headlessui/vue';
 
+    import {
+        fetchAllFarms,
+        v2Farms,
+        v3Farms,
+        v3OtherFarms,
+        v3PersonalFarms,
+    } from '@/modules/Farm/services/farmService';
+
     import { PlusCircleIcon } from '@heroicons/vue/outline';
-    import { nanoid } from 'nanoid';
-    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import flagsmith from 'flagsmith';
-    import { computed, onBeforeUnmount, ref } from 'vue';
+    import { computed, ref } from 'vue';
     import axios from 'axios';
     import FarmCard from '@/modules/Farm/components/FarmCard.vue';
     import { Farm } from '@/modules/Farm/types/farms.types';
     import CreateFarmCard from '@/modules/Farm/components/CreateFarmCard.vue';
-    import { fetchFarms, v2Farms, v3Farms, v3PortalFarms } from '@/modules/Farm/services/farmService';
     import { useRouter } from 'vue-router';
-    import LandingFarmInformationDialog from '@/modules/Farm/components/dialogs/LandingFarmInformationDialog.vue';
-
-    import { useLocalStorage } from '@vueuse/core';
     import { isDev } from '@/modules/Core/utils/environment';
-    import { PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
-    // const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
     const canCreateFarms: boolean = isDev || <boolean>flagsmith.hasFeature('can_create_farms_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);
-
-    const createWallet = async () => {
-        const walletKeyPairBuilder = new WalletKeyPairBuilder();
-        walletKeyPairBuilder.addRandomSeed();
-
-        const walletKeyPair = <IWalletKeyPair>walletKeyPairBuilder.build();
-
-        console.log(walletKeyPair.getStellarKeyPair().publicKey());
-        wallets.value.push({
-            keyPair: walletKeyPair,
-            meta: { type: PkidWalletTypes.IMPORTED },
-            name: nanoid(),
-        });
-        await saveWallets();
-    };
 
     const router = useRouter();
     const addressesIsLoading = ref(true);
@@ -175,33 +160,14 @@
         });
     });
 
-    const restWallets = computed(() => {
-        return wallets.value.filter(wallet => {
-            const id = wallet.keyPair.getBasePublicKey();
-            return !grid2Wallets.value.find(grid2Wallet => grid2Wallet.keyPair.getBasePublicKey() === id);
-        });
-    });
-
-    // const { isLoading: farmsIsLoading } = usePromise(fetchAllFarms());
-
     const farmsIsLoading = ref<boolean>(false);
-    let intervalPointer: any;
-
-    onBeforeUnmount(() => clearInterval(intervalPointer));
 
     const init = async () => {
         if (wallets.value.length <= 0) {
             return await router.push({ name: 'noWalletsScreen' });
         }
 
-        farmsIsLoading.value = true;
-        await fetchFarms();
-        console.log('Farms have been fetched');
-        farmsIsLoading.value = false;
-
-        intervalPointer = setInterval(async () => {
-            await fetchFarms();
-        }, 5000);
+        await fetchAllFarms();
     };
 
     init();

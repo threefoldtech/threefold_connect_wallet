@@ -7,10 +7,10 @@ import {
 } from '@/modules/Wallet/services/walletService';
 import { NetworkError } from 'stellar-sdk/lib/errors';
 import { ServerApi } from 'stellar-sdk';
-import { getSubstrateAssetBalances } from '@/modules/TFChain/services/tfchainService';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 import AccountRecord = ServerApi.AccountRecord;
 import { IBalance } from 'shared-types';
+import { getSubstrateAssetBalances } from 'tf-substrate/src/services/balance.substrate';
 
 const useDynamicStellarBalance = (wallet: Wallet) => {
     const streams: (() => void)[] = [];

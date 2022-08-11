@@ -4,7 +4,7 @@ import { IKeyringPair } from '@polkadot/types/types/interfaces';
 import { ExtrinsicStatus } from 'shared-types/src/enums/substrate.enums';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import SubstrateTypes from 'shared-types/src/types/substrate.chain.types';
+import SubstrateChainTypes from 'shared-types/src/types/substrate.chain.types';
 
 let apiCache: Promise<ApiPromise>;
 
@@ -20,7 +20,7 @@ export const getSubstrateApi = async (): Promise<ApiPromise> => {
 
     const provider = new WsProvider(endpoint);
 
-    apiCache = ApiPromise.create({ provider, types: SubstrateTypes });
+    apiCache = ApiPromise.create({ provider, types: SubstrateChainTypes });
 
     const api = await apiCache;
     await api.isReady;

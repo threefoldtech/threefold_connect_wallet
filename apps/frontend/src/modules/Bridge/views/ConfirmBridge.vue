@@ -123,7 +123,7 @@
     import { ref } from 'vue';
     import { activationServiceForSubstrate } from '@/modules/TFChain/services/tfchainService';
     import { initializedUser } from '@/modules/Core/services/crypto.service';
-    import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/modules/TFChain/services/entityService';
+    import { createEntitySign } from '@/modules/TFChain/services/entityService';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { toNumber } from 'lodash';
     import { onBeforeMount } from '@vue/runtime-core';
@@ -134,6 +134,7 @@
     import { bridgeToSubstrate } from '@/modules/Bridge/services/bridge.service';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.substrate';
+    import { getEntityIdByAccountId } from 'tf-substrate/src/states/grid.state';
 
     const router = useRouter();
     const route = useRoute();
@@ -181,7 +182,7 @@
 
         loadingSubtitle.value = translate('transfer.confirmBridge.gettingEntityId');
         console.info('Getting entityId for user ', name);
-        let entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
+        let entityId = await getEntityIdByAccountId(substrateKeyRing.address);
 
         if (entityId == 0) {
             loadingSubtitle.value = translate('transfer.confirmBridge.entityIdNotFound');
@@ -216,13 +217,13 @@
                     throw new Error('Entity not found after 10 tries');
                 }
                 console.info('Entity not found, retrying...');
-                entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
+                entityId = await getEntityIdByAccountId(substrateKeyRing.address);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 i++;
             }
         }
 
-        const entityIdToMakeTheBridge = await getEntityIDByAccountId(api, substrateKeyRing.address);
+        const entityIdToMakeTheBridge = await getEntityIdByAccountId(substrateKeyRing.address);
 
         if (entityIdToMakeTheBridge == 0) {
             addNotification(NotificationType.error, translate('transfer.confirmBridge.entityIdNotFound'), '', 5000);

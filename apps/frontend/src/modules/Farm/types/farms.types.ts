@@ -12,16 +12,6 @@ export interface Farm {
     nodes?: any;
 }
 
-export interface BCFarm {
-    certification_type: string;
-    id: string;
-    name: string;
-    pricing_policy_id: string;
-    public_ips: string[];
-    twin_id: string;
-    version: string;
-}
-
 export interface StellarPayoutResponse {
     farmId: number;
     stellarAddress: string;

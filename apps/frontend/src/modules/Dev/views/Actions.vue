@@ -44,7 +44,7 @@
     import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.substrate';
-    import { getTwinIdByAccountId } from 'tf-substrate/src/states/grid.module';
+    import { getTwinIdByAccountId } from 'tf-substrate/src/states/grid.state';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();

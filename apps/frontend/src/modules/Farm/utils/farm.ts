@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Wallet } from '@/modules/Wallet/services/walletService';
 import { Farm } from '@/modules/Farm/types/farms.types';
-import { doesFarmExistByName } from 'tf-substrate/src/states/grid.state';
+import { doesFarmExistByName } from 'tf-substrate/src/gql/calls/farms.calls';
 
 export const validateFarmName = async (farmName: any, stellarAddress: string, wallet: Wallet, v2farms: Farm[]) => {
     const wasFound = v2farms.find(farm => farm.name === farmName);
@@ -42,8 +42,4 @@ export const validateFarmName = async (farmName: any, stellarAddress: string, wa
     }
 
     return;
-};
-
-export const parseBCInt = (bcInt: string) => {
-    return parseInt(bcInt.replace(',', ''));
 };

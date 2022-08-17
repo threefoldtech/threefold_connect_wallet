@@ -1,5 +1,5 @@
 import { IKeyringPair } from '@polkadot/types/types/interfaces';
-import { getSubstrateApi, submitExtrinsic } from './core.substrate';
+import { getSubstrateApi, submitExtrinsic } from './core.service.substrate';
 
 export const sendSubstrateTokens = async (from: IKeyringPair, address: string, amount: number) => {
     const api = await getSubstrateApi();

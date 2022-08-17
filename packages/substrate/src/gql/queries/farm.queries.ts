@@ -1,5 +1,5 @@
-export const gqlGetAllFarms = `query MyQuery($stellarAddresses: [String!]) {
-  farms(where: {stellarAddress_in: $stellarAddresses}) {
+export const gqlGetAllFarms = `query MyQuery($twinIds: [Int!], $stellarAddresses: [String!]) {
+  farms(where: {twinID_in: $twinIds, OR:  { stellarAddress_in: $stellarAddresses} }) {
     name
     farmID
     stellarAddress
@@ -7,21 +7,24 @@ export const gqlGetAllFarms = `query MyQuery($stellarAddresses: [String!]) {
   }
 }`;
 
-export const gqlGetNodesByFarmId = `query MyQuery($farmId: Int ) { nodes(where: {farmID_eq: $farmId}) {
+export const gqlGetAllNodesOfFarms = `query MyQuery($farmIds: [Int!]) {
+  nodes(where: {farmID_in: $farmIds}) {
     nodeID
+    farmID
   }
-}`;
-
-export const gqlGetAllFarmsByPayoutAddress = `query farmQuery($stellarAddresses: [String!]) {
-  farms(where: {stellarAddress_in: $stellarAddresses}) {
-    name
-    twin_id: twinID
-    id: farmID
-  }
-}`;
+}
+`;
 
 export const gqlGetAllTwinIds = `query MyQuery($substrateAddresses: [String!]) {
   twins(where: {accountID_in: $substrateAddresses}) {
     twinID
+    accountID
+  }
+}`;
+
+export const gqlDoesFarmExistByName = `query MyQuery($name: String) {
+  farms(where: {name_eq: $name}) {
+    id
+    name
   }
 }`;

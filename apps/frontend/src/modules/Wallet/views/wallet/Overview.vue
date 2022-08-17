@@ -122,7 +122,7 @@
     import { getAllTokensDetails, TokenItem, unlockTokens } from '@/modules/LockedTokens/services/lockService';
     import LockedBalanceCard from '@/modules/LockedTokens/components/LockedBalanceCard.vue';
     import { IAssetBalance } from 'shared-types';
-    import { getNodesByFarmId } from 'tf-substrate/src/gql/calls/farms.calls';
+    import { getAllNodesOfFarms } from 'tf-substrate/src/gql/calls/farms.calls';
 
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');
@@ -156,8 +156,6 @@
             await lockedTokensFlow();
         }
 
-        const t = await getNodesByFarmId(1455);
-        console.log(t);
         vestedAssetBalance.value = await checkVesting(wallet);
         vestedAssetBalanceIsLoading.value = false;
     };

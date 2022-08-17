@@ -38,7 +38,7 @@
                                 <MenuButton
                                     class="inline-flex w-full justify-between rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
                                 >
-                                    {{ desiredWallet.name }}
+                                    {{ wallet.name }}
                                     <ChevronDownIcon
                                         class="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"
                                         aria-hidden="true"
@@ -53,7 +53,7 @@
                                     <MenuItem v-for="wallet in wallets" v-slot="{ active }">
                                         <div
                                             class="flex w-full justify-between gap-2 truncate px-4 py-2 text-sm"
-                                            @click="desiredWallet = wallet"
+                                            @click="wallet === wallet"
                                         >
                                             <div class="flex w-full flex-col justify-start truncate">
                                                 <div class="flex flex-row justify-between">
@@ -124,7 +124,7 @@
                                 <a
                                     class="inline text-primary-600 decoration-primary-500 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
                                     tabindex="0"
-                                    @click.stop.prevent="showTerms()"
+                                    @click.stop.prevent="showTermsAndConditions = true"
                                 >
                                     terms and conditions
                                 </a>
@@ -186,27 +186,27 @@
     } from '@headlessui/vue';
     import { ChevronDownIcon, XIcon } from '@heroicons/vue/solid';
 
-    import { ref, watch } from 'vue';
-    import { activationServiceForSubstrate, allPersonalFarms } from '@/modules/TFChain/services/tfchainService';
-    import axios from 'axios';
+    import { ref } from 'vue';
     import flagsmith from 'flagsmith';
     import { addNotification } from '@/modules/Core/services/notification.service';
-    import { v2Farms } from '@/modules/Farm/services/farmService';
+    import { allSubstrateAddresses, v2Farms } from '@/modules/Farm/services/farm.service';
     import { onBeforeMount } from '@vue/runtime-core';
-    import { toNumber } from 'lodash';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
-    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.substrate';
-    import { IAssetBalance } from 'shared-types';
-    import { getSubstrateAssetBalances } from 'tf-substrate/src/services/balance.substrate';
-    import { IGqlFarm } from 'shared-types/src/interfaces/substrate/farm.interfaces';
-    import { addStellarPayoutAddress, createFarm, createTwin } from 'tf-substrate/src/extrinsics/grid.extrinsics';
-    import {
-        doesFarmExistByName,
-        getTwinIdByAccountId,
-        getUsersTermsAndConditionsByAccountId,
-    } from 'tf-substrate/src/states/grid.state';
+    import { IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
 
-    const desiredWallet = ref<Wallet>(wallets.value[0]);
+    import { getFarmIdByName, getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.state';
+
+    import { getAllTwinIds } from 'tf-substrate/src/gql/calls/farms.calls';
+    import { validateFarmName } from '@/modules/Farm/validators/farm.validate';
+    import {
+        activateAccount,
+        createFarm,
+        createTwin,
+        signAndAcceptTermsAndConditions,
+    } from 'tf-substrate/src/services/farm.service.substrate';
+    import { addStellarPayoutAddressOnSubstrate } from 'tf-substrate/src/extrinsics/grid.extrinsics';
+
+    const wallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
     const farmNameToValidate = ref<string>('');
 
@@ -216,17 +216,13 @@
     const showTermsAndConditions = ref<boolean>(false);
     const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
     const termsAndConditionsIsAccepted = ref<boolean>(false);
-    const termsAndConditions = ref<any[]>([]);
-
-    const farms = ref<IGqlFarm[]>([]);
-    const newTwinId = ref();
 
     const emit = defineEmits(['close']);
 
     onBeforeMount(() => {
         if (migrationFarm) {
             farmNameToValidate.value = migrationFarm?.name;
-            desiredWallet.value = migrationFarm?.wallet as Wallet;
+            wallet.value = migrationFarm?.wallet as Wallet;
         }
     });
 
@@ -237,129 +233,33 @@
 
     const { migrationFarm } = defineProps<Props>();
 
-    watch(farmNameToValidate, value => {
-        validateFarmName(value, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
-    });
-
     const listenToKeyBindsForValidation = async (e: any) => {
         farmNameToValidate.value = e.target?.value;
-        await validateFarmName(e.target?.value, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
+        const validationError = await validateFarmName(
+            e.target?.value,
+            wallet.value.keyPair.getStellarKeyPair().publicKey()
+        );
     };
 
-    const showTerms = () => {
-        showTermsAndConditions.value = true;
-    };
+    const createNewFarm = async () => {
+        const farmName = farmNameToValidate.value;
 
-    const validateFarmName = async (value: string, myStellarAddress: string) => {
-        value = value.toLowerCase().trim();
-        if (migrationFarm) {
-            farmFormErrors.value = {}; //tem
-            return;
-        } // temp fix for migration farm
-
-        const wasFound = v2Farms.value.find(farm => farm.name.toLowerCase() === value.toLowerCase());
-        // console.log({ wasFound: !!wasFound, value, myStellarAddress });
-
-        if (
-            wasFound &&
-            wasFound.wallet?.keyPair.getStellarKeyPair().publicKey() ===
-                desiredWallet.value.keyPair.getStellarKeyPair().publicKey()
-        ) {
-            delete farmFormErrors.value.farmName;
-            return;
-        }
-
-        if (wasFound) {
-            farmFormErrors.value = {
-                ...farmFormErrors.value,
-
-                farmName: 'This name is already taken',
-            };
-            return;
-        }
-
-        if (!value) {
-            farmFormErrors.value = {
-                ...farmFormErrors.value,
-
-                farmName: 'Farm name is required',
-            };
-            return;
-        }
-
-        if (value.length > 50) {
-            farmFormErrors.value = {
-                ...farmFormErrors.value,
-
-                farmName: 'Farm name must be less than 50 characters',
-            };
-            return;
-        }
-
-        // if name found in all farms show error
-        const doesFarmNameExist = await doesFarmExistByName(value);
-        if (doesFarmNameExist) {
-            farmFormErrors.value = {
-                ...farmFormErrors.value,
-
-                farmName: 'This name is already taken',
-            };
-            return;
-        }
-
-        try {
-            const res = await axios.get(`/api/v1/farms/${encodeURIComponent(value)}/${myStellarAddress}`);
-
-            if (res.data?.canuse !== true) {
-                farmFormErrors.value = {
-                    ...farmFormErrors.value,
-                    farmName: 'This name is already taken',
-                };
-                return;
-            }
-        } catch (e) {
-            farmFormErrors.value = {
-                ...farmFormErrors.value,
-                farmName: 'Try again later',
-            };
-            return;
-        }
-
-        delete farmFormErrors.value.farmName;
-    };
-
-    const createNewFarm = async (evt: Event) => {
-        const formData = new FormData(evt.target as HTMLFormElement);
-
-        const farmName = !migrationFarm ? <string>formData.get('farmName') : farmNameToValidate.value;
-        console.log(farmName);
-
-        await validateFarmName(farmName, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
-        if (migrationFarm) farmFormErrors.value = {}; //temporary fix for migration farm
-
-        if (farmFormErrors.value?.farmName) return;
-
+        const validationError = await validateFarmName(farmName, wallet.value.keyPair.getStellarKeyPair().publicKey());
+        if (validationError) return;
         if (!termsAndConditionsIsAccepted.value) return;
 
         isLoading.value = true;
         loadingSubtitle.value = 'Starting creation of farm';
 
-        console.log('Going to accept terms and cs');
-
-        const termsAndConditions = await getUsersTermsAndConditionsByAccountId(
-            desiredWallet.value.keyPair.getSubstrateKeyring().address
-        );
-        console.log('These are the terms and conditions', termsAndConditions);
-
-        if (termsAndConditions.length === 0) {
-            await acceptTermsAndConditions();
-        }
-
-        console.log('going to add the farm');
-        await addFarm(farmName, []);
+        const isAdded = await createSubstrateFarm(farmName);
 
         isLoading.value = false;
         emit('close');
+
+        if (!isAdded) {
+            addNotification(NotificationType.error, 'Farm creation failed', 'Please contact support');
+            return;
+        }
 
         if (migrationFarm) {
             addNotification(
@@ -375,144 +275,59 @@
         addNotification(NotificationType.success, 'Farm Creation Successful');
     };
 
-    const addTwin = async () => {
-        isLoading.value = true;
-        loadingSubtitle.value = 'Creating Twin';
-
-        await createTwin(desiredWallet.value.keyPair.substrateKeyring);
-
-        while (true) {
-            newTwinId.value = await getTwinIdByAccountId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
-            if (newTwinId.value !== 0) {
-                console.log('twinId', newTwinId.value);
-                break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        loadingSubtitle.value = 'Refetching data';
-    };
-
-    const addFarm = async (farmName: string, publicIps: string[]) => {
-        console.log('getting twinId');
-        newTwinId.value = await getTwinIdByAccountId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
-        console.log('twinId', newTwinId.value);
-
-        console.debug('this is the twinid, ', newTwinId.value);
-        if (newTwinId.value === 0) {
-            console.debug('the twin id was 0');
-            await addTwin();
-        }
-
-        isLoading.value = true;
-        loadingSubtitle.value = 'Creating farm';
-
-        try {
-            await createFarm(desiredWallet.value.keyPair.substrateKeyring, farmName);
-        } catch (e) {
-            isLoading.value = false;
-            loadingSubtitle.value = '';
-            addNotification(
-                NotificationType.error,
-                'Could not create farm (name already in use)',
-                'Try again with different name.'
-            );
-            emit('close');
-            throw e;
-        }
-
-        console.log('farm created');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        let i = 0;
-        while (true) {
-            // break after 20 seconds
-            if (i > 20) {
-                throw new Error('Timeout');
-            }
-            i++;
-
-            farms.value = allPersonalFarms.value.filter(farm => toNumber(farm.twinId) === newTwinId.value);
-
-            const myFarm = farms.value.find((farm: IGqlFarm) => farm.name === farmName);
-
-            if (myFarm) {
-                break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        const myFarm = farms.value.find(farm => farm.name === farmName);
-
-        if (!myFarm) {
-            throw new Error('Farm not found, should not happen here');
-        }
-        loadingSubtitle.value = 'Adding stellar payout address';
-
-        await addStellarPayoutAddress(
-            desiredWallet.value.keyPair.substrateKeyring,
-            desiredWallet.value.keyPair.getStellarKeyPair().publicKey(),
-            myFarm.farmId
-        );
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // addNotification(NotificationType.success, 'Farm created');
-        loadingSubtitle.value = 'Refetching data';
-    };
-
-    const signTermsAndConditions = async () => {
+    const createSubstrateFarm = async (name: string) => {
+        const keyRing = wallet.value.keyPair.getSubstrateKeyring();
+        const stellarAddress = wallet.value.keyPair.getStellarKeyPair().publicKey();
+        const activationUrl = `${flagsmith.getValue('tfchain_activation_base_url')}/activation/activate`;
         const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
 
-        const api = await getSubstrateApi();
-        const submittableExtrinsic = api.tx.tfgridModule.userAcceptTc(termsAndConditionsUrl, 'NO_HASH');
-        await submitExtrinsic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
-    };
+        const doesHaveTermsAndConditions = await getUsersTermsAndConditionsByAccountId(keyRing.address);
+        if (doesHaveTermsAndConditions.length === 0) {
+            loadingSubtitle.value = 'Activating account';
 
-    const acceptTermsAndConditions = async () => {
-        loadingSubtitle.value = 'Accepting terms and conditions';
-        isLoading.value = true;
+            const isActivated = await activateAccount(keyRing.address, activationUrl);
+            if (!isActivated) return;
 
-        const id = desiredWallet.value.keyPair.getSubstrateKeyring().address;
+            loadingSubtitle.value = 'Signing terms and conditions';
 
-        console.log('Activating services for substrate');
-        await activationServiceForSubstrate(id);
-
-        //While there is no substrate balance, we need to wait
-        while (true) {
-            const substrateBalance = await getSubstrateAssetBalances(id);
-            if (
-                substrateBalance.filter((assetBalance: IAssetBalance) => {
-                    return assetBalance.amount >= 0;
-                }).length > 0
-            ) {
-                console.log('Substrate balance is available');
-                break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const isAccepted = await signAndAcceptTermsAndConditions(keyRing, termsAndConditionsUrl);
+            if (!isAccepted) return;
         }
 
-        while (true) {
-            try {
-                loadingSubtitle.value = 'Signing terms and conditions';
-                console.log('Signging terms and conditions');
-                await signTermsAndConditions();
-                break;
-            } catch (e) {
-                isLoading.value = false;
-                emit('close');
-                addNotification(NotificationType.error, 'Failed', 'Failed Signing Terms Snd Conditions');
-                console.error(e);
-            }
+        loadingSubtitle.value = 'Checking twins';
+        const twinIds = await getAllTwinIds(allSubstrateAddresses.value);
+        const twinId = twinIds.find(
+            (t: IGqlTwin) => t.substrateAddress === wallet.value.keyPair.getSubstrateKeyring().address
+        );
+
+        if (!twinId) {
+            console.info('TwinId is 0, creating twin');
+
+            const isTwinCreated = createTwin(keyRing);
+            if (!isTwinCreated) return;
         }
 
-        do {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            loadingSubtitle.value = 'Getting terms and conditions';
-            termsAndConditions.value = await getUsersTermsAndConditionsByAccountId(id);
-        } while (termsAndConditions.value.filter(t => t.document_link === termsAndConditionsUrl).length === 0);
+        loadingSubtitle.value = 'Creating farm';
 
-        console.log('these are the terms and conditions');
-        console.log(termsAndConditions.value);
-        loadingSubtitle.value = 'Reloading data';
+        const isFarmCreated = createFarm(keyRing, name);
+        if (!isFarmCreated) return;
+
+        const createdFarmId = await getFarmIdByName(name);
+        console.log('Farm created with id: ', createdFarmId);
+        if (createdFarmId == 0) {
+            console.error('[Cant get farmId by name]');
+            return;
+        }
+
+        loadingSubtitle.value = 'Adding payout address';
+        const addressSuccess = await addStellarPayoutAddressOnSubstrate(keyRing, stellarAddress, createdFarmId);
+
+        console.log('Added address with success: ', addressSuccess);
+        if (!addressSuccess) {
+            console.error('[Could not add stellar address]');
+            return;
+        }
+
+        return true;
     };
 </script>

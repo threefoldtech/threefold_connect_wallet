@@ -10,3 +10,8 @@ export enum ExtrinsicStatus {
     DROPPED = 'Dropped',
     INVALID = 'Invalid',
 }
+
+export enum ExtrinsicCallbackMethod {
+    FARM_DELETED = 'FarmDeleted',
+    FARM_CREATED = 'FarmCreated',
+}

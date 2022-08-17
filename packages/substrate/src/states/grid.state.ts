@@ -1,22 +1,6 @@
-import { getSubstrateApi } from '../services/core.substrate';
+import { getSubstrateApi } from '../services/core.service.substrate';
 import { ITermsAndConditions } from 'shared-types/src/interfaces/substrate/tac.interfaces';
-
-export const doesFarmExistByName = async (name: string): Promise<boolean> => {
-    const api = await getSubstrateApi();
-    const farm = await api.query.tfgridModule.farmIdByName(name);
-
-    const readableFarm = farm.toJSON();
-    return readableFarm != 0;
-};
-
-export const getTwinIdByAccountId = async (accountId: string): Promise<number> => {
-    const api = await getSubstrateApi();
-
-    const twin = await api.query.tfgridModule.twinIdByAccountID(accountId);
-    const twinId = twin.toJSON();
-
-    return twinId as number;
-};
+import { bin2String } from 'wallet-frontend/src/modules/Core/utils/crypto';
 
 export const getEntityIdByAccountId = async (accountId: string): Promise<number> => {
     const api = await getSubstrateApi();
@@ -27,10 +11,11 @@ export const getEntityIdByAccountId = async (accountId: string): Promise<number>
     return entityId as number;
 };
 
+// User terms and conditions not available on GQL
 export const getUsersTermsAndConditionsByAccountId = async (accountId: string): Promise<ITermsAndConditions[] | []> => {
     const api = await getSubstrateApi();
 
-    const userTermsAndConditions = (await api.query.tfgridModule.usersTermsAndConditions(accountId)).toJSON();
+    const userTermsAndConditions = await api.query.tfgridModule.usersTermsAndConditions(accountId);
 
     if (!userTermsAndConditions) {
         return [];
@@ -39,10 +24,18 @@ export const getUsersTermsAndConditionsByAccountId = async (accountId: string): 
     //@ts-ignore
     return userTermsAndConditions.map((term: any) => {
         return {
-            accountId: term.account_id,
-            documentHash: term.document_hash,
-            documentLink: term.document_link,
-            timestamp: term.timestamp,
+            documentHash: bin2String(term.document_hash),
+            documentLink: bin2String(term.document_link),
         };
     });
+};
+
+export const getFarmIdByName = async (name: string): Promise<number> => {
+    const api = await getSubstrateApi();
+
+    const farm = await api.query.tfgridModule.farmIdByName(name);
+
+    const readableFarm = farm.toJSON();
+
+    return readableFarm as number;
 };

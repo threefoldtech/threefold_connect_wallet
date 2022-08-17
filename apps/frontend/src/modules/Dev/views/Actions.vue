@@ -27,24 +27,23 @@
 </template>
 
 <script lang="ts" setup>
-    import { balances, saveWallets, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { saveWallets, Wallet, wallets } from '@/modules/Wallet/services/walletService';
     import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
-    import { bytesToHex, hexToBytes } from '@/modules/Core/utils/crypto';
+    import { hexToBytes } from '@/modules/Core/utils/crypto';
     import { Keypair } from 'stellar-sdk';
     import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
     import { nanoid } from 'nanoid';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { Keyring } from '@polkadot/api';
-    import { activationServiceForSubstrate } from '@/modules/TFChain/services/tfchainService';
-    import { KeyringPair } from '@polkadot/keyring/types';
     import { toNumber } from 'lodash';
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
     import CTA from '@/modules/Misc/components/global/CTA.vue';
-    import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
+    import { ChevronUpIcon } from '@heroicons/vue/solid';
     import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
-    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.substrate';
-    import { getTwinIdByAccountId } from 'tf-substrate/src/states/grid.state';
+    import { getSubstrateApi, submitExtrinsic } from '../../packages/substrate/src/services/core.service.substrate';
+    import { twinIds } from '@/modules/Farm/services/farm.service';
+    import { IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
@@ -95,11 +94,13 @@
 
             const keyringPair = keyring.addFromSeed(bytes);
 
-            const twinId = toNumber(await getTwinIdByAccountId(keyringPair.address));
-            console.log('got twin id', twinId);
-            if (twinId === 0) {
+            const twin = twinIds.value.find((twin: IGqlTwin) => twin.substrateAddress === keyringPair.address);
+            if (!twin) {
                 continue;
             }
+
+            const twinId = twin.twinId;
+            console.log('got twin id', twinId);
 
             //@ts-ignore
             const farm_ids = allFarms.filter(f => toNumber(f.twin_id) === twinId).map(f => f.id);
@@ -134,12 +135,13 @@
 
             const keyringPair = keyring.addFromSeed(bytes);
 
-            const twinId = toNumber(await getTwinIdByAccountId(keyringPair.address));
-            console.log('got twin id', twinId);
-            if (twinId === 0) {
+            const twin = twinIds.value.find((twin: IGqlTwin) => twin.substrateAddress === keyringPair.address);
+            if (!twin) {
                 continue;
             }
 
+            const twinId = twin.twinId;
+            console.log('got twin id', twinId);
             //@ts-ignore
             const farm_ids = allFarms.filter(f => toNumber(f.twin_id) === twinId).map(f => f.id);
             console.log({ farm_ids });
@@ -175,7 +177,7 @@
         addNotification(NotificationType.success, 'Done', 'Cleared cache');
     };
     const activate = async () => {
-        await activationServiceForSubstrate('5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B');
+        // await activationServiceForSubstrate('5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B');
         addNotification(NotificationType.success, 'Done', 'Activated');
     };
 </script>

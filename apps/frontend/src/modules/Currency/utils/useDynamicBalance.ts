@@ -10,7 +10,7 @@ import { ServerApi } from 'stellar-sdk';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 import AccountRecord = ServerApi.AccountRecord;
 import { IBalance } from 'shared-types';
-import { getSubstrateAssetBalances } from 'tf-substrate/src/services/balance.substrate';
+import { getSubstrateAssetBalances } from '../../packages/substrate/src/services/balance.service.substrate';
 
 const useDynamicStellarBalance = (wallet: Wallet) => {
     const streams: (() => void)[] = [];

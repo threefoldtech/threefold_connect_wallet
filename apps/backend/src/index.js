@@ -65,7 +65,7 @@ fastify.get('/api/v1/farms/:name/:stellar_wallet_address', (request, reply) => {
         .code(200)
         .type('text/json')
         .send({
-            canuse: !farm || farm.stellar_wallet_addres === request.params.stellar_wallet_address,
+            canUse: !farm || farm.stellar_wallet_addres === request.params.stellar_wallet_address,
         });
 });
 

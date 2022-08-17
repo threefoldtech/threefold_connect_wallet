@@ -1,5 +1,4 @@
 <template>
-    <!--    <landing-farm-information-dialog v-if="showInformationDialog"></landing-farm-information-dialog>-->
     <MainLayout>
         <template #header>
             <PageHeader>
@@ -9,7 +8,7 @@
                 <h1>Farms</h1>
             </PageHeader>
         </template>
-        <div v-if="!farmsIsLoading && !addressesIsLoading" class="min-h-full bg-gray-200 p-4">
+        <div v-if="!isLoading" class="min-h-full bg-gray-200 p-4">
             <div v-if="v2Farms.length > 0 || v3Farms.length > 0">
                 <div class="font-medium">Farms to be migrated from V2 to V3</div>
                 <div v-if="v2Farms.length > 0">
@@ -42,14 +41,8 @@
                         <FarmCard :showSecrets="false" :isV3="true" :farm="farm" v-for="farm in v3OtherFarms" />
                     </ul>
                 </div>
-
-                <div v-if="newCreatedFarms.length > 0">
-                    <div v-for="newFarm in newCreatedFarms">
-                        <CreateFarmCard :v2Farms="v2Farms" :farm="newFarm" :wallets="wallets"></CreateFarmCard>
-                    </div>
-                </div>
             </div>
-            <main
+            <div
                 v-else
                 class="mx-auto flex w-full max-w-7xl flex-grow flex-col justify-center rounded-md bg-white px-4 sm:px-6 lg:px-8"
             >
@@ -61,7 +54,6 @@
                         <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
                             Create farm on grid v3
                         </h1>
-                        wallet-frontend:dev: 22 ms -> 208 ms -> 0 ms -> 0 ms
                         <div class="mt-6">
                             <a
                                 href="#"
@@ -73,7 +65,7 @@
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
         <div v-else class="flex min-h-full items-center justify-center bg-gray-200 p-4">
             <div class="items-center justify-center text-center">
@@ -121,53 +113,41 @@
         v3Farms,
         v3OtherFarms,
         v3PersonalFarms,
-    } from '@/modules/Farm/services/farmService';
+    } from '@/modules/Farm/services/farm.service';
 
     import { PlusCircleIcon } from '@heroicons/vue/outline';
     import flagsmith from 'flagsmith';
-    import { computed, ref } from 'vue';
-    import axios from 'axios';
+    import { onBeforeUnmount, ref } from 'vue';
     import FarmCard from '@/modules/Farm/components/FarmCard.vue';
-    import { Farm } from '@/modules/Farm/types/farms.types';
     import CreateFarmCard from '@/modules/Farm/components/CreateFarmCard.vue';
     import { useRouter } from 'vue-router';
     import { isDev } from '@/modules/Core/utils/environment';
+    import { getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.state';
 
     const canCreateFarms: boolean = isDev || <boolean>flagsmith.hasFeature('can_create_farms_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);
 
     const router = useRouter();
-    const addressesIsLoading = ref(true);
-    const addresses = ref<string[]>([]);
+    const isLoading = ref(true);
 
-    const newCreatedFarms = ref(<Farm[]>[]);
+    const fetchInterval = setInterval(async () => {
+        await fetchAllFarms();
+    }, 5000);
 
-    const initAddresses = async () => {
-        addressesIsLoading.value = true;
-        const result = await axios.get('/api/v1/farms/addresses');
-        if (result?.data) {
-            addresses.value = result.data;
-        }
-        addressesIsLoading.value = false;
-    };
-
-    initAddresses();
-
-    const grid2Wallets = computed(() => {
-        return wallets.value.filter(wallet => {
-            const stellarKeyPair = wallet.keyPair.getStellarKeyPair().publicKey();
-            return addresses.value?.find(farm => farm === stellarKeyPair);
-        });
+    onBeforeUnmount(() => {
+        clearInterval(fetchInterval);
     });
 
-    const farmsIsLoading = ref<boolean>(false);
-
     const init = async () => {
+        const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
+        const asd = await getUsersTermsAndConditionsByAccountId('5Gk2uQYN3UgDHEkbB3jYPqt4dwZd23TVEKfcDzjkXgPCh9CH');
+        console.log(asd);
         if (wallets.value.length <= 0) {
             return await router.push({ name: 'noWalletsScreen' });
         }
 
         await fetchAllFarms();
+        isLoading.value = false;
     };
 
     init();

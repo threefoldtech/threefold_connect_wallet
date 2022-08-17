@@ -122,7 +122,7 @@
     import { useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
-    import { getSubstrateApi } from 'tf-substrate/src/services/core.substrate';
+    import { getSubstrateApi } from '../../packages/substrate/src/services/core.service.substrate';
 
     const wallet: Wallet = <Wallet>inject('wallet');
 

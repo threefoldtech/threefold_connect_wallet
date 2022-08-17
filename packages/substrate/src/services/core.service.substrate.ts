@@ -27,15 +27,28 @@ export const getSubstrateApi = async (): Promise<ApiPromise> => {
     return api;
 };
 
-export const submitExtrinsic = async (extrinsic: SubmittableExtrinsic, keyringPair: IKeyringPair, options = {}) => {
-    await cryptoWaitReady();
+export const submitExtrinsic = async (
+    extrinsic: SubmittableExtrinsic,
+    keyringPair: IKeyringPair,
+    callback: Function = () => {}
+) => {
     const p = new Promise((resolve, reject) => {
-        extrinsic.signAndSend(keyringPair, options, (result: ISubmittableResult) => {
+        extrinsic.signAndSend(keyringPair, (result: ISubmittableResult) => {
             if (result.isFinalized) {
+                console.log('Extrinsic finalized');
+
+                const readableResult = result.toHuman() as any;
+                if (!readableResult) return;
+
+                const method = readableResult.events[0].event.method;
+                console.log(method);
+
                 resolve(result.toHuman(true));
+                callback(method);
                 return;
             }
             if (result.isError) {
+                console.error('Extrinsic error');
                 reject(result.toHuman(true));
                 return;
             }

@@ -21,7 +21,7 @@
         <Disclosure v-slot="{ open }" as="div" class="relative col-span-1 rounded-lg bg-white">
             <DisclosureButton as="div" class="flex flex-row items-center justify-between">
                 <div class="text-md max-w-90 truncate p-4 font-medium">
-                    {{ farm.name }}
+                    {{ farm.farm.name }}
                 </div>
                 <div>
                     <ChevronUpIcon v-if="open" class="-ml-1 mr-2 h-5 w-5" />
@@ -54,9 +54,10 @@
     import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
     import FarmCardDetails from '@/modules/Farm/components/FarmCardDetails.vue';
     import { ref } from 'vue';
+    import { IFarm, IFarmV2 } from 'shared-types/src/interfaces/substrate/farm.interfaces';
 
     interface Props {
-        farm: any;
+        farm: IFarm | IFarmV2;
         isV3: boolean;
         showSecrets?: boolean;
     }

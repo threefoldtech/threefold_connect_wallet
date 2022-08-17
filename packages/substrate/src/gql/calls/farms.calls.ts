@@ -1,15 +1,23 @@
-import { gqlGetAllFarms, gqlGetAllTwinIds, gqlGetNodesByFarmId } from '../queries/farm.queries';
+import {
+    gqlDoesFarmExistByName,
+    gqlGetAllFarms,
+    gqlGetAllNodesOfFarms,
+    gqlGetAllTwinIds,
+} from '../queries/farm.queries';
 import axios from 'axios';
-import { IGqlFarm, IGqlNode } from 'shared-types/src/interfaces/substrate/farm.interfaces';
+import { IGqlFarm, IGqlNode, IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
 
 const gqlEndpoint = 'https://graph.grid.tf/graphql';
 
-export const getNodesByFarmId = async (farmId: number): Promise<IGqlNode[]> => {
-    const query = gqlGetNodesByFarmId;
+export const getAllNodesOfFarms = async (farmIds: number[]): Promise<IGqlNode[]> => {
+    if (farmIds.length == 0) return [];
+
+    const query = gqlGetAllNodesOfFarms;
+
     const response = await axios.post(gqlEndpoint, {
         query,
         variables: {
-            farmId: farmId,
+            farmIds: farmIds,
         },
     });
 
@@ -19,20 +27,24 @@ export const getNodesByFarmId = async (farmId: number): Promise<IGqlNode[]> => {
         return [];
     }
 
-    return nodes.map((node: any) => {
+    return nodes.map((nodes: any) => {
         return {
-            nodeId: node.nodeID,
+            nodeId: nodes.nodeID,
+            farmId: nodes.farmID,
         };
     });
 };
 
-export const getAllFarmsFromWallets = async (stellarAddresses: string[]): Promise<IGqlFarm[]> => {
+export const getAllFarmsFromWallets = async (twinIds: number[], addresses: string[]): Promise<IGqlFarm[]> => {
+    if (addresses.length == 0 || twinIds.length == 0) return [];
+
     const query = gqlGetAllFarms;
 
     const response = await axios.post(gqlEndpoint, {
         query,
         variables: {
-            stellarAddresses: stellarAddresses,
+            twinIds: twinIds,
+            stellarAddresses: addresses,
         },
     });
 
@@ -47,7 +59,9 @@ export const getAllFarmsFromWallets = async (stellarAddresses: string[]): Promis
     });
 };
 
-export const getAllTwinIds = async (substrateAddresses: string[]): Promise<number[]> => {
+export const getAllTwinIds = async (substrateAddresses: string[]): Promise<IGqlTwin[]> => {
+    if (substrateAddresses.length == 0) return [];
+
     const query = gqlGetAllTwinIds;
 
     const response = await axios.post(gqlEndpoint, {
@@ -63,5 +77,26 @@ export const getAllTwinIds = async (substrateAddresses: string[]): Promise<numbe
         return [];
     }
 
-    return twins.map((twin: any) => twin.twinID);
+    return twins.map((twin: any) => {
+        return {
+            substrateAddress: twin.accountID,
+            twinId: twin.twinID,
+        };
+    });
+};
+
+export const doesFarmExistByName = async (name: string): Promise<boolean> => {
+    if (!name) return true;
+
+    const query = gqlDoesFarmExistByName;
+
+    const response = await axios.post(gqlEndpoint, {
+        query,
+        variables: {
+            name: name,
+        },
+    });
+
+    const farm = response?.data?.data?.farms;
+    return farm === [];
 };

@@ -28,3 +28,10 @@ export const gqlDoesFarmExistByName = `query MyQuery($name: String) {
     name
   }
 }`;
+
+export const gqlUptimeQuery = `query MyQuery($nodes: [Int!]) {
+  uptimeEvents(where: {nodeID_in: $nodes}, limit: 1, orderBy: timestamp_DESC) {
+    nodeID
+    timestamp
+  }
+}`;

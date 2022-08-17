@@ -3,6 +3,7 @@ import {
     gqlGetAllFarms,
     gqlGetAllNodesOfFarms,
     gqlGetAllTwinIds,
+    gqlUptimeQuery,
 } from '../queries/farm.queries';
 import axios from 'axios';
 import { IGqlFarm, IGqlNode, IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
@@ -27,10 +28,35 @@ export const getAllNodesOfFarms = async (farmIds: number[]): Promise<IGqlNode[]>
         return [];
     }
 
-    return nodes.map((nodes: any) => {
+    const nodeIds = nodes.map((node: any) => node.nodeID);
+
+    const mappedNodes = nodes.map((node: any) => {
         return {
-            nodeId: nodes.nodeID,
-            farmId: nodes.farmID,
+            nodeId: node.nodeID,
+            farmId: node.farmID,
+        };
+    });
+
+    // Checking uptime
+    const uptimeResponse = await axios.post(gqlEndpoint, {
+        query: gqlUptimeQuery,
+        variables: {
+            nodes: nodeIds,
+        },
+    });
+
+    const uptimeEvents = uptimeResponse?.data?.data?.uptimeEvents;
+
+    if (uptimeEvents.length == 0) return mappedNodes;
+
+    const lastSeen = uptimeEvents[0].timestamp;
+    const timestamp = Math.round(new Date().getTime() / 1000);
+
+    const isOnline = timestamp - lastSeen < 7200;
+    return mappedNodes.map((node: IGqlNode) => {
+        return {
+            ...node,
+            isOnline: isOnline,
         };
     });
 };

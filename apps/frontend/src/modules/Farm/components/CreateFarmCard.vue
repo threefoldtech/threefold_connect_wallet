@@ -38,7 +38,7 @@
                                 <MenuButton
                                     class="inline-flex w-full justify-between rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
                                 >
-                                    {{ wallet.name }}
+                                    {{ selectedWallet.name }}
                                     <ChevronDownIcon
                                         class="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"
                                         aria-hidden="true"
@@ -47,14 +47,15 @@
                             </div>
 
                             <MenuItems
-                                class="absolute left-0 z-50 mt-2 w-full origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                class="scrollbar overflow-y-scroll absolute left-0 z-50 mt-2 w-full origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                             >
-                                <div class="max-h-28 w-full divide-y overflow-y-auto">
-                                    <MenuItem v-for="wallet in wallets" v-slot="{ active }">
-                                        <div
-                                            class="flex w-full justify-between gap-2 truncate px-4 py-2 text-sm"
-                                            @click="wallet === wallet"
-                                        >
+                                <div class="max-h-40 w-full divide-y overflow-y-auto">
+                                    <MenuItem
+                                        @click="selectedWallet = wallet"
+                                        v-for="wallet in wallets"
+                                        v-slot="{ active }"
+                                    >
+                                        <div class="flex w-full justify-between gap-2 truncate px-4 py-2 text-sm">
                                             <div class="flex w-full flex-col justify-start truncate">
                                                 <div class="flex flex-row justify-between">
                                                     <div class="font-semibold">Name</div>
@@ -186,7 +187,8 @@
     } from '@headlessui/vue';
     import { ChevronDownIcon, XIcon } from '@heroicons/vue/solid';
 
-    import { ref } from 'vue';
+    import { getSubstrateAssetBalances } from 'tf-substrate/src/services/balance.service.substrate';
+    import { computed, ref } from 'vue';
     import flagsmith from 'flagsmith';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { allSubstrateAddresses, v2Farms } from '@/modules/Farm/services/farm.service';
@@ -205,7 +207,7 @@
     import { getFarmIdByName, getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.state';
     import { getAllTwinIds } from 'tf-substrate/src/gql/calls/farms.calls';
 
-    const wallet = ref<Wallet>(wallets.value[0]);
+    const selectedWallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
     const farmNameToValidate = ref<string>('');
 
@@ -221,11 +223,10 @@
     onBeforeMount(() => {
         if (migrationFarm) {
             farmNameToValidate.value = migrationFarm?.name;
-            wallet.value = migrationFarm?.wallet as Wallet;
+            selectedWallet.value = migrationFarm?.wallet as Wallet;
         }
     });
 
-    // Defining props
     interface Props {
         migrationFarm?: Farm;
     }
@@ -236,7 +237,7 @@
         farmNameToValidate.value = e.target?.value;
         const validationError = await validateFarmName(
             e.target?.value,
-            wallet.value.keyPair.getStellarKeyPair().publicKey()
+            selectedWallet.value.keyPair.getStellarKeyPair().publicKey()
         );
 
         if (!validationError) return (farmFormErrors.value = {});
@@ -244,10 +245,15 @@
         farmFormErrors.value = { farmName: validationError['farmName'] };
     };
 
+    console.log('balance');
+    console.log(balances.value);
     const createNewFarm = async () => {
         const farmName = farmNameToValidate.value;
 
-        const validationError = await validateFarmName(farmName, wallet.value.keyPair.getStellarKeyPair().publicKey());
+        const validationError = await validateFarmName(
+            farmName,
+            selectedWallet.value.keyPair.getStellarKeyPair().publicKey()
+        );
         if (validationError) return;
         if (!termsAndConditionsIsAccepted.value) return;
 
@@ -276,8 +282,8 @@
     };
 
     const createSubstrateFarm = async (name: string) => {
-        const keyRing = wallet.value.keyPair.getSubstrateKeyring();
-        const stellarAddress = wallet.value.keyPair.getStellarKeyPair().publicKey();
+        const keyRing = selectedWallet.value.keyPair.getSubstrateKeyring();
+        const stellarAddress = selectedWallet.value.keyPair.getStellarKeyPair().publicKey();
         const activationUrl = `${flagsmith.getValue('tfchain_activation_base_url')}/activation/activate`;
         const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
 
@@ -297,7 +303,7 @@
         loadingSubtitle.value = 'Checking twins';
         const twinIds = await getAllTwinIds(allSubstrateAddresses.value);
         const twinId = twinIds.find(
-            (t: IGqlTwin) => t.substrateAddress === wallet.value.keyPair.getSubstrateKeyring().address
+            (t: IGqlTwin) => t.substrateAddress === selectedWallet.value.keyPair.getSubstrateKeyring().address
         );
 
         if (!twinId) {

@@ -66,15 +66,19 @@
             </div>
             <div v-for="node in farm?.nodes">
                 <div class="flex flex-row justify-between whitespace-normal text-sm text-gray-500">
-                    <div>Connected node id:</div>
-                    <div>{{ node.nodeId }}</div>
+                    <div>Node: {{ node.nodeId }}</div>
+                    <div class="inline-flex items-center">
+                        <div class="mr-2">Status:</div>
+                        <div class="h-2 w-2 bg-green-600 rounded-full" v-if="node.isOnline"></div>
+                        <div class="h-2 w-2 bg-red-600 rounded-full" v-else></div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="border-t border-gray-200" v-if="!farm.farm.stellarAddress">
+        <div class="border-t border-gray-200" v-if="!farm.farm.stellarAddress && farm.wallet">
             <div class="-pt-px flex divide-x divide-gray-200">
                 <button
-                    @click=""
+                    @click="addPayoutAddress"
                     v-if="!farm.farm.stellarAddress"
                     class="flex inline-flex w-0 w-0 flex-1 flex-1 items-center justify-center rounded-bl-lg border border-transparent py-4 text-sm font-medium text-gray-700 hover:text-gray-500"
                 >
@@ -102,6 +106,7 @@
     import { IFarm } from 'shared-types/src/interfaces/substrate/farm.interfaces';
     import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
     import { deleteFarmOnSubstrate } from 'tf-substrate/src/extrinsics/grid.extrinsics';
+    import { addStellarPayoutAddress } from 'tf-substrate/src/services/farm.service.substrate';
 
     interface Props {
         farm: IFarm;
@@ -128,32 +133,32 @@
 
         if (!keyRing) return;
 
+        addNotification(NotificationType.info, 'Deleting farm ' + farmId, 'Please wait');
+
         const isDeleted = await deleteFarmOnSubstrate(keyRing, farmId);
-
-        if (!isDeleted) return;
-
-        addNotification(NotificationType.info, 'Deleting farm ' + farmId);
+        if (!isDeleted) {
+            addNotification(NotificationType.error, 'Could not delete farm ' + farmId);
+        }
     };
 
-    // const addPayoutAddress = async () => {
-    //     // == portal farm
-    //     if (!farm.wallet) return;
-    //
-    //     const api = await getSubstrateApi();
-    //     addNotification(NotificationType.info, 'Adding payout address...', 'Please wait', 5000);
-    //
-    //     const submittableExtrinsic = api.tx.tfgridModule.addStellarPayoutV2address(
-    //         farm.farm.farmId,
-    //         farm.wallet.keyPair.getStellarKeyPair().publicKey()
-    //     );
-    //     await submitExtrinsic(submittableExtrinsic, farm.wallet.keyPair.getSubstrateKeyring());
-    //     await fetchStellarPayoutAddress();
-    //     addNotification(NotificationType.success, 'Payout address added', '', 5000);
-    // };
-    // fetchStellarPayoutAddress();
+    const addPayoutAddress = async () => {
+        if (!farm.wallet) return;
+
+        const stellarAddress = farm.wallet.keyPair.getStellarKeyPair().publicKey();
+        const keyRing = farm.wallet.keyPair.getSubstrateKeyring();
+        const farmId = farm.farm.farmId;
+
+        addNotification(NotificationType.info, 'Adding payout address...', 'Please wait', 5000);
+
+        const isStellarAddressAdded = await addStellarPayoutAddress(keyRing, stellarAddress, farmId);
+        if (!isStellarAddressAdded) {
+            return addNotification(NotificationType.error, 'Could not add address', 'Please contact support', 5000);
+        }
+
+        addNotification(NotificationType.success, 'Payout address added', '', 5000);
+    };
 
     const copyToClipboard = (text: string) => {
-        //@ts-ignore
         globalThis?.flutter_inappwebview.callHandler('COPY', text).then(function () {
             console.log('Copied');
         });

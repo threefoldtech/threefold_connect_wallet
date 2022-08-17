@@ -25,7 +25,13 @@
                 <div v-if="v3PersonalFarms.length > 0">
                     <h2 class="pb-2 text-xs">Farms connected to existing wallets should be migrated</h2>
                     <ul role="list" class="grid grid-cols-1 gap-3">
-                        <FarmCard :showSecrets="true" :isV3="true" :farm="farm" v-for="farm in v3PersonalFarms" />
+                        <FarmCard
+                            :showSecrets="true"
+                            :isV3="true"
+                            :farm="farm"
+                            :key="farm.farm.stellarAddress"
+                            v-for="farm in v3PersonalFarms"
+                        />
                     </ul>
                 </div>
                 <div v-else>
@@ -122,7 +128,8 @@
     import CreateFarmCard from '@/modules/Farm/components/CreateFarmCard.vue';
     import { useRouter } from 'vue-router';
     import { isDev } from '@/modules/Core/utils/environment';
-    import { getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.state';
+    import { getSubstrateAssetBalances } from 'tf-substrate/src/services/balance.service.substrate';
+    import { IAssetBalance } from 'shared-types';
 
     const canCreateFarms: boolean = isDev || <boolean>flagsmith.hasFeature('can_create_farms_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);
@@ -139,9 +146,6 @@
     });
 
     const init = async () => {
-        const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
-        const asd = await getUsersTermsAndConditionsByAccountId('5Gk2uQYN3UgDHEkbB3jYPqt4dwZd23TVEKfcDzjkXgPCh9CH');
-        console.log(asd);
         if (wallets.value.length <= 0) {
             return await router.push({ name: 'noWalletsScreen' });
         }

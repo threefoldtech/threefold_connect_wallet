@@ -18,7 +18,6 @@ export const validateFarmName = async (name: string, stellarAddress: string): Pr
     }
 
     const doesFarmNameExist = await doesFarmExistByName(strippedName);
-    console.log(doesFarmNameExist);
     if (doesFarmNameExist) {
         return {
             farmName: 'This name is already taken',

@@ -11,6 +11,7 @@ export interface IGqlFarm {
 export interface IGqlNode {
     nodeId: number;
     farmId: number;
+    isOnline?: boolean;
 }
 
 export interface IGqlTwin {

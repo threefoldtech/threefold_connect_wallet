@@ -1,5 +1,6 @@
 import { IKeyringPair } from '@polkadot/types/types/interfaces';
 import {
+    addStellarPayoutAddressOnSubstrate,
     createFarmOnSubstrate,
     createTwinOnSubstrate,
     signUsersTermsAndConditionsOnSubstrate,
@@ -82,6 +83,22 @@ export const createFarm = async (keyRing: IKeyringPair, name: string): Promise<b
     console.log('Is the farm created: ', isCreated);
     if (!isCreated) {
         console.error('[The farm is not created]');
+        return false;
+    }
+
+    return true;
+};
+
+export const addStellarPayoutAddress = async (
+    keyRing: IKeyringPair,
+    stellarAddress: string,
+    farmId: number
+): Promise<boolean> => {
+    const addressSuccess = await addStellarPayoutAddressOnSubstrate(keyRing, stellarAddress, farmId);
+
+    console.log('Added address with success: ', addressSuccess);
+    if (!addressSuccess) {
+        console.error('[Could not add stellar address]');
         return false;
     }
 

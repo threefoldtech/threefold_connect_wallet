@@ -132,8 +132,8 @@
     import { nanoid } from 'nanoid';
     import { bridgeToSubstrate } from '@/modules/Bridge/services/bridge.service';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
-    import { getSubstrateApi, submitExtrinsic } from '../../packages/substrate/src/services/core.service.substrate';
     import { getEntityIdByAccountId } from 'tf-substrate/src/states/grid.state';
+    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.service.substrate';
 
     const router = useRouter();
     const route = useRoute();

@@ -101,7 +101,7 @@
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { IFarm } from 'shared-types/src/interfaces/substrate/farm.interfaces';
     import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
-    import { deleteFarm } from 'tf-substrate/src/extrinsics/grid.extrinsics';
+    import { deleteFarmOnSubstrate } from 'tf-substrate/src/extrinsics/grid.extrinsics';
 
     interface Props {
         farm: IFarm;
@@ -128,7 +128,7 @@
 
         if (!keyRing) return;
 
-        const isDeleted = await deleteFarm(keyRing, farmId);
+        const isDeleted = await deleteFarmOnSubstrate(keyRing, farmId);
 
         if (!isDeleted) return;
 

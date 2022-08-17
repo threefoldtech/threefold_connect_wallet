@@ -3,19 +3,7 @@ import { doesFarmExistByName } from 'tf-substrate/src/gql/calls/farms.calls';
 import axios from 'axios';
 
 export const validateFarmName = async (name: string, stellarAddress: string): Promise<Object | undefined> => {
-    const strippedName = name.toLowerCase().trim();
-    const doesFarmNameExist = await doesFarmExistByName(strippedName);
-
-    if (doesFarmNameExist) {
-        return {
-            farmName: 'This name is already taken',
-        };
-    }
-
-    const wasFound = v2Farms.value.find(farm => farm.name.toLowerCase() === strippedName.toLowerCase());
-    if (wasFound && wasFound.wallet?.keyPair.getStellarKeyPair().publicKey() === stellarAddress) {
-        return;
-    }
+    const strippedName = name.trim();
 
     if (!strippedName || strippedName == '') {
         return {
@@ -27,6 +15,19 @@ export const validateFarmName = async (name: string, stellarAddress: string): Pr
         return {
             farmName: 'Farm name must be less than 50 characters',
         };
+    }
+
+    const doesFarmNameExist = await doesFarmExistByName(strippedName);
+    console.log(doesFarmNameExist);
+    if (doesFarmNameExist) {
+        return {
+            farmName: 'This name is already taken',
+        };
+    }
+
+    const wasFound = v2Farms.value.find(farm => farm.name.toLowerCase() === strippedName.toLowerCase());
+    if (wasFound && wasFound.wallet?.keyPair.getStellarKeyPair().publicKey() === stellarAddress) {
+        return;
     }
 
     const res = await axios.get(`/api/v1/farms/${encodeURIComponent(strippedName)}/${stellarAddress}`);

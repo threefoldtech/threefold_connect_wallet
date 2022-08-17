@@ -41,9 +41,9 @@
     import { ChevronUpIcon } from '@heroicons/vue/solid';
     import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
-    import { getSubstrateApi, submitExtrinsic } from '../../packages/substrate/src/services/core.service.substrate';
     import { twinIds } from '@/modules/Farm/services/farm.service';
     import { IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
+    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.service.substrate';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();

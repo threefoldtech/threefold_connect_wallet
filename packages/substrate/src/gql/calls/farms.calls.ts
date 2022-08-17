@@ -98,5 +98,5 @@ export const doesFarmExistByName = async (name: string): Promise<boolean> => {
     });
 
     const farm = response?.data?.data?.farms;
-    return farm === [];
+    return farm.length !== 0;
 };

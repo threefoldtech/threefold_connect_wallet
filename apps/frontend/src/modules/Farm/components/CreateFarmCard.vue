@@ -194,17 +194,16 @@
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
 
-    import { getFarmIdByName, getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.state';
-
-    import { getAllTwinIds } from 'tf-substrate/src/gql/calls/farms.calls';
     import { validateFarmName } from '@/modules/Farm/validators/farm.validate';
     import {
         activateAccount,
+        addStellarPayoutAddress,
         createFarm,
         createTwin,
         signAndAcceptTermsAndConditions,
     } from 'tf-substrate/src/services/farm.service.substrate';
-    import { addStellarPayoutAddressOnSubstrate } from 'tf-substrate/src/extrinsics/grid.extrinsics';
+    import { getFarmIdByName, getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.state';
+    import { getAllTwinIds } from 'tf-substrate/src/gql/calls/farms.calls';
 
     const wallet = ref<Wallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
@@ -239,6 +238,10 @@
             e.target?.value,
             wallet.value.keyPair.getStellarKeyPair().publicKey()
         );
+
+        if (!validationError) return (farmFormErrors.value = {});
+
+        farmFormErrors.value = { farmName: validationError['farmName'] };
     };
 
     const createNewFarm = async () => {
@@ -257,19 +260,16 @@
         emit('close');
 
         if (!isAdded) {
-            addNotification(NotificationType.error, 'Farm creation failed', 'Please contact support');
-            return;
+            return addNotification(NotificationType.error, 'Farm creation failed', 'Please contact support');
         }
 
         if (migrationFarm) {
-            addNotification(
+            v2Farms.value = [];
+            return addNotification(
                 NotificationType.info,
                 'Farm creation on v3 successful',
                 'Your farm has been created on Grid v3. Please note that it will take several days for your v2 nodes to be migrated to your v3 farm. Once they have been migrated, you will see them listed under your new v3 farm.'
             );
-
-            v2Farms.value = [];
-            return;
         }
 
         addNotification(NotificationType.success, 'Farm Creation Successful');
@@ -303,30 +303,24 @@
         if (!twinId) {
             console.info('TwinId is 0, creating twin');
 
-            const isTwinCreated = createTwin(keyRing);
+            const isTwinCreated = await createTwin(keyRing);
             if (!isTwinCreated) return;
         }
 
         loadingSubtitle.value = 'Creating farm';
 
-        const isFarmCreated = createFarm(keyRing, name);
+        const isFarmCreated = await createFarm(keyRing, name);
         if (!isFarmCreated) return;
 
         const createdFarmId = await getFarmIdByName(name);
-        console.log('Farm created with id: ', createdFarmId);
         if (createdFarmId == 0) {
             console.error('[Cant get farmId by name]');
             return;
         }
 
         loadingSubtitle.value = 'Adding payout address';
-        const addressSuccess = await addStellarPayoutAddressOnSubstrate(keyRing, stellarAddress, createdFarmId);
-
-        console.log('Added address with success: ', addressSuccess);
-        if (!addressSuccess) {
-            console.error('[Could not add stellar address]');
-            return;
-        }
+        const isStellarPayoutAddressAdded = addStellarPayoutAddress(keyRing, stellarAddress, createdFarmId);
+        if (!isStellarPayoutAddressAdded) return;
 
         return true;
     };

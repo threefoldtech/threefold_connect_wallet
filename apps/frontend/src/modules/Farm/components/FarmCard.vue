@@ -54,10 +54,9 @@
     import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
     import FarmCardDetails from '@/modules/Farm/components/FarmCardDetails.vue';
     import { ref } from 'vue';
-    import { IFarm, IFarmV2 } from 'shared-types/src/interfaces/substrate/farm.interfaces';
 
     interface Props {
-        farm: IFarm | IFarmV2;
+        farm: any;
         isV3: boolean;
         showSecrets?: boolean;
     }

@@ -87,26 +87,45 @@
                 </button>
             </div>
         </div>
-        <div v-if="farm.wallet" data-field="actions">
-            <h2 class="text-sm font-medium uppercase">Actions</h2>
-            <div @click="removeFarm" class="text-sm text-white font-medium uppercase mt-3 p-2 bg-red-500">
-                Delete farm
-            </div>
-        </div>
+
+        <Disclosure as="div" class="w-full" v-slot="{ open }">
+            <DisclosureButton class="flex w-full flex-row items-center justify-between text-sm font-medium uppercase">
+                <div>
+                    <span>ACTIONS</span>
+                </div>
+                <ChevronUpIcon :class="open ? 'rotate-180 transform' : ''" class="h-5 w-5" />
+            </DisclosureButton>
+            <DisclosurePanel class="text-sm text-gray-500">
+                <div
+                    @click="showDeleteFarm = true"
+                    class="mt-4 text-center p-2 bg-red-600 text-white font-semibold uppercase"
+                >
+                    Delete farm
+                </div>
+            </DisclosurePanel>
+        </Disclosure>
     </div>
+
+    <DeleteFarmDialog
+        v-if="showDeleteFarm"
+        :farmName="farm.farm.name"
+        @confirm="removeFarm"
+        @close="showDeleteFarm = false"
+    ></DeleteFarmDialog>
 </template>
 
 <script lang="ts" setup>
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
-    import { ChevronUpIcon, ClipboardCopyIcon } from '@heroicons/vue/solid';
+    import { ChevronUpIcon, ClipboardCopyIcon, TrashIcon } from '@heroicons/vue/solid';
     import { DocumentAddIcon } from '@heroicons/vue/outline';
-    import { computed } from 'vue';
+    import { computed, ref } from 'vue';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { IFarm } from 'shared-types/src/interfaces/substrate/farm.interfaces';
     import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
     import { deleteFarmOnSubstrate } from 'tf-substrate/src/extrinsics/grid.extrinsics';
     import { addStellarPayoutAddress } from 'tf-substrate/src/services/farm.service.substrate';
+    import DeleteFarmDialog from '@/modules/Farm/components/dialogs/DeleteFarmDialog.vue';
 
     interface Props {
         farm: IFarm;
@@ -114,6 +133,8 @@
     }
 
     const { farm, showSecrets } = defineProps<Props>();
+
+    const showDeleteFarm = ref<boolean>(false);
 
     const walletName = computed(() => {
         if (farm.wallet?.name) {
@@ -139,6 +160,8 @@
         if (!isDeleted) {
             addNotification(NotificationType.error, 'Could not delete farm ' + farmId);
         }
+
+        showDeleteFarm.value = false;
     };
 
     const addPayoutAddress = async () => {

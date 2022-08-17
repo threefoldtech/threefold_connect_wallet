@@ -136,7 +136,7 @@
                 </div>
                 <div class="text-gray-500">Max {{ assetFee?.toFixed(2) }} {{ selectedAsset?.asset_code }}</div>
             </div>
-            <div v-if="selectedChain === 'stellar'" class="mt-4">
+            <div v-if="selectedChain === ChainTypes.STELLAR" class="mt-4">
                 <label class="block text-sm font-medium text-gray-700" for="message">Memo</label>
                 <div class="mt-1 flex rounded-md shadow-sm">
                     <div class="relative flex grow items-stretch focus-within:z-10">

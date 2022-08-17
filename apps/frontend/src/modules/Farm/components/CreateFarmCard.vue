@@ -187,8 +187,7 @@
     } from '@headlessui/vue';
     import { ChevronDownIcon, XIcon } from '@heroicons/vue/solid';
 
-    import { getSubstrateAssetBalances } from 'tf-substrate/src/services/balance.service.substrate';
-    import { computed, ref } from 'vue';
+    import { ref } from 'vue';
     import flagsmith from 'flagsmith';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { allSubstrateAddresses, v2Farms } from '@/modules/Farm/services/farm.service';
@@ -245,8 +244,6 @@
         farmFormErrors.value = { farmName: validationError['farmName'] };
     };
 
-    console.log('balance');
-    console.log(balances.value);
     const createNewFarm = async () => {
         const farmName = farmNameToValidate.value;
 

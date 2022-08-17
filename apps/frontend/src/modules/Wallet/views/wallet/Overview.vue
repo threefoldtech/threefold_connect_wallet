@@ -56,7 +56,9 @@
                     <template #actions>
                         <button
                             v-if="
-                                showSubstrateBridge && assetBalance.type === 'substrate' && assetBalance.name === 'TFT'
+                                showSubstrateBridge &&
+                                assetBalance.type === ChainTypes.SUBSTRATE &&
+                                assetBalance.name === 'TFT'
                             "
                             type="button"
                             class="inline-flex items-center rounded-md border border-transparent bg-primary-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
@@ -122,7 +124,7 @@
     import { getAllTokensDetails, TokenItem, unlockTokens } from '@/modules/LockedTokens/services/lockService';
     import LockedBalanceCard from '@/modules/LockedTokens/components/LockedBalanceCard.vue';
     import { IAssetBalance } from 'shared-types';
-    import { getAllNodesOfFarms } from 'tf-substrate/src/gql/calls/farms.calls';
+    import { ChainTypes } from 'shared-types';
 
     const router = useRouter();
     const wallet: Wallet = <Wallet>inject('wallet');

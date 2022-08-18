@@ -87,7 +87,7 @@
 
     import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
     import flagsmith from 'flagsmith';
-    import { useLocalStorage, useToggle } from '@vueuse/core';
+    import { useLocalStorage } from '@vueuse/core';
     import { orderAssets } from '@/modules/Currency/utils/order';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 

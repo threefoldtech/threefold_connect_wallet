@@ -7,14 +7,8 @@ import { decodeBase64 } from 'tweetnacl-util';
 import { entropyToMnemonic } from '@jimber/simple-bip39';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from 'cryptolib';
-import {
-    mapToWallet,
-    retrieveAllAssets,
-    saveWallets,
-    sendWalletDataToFlutter,
-    wallets,
-} from '@/modules/Wallet/services/walletService';
-import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
+import { mapToWallet, sendWalletDataToFlutter, wallets } from '@/modules/Wallet/services/walletService';
+import { getPkidClient, saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
 import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, initializedUser } from '@/modules/Core/services/crypto.service';
 import { bytesToHex } from '@/modules/Core/utils/crypto';
@@ -70,7 +64,7 @@ export const initFirstWallet = async () => {
             },
         });
 
-        await saveWallets();
+        await saveWalletsToPkid();
         return;
     } catch (e) {
         console.error('No account found');
@@ -97,7 +91,7 @@ export const initFirstWallet = async () => {
                 position: initialWallet.position,
             },
         });
-        await saveWallets();
+        await saveWalletsToPkid();
     } catch (e) {
         throw e;
     }
@@ -122,8 +116,6 @@ export const init = async (name: string, derivedSeed: string) => {
 
     initializeKeys(derivedSeed);
     initializeStellarConfig();
-
-    retrieveAllAssets();
 
     const pkid = getPkidClient();
 

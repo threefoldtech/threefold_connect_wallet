@@ -27,11 +27,11 @@
 </template>
 
 <script lang="ts" setup>
-    import { saveWallets, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/walletService';
     import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { hexToBytes } from '@/modules/Core/utils/crypto';
     import { Keypair } from 'stellar-sdk';
-    import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
+    import { getPkidClient, saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
     import { nanoid } from 'nanoid';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { Keyring } from '@polkadot/api';
@@ -58,7 +58,7 @@
             name: `testWallet-${nanoid()}`,
         };
         wallets.value.push(wallet);
-        await saveWallets();
+        await saveWalletsToPkid();
     };
     const clearPkidPurse = async () => {
         const pkid = getPkidClient();

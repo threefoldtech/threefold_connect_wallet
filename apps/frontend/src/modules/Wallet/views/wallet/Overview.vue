@@ -127,6 +127,8 @@
     import { ITokenItem } from 'shared-types/src/interfaces/stellar/locked.interfaces';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
+    import { getOperations } from 'tf-stellar';
+
     const router = useRouter();
     const wallet: IWallet = <IWallet>inject('wallet');
 
@@ -153,6 +155,7 @@
     const showLockedTokens = flagsmith.hasFeature('locked-tokens');
 
     const init = async () => {
+        const t = getOperations();
         console.log('Show locked tokens: ', showLockedTokens);
         if (showLockedTokens) {
             console.log('Coming inside locked tokens flow');

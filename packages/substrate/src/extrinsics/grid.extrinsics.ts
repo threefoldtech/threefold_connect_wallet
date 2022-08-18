@@ -86,6 +86,7 @@ const callbackExtrinsic = async (method: string) => {
             await fetchAllFarms();
             break;
         case ExtrinsicCallbackMethod.FARM_CREATED:
+            await fetchAllFarms();
             break;
     }
 };

@@ -1,7 +1,6 @@
 import { Router, RouterView } from 'vue-router';
 import ConfirmBridge from '@/modules/Bridge/views/ConfirmBridge.vue';
 import Bridge from '@/modules/Bridge/views/Bridge.vue';
-import router from '@/modules/Core/router';
 
 export const bridgeRoutes = [
     {

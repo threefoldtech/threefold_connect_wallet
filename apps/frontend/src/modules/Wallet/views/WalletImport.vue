@@ -84,7 +84,7 @@
     import { ref } from 'vue';
     import { useRouter } from 'vue-router';
     import { Keypair } from 'stellar-sdk';
-    import { saveWallets, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/walletService';
     import { bytesToHex } from '@/modules/Core/utils/crypto';
     import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { getEntropyFromPhrase } from 'mnemonicconversion2924';
@@ -94,6 +94,7 @@
     import { validateWalletName } from '@/modules/Wallet/validate/wallet.validate';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
     import { PkidWalletTypes } from 'shared-types/src/enums/global/pkid.enums';
+    import { saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
 
     const walletIndex = ref(0);
 
@@ -210,7 +211,7 @@
             },
         });
 
-        await saveWallets();
+        await saveWalletsToPkid();
 
         await router.replace({ name: 'walletList' });
     };

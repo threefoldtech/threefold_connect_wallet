@@ -104,7 +104,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { addOrUpdateWallet, deleteWalletFromPkid, saveWallets } from '@/modules/Wallet/services/walletService';
+    import { addOrUpdateWallet } from '@/modules/Wallet/services/walletService';
     import { computed, inject, ref } from 'vue';
     import { ClipboardCopyIcon, PencilIcon, TrashIcon } from '@heroicons/vue/solid';
     import { addNotification } from '@/modules/Core/services/notification.service';
@@ -119,6 +119,7 @@
     import { getSubstrateApi } from 'tf-substrate/src/services/core.service.substrate';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { deleteWalletFromPkid, saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
 
     const wallet: IWallet = <IWallet>inject('wallet');
 
@@ -156,7 +157,7 @@
 
         wallet.name = `${trimmedName}`;
         addOrUpdateWallet(wallet);
-        saveWallets();
+        saveWalletsToPkid();
 
         showEditWalletName.value = false;
         addNotification(

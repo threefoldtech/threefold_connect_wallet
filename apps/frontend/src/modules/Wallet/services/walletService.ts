@@ -124,19 +124,7 @@ export const handleOperationRecordPage = (page: CollectionPage<OperationRecord>,
 
     index === -1 ? operations.value.push(operation) : operations.value.splice(index, 1, operation);
 };
-export const saveWallets = async () => {
-    const pkidWallets: IPkidWallet[] = wallets.value.map(
-        (wallet: IWallet): IPkidWallet => ({
-            type: wallet.meta.type,
-            name: wallet.name,
-            index: wallet.meta.index,
-            seed: wallet.keyPair.getSeed(),
-        })
-    );
 
-    const pkid = getPkidClient();
-    await pkid.setDoc(PkidNamedKeys.V3_PURSE, pkidWallets, true);
-};
 export const addOrUpdateWallet = (wallet: IWallet) => {
     const index = wallets.value.findIndex(w => w.keyPair.getBasePublicKey() === wallet.keyPair.getBasePublicKey());
 
@@ -167,52 +155,6 @@ export const sendWalletDataToFlutter = () => {
     });
 };
 
-export const deleteWalletFromPkid = async (seed: string): Promise<boolean> => {
-    const pKid = getPkidClient();
-
-    const docs = await pKid.getDoc(appKeyPair.value.publicKey, PkidNamedKeys.V3_PURSE);
-
-    const success = docs?.success;
-    if (!success) {
-        console.error('No success from PKID');
-        return false;
-    }
-
-    const pkidData: IPkidWallet[] = docs?.data;
-    if (!pkidData) {
-        console.error('No success from PKID');
-        return false;
-    }
-
-    const remainingWallets = pkidData.filter((wallet: IPkidWallet) => wallet.seed != seed);
-    if (!remainingWallets) {
-        console.error('Cant delete wallet - cannot find corresponding seed');
-        return false;
-    }
-
-    if (pkidData.length === remainingWallets.length) {
-        console.error('Edge case: array should be popped');
-        return false;
-    }
-
-    const pkid = getPkidClient();
-    const res = await pkid.setDoc(PkidNamedKeys.V3_PURSE, remainingWallets, true);
-
-    if (res.status != 200) {
-        console.error('Error when saving to PKID');
-        return false;
-    }
-
-    try {
-        wallets.value = mapToWallet(remainingWallets);
-    } catch (e) {
-        console.error('Error in mapping wallets');
-        return false;
-    }
-
-    return true;
-};
-
 export const mapToWallet = (wallets: IPkidWallet[]): IWallet[] => {
     return wallets.map((wallet: IPkidWallet) => {
         const walletKeyPairBuilder = new WalletKeyPairBuilder();
@@ -240,13 +182,4 @@ export const mapToWallet = (wallets: IPkidWallet[]): IWallet[] => {
             },
         };
     });
-};
-
-export const retrieveAllAssets = () => {
-    const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('supported-currencies')).map(
-        (a: any) => a.asset_code
-    );
-
-    console.log('All allowed assets');
-    console.log(wallets.value);
 };

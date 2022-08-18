@@ -39,17 +39,6 @@ export const getStellarBalance = async (wallet: IWallet): Promise<AccountRecord>
     const server = getStellarClient();
     return await server.accounts().accountId(wallet.keyPair.getStellarKeyPair().publicKey()).call();
 };
-export const getOperations = async (wallet: IWallet, cursor?: string): Promise<CollectionPage<OperationRecord>> => {
-    const server = getStellarClient();
-    const callBuilder = server
-        .operations()
-        .forAccount(wallet.keyPair.getStellarKeyPair().publicKey())
-        .order('desc')
-        .limit(200);
-    if (cursor) callBuilder.cursor(cursor);
-
-    return await callBuilder.call();
-};
 
 export const handleAccountRecord = (wallet: IWallet, res: AccountRecord) => {
     const allowedAssets: IAllowedAsset[] = JSON.parse(<string>flagsmith.getValue('supported-currencies'));

@@ -96,6 +96,7 @@
     import { useRouter } from 'vue-router';
     import { ArrowLeftIcon } from '@heroicons/vue/solid';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { BadgeType } from 'shared-types/src/enums/global/badge.enums';
 
     const router = useRouter();
 
@@ -104,14 +105,11 @@
 
     const isMemoLoading = ref<boolean>(true);
 
-    // @TODO: fix typing (cant use ServerApi.OperationRecord since webpack errors
     let operation = ref();
 
     const init = async () => {
         operation.value = JSON.parse(selectedTransaction.value) as ServerApi.OperationRecord;
         if (!operation.value) return;
-
-        console.log(operation.value);
 
         transactionMemo.value = await obtainMemoFromTransactionUrl(operation.value._links.transaction.href);
         isMemoLoading.value = false;

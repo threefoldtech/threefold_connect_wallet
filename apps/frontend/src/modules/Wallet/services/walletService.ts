@@ -14,7 +14,7 @@ import BalanceLine = Horizon.BalanceLine;
 import { PkidNamedKeys } from 'shared-types/src/enums/global/pkid.enums';
 import { IFlutterWallet, IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 import { IPkidWallet } from 'shared-types/src/interfaces/global/pkid.interfaces';
-import { IOperation } from 'shared-types/src/interfaces/global/operation.interfaces';
+import { IOperations } from 'shared-types/src/interfaces/global/operation.interfaces';
 import OperationRecord = ServerApi.OperationRecord;
 
 export const wallets: Ref<IWallet[]> = <Ref<IWallet[]>>ref<IWallet[]>([]);
@@ -31,9 +31,9 @@ export const balances: Ref<IBalance[]> = useLocalStorage<IBalance[]>('balance_ca
             return JSON.stringify(value);
         },
     },
-}); // @TODO: check when to clear cache
+});
 
-export const operations: Ref<IOperation[]> = useLocalStorage<IOperation[]>('operations_cache', []); // @TODO: check when to clear cache
+export const operations: Ref<IOperations[]> = useLocalStorage<IOperations[]>('operations_cache', []);
 
 export const getStellarBalance = async (wallet: IWallet): Promise<AccountRecord> => {
     const server = getStellarClient();
@@ -94,35 +94,6 @@ export const mergeAssets = (...assets: IAssetBalance[]) => {
             if (a.name === b.name) return b.type.localeCompare(a.type);
             return b.name.localeCompare(a.name);
         });
-};
-
-export const handleOperationRecordPage = (page: CollectionPage<OperationRecord>, wallet: IWallet) => {
-    const publicKey = wallet.keyPair.getStellarKeyPair().publicKey();
-    const operation: IOperation = operations.value.find(o => o.id === publicKey) || { operations: [], id: publicKey };
-    const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
-
-    page.records.forEach((operationRecord: OperationRecord) => {
-        const index = operation.operations.findIndex(t => t.id === operationRecord.id);
-
-        operation.cursor = operationRecord.paging_token;
-
-        // @ts-ignore
-        if (allowedAssets.indexOf(operationRecord?.asset_code) === -1) return;
-
-        index === -1
-            ? operation.operations.push(operationRecord)
-            : operation.operations.splice(index, 1, operationRecord);
-
-        operation.operations.sort((a, b) => {
-            if (a.created_at === b.created_at) return -b.id.localeCompare(a.id);
-
-            return -b.created_at.localeCompare(a.created_at);
-        });
-    });
-
-    const index = operations.value.findIndex(t => t.id === operation.id);
-
-    index === -1 ? operations.value.push(operation) : operations.value.splice(index, 1, operation);
 };
 
 export const addOrUpdateWallet = (wallet: IWallet) => {

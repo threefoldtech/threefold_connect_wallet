@@ -1,6 +1,7 @@
 <template>
     <OperationInfoDialog @close="showOperationDetails = false" v-if="showOperationDetails" :operation="operation">
     </OperationInfoDialog>
+
     <div class="group py-2 text-sm tracking-tight" @click="showOperationDetailsDialog">
         <div v-if="operation.type === 'payment'" class="flex items-center justify-between gap-4">
             <div

@@ -1,6 +1,6 @@
-import { PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
+import { PkidWalletTypes } from '../../enums/global/pkid.enums';
 
-export interface PkidWallet {
+export interface IPkidWallet {
     name: string;
     position?: number;
     seed: string;
@@ -8,7 +8,7 @@ export interface PkidWallet {
     index?: number;
 }
 
-export interface PkidV2AppWallet {
+export interface IPkidV2AppWallet {
     index: number;
     isConverted: boolean;
     position?: number;
@@ -16,7 +16,7 @@ export interface PkidV2AppWallet {
     walletName: string;
 }
 
-export interface PkidV2ImportedWallet {
+export interface IPkidV2ImportedWallet {
     index: number;
     isConverted: boolean;
     position?: number;

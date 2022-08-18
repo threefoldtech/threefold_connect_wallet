@@ -1,12 +1,12 @@
 import { Horizon } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
-import { Wallet } from '@/modules/Wallet/services/walletService';
 import { checkVesting as stellarCryptocheckVesting } from 'cryptolib';
 import BalanceLine = Horizon.BalanceLine;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
 import { ChainTypes, IAllowedAsset, IAssetBalance } from 'shared-types';
+import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
-export const checkVesting = async (wallet: Wallet): Promise<IAssetBalance[]> => {
+export const checkVesting = async (wallet: IWallet): Promise<IAssetBalance[]> => {
     const publicKey = wallet.keyPair.getStellarKeyPair().publicKey();
 
     const account = await stellarCryptocheckVesting(publicKey);

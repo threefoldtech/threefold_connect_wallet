@@ -60,7 +60,6 @@
     }
 
     if (!isDev && !overrideIsDev.value) {
-        //@ts-ignore
         globalThis.init = (name: string, seedString: string) => {
             init(name, seedString)
                 .then(() => {

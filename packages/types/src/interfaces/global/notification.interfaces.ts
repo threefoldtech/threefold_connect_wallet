@@ -1,4 +1,4 @@
-import { NotificationType } from '@/modules/Core/enums/notification.enum';
+import { NotificationType } from '../../enums/global/notification.enums';
 
 export interface INotification {
     id: string;

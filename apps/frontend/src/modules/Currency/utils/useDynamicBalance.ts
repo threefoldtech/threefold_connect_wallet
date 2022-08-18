@@ -1,18 +1,13 @@
-import {
-    balances,
-    getStellarBalance,
-    handleAccountRecord,
-    mergeAssets,
-    Wallet,
-} from '@/modules/Wallet/services/walletService';
+import { balances, getStellarBalance, handleAccountRecord, mergeAssets } from '@/modules/Wallet/services/walletService';
 import { NetworkError } from 'stellar-sdk/lib/errors';
 import { ServerApi } from 'stellar-sdk';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 import AccountRecord = ServerApi.AccountRecord;
 import { IBalance } from 'shared-types';
 import { getSubstrateAssetBalances } from 'tf-substrate/src/services/balance.service.substrate';
+import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
-const useDynamicStellarBalance = (wallet: Wallet) => {
+const useDynamicStellarBalance = (wallet: IWallet) => {
     const streams: (() => void)[] = [];
 
     const init = async () => {
@@ -41,7 +36,7 @@ const useDynamicStellarBalance = (wallet: Wallet) => {
     };
 };
 
-const useDynamicSubstrateBalance = (wallet: Wallet) => {
+const useDynamicSubstrateBalance = (wallet: IWallet) => {
     const myInterval = setInterval(async () => {
         const substrateBalances = await getSubstrateAssetBalances(wallet.keyPair.getSubstrateKeyring().address);
 
@@ -64,7 +59,7 @@ const useDynamicSubstrateBalance = (wallet: Wallet) => {
     };
 };
 
-export const useDynamicBalance = (wallet: Wallet) => {
+export const useDynamicBalance = (wallet: IWallet) => {
     const stellarCleanUp = useDynamicStellarBalance(wallet);
     const substrateCleanUp = useDynamicSubstrateBalance(wallet);
 

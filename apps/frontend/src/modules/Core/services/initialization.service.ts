@@ -21,11 +21,11 @@ import { bytesToHex } from '@/modules/Core/utils/crypto';
 import { WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
 import { addNotification } from '@/modules/Core/services/notification.service';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
-import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
-import { PkidWallet } from '@/modules/Pkid/interfaces/pkid.interfaces';
 import { migratePkid2_xTo3_x } from '@/modules/Core/services/migration.service';
 import { initializeStellarConfig } from '@/modules/Core/services/config.service';
-import { NotificationType } from '@/modules/Core/enums/notification.enum';
+import { IPkidWallet } from 'shared-types/src/interfaces/global/pkid.interfaces';
+import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+import { PkidNamedKeys, PkidWalletTypes } from 'shared-types/src/enums/global/pkid.enums';
 
 type LoadingText = {
     title: string;
@@ -39,7 +39,7 @@ export const initFirstWallet = async () => {
 
     const server = getStellarClient();
 
-    const initialWallet: PkidWallet = {
+    const initialWallet: IPkidWallet = {
         index: 0,
         name: 'Daily',
         position: 0,
@@ -157,7 +157,7 @@ export const init = async (name: string, derivedSeed: string) => {
         throw new Error('Critical Initialization error: no purse data found');
     }
 
-    const pkidPurseWallets: PkidWallet[] = purseDoc.data;
+    const pkidPurseWallets: IPkidWallet[] = purseDoc.data;
 
     console.info('All available wallets on PKID: ');
     console.table(pkidPurseWallets.map(wallet => ({ ...wallet, seed: '*********************' })));

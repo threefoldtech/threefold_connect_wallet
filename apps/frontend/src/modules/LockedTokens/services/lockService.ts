@@ -1,53 +1,22 @@
 import { Keypair as StellarKeypair } from 'stellar-base';
 import { fetchUnlockTransaction, getLockedBalances, transferLockedTokens } from 'cryptolib';
-import { Horizon, Keypair, Transaction } from 'stellar-sdk';
+import { Horizon, Transaction } from 'stellar-sdk';
 import { toNumber } from 'lodash';
 import { addNotification } from '@/modules/Core/services/notification.service';
 import { isBefore } from '@/modules/Core/utils/time';
 import { translate } from '@/modules/Core/utils/translate';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
-import { NotificationType } from '@/modules/Core/enums/notification.enum';
+import { ITokenItem, ITokenRecord } from 'shared-types/src/interfaces/stellar/locked.interfaces';
+import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
 
-//
-// Types
-//
-
-type HorizonBalance =
-    | Horizon.BalanceLineNative
-    | Horizon.BalanceLineAsset<'credit_alphanum4'>
-    | Horizon.BalanceLineAsset<'credit_alphanum12'>
-    | Horizon.BalanceLineLiquidityPool
-    | undefined;
-
-export interface TokenRecord {
-    keyPair: Keypair;
-    id: string;
-    balance: HorizonBalance;
-    unlockHash: string | null;
-    unlockTransaction?: Transaction | null;
-}
-
-export interface TokenItem {
-    amount: number;
-    address: string;
-    unlockHash: string | null;
-    unlockFrom: string | undefined;
-    canBeUnlocked: boolean;
-    asset_code: string;
-}
-
-//
-// Fetch tokens functions
-//
-
-export const fetchAllLockedTokens = async (kp: StellarKeypair): Promise<TokenRecord[]> => {
+export const fetchAllLockedTokens = async (kp: StellarKeypair): Promise<ITokenRecord[]> => {
     const allLockedBalances = await getLockedBalances(kp);
 
     // Remove all undefined balances
-    return allLockedBalances.filter((token: TokenRecord) => token.balance !== undefined);
+    return allLockedBalances.filter((token: ITokenRecord) => token.balance !== undefined);
 };
 
-export const getAllTokensDetails = async (kp: StellarKeypair): Promise<TokenItem[]> => {
+export const getAllTokensDetails = async (kp: StellarKeypair): Promise<ITokenItem[]> => {
     const lockedTokens = await fetchAllLockedTokens(kp);
 
     if (lockedTokens.length === 0) {
@@ -60,10 +29,10 @@ export const getAllTokensDetails = async (kp: StellarKeypair): Promise<TokenItem
         })
     );
 
-    return allLockedTokens.filter(b => b != undefined || b != null) as TokenItem[];
+    return allLockedTokens.filter(b => b != undefined || b != null) as ITokenItem[];
 };
 
-const getLockedTokenRecordDetails = async (b: TokenRecord): Promise<TokenItem | undefined> => {
+const getLockedTokenRecordDetails = async (b: ITokenRecord): Promise<ITokenItem | undefined> => {
     let unlockTx: Transaction | null = null;
     try {
         if (!b.unlockHash) {
@@ -95,7 +64,7 @@ const getLockedTokenRecordDetails = async (b: TokenRecord): Promise<TokenItem | 
 // Unlocking tokens functions
 //
 
-export const unlockTokens = async (lockedBalances: TokenItem[], kp: StellarKeypair) => {
+export const unlockTokens = async (lockedBalances: ITokenItem[], kp: StellarKeypair) => {
     if (!lockedBalances) return;
 
     for (let lockedBalance of lockedBalances) {
@@ -126,7 +95,7 @@ export const unlockTokens = async (lockedBalances: TokenItem[], kp: StellarKeypa
     }
 };
 
-const submitLockedTokenTxHash = async (lockedBalance: TokenItem): Promise<TokenItem | null> => {
+const submitLockedTokenTxHash = async (lockedBalance: ITokenItem): Promise<ITokenItem | null> => {
     if (!lockedBalance.unlockHash) return null;
 
     const unlockTx = await fetchUnlockTransaction(lockedBalance.unlockHash);

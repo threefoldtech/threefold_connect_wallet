@@ -1,9 +1,9 @@
 import { IKeyringPair } from '@polkadot/types/types/interfaces';
 import { getSubstrateApi, submitExtrinsic } from '../services/core.service.substrate';
 import { addNotification } from 'wallet-frontend/src/modules/Core/services/notification.service';
-import { NotificationType } from 'wallet-frontend/src/modules/Core/enums/notification.enum';
-import { ExtrinsicCallbackMethod } from 'shared-types/src/enums/substrate.enums';
 import { fetchAllFarms } from 'wallet-frontend/src/modules/Farm/services/farm.service';
+import { ExtrinsicCallbackMethod } from 'shared-types/src/enums/substrate/substrate.enums';
+import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
 
 export const createTwinOnSubstrate = async (keyRing: IKeyringPair): Promise<boolean> => {
     try {

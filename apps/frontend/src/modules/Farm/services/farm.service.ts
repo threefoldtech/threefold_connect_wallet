@@ -1,8 +1,9 @@
-import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
+import { wallets } from '@/modules/Wallet/services/walletService';
 import axios from 'axios';
 import { ref } from 'vue';
 import { IFarm, IFarmV2, IGqlFarm, IGqlNode, IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
 import { getAllFarmsFromWallets, getAllNodesOfFarms, getAllTwinIds } from 'tf-substrate/src/gql/calls/farms.calls';
+import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
 export const v2Farms = ref<IFarmV2[]>([]);
 
@@ -21,8 +22,8 @@ export const allDetailedFarms = ref<IFarm[]>([]);
 export const fetchAllFarms = async () => {
     await getAllV2Farms();
 
-    allStellarAddresses.value = wallets.value.map((w: Wallet) => w.keyPair.getStellarKeyPair().publicKey());
-    allSubstrateAddresses.value = wallets.value.map((w: Wallet) => w.keyPair.getSubstrateKeyring().address);
+    allStellarAddresses.value = wallets.value.map((w: IWallet) => w.keyPair.getStellarKeyPair().publicKey());
+    allSubstrateAddresses.value = wallets.value.map((w: IWallet) => w.keyPair.getSubstrateKeyring().address);
 
     twinIds.value = await getAllTwinIds(allSubstrateAddresses.value);
 
@@ -40,7 +41,7 @@ export const fetchAllFarms = async () => {
         const twin = twinIds.value.find((twinId: IGqlTwin) => farm.twinId === twinId.twinId);
 
         const address = twin?.substrateAddress;
-        const wallet = wallets.value.find((w: Wallet) => w.keyPair.getSubstrateKeyring().address === address);
+        const wallet = wallets.value.find((w: IWallet) => w.keyPair.getSubstrateKeyring().address === address);
 
         const fullFarm: IFarm = {
             farm: farm,

@@ -73,11 +73,12 @@
     import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/vue/outline';
     import { XIcon } from '@heroicons/vue/solid';
     import { notifications } from '@/modules/Core/services/notification.service';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
     import { Portal } from '@headlessui/vue';
-    import { computed } from 'vue';
+    import { computed, Ref } from 'vue';
+    import { INotification } from 'shared-types/src/interfaces/global/notification.interfaces';
 
-    const filteredNotifications = computed(() => {
+    const filteredNotifications: Ref<INotification[]> = computed(() => {
         return notifications.value.slice(0, 5).reverse();
     });
 </script>

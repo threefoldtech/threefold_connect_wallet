@@ -1,18 +1,19 @@
+import { wallets } from '@/modules/Wallet/services/walletService';
+import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
+import { appKeyPair } from '@/modules/Core/services/crypto.service';
+import { validateWalletAddress } from '@/modules/Wallet/validate/wallet.validate';
+import { ChainTypes } from 'shared-types';
 import {
     IContactFormValidation,
     IContactType,
     IContactValidation,
-} from '@/modules/Contact/interfaces/contact.interface';
-import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
-import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
-import { appKeyPair } from '@/modules/Core/services/crypto.service';
-import { validateWalletAddress } from '@/modules/Wallet/validate/wallet.validate';
-import { PkidNamedKeys } from '@/modules/Pkid/enums/pkid.enums';
-import { ContactFields } from '@/modules/Contact/enums/contact.enums';
-import { ChainTypes } from 'shared-types';
+} from 'shared-types/src/interfaces/global/contact.interfaces';
+import { PkidNamedKeys } from 'shared-types/src/enums/global/pkid.enums';
+import { ContactFields } from 'shared-types/src/enums/global/contact.enums';
+import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
 export const isContactInMyContacts = (address: string, chain: string): boolean => {
-    const myContacts: IContactType[] = wallets.value.map((wallet: Wallet) => {
+    const myContacts: IContactType[] = wallets.value.map((wallet: IWallet) => {
         return {
             address:
                 chain === ChainTypes.STELLAR

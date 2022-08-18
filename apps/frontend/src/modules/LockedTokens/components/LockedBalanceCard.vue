@@ -42,22 +42,23 @@
 </template>
 
 <script lang="ts" setup>
-    import { TokenItem, unlockTokens } from '@/modules/LockedTokens/services/lockService';
+    import { unlockTokens } from '@/modules/LockedTokens/services/lockService';
     import { computed, inject } from 'vue';
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
     import { timeStampToReadableDate } from '@/modules/Core/utils/time';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
     import { addNotification } from '@/modules/Core/services/notification.service';
-    import { Wallet } from '@/modules/Wallet/services/walletService';
     import { translate } from '@/modules/Core/utils/translate';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { ITokenItem } from 'shared-types/src/interfaces/stellar/locked.interfaces';
 
     interface IProps {
-        lockedBalances: (TokenItem | null)[];
+        lockedBalances: (ITokenItem | null)[];
     }
 
-    const wallet: Wallet = <Wallet>inject('wallet');
+    const wallet: IWallet = <IWallet>inject('wallet');
 
     const { lockedBalances } = defineProps<IProps>();
 
@@ -81,6 +82,6 @@
 
     const unlockTokensManually = async () => {
         addNotification(NotificationType.info, translate('locking.tryingToUnlock'));
-        await unlockTokens(lockedBalances as TokenItem[], wallet.keyPair.getStellarKeyPair());
+        await unlockTokens(lockedBalances as ITokenItem[], wallet.keyPair.getStellarKeyPair());
     };
 </script>

@@ -88,18 +88,18 @@
 </template>
 
 <script lang="ts" setup>
-    import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/walletService';
     import { obtainMemoFromTransactionUrl, selectedTransaction } from '@/modules/Transfer/services/transfer.service';
     import { computed, inject, ref } from 'vue';
     import { ServerApi } from 'stellar-sdk';
     import Badge from '@/modules/Misc/components/global/Badge.vue';
-    import { BadgeType } from '@/modules/Misc/enums/badge.enum';
     import { useRouter } from 'vue-router';
     import { ArrowLeftIcon } from '@heroicons/vue/solid';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const router = useRouter();
 
-    const wallet: Wallet = <Wallet>inject('wallet');
+    const wallet: IWallet = <IWallet>inject('wallet');
     const transactionMemo = ref<string | null>();
 
     const isMemoLoading = ref<boolean>(true);
@@ -129,7 +129,7 @@
 
     const getWalletName = (address: string) => {
         const wallet = wallets.value.find(
-            (wallet: Wallet) => wallet.keyPair.getStellarKeyPair().publicKey() === address
+            (wallet: IWallet) => wallet.keyPair.getStellarKeyPair().publicKey() === address
         );
 
         if (!wallet) {

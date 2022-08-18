@@ -173,8 +173,7 @@
 
 <script lang="ts" setup>
     import SiteModalFrame from '@/modules/Misc/components/SiteModalFrame.vue';
-    import { Farm } from '@/modules/Farm/types/farms.types';
-    import { balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, wallets } from '@/modules/Wallet/services/walletService';
     import {
         Menu,
         MenuButton,
@@ -192,8 +191,7 @@
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { allSubstrateAddresses, v2Farms } from '@/modules/Farm/services/farm.service';
     import { onBeforeMount } from '@vue/runtime-core';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
-    import { IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
+    import { IFarmV2, IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
 
     import { validateFarmName } from '@/modules/Farm/validators/farm.validate';
     import {
@@ -205,8 +203,10 @@
     } from 'tf-substrate/src/services/farm.service.substrate';
     import { getFarmIdByName, getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.state';
     import { getAllTwinIds } from 'tf-substrate/src/gql/calls/farms.calls';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
-    const selectedWallet = ref<Wallet>(wallets.value[0]);
+    const selectedWallet = ref<IWallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
     const farmNameToValidate = ref<string>('');
 
@@ -221,13 +221,13 @@
 
     onBeforeMount(() => {
         if (migrationFarm) {
-            farmNameToValidate.value = migrationFarm?.name;
-            selectedWallet.value = migrationFarm?.wallet as Wallet;
+            farmNameToValidate.value = migrationFarm.name;
+            selectedWallet.value = migrationFarm.wallet;
         }
     });
 
     interface Props {
-        migrationFarm?: Farm;
+        migrationFarm?: IFarmV2;
     }
 
     const { migrationFarm } = defineProps<Props>();

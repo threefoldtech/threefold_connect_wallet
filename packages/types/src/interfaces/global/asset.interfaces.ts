@@ -1,4 +1,4 @@
-import { ChainTypes } from '../../enums/chain.enums';
+import { ChainTypes } from '../../enums/global/chain.enums';
 
 export interface IAssetBalance {
     name: string;

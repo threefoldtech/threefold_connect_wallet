@@ -1,4 +1,4 @@
-import { Wallet } from 'wallet-frontend/src/modules/Wallet/services/walletService';
+import { IWallet } from '../global/wallet.interfaces';
 
 export interface IGqlFarm {
     farmId: number;
@@ -20,12 +20,12 @@ export interface IGqlTwin {
 }
 
 export interface IFarm {
-    wallet?: Wallet;
+    wallet?: IWallet;
     farm: IGqlFarm;
     nodes?: IGqlNode[];
 }
 
 export interface IFarmV2 {
-    wallet: Wallet;
+    wallet: IWallet;
     name: string;
 }

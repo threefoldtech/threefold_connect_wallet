@@ -203,12 +203,13 @@
         RadioGroupOption,
         DialogOverlay,
     } from '@headlessui/vue';
-    import { balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/walletService';
     import uniq from 'lodash/uniq';
     import flagsmith from 'flagsmith';
     import { isValidMemoOfTransaction } from '@/modules/Wallet/validate/wallet.validate';
     import { XIcon, SelectorIcon, CheckIcon } from '@heroicons/vue/solid';
     import { ChainTypes } from 'shared-types';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const router = useRouter();
 
@@ -228,8 +229,8 @@
     const imageUrl = ref();
     const showImage = ref(false);
     const isValidMemo = ref<boolean>();
-    const selectedWallet = ref<Wallet>(
-        wallets.value?.find((w: Wallet) => w.keyPair.getStellarKeyPair().publicKey() === toAddress) || wallets.value[0]
+    const selectedWallet = ref<IWallet>(
+        wallets.value?.find((w: IWallet) => w.keyPair.getStellarKeyPair().publicKey() === toAddress) || wallets.value[0]
     );
 
     type Asset = { asset_code: string; type: string };

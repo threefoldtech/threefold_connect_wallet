@@ -1,10 +1,10 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { ISubmittableResult } from '@polkadot/types/types';
 import { IKeyringPair } from '@polkadot/types/types/interfaces';
-import { ExtrinsicStatus } from 'shared-types/src/enums/substrate.enums';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import SubstrateChainTypes from 'shared-types/src/types/substrate.chain.types';
+import SubstrateChainTypes from 'shared-types/src/types/substrate/substrate.chain.types';
+import { ExtrinsicStatus } from 'shared-types/src/enums/substrate/substrate.enums';
 
 let apiCache: Promise<ApiPromise>;
 

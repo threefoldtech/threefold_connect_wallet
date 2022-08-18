@@ -16,7 +16,7 @@
     import { watch } from 'vue';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { initializedUser } from '@/modules/Core/services/crypto.service';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();

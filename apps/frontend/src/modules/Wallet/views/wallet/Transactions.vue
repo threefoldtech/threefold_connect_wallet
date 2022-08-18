@@ -77,7 +77,6 @@
         getOperations,
         handleOperationRecordPage,
         operations,
-        Wallet,
     } from '@/modules/Wallet/services/walletService';
     import { computed, ComputedRef, inject, ref } from 'vue';
     import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
@@ -87,10 +86,11 @@
     import { ServerApi } from 'stellar-sdk';
     import { NetworkError } from 'stellar-sdk/lib/errors';
     import { IBalance } from 'shared-types';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const route = useRoute();
 
-    const wallet: Wallet = <Wallet>inject('wallet');
+    const wallet: IWallet = <IWallet>inject('wallet');
     const balance: ComputedRef<IBalance | undefined> = computed(() =>
         balances.value.find(b => b.id === wallet.keyPair.getBasePublicKey())
     );

@@ -78,23 +78,24 @@
 </template>
 
 <script lang="ts" setup>
-    import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/walletService';
     import { useRoute, useRouter } from 'vue-router';
     import { computed, onBeforeUnmount, Ref, ref } from 'vue';
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { ArrowDownIcon, ArrowLeftIcon } from '@heroicons/vue/solid';
     import LoadingSpinner from '@/modules/Core/components/LoadingSpinner.vue';
-    import { AssetsTypes } from '@/modules/Currency/enums/assets.enums';
     import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
     import { useAssets } from '@/modules/Currency/utils/useAssets';
     import flagsmith from 'flagsmith';
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
     import uniq from 'lodash/uniq';
-    import { BridgeFee } from '@/modules/Wallet/types/wallet.types';
     import { ChainTypes } from 'shared-types';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { BridgeFee } from 'shared-types/src/types/global/wallet.types';
+    import { AssetsTypes } from 'shared-types/src/enums/global/asset.enums';
 
-    const selectedWallet = ref<Wallet>() as Ref<Wallet>;
+    const selectedWallet = ref<IWallet>() as Ref<IWallet>;
 
     const isLoading = ref<boolean>(true);
 
@@ -183,7 +184,7 @@
             return;
         }
 
-        selectedWallet.value = <Wallet>(
+        selectedWallet.value = <IWallet>(
             wallets.value.find(wallet => wallet.keyPair.getBasePublicKey() === basePublicKey)
         );
 

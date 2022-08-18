@@ -113,14 +113,15 @@
     import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue';
     import { computed, Ref, ref } from 'vue';
     import { useLocalStorage } from '@vueuse/core';
-    import { IContactType } from '@/modules/Contact/interfaces/contact.interface';
-    import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/walletService';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
     import { getContactsFromPkid, saveContactToPkid } from '@/modules/Contact/services/contact.service';
     import FAB from '@/modules/Misc/components/global/FAB.vue';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { ChainTypes } from 'shared-types';
+    import { IContactType } from 'shared-types/src/interfaces/global/contact.interfaces';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
 
     enum Tabs {
         'OWN_WALLETS' = 'Own wallets',
@@ -150,7 +151,7 @@
     };
 
     const myContacts: Ref<IContactType[]> = computed(() =>
-        wallets.value.map((wallet: Wallet) => {
+        wallets.value.map((wallet: IWallet) => {
             return {
                 address:
                     chain === ChainTypes.STELLAR

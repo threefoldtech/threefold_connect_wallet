@@ -8,7 +8,6 @@ import FarmModule from '@/modules/Farm';
 import LockedTokensModule from '@/modules/LockedTokens';
 import MiscModule from '@/modules/Misc';
 import StellarModule from '@/modules/Stellar';
-import TFChainModule from '@/modules/TFChain';
 import TransferModule from '@/modules/Transfer';
 import VestingModule from '@/modules/Vesting';
 import WalletModule from '@/modules/Wallet';
@@ -31,7 +30,6 @@ export const createRouterWithModules = async (): Promise<Router> => {
         LockedTokensModule,
         MiscModule,
         StellarModule,
-        TFChainModule,
         TransferModule,
         VestingModule,
         WalletModule,

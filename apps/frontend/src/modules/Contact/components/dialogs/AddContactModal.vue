@@ -58,9 +58,9 @@
     import Modal from '@/modules/Misc/components/Modal.vue';
     import { ref } from 'vue';
     import { validateWalletAddress } from '@/modules/Wallet/validate/wallet.validate';
-    import { IContactFormValidation, IContactType } from '@/modules/Contact/interfaces/contact.interface';
     import { validateContact } from '@/modules/Contact/validate/contact.validate';
-    import { ContactFields } from '@/modules/Contact/enums/contact.enums';
+    import { IContactFormValidation, IContactType } from 'shared-types/src/interfaces/global/contact.interfaces';
+    import { ContactFields } from 'shared-types/src/enums/global/contact.enums';
 
     const emit = defineEmits(['cancel', 'confirm']);
 

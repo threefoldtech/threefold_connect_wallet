@@ -1,7 +1,7 @@
 import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
 import { appKeyPair } from '@/modules/Core/services/crypto.service';
-import { IContactType } from '@/modules/Contact/interfaces/contact.interface';
-import { PkidNamedKeys } from '@/modules/Pkid/enums/pkid.enums';
+import { PkidNamedKeys } from 'shared-types/src/enums/global/pkid.enums';
+import { IContactType } from 'shared-types/src/interfaces/global/contact.interfaces';
 
 export const getContactsFromPkid = async (): Promise<IContactType[]> => {
     const pkidClient = getPkidClient();

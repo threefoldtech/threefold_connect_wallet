@@ -44,7 +44,6 @@
 </template>
 
 <script lang="ts" setup>
-    import LoadingSpinner from '@/modules/Core/components/LoadingSpinner.vue';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
     import { IBalance } from 'shared-types';

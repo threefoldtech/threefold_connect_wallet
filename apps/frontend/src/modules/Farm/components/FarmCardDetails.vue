@@ -120,12 +120,13 @@
     import { DocumentAddIcon } from '@heroicons/vue/outline';
     import { computed, ref } from 'vue';
     import { addNotification } from '@/modules/Core/services/notification.service';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { IFarm } from 'shared-types/src/interfaces/substrate/farm.interfaces';
-    import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/walletService';
     import { deleteFarmOnSubstrate } from 'tf-substrate/src/extrinsics/grid.extrinsics';
     import { addStellarPayoutAddress } from 'tf-substrate/src/services/farm.service.substrate';
     import DeleteFarmDialog from '@/modules/Farm/components/dialogs/DeleteFarmDialog.vue';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     interface Props {
         farm: IFarm;
@@ -142,7 +143,7 @@
         }
 
         const wallet = wallets.value.find(
-            (w: Wallet) => w.keyPair.getStellarKeyPair().publicKey() === farm.farm.stellarAddress
+            (w: IWallet) => w.keyPair.getStellarKeyPair().publicKey() === farm.farm.stellarAddress
         );
 
         return wallet?.name || '';

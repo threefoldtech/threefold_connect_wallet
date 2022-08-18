@@ -1,7 +1,7 @@
 import { ChainTypes, IAssetBalance } from 'shared-types';
-import { AssetsTypes } from 'wallet-frontend/src/modules/Currency/enums/assets.enums';
 import { getSubstrateApi } from './core.service.substrate';
 import axios from 'axios';
+import { AssetsTypes } from 'shared-types/src/enums/global/asset.enums';
 
 export const getSubstrateAssetBalances = async (accountId: string): Promise<IAssetBalance[]> => {
     const api = await getSubstrateApi();

@@ -1,7 +1,7 @@
 import flagsmith from 'flagsmith';
 import Pkid from '@jimber/pkid';
-import { PkidClient } from '@/modules/Pkid/types/pkid.types';
 import { appKeyPair } from '@/modules/Core/services/crypto.service';
+import { PkidClient } from 'shared-types/src/types/global/pkid.types';
 
 let initializedPkidClient: PkidClient;
 export const getPkidClient: () => PkidClient = () => {

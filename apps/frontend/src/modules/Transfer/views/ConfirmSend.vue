@@ -171,8 +171,8 @@
     import { AccountResponse } from 'stellar-sdk';
     import uniq from 'lodash/uniq';
     import { getStellarClient } from '@/modules/Stellar/services/stellarService';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { sendSubstrateTokens } from 'tf-substrate/src/services/send.service.substrate';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };

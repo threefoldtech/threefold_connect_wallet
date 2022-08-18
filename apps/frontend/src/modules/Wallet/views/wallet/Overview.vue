@@ -113,7 +113,6 @@
 <script lang="ts" setup>
     import BalanceCard from '@/modules/Currency/components/BalanceCard.vue';
     import { useRouter } from 'vue-router';
-    import { Wallet } from '@/modules/Wallet/services/walletService';
     import { computed, inject, ref } from 'vue';
     import { useAssets } from '@/modules/Currency/utils/useAssets';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
@@ -121,20 +120,22 @@
     import { useLocalStorage } from '@vueuse/core';
     import flagsmith from 'flagsmith';
     import { orderAssets } from '@/modules/Currency/utils/order';
-    import { getAllTokensDetails, TokenItem, unlockTokens } from '@/modules/LockedTokens/services/lockService';
+    import { getAllTokensDetails, unlockTokens } from '@/modules/LockedTokens/services/lockService';
     import LockedBalanceCard from '@/modules/LockedTokens/components/LockedBalanceCard.vue';
     import { IAssetBalance } from 'shared-types';
     import { ChainTypes } from 'shared-types';
+    import { ITokenItem } from 'shared-types/src/interfaces/stellar/locked.interfaces';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const router = useRouter();
-    const wallet: Wallet = <Wallet>inject('wallet');
+    const wallet: IWallet = <IWallet>inject('wallet');
 
     const vestedAssetBalance = useLocalStorage<IAssetBalance[]>(
         `vested_asset_balance_${wallet.keyPair.getBasePublicKey()}`,
         []
     );
 
-    const lockedAssetBalance = useLocalStorage<TokenItem[]>(
+    const lockedAssetBalance = useLocalStorage<ITokenItem[]>(
         `locked_asset_balance_${wallet.keyPair.getBasePublicKey()}`,
         []
     );
@@ -168,7 +169,7 @@
         if (lockedAssetBalance.value.length >= 1) {
             // Trying to unlock ...
             const availableUnlockedTokens = lockedAssetBalance.value.filter(t => t?.canBeUnlocked === true);
-            await unlockTokens(availableUnlockedTokens as TokenItem[], wallet.keyPair.getStellarKeyPair());
+            await unlockTokens(availableUnlockedTokens as ITokenItem[], wallet.keyPair.getStellarKeyPair());
         }
 
         lockedAssetBalanceIsLoading.value = false;

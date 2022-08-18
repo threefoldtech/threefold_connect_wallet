@@ -84,16 +84,16 @@
     import { ref } from 'vue';
     import { useRouter } from 'vue-router';
     import { Keypair } from 'stellar-sdk';
-    import { saveWallets, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { saveWallets, wallets } from '@/modules/Wallet/services/walletService';
     import { bytesToHex } from '@/modules/Core/utils/crypto';
     import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { getEntropyFromPhrase } from 'mnemonicconversion2924';
-    import { entropyToMnemonic, mnemonicToEntropy } from '@jimber/simple-bip39';
+    import { entropyToMnemonic } from '@jimber/simple-bip39';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { calculateWalletEntropyFromAccount } from 'cryptolib';
     import { validateWalletName } from '@/modules/Wallet/validate/wallet.validate';
-    import { PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { PkidWalletTypes } from 'shared-types/src/enums/global/pkid.enums';
 
     const walletIndex = ref(0);
 

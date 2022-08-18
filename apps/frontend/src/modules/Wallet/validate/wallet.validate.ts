@@ -2,8 +2,8 @@ import { wallets } from '@/modules/Wallet/services/walletService';
 import { decodeAddress, encodeAddress } from '@polkadot/keyring';
 import { hexToU8a, isHex } from '@polkadot/util';
 import { StrKey } from 'stellar-sdk';
-import { ValidateWalletAddress } from '@/modules/Wallet/types/wallet.types';
 import { ChainTypes } from 'shared-types';
+import { ValidateWalletAddress } from 'shared-types/src/types/global/wallet.types';
 
 export function validateWalletName(name: string, selectedWalletName: string | null): string | null {
     // Case when they just click change without changing the name

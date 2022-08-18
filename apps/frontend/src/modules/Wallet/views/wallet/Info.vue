@@ -104,12 +104,7 @@
 </template>
 
 <script lang="ts" setup>
-    import {
-        addOrUpdateWallet,
-        deleteWalletFromPkid,
-        saveWallets,
-        Wallet,
-    } from '@/modules/Wallet/services/walletService';
+    import { addOrUpdateWallet, deleteWalletFromPkid, saveWallets } from '@/modules/Wallet/services/walletService';
     import { computed, inject, ref } from 'vue';
     import { ClipboardCopyIcon, PencilIcon, TrashIcon } from '@heroicons/vue/solid';
     import { addNotification } from '@/modules/Core/services/notification.service';
@@ -121,10 +116,11 @@
     import { translate } from '@/modules/Core/utils/translate';
     import { useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { getSubstrateApi } from 'tf-substrate/src/services/core.service.substrate';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
 
-    const wallet: Wallet = <Wallet>inject('wallet');
+    const wallet: IWallet = <IWallet>inject('wallet');
 
     const canSeeDangerZone = flagsmith.hasFeature('can-see-danger-zone');
     const canDeleteWallet = flagsmith.hasFeature('can-delete-wallet');

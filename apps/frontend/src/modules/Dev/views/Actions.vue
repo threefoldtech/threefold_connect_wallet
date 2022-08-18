@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { saveWallets, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { saveWallets, wallets } from '@/modules/Wallet/services/walletService';
     import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { hexToBytes } from '@/modules/Core/utils/crypto';
     import { Keypair } from 'stellar-sdk';
@@ -39,11 +39,12 @@
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
     import CTA from '@/modules/Misc/components/global/CTA.vue';
     import { ChevronUpIcon } from '@heroicons/vue/solid';
-    import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { twinIds } from '@/modules/Farm/services/farm.service';
     import { IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
     import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.service.substrate';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { PkidNamedKeys, PkidWalletTypes } from 'shared-types/src/enums/global/pkid.enums';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
@@ -51,7 +52,7 @@
         const walletKeyPairBuilder = new WalletKeyPairBuilder();
         walletKeyPairBuilder.addRandomSeed();
 
-        const wallet: Wallet = {
+        const wallet: IWallet = {
             keyPair: <IWalletKeyPair>walletKeyPairBuilder.build(),
             meta: { type: PkidWalletTypes.NATIVE },
             name: `testWallet-${nanoid()}`,

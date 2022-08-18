@@ -2,42 +2,22 @@ import { Ref, ref } from 'vue';
 import { Horizon, ServerApi } from 'stellar-sdk';
 import flagsmith from 'flagsmith';
 import { useLocalStorage } from '@vueuse/core';
-import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
+import { WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
 import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
 import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 import { appKeyPair } from '@/modules/Core/services/crypto.service';
-import { PkidNamedKeys, PkidWalletTypes } from '@/modules/Pkid/enums/pkid.enums';
-import { PkidWallet } from '@/modules/Pkid/interfaces/pkid.interfaces';
 import { ChainTypes, IAllowedAsset, IAssetBalance, IBalance } from 'shared-types';
 import AccountRecord = ServerApi.AccountRecord;
 import CollectionPage = ServerApi.CollectionPage;
 import BalanceLineAsset = Horizon.BalanceLineAsset;
-import OperationRecord = ServerApi.OperationRecord;
 import BalanceLine = Horizon.BalanceLine;
+import { PkidNamedKeys } from 'shared-types/src/enums/global/pkid.enums';
+import { IFlutterWallet, IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+import { IPkidWallet } from 'shared-types/src/interfaces/global/pkid.interfaces';
+import { IOperation } from 'shared-types/src/interfaces/global/operation.interfaces';
+import OperationRecord = ServerApi.OperationRecord;
 
-export interface Wallet {
-    name: string;
-    keyPair: IWalletKeyPair;
-    meta: {
-        position?: number;
-        type: PkidWalletTypes;
-        index?: number;
-    };
-}
-
-export interface Operation {
-    id: string;
-    operations: OperationRecord[];
-    cursor?: string;
-}
-
-export interface FlutterWallet {
-    name: string;
-    chain: string;
-    address: string;
-}
-
-export const wallets: Ref<Wallet[]> = <Ref<Wallet[]>>ref<Wallet[]>([]);
+export const wallets: Ref<IWallet[]> = <Ref<IWallet[]>>ref<IWallet[]>([]);
 export const balances: Ref<IBalance[]> = useLocalStorage<IBalance[]>('balance_cache', [], {
     serializer: {
         read(raw: string): IBalance[] {
@@ -53,13 +33,13 @@ export const balances: Ref<IBalance[]> = useLocalStorage<IBalance[]>('balance_ca
     },
 }); // @TODO: check when to clear cache
 
-export const operations: Ref<Operation[]> = useLocalStorage<Operation[]>('operations_cache', []); // @TODO: check when to clear cache
+export const operations: Ref<IOperation[]> = useLocalStorage<IOperation[]>('operations_cache', []); // @TODO: check when to clear cache
 
-export const getStellarBalance = async (wallet: Wallet): Promise<AccountRecord> => {
+export const getStellarBalance = async (wallet: IWallet): Promise<AccountRecord> => {
     const server = getStellarClient();
     return await server.accounts().accountId(wallet.keyPair.getStellarKeyPair().publicKey()).call();
 };
-export const getOperations = async (wallet: Wallet, cursor?: string): Promise<CollectionPage<OperationRecord>> => {
+export const getOperations = async (wallet: IWallet, cursor?: string): Promise<CollectionPage<OperationRecord>> => {
     const server = getStellarClient();
     const callBuilder = server
         .operations()
@@ -71,7 +51,7 @@ export const getOperations = async (wallet: Wallet, cursor?: string): Promise<Co
     return await callBuilder.call();
 };
 
-export const handleAccountRecord = (wallet: Wallet, res: AccountRecord) => {
+export const handleAccountRecord = (wallet: IWallet, res: AccountRecord) => {
     const allowedAssets: IAllowedAsset[] = JSON.parse(<string>flagsmith.getValue('supported-currencies'));
 
     const balance: IBalance = balances.value.find(value => value.id === wallet.keyPair.getBasePublicKey()) || {
@@ -116,9 +96,9 @@ export const mergeAssets = (...assets: IAssetBalance[]) => {
         });
 };
 
-export const handleOperationRecordPage = (page: CollectionPage<OperationRecord>, wallet: Wallet) => {
+export const handleOperationRecordPage = (page: CollectionPage<OperationRecord>, wallet: IWallet) => {
     const publicKey = wallet.keyPair.getStellarKeyPair().publicKey();
-    const operation: Operation = operations.value.find(o => o.id === publicKey) || { operations: [], id: publicKey };
+    const operation: IOperation = operations.value.find(o => o.id === publicKey) || { operations: [], id: publicKey };
     const allowedAssets: string[] = JSON.parse(<string>flagsmith.getValue('currencies')).map((a: any) => a.asset_code);
 
     page.records.forEach((operationRecord: OperationRecord) => {
@@ -145,8 +125,8 @@ export const handleOperationRecordPage = (page: CollectionPage<OperationRecord>,
     index === -1 ? operations.value.push(operation) : operations.value.splice(index, 1, operation);
 };
 export const saveWallets = async () => {
-    const pkidWallets: PkidWallet[] = wallets.value.map(
-        (wallet: Wallet): PkidWallet => ({
+    const pkidWallets: IPkidWallet[] = wallets.value.map(
+        (wallet: IWallet): IPkidWallet => ({
             type: wallet.meta.type,
             name: wallet.name,
             index: wallet.meta.index,
@@ -157,7 +137,7 @@ export const saveWallets = async () => {
     const pkid = getPkidClient();
     await pkid.setDoc(PkidNamedKeys.V3_PURSE, pkidWallets, true);
 };
-export const addOrUpdateWallet = (wallet: Wallet) => {
+export const addOrUpdateWallet = (wallet: IWallet) => {
     const index = wallets.value.findIndex(w => w.keyPair.getBasePublicKey() === wallet.keyPair.getBasePublicKey());
 
     if (index === -1) {
@@ -172,7 +152,7 @@ export const sendWalletDataToFlutter = () => {
 
     //@TODO: implement this for substrate / stellar (Only hardcoded stellar atm)
     return new Promise(resolve => {
-        const walletsToSend: FlutterWallet[] = wallets.value.map(wallet => {
+        const walletsToSend: IFlutterWallet[] = wallets.value.map(wallet => {
             return {
                 name: wallet.name,
                 chain: 'stellar',
@@ -198,13 +178,13 @@ export const deleteWalletFromPkid = async (seed: string): Promise<boolean> => {
         return false;
     }
 
-    const pkidData: PkidWallet[] = docs?.data;
+    const pkidData: IPkidWallet[] = docs?.data;
     if (!pkidData) {
         console.error('No success from PKID');
         return false;
     }
 
-    const remainingWallets = pkidData.filter((wallet: PkidWallet) => wallet.seed != seed);
+    const remainingWallets = pkidData.filter((wallet: IPkidWallet) => wallet.seed != seed);
     if (!remainingWallets) {
         console.error('Cant delete wallet - cannot find corresponding seed');
         return false;
@@ -233,8 +213,8 @@ export const deleteWalletFromPkid = async (seed: string): Promise<boolean> => {
     return true;
 };
 
-export const mapToWallet = (wallets: PkidWallet[]): Wallet[] => {
-    return wallets.map((wallet: PkidWallet) => {
+export const mapToWallet = (wallets: IPkidWallet[]): IWallet[] => {
+    return wallets.map((wallet: IPkidWallet) => {
         const walletKeyPairBuilder = new WalletKeyPairBuilder();
 
         if (wallet.seed.split(' ').length === 12) {

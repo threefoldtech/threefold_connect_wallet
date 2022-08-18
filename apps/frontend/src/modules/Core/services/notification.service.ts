@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { nanoid } from 'nanoid';
-import { NotificationType } from '@/modules/Core/enums/notification.enum';
-import { INotification } from '@/modules/Core/interfaces/notification.interface';
+import { INotification } from 'shared-types/src/interfaces/global/notification.interfaces';
+import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
 
 export const notifications = ref<INotification[]>([]);
 

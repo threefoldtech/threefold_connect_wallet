@@ -186,7 +186,7 @@
     } from '@headlessui/vue';
     import { computed, nextTick, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
-    import { balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, wallets } from '@/modules/Wallet/services/walletService';
     import uniq from 'lodash/uniq';
     import {
         isValidMemoOfTransaction,
@@ -198,11 +198,12 @@
     import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
     import Contact from '@/modules/Contact/views/Contact.vue';
     import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
-    import { IContactType } from '@/modules/Contact/interfaces/contact.interface';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
-    import { NotificationType } from '@/modules/Core/enums/notification.enum';
     import { ChainTypes, IAssetBalance, IBalance } from 'shared-types';
+    import { IContactType } from 'shared-types/src/interfaces/global/contact.interfaces';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
@@ -225,7 +226,7 @@
 
     const { from, to, amount: initialAmount, asset } = defineProps<IProps>();
 
-    const selectedWallet = ref<Wallet>();
+    const selectedWallet = ref<IWallet>();
     selectedWallet.value =
         wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0];
 

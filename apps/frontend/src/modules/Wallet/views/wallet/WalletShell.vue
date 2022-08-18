@@ -47,10 +47,9 @@
 </template>
 
 <script lang="ts" setup>
-    import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/walletService';
     import { computed, onBeforeUnmount, provide } from 'vue';
     import { useRoute } from 'vue-router';
-    import { ArrowLeftIcon } from '@heroicons/vue/outline';
 
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import BottomNav from '@/modules/Misc/components/nav/BottomNav.vue';
@@ -58,9 +57,10 @@
     import { initializedUser } from '@/modules/Core/services/crypto.service';
     import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
     import { useLocalStorage } from '@vueuse/core';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const route = useRoute();
-    const wallet: Wallet = <Wallet>(
+    const wallet: IWallet = <IWallet>(
         wallets.value.find(w => w.keyPair.getStellarKeyPair().publicKey() === route.params.wallet)
     );
     const showWalletListHint = useLocalStorage('show-wallet-list-hint', true);

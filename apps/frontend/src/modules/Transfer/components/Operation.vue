@@ -72,7 +72,6 @@
 </template>
 
 <script lang="ts" setup>
-    import { Wallet } from '@/modules/Wallet/services/walletService';
     import { ArrowDownIcon, ArrowUpIcon, LinkIcon, SwitchVerticalIcon } from '@heroicons/vue/solid';
     import { ServerApi } from 'stellar-sdk';
     import { ref } from 'vue';
@@ -81,12 +80,13 @@
     import OperationInfoDialog from '@/modules/Transfer/components/OperationDetails.vue';
     import { selectedTransaction } from '@/modules/Transfer/services/transfer.service';
     import { useRouter } from 'vue-router';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const router = useRouter();
 
     interface IProps {
         operation: ServerApi.OperationRecord;
-        wallet: Wallet;
+        wallet: IWallet;
     }
 
     const { operation, wallet } = defineProps<IProps>();

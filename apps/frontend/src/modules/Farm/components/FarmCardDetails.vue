@@ -150,11 +150,11 @@
 
     const removeFarm = async () => {
         const farmId = farm.farm.farmId;
+
+        addNotification(NotificationType.info, 'Deleting farm ' + farmId, 'Please wait');
         const keyRing = farm.wallet?.keyPair.getSubstrateKeyring();
 
         if (!keyRing) return;
-
-        addNotification(NotificationType.info, 'Deleting farm ' + farmId, 'Please wait');
 
         const isDeleted = await deleteFarmOnSubstrate(keyRing, farmId);
         if (!isDeleted) {
@@ -162,6 +162,12 @@
         }
 
         showDeleteFarm.value = false;
+
+        addNotification(
+            NotificationType.success,
+            'Deleted farm',
+            'Once the blockchain has synced it will be visible in farmers, this can take a few minutes.'
+        );
     };
 
     const addPayoutAddress = async () => {

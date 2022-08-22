@@ -1,9 +1,9 @@
-import { wallets } from '@/modules/Wallet/services/walletService';
 import axios from 'axios';
 import { ref } from 'vue';
 import { IFarm, IFarmV2, IGqlFarm, IGqlNode, IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
-import { getAllFarmsFromWallets, getAllNodesOfFarms, getAllTwinIds } from 'tf-substrate/src/gql/calls/farms.calls';
+import { getAllFarmsFromWallets, getAllNodesOfFarms, getAllTwinIds } from 'tf-substrate';
 import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+import { wallets } from '@/modules/Wallet/services/wallet.service';
 
 export const v2Farms = ref<IFarmV2[]>([]);
 

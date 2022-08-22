@@ -121,9 +121,8 @@
     import { computed, ref } from 'vue';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { IFarm } from 'shared-types/src/interfaces/substrate/farm.interfaces';
-    import { wallets } from '@/modules/Wallet/services/walletService';
-    import { deleteFarmOnSubstrate } from 'tf-substrate/src/extrinsics/grid.extrinsics';
-    import { addStellarPayoutAddress } from 'tf-substrate/src/services/farm.service.substrate';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
+    import { deleteFarmOnSubstrate, addStellarPayoutAddress } from 'tf-substrate';
     import DeleteFarmDialog from '@/modules/Farm/components/dialogs/DeleteFarmDialog.vue';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';

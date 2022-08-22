@@ -88,15 +88,16 @@
 </template>
 
 <script lang="ts" setup>
-    import { wallets } from '@/modules/Wallet/services/walletService';
-    import { obtainMemoFromTransactionUrl, selectedTransaction } from '@/modules/Transfer/services/transfer.service';
-    import { computed, inject, ref } from 'vue';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
+    import { computed, inject, Ref, ref } from 'vue';
     import { ServerApi } from 'stellar-sdk';
     import Badge from '@/modules/Misc/components/global/Badge.vue';
     import { useRouter } from 'vue-router';
     import { ArrowLeftIcon } from '@heroicons/vue/solid';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
     import { BadgeType } from 'shared-types/src/enums/global/badge.enums';
+    import { obtainMemoFromTransactionUrl } from 'tf-stellar';
+    import { selectedTransaction } from '@/modules/Transfer/services/transaction.service';
 
     const router = useRouter();
 

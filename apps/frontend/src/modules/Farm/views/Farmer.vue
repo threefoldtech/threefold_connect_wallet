@@ -109,7 +109,7 @@
 <script lang="ts" setup>
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
-    import { wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
 
     import { Dialog, DialogOverlay } from '@headlessui/vue';
 
@@ -128,9 +128,6 @@
     import CreateFarmCard from '@/modules/Farm/components/CreateFarmCard.vue';
     import { useRouter } from 'vue-router';
     import { isDev } from '@/modules/Core/utils/environment';
-    import { getSubstrateAssetBalances } from 'tf-substrate/src/services/balance.service.substrate';
-    import { IAssetBalance } from 'shared-types';
-
     const canCreateFarms: boolean = isDev || <boolean>flagsmith.hasFeature('can_create_farms_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);
 

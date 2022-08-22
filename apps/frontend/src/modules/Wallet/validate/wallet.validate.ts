@@ -1,4 +1,4 @@
-import { wallets } from '@/modules/Wallet/services/walletService';
+import { wallets } from '@/modules/Wallet/services/wallet.service';
 import { decodeAddress, encodeAddress } from '@polkadot/keyring';
 import { hexToU8a, isHex } from '@polkadot/util';
 import { StrKey } from 'stellar-sdk';

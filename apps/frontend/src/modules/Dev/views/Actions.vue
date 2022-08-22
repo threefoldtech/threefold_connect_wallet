@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
     import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { hexToBytes } from '@/modules/Core/utils/crypto';
     import { Keypair } from 'stellar-sdk';
@@ -41,7 +41,7 @@
     import { ChevronUpIcon } from '@heroicons/vue/solid';
     import { twinIds } from '@/modules/Farm/services/farm.service';
     import { IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
-    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate/src/services/core.service.substrate';
+    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
     import { PkidNamedKeys, PkidWalletTypes } from 'shared-types/src/enums/global/pkid.enums';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';

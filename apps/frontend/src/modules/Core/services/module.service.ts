@@ -7,7 +7,6 @@ import DevModule from '@/modules/Dev';
 import FarmModule from '@/modules/Farm';
 import LockedTokensModule from '@/modules/LockedTokens';
 import MiscModule from '@/modules/Misc';
-import StellarModule from '@/modules/Stellar';
 import TransferModule from '@/modules/Transfer';
 import VestingModule from '@/modules/Vesting';
 import WalletModule from '@/modules/Wallet';
@@ -29,7 +28,6 @@ export const createRouterWithModules = async (): Promise<Router> => {
         FarmModule,
         LockedTokensModule,
         MiscModule,
-        StellarModule,
         TransferModule,
         VestingModule,
         WalletModule,

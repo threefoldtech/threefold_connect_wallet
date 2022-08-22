@@ -104,7 +104,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { addOrUpdateWallet } from '@/modules/Wallet/services/walletService';
+    import { addOrUpdateWallet } from '@/modules/Wallet/services/wallet.service';
     import { computed, inject, ref } from 'vue';
     import { ClipboardCopyIcon, PencilIcon, TrashIcon } from '@heroicons/vue/solid';
     import { addNotification } from '@/modules/Core/services/notification.service';
@@ -116,7 +116,7 @@
     import { translate } from '@/modules/Core/utils/translate';
     import { useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
-    import { getSubstrateApi } from 'tf-substrate/src/services/core.service.substrate';
+    import { getSubstrateApi } from 'tf-substrate';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
     import { deleteWalletFromPkid, saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';

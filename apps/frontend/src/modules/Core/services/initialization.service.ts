@@ -7,19 +7,19 @@ import { decodeBase64 } from 'tweetnacl-util';
 import { entropyToMnemonic } from '@jimber/simple-bip39';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { calculateWalletEntropyFromAccount, generateActivationCode, keypairFromAccount } from 'cryptolib';
-import { mapToWallet, sendWalletDataToFlutter, wallets } from '@/modules/Wallet/services/walletService';
+import { mapToWallet, sendWalletDataToFlutter, wallets } from '@/modules/Wallet/services/wallet.service';
 import { getPkidClient, saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
 import { Keypair } from 'stellar-sdk';
 import { appKeyPair, appSeed, appSeedPhrase, initializedUser } from '@/modules/Core/services/crypto.service';
 import { bytesToHex } from '@/modules/Core/utils/crypto';
 import { WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
 import { addNotification } from '@/modules/Core/services/notification.service';
-import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 import { migratePkid2_xTo3_x } from '@/modules/Core/services/migration.service';
 import { initializeStellarConfig } from '@/modules/Core/services/config.service';
 import { IPkidWallet } from 'shared-types/src/interfaces/global/pkid.interfaces';
 import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
 import { PkidNamedKeys, PkidWalletTypes } from 'shared-types/src/enums/global/pkid.enums';
+import { getStellarClient } from 'tf-stellar';
 
 type LoadingText = {
     title: string;

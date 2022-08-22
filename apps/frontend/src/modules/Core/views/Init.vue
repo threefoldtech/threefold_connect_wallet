@@ -26,7 +26,7 @@
     import { init as walletInitialisation, loadingText } from '@/modules/Core/services/initialization.service';
     import { useCounter, useLocalStorage } from '@vueuse/core';
     import { watch } from 'vue';
-    import { balances, operations, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, operations, wallets } from '@/modules/Wallet/services/wallet.service';
     import { isDev } from '@/modules/Core/utils/environment';
 
     const { count, inc, reset } = useCounter();

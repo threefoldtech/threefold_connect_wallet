@@ -203,7 +203,7 @@
         RadioGroupOption,
         DialogOverlay,
     } from '@headlessui/vue';
-    import { wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
     import uniq from 'lodash/uniq';
     import flagsmith from 'flagsmith';
     import { isValidMemoOfTransaction } from '@/modules/Wallet/validate/wallet.validate';

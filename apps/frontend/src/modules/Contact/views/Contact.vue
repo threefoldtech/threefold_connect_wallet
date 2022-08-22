@@ -113,7 +113,7 @@
     import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue';
     import { computed, Ref, ref } from 'vue';
     import { useLocalStorage } from '@vueuse/core';
-    import { wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
     import { getContactsFromPkid, saveContactToPkid } from '@/modules/Contact/services/contact.service';

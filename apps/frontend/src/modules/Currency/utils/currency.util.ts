@@ -4,7 +4,7 @@ const formatter = new Intl.NumberFormat(undefined, {
     useGrouping: true,
 });
 
-export const formatCurrency = (value: number | string | undefined = 0) => {
+export const currencyUtil = (value: number | string | undefined = 0) => {
     const parsedValue = typeof value === 'string' ? parseFloat(value) : value;
 
     if (parsedValue === undefined || isNaN(parsedValue)) {

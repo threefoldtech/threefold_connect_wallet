@@ -119,7 +119,7 @@
     import ArrowLeftIcon from '@heroicons/vue/outline/ArrowLeftIcon';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { useRoute, useRouter } from 'vue-router';
-    import { wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
     import { ref } from 'vue';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { toNumber } from 'lodash';
@@ -144,6 +144,7 @@
     });
 
     const bridgeTokens = async () => {
+        return addNotification(NotificationType.info, 'Not supported anymore');
         isLoadingTransaction.value = true;
 
         try {
@@ -159,7 +160,6 @@
     };
 
     const submitBridge = async () => {
-        addNotification(NotificationType.info, 'Not supported anymore');
         // if (!selectedWallet.value) return;
         //
         // const substrateAddressTo = selectedWallet.value.keyPair.getSubstrateKeyring().address;
@@ -215,7 +215,6 @@
         //         await new Promise(resolve => setTimeout(resolve, 1000));
         //         i++;
         //     }
-
         // const entityIdToMakeTheBridge = await getEntityIdByAccountId(substrateKeyRing.address);
         //
         // if (entityIdToMakeTheBridge == 0) {

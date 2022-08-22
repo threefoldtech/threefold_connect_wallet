@@ -36,7 +36,7 @@
                             $t(`chain.${assetBalance.type}`)
                         }}</span>
                     </div>
-                    {{ formatCurrency(assetBalance.amount) }}
+                    {{ currencyUtil(assetBalance.amount) }}
                 </div>
             </div>
         </div>
@@ -45,7 +45,7 @@
 
 <script lang="ts" setup>
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
-    import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
+    import { currencyUtil } from '@/modules/Currency/utils/currency.util';
     import { IBalance } from 'shared-types';
 
     interface IProps {

@@ -48,7 +48,7 @@
                         'text-red-600': operation.from === wallet.keyPair.getStellarKeyPair().publicKey(),
                     }"
                 >
-                    {{ operation.asset_code }} {{ formatCurrency(operation.amount ?? 0) }}
+                    {{ operation.asset_code }} {{ currencyUtil(operation.amount ?? 0) }}
                 </div>
             </div>
             <div class="shrink-0">
@@ -77,11 +77,11 @@
     import { ServerApi } from 'stellar-sdk';
     import { ref } from 'vue';
     import { formatTime } from '@/modules/Core/utils/time';
-    import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
+    import { currencyUtil } from '@/modules/Currency/utils/currency.util';
     import OperationInfoDialog from '@/modules/Transfer/components/OperationDetails.vue';
-    import { selectedTransaction } from '@/modules/Transfer/services/transfer.service';
     import { useRouter } from 'vue-router';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { selectedTransaction } from '@/modules/Transfer/services/transaction.service';
 
     const router = useRouter();
 

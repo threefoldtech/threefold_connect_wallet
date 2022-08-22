@@ -95,7 +95,7 @@
                 <div class="block text-sm">
                     <span class="pr-2">Amount</span>
                     <span class="text-xs text-gray-400" @click="setCorrectBalance"
-                        >({{ formatCurrency(selectedAssetBalance) }})</span
+                        >({{ currencyUtil(selectedAssetBalance) }})</span
                     >
                 </div>
                 <div class="relative mt-1 rounded-md shadow-sm">
@@ -186,7 +186,7 @@
     } from '@headlessui/vue';
     import { computed, nextTick, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
-    import { balances, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, wallets } from '@/modules/Wallet/services/wallet.service';
     import uniq from 'lodash/uniq';
     import {
         isValidMemoOfTransaction,
@@ -195,9 +195,9 @@
         validateWalletAddress,
     } from '@/modules/Wallet/validate/wallet.validate';
     import { toNumber } from 'lodash';
-    import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
+    import { currencyUtil } from '@/modules/Currency/utils/currency.util';
     import Contact from '@/modules/Contact/views/Contact.vue';
-    import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
+    import { balanceUtil } from '@/modules/Currency/utils/balance.util';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
     import { ChainTypes, IAssetBalance, IBalance } from 'shared-types';
@@ -238,7 +238,7 @@
             if (!selectedWallet.value) return;
 
             dynamicBalanceCleanUp.value();
-            dynamicBalanceCleanUp.value = useDynamicBalance(selectedWallet.value).cleanUp;
+            dynamicBalanceCleanUp.value = balanceUtil(selectedWallet.value).cleanUp;
         },
         { immediate: true }
     );

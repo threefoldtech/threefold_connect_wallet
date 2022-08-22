@@ -1,4 +1,4 @@
-import { wallets } from '@/modules/Wallet/services/walletService';
+import { wallets } from '@/modules/Wallet/services/wallet.service';
 import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
 import { appKeyPair } from '@/modules/Core/services/crypto.service';
 import { validateWalletAddress } from '@/modules/Wallet/validate/wallet.validate';

@@ -11,7 +11,7 @@
             </div>
 
             <div>
-                {{ formatCurrency(totalLockedTokens) }}
+                {{ currencyUtil(totalLockedTokens) }}
             </div>
         </div>
 
@@ -19,7 +19,7 @@
             <span class="text-xs">
                 {{
                     $t('wallet.overview.lockedTokensDetails', {
-                        amount: formatCurrency(t?.amount),
+                        amount: currencyUtil(t?.amount),
                         asset_code: t?.asset_code,
                         date: convertToString(t?.unlockFrom),
                     })
@@ -42,9 +42,9 @@
 </template>
 
 <script lang="ts" setup>
-    import { unlockTokens } from '@/modules/LockedTokens/services/lockService';
+    import { unlockTokens } from '@/modules/LockedTokens/services/lock.service.ts';
     import { computed, inject } from 'vue';
-    import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
+    import { currencyUtil } from '@/modules/Currency/utils/currency.util';
     import { timeStampToReadableDate } from '@/modules/Core/utils/time';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';

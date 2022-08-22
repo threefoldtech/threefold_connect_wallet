@@ -1,11 +1,12 @@
 import { getStellarClient } from './core.service.stellar';
 import { ServerApi } from 'stellar-sdk';
 import { IOperations } from 'shared-types/src/interfaces/global/operation.interfaces';
-import { operations } from 'wallet-frontend/src/modules/Wallet/services/walletService';
 import CollectionPage = ServerApi.CollectionPage;
 import OperationRecord = ServerApi.OperationRecord;
+import { operations } from 'wallet-frontend/src/modules/Wallet/services/wallet.service';
 
 export const getOperationsInLocalStorage = async (
+    basePublicKey: string,
     address: string,
     supportedAssets: string[],
     cursor: number = 0
@@ -16,9 +17,9 @@ export const getOperationsInLocalStorage = async (
         (o: OperationRecord) => supportedAssets.findIndex(() => (<any>o)?.asset_type) != -1
     );
 
-    const walletOperationsObject: IOperations = operations.value.find(o => o.id === address) || {
+    const walletOperationsObject: IOperations = operations.value.find(o => o.id === basePublicKey) || {
         operations: [],
-        id: address,
+        id: basePublicKey,
     };
 
     filteredOperation.forEach((operation: OperationRecord) => {

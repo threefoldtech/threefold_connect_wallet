@@ -114,20 +114,17 @@
     import BalanceCard from '@/modules/Currency/components/BalanceCard.vue';
     import { useRouter } from 'vue-router';
     import { computed, inject, ref } from 'vue';
-    import { useAssets } from '@/modules/Currency/utils/useAssets';
+    import { assetUtil } from '@/modules/Currency/utils/asset.util.';
     import { SwitchHorizontalIcon } from '@heroicons/vue/outline';
     import { checkVesting } from '@/modules/Vesting/services/vestingService';
     import { useLocalStorage } from '@vueuse/core';
     import flagsmith from 'flagsmith';
-    import { orderAssets } from '@/modules/Currency/utils/order';
-    import { getAllTokensDetails, unlockTokens } from '@/modules/LockedTokens/services/lockService';
+    import { orderAssets } from '@/modules/Currency/utils/order.util';
+    import { getAllTokensDetails, unlockTokens } from '@/modules/LockedTokens/services/lock.service.ts';
     import LockedBalanceCard from '@/modules/LockedTokens/components/LockedBalanceCard.vue';
-    import { IAssetBalance } from 'shared-types';
-    import { ChainTypes } from 'shared-types';
+    import { ChainTypes, IAssetBalance } from 'shared-types';
     import { ITokenItem } from 'shared-types/src/interfaces/stellar/locked.interfaces';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
-
-    import { ServerApi } from 'stellar-sdk';
 
     const router = useRouter();
     const wallet: IWallet = <IWallet>inject('wallet');
@@ -149,7 +146,7 @@
         vestedAssetBalance.value = balances;
         vestedAssetBalanceIsLoading.value = false;
     });
-    const assets = computed(() => orderAssets(useAssets(wallet).value));
+    const assets = computed(() => orderAssets(assetUtil(wallet).value));
 
     const showSubstrateBridge = flagsmith.hasFeature('can_bridge_stellar_substrate');
     const showLockedTokens = flagsmith.hasFeature('locked-tokens');

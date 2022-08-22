@@ -161,7 +161,7 @@
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { useRoute, useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
-    import { wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
     import { ChainTypes } from 'shared-types';
     import { buildFundedPaymentTransaction, submitFundedTransaction } from 'cryptolib';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
@@ -170,9 +170,9 @@
     import { translate } from '@/modules/Core/utils/translate';
     import { AccountResponse } from 'stellar-sdk';
     import uniq from 'lodash/uniq';
-    import { getStellarClient } from '@/modules/Stellar/services/stellarService';
-    import { sendSubstrateTokens } from 'tf-substrate/src/services/send.service.substrate';
+    import { sendSubstrateTokens } from 'tf-substrate';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { getStellarClient } from 'tf-stellar';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };

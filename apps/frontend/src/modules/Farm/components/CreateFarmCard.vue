@@ -173,7 +173,7 @@
 
 <script lang="ts" setup>
     import SiteModalFrame from '@/modules/Misc/components/SiteModalFrame.vue';
-    import { balances, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, wallets } from '@/modules/Wallet/services/wallet.service';
     import {
         Menu,
         MenuButton,
@@ -200,9 +200,10 @@
         createFarm,
         createTwin,
         signAndAcceptTermsAndConditions,
-    } from 'tf-substrate/src/services/farm.service.substrate';
-    import { getFarmIdByName, getUsersTermsAndConditionsByAccountId } from 'tf-substrate/src/states/grid.state';
-    import { getAllTwinIds } from 'tf-substrate/src/gql/calls/farms.calls';
+        getFarmIdByName,
+        getUsersTermsAndConditionsByAccountId,
+        getAllTwinIds,
+    } from 'tf-substrate';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 

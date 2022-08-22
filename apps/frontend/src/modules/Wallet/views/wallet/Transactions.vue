@@ -74,7 +74,7 @@
 
 <script lang="ts" setup>
     import { useRoute } from 'vue-router';
-    import { balances, operations } from '@/modules/Wallet/services/walletService';
+    import { balances, operations } from '@/modules/Wallet/services/wallet.service';
     import { computed, inject, onMounted, ref } from 'vue';
     import flagsmith from 'flagsmith';
     import Operation from '@/modules/Transfer/components/Operation.vue';
@@ -90,6 +90,7 @@
     const wallet: IWallet = <IWallet>inject('wallet');
 
     const stellarAddress = wallet.keyPair.getStellarKeyPair().publicKey();
+    const basePublicKey = wallet.keyPair.getBasePublicKey();
 
     const walletBalance = computed(() => balances.value.find(b => b.id === wallet.keyPair.getBasePublicKey()));
 
@@ -102,11 +103,11 @@
     const selectedAsset = ref(route.params?.assetCode || relevantAssetCodes.value[0]);
 
     onMounted(async () => {
-        await getOperationsInLocalStorage(stellarAddress, relevantAssetCodes.value);
+        await getOperationsInLocalStorage(basePublicKey, stellarAddress, relevantAssetCodes.value);
     });
 
     const computedOperations = computed(() => {
-        const allOperations = operations.value.find((operation: IOperations) => operation.id === stellarAddress);
+        const allOperations = operations.value.find((operation: IOperations) => operation.id === basePublicKey);
         if (!allOperations) return;
 
         return allOperations.operations.filter((operation: OperationRecord) => {

@@ -84,7 +84,7 @@
     import { ref } from 'vue';
     import { useRouter } from 'vue-router';
     import { Keypair } from 'stellar-sdk';
-    import { wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
     import { bytesToHex } from '@/modules/Core/utils/crypto';
     import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { getEntropyFromPhrase } from 'mnemonicconversion2924';

@@ -5,7 +5,7 @@ import { PkidClient } from 'shared-types/src/types/global/pkid.types';
 import { IPkidWallet } from 'shared-types/src/interfaces/global/pkid.interfaces';
 import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 import { PkidNamedKeys } from 'shared-types/src/enums/global/pkid.enums';
-import { mapToWallet, wallets } from '@/modules/Wallet/services/walletService';
+import { mapToWallet, wallets } from '@/modules/Wallet/services/wallet.service';
 
 let initializedPkidClient: PkidClient;
 export const getPkidClient: () => PkidClient = () => {

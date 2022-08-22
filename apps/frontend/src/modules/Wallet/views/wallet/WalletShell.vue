@@ -47,15 +47,15 @@
 </template>
 
 <script lang="ts" setup>
-    import { wallets } from '@/modules/Wallet/services/walletService';
-    import { computed, onBeforeUnmount, provide } from 'vue';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
+    import { onBeforeUnmount, provide } from 'vue';
     import { useRoute } from 'vue-router';
 
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import BottomNav from '@/modules/Misc/components/nav/BottomNav.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { initializedUser } from '@/modules/Core/services/crypto.service';
-    import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
+    import { balanceUtil } from '@/modules/Currency/utils/balance.util';
     import { useLocalStorage } from '@vueuse/core';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
@@ -67,7 +67,7 @@
     const enableHint = () => (showWalletListHint.value = true);
     provide('wallet', wallet);
 
-    const { cleanUp } = useDynamicBalance(wallet);
+    const { cleanUp } = balanceUtil(wallet);
 
     onBeforeUnmount(cleanUp);
 </script>

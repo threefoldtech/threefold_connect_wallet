@@ -1,5 +1,5 @@
 import { v2Farms } from '@/modules/Farm/services/farm.service';
-import { doesFarmExistByName } from 'tf-substrate/src/gql/calls/farms.calls';
+import { doesFarmExistByName } from 'tf-substrate';
 import axios from 'axios';
 
 export const validateFarmName = async (name: string, stellarAddress: string): Promise<Object | undefined> => {

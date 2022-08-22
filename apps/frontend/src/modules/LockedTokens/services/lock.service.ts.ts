@@ -5,10 +5,9 @@ import { toNumber } from 'lodash';
 import { addNotification } from '@/modules/Core/services/notification.service';
 import { isBefore } from '@/modules/Core/utils/time';
 import { translate } from '@/modules/Core/utils/translate';
-import { getStellarClient } from '@/modules/Stellar/services/stellarService';
 import { ITokenItem, ITokenRecord } from 'shared-types/src/interfaces/stellar/locked.interfaces';
 import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
-
+import { getStellarClient } from 'tf-stellar';
 export const fetchAllLockedTokens = async (kp: StellarKeypair): Promise<ITokenRecord[]> => {
     const allLockedBalances = await getLockedBalances(kp);
 

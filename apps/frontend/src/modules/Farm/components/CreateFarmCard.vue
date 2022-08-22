@@ -276,7 +276,11 @@
             );
         }
 
-        addNotification(NotificationType.success, 'Farm Creation Successful');
+        addNotification(
+            NotificationType.success,
+            'Farm Creation Successful',
+            'Once the blockchain has synced it will show up in your farmers, this can take a few minutes.'
+        );
     };
 
     const createSubstrateFarm = async (name: string) => {

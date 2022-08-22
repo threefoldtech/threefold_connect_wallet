@@ -152,7 +152,6 @@
     const showLockedTokens = flagsmith.hasFeature('locked-tokens');
 
     const init = async () => {
-        console.log('Show locked tokens: ', showLockedTokens);
         if (showLockedTokens) {
             console.log('Coming inside locked tokens flow');
             await lockedTokensFlow();

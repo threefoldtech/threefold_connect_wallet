@@ -152,6 +152,8 @@
         const farmId = farm.farm.farmId;
 
         addNotification(NotificationType.info, 'Deleting farm ' + farmId, 'Please wait');
+        showDeleteFarm.value = false;
+
         const keyRing = farm.wallet?.keyPair.getSubstrateKeyring();
 
         if (!keyRing) return;
@@ -160,8 +162,6 @@
         if (!isDeleted) {
             addNotification(NotificationType.error, 'Could not delete farm ' + farmId);
         }
-
-        showDeleteFarm.value = false;
 
         addNotification(
             NotificationType.success,

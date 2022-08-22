@@ -178,7 +178,12 @@
             return addNotification(NotificationType.error, 'Could not add address', 'Please contact support', 5000);
         }
 
-        addNotification(NotificationType.success, 'Payout address added', '', 5000);
+        addNotification(
+            NotificationType.success,
+            'Payout address added',
+            'Once the blockchain has synced it will be visible in farmers, this can take a few minutes.',
+            5000
+        );
     };
 
     const copyToClipboard = (text: string) => {

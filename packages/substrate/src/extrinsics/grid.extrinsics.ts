@@ -82,7 +82,11 @@ export const signUsersTermsAndConditionsOnSubstrate = async (keyRing: IKeyringPa
 const callbackExtrinsic = async (method: string) => {
     switch (method) {
         case ExtrinsicCallbackMethod.FARM_DELETED:
-            addNotification(NotificationType.success, 'Deleted farm');
+            addNotification(
+                NotificationType.success,
+                'Deleted farm',
+                'Once the blockchain has synced it will be visible in farmers, this can take a few minutes.'
+            );
             await fetchAllFarms();
             break;
         case ExtrinsicCallbackMethod.FARM_CREATED:

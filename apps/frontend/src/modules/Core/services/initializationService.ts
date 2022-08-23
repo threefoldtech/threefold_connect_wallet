@@ -58,6 +58,7 @@ export const initFirstWallet = async () => {
         name: 'Daily',
         position: 0,
         seed: bytesToHex(keyPair.rawSecretKey()),
+        inNameSpace: false,
         type: PkidWalletTypes.Native,
     };
 
@@ -80,6 +81,7 @@ export const initFirstWallet = async () => {
             meta: {
                 index: initialWallet.index,
                 type: initialWallet.type,
+                inNamespace: initialWallet?.inNameSpace,
                 position: initialWallet.position,
             },
         });
@@ -107,6 +109,7 @@ export const initFirstWallet = async () => {
                 index: initialWallet.index,
                 type: initialWallet.type,
                 position: initialWallet.position,
+                inNamespace: initialWallet?.inNameSpace,
             },
         });
         await saveWallets();
@@ -231,6 +234,7 @@ const mapV2toV3PkidWallet = (wallet: PkidV2ImportedWallet | PkidV2AppWallet): Pk
         name: wallet.walletName,
         position: wallet.position,
         seed: bytesToHex(walletKeypair.rawSecretKey()),
+        inNameSpace: false,
         type: isImported ? PkidWalletTypes.Imported : PkidWalletTypes.Native,
     };
 };

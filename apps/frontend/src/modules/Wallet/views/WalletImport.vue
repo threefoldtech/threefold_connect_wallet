@@ -207,6 +207,7 @@
             meta: {
                 index: -1,
                 type: PkidWalletTypes.Imported,
+                inNamespace: false,
             },
         });
 

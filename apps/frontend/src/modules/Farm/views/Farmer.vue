@@ -145,7 +145,10 @@
         console.log(walletKeyPair.getStellarKeyPair().publicKey());
         wallets.value.push({
             keyPair: walletKeyPair,
-            meta: { type: PkidWalletTypes.Imported },
+            meta: {
+              type: PkidWalletTypes.Imported,
+              inNamespace: false
+            },
             name: nanoid(),
         });
         await saveWallets();

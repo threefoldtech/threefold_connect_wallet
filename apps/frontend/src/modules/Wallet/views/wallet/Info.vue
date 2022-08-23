@@ -59,6 +59,13 @@
     </div>
 
     <div class="mt-2 px-4">
+      <label>
+        Wallet name space
+      </label>
+      <input :checked="wallet.meta.inNamespace" @click="toggleWalletNameSpace" type="checkbox">
+    </div>
+
+    <div class="mt-2 px-4">
         <EditTextField
             @clickOnField="showEditWalletName = true"
             :labelText="$t('wallet.info.walletName')"
@@ -188,6 +195,12 @@
         addNotification(NotificationType.success, `Successfully deleted wallet ${wallet.name}`);
         await router.push({ name: 'walletList' });
     };
+
+    const toggleWalletNameSpace = (val) => {
+      wallet.meta.inNamespace = val.target.checked;
+      addOrUpdateWallet(wallet);
+      saveWallets();
+    }
 </script>
 
 <style scoped></style>

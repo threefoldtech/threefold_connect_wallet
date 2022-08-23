@@ -56,7 +56,10 @@
 
         const wallet: Wallet = {
             keyPair: <IWalletKeyPair>walletKeyPairBuilder.build(),
-            meta: { type: PkidWalletTypes.Native },
+            meta: {
+              type: PkidWalletTypes.Native,
+              inNamespace: false
+            },
             name: `testWallet-${nanoid()}`,
         };
         wallets.value.push(wallet);

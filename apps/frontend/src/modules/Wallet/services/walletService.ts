@@ -19,6 +19,7 @@ export interface Wallet {
     meta: {
         position?: number;
         type: PkidWalletTypes;
+        inNamespace: boolean;
         index?: number;
     };
 }
@@ -168,6 +169,7 @@ export const saveWallets = async () => {
             type: wallet.meta.type,
             name: wallet.name,
             index: wallet.meta.index,
+            inNameSpace: wallet.meta.inNamespace,
             seed: wallet.keyPair.getSeed(),
         })
     );
@@ -275,6 +277,7 @@ export const mapToWallet = (wallets: PkidWallet[]): Wallet[] => {
                 index: wallet.index,
                 type: wallet.type,
                 position: wallet.position,
+                inNamespace: wallet.inNameSpace,
             },
         };
     });

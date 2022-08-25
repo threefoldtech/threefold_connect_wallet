@@ -130,10 +130,12 @@
                                 id="to"
                                 v-model="toAddress"
                                 :disabled="relevantAssets.length <= 0"
+                                @input="findNamespaceAddress"
                                 class="block w-full rounded-l-md border-gray-300 pl-3 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
                                 name="to"
                                 placeholder="..."
                                 type="text"
+                                autocomplete="off"
                             />
                         </div>
                         <button
@@ -141,13 +143,28 @@
                             @click="showContacts = true"
                             class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         >
-                            <div>
+                            <span>
                                 <UserIcon class="h-5" />
-                            </div>
+                            </span>
                         </button>
                     </div>
                 </div>
                 <div class="text-sm text-red-500" v-if="isValidToAddress === false">Please enter a valid address</div>
+                <div
+                    v-show="namespaceWalletsForSelectedChain.length > 0"
+                    tabindex="0"
+                    class="relative w-full z-50 bg-white border border-gray-300 mt-1 mh-48 overflow-hidden overflow-y-scroll rounded-md shadow-md"
+                >
+                    <ul>
+                        <li
+                            v-for="(item, index) in namespaceWalletsForSelectedChain"
+                            :key="index"
+                            class="flex px-3 py-2 cursor-pointer hover:bg-gray-200"
+                        >
+                            {{ item.name }} <span class="ml-2 truncate">{{ item.address }}</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="mt-4">
                 <div class="block text-sm">
@@ -262,6 +279,9 @@
     import { ContactType } from '@/modules/Contact/types/contact.types';
     import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
     import { translate } from '@/modules/Core/utils/translate';
+    import { getPkidClient } from '@/modules/Core/services/pkidService';
+    import axios from 'axios';
+    import { decodeBase64 } from 'tweetnacl-util';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
@@ -355,7 +375,9 @@
     });
 
     watch(selectedChain, _ => {
-        toAddress.value = '';
+        if (toAddress.value?.substring(toAddress.value.length - 5) !== '.3bot') {
+            toAddress.value = '';
+        }
         amount.value = undefined;
         transactionMessage.value = '';
 
@@ -510,6 +532,53 @@
                 translate('errors.noWalletsWithBalance', { asset: selectedAsset.value.asset_code })
             );
         }
+    };
+
+    const namespaceWallets = ref<
+        {
+            name: string;
+            chains: { [ChainTypes.STELLAR]: string; [ChainTypes.SUBSTRATE]: string };
+        }[]
+    >([]);
+
+    const namespaceWalletsForSelectedChain = computed(() =>
+        namespaceWallets.value.map(wallet => {
+            return { name: wallet.name, address: wallet.chains[selectedChain.value] };
+        })
+    );
+
+    const findNamespaceAddress = async event => {
+        const value = event.target.value.trim();
+        if (value.substring(value.length - 5) === '.3bot') {
+            const accountData = await getAccountData(value);
+
+            if (!accountData) {
+                throw new Error('invalidNamespace');
+            }
+
+            const pkidClient = getPkidClient();
+
+            const { data } = await pkidClient.getNamespace<
+                {
+                    name: string;
+                    chains: { [ChainTypes.STELLAR]: string; [ChainTypes.SUBSTRATE]: string };
+                }[]
+            >(value, decodeBase64(accountData.publicKey));
+
+            namespaceWallets.value = data;
+            console.log(namespaceWallets.value);
+            return;
+        }
+        namespaceWallets.value = [];
+    };
+
+    const getAccountData = async (
+        namespace: string
+    ): Promise<{
+        doublename: string;
+        publicKey: string;
+    }> => {
+        return (await axios.get(`https://login.staging.jimber.io/api/users/${namespace}`))?.data;
     };
 </script>
 

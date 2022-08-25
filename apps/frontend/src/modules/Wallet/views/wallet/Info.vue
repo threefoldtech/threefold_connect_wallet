@@ -200,6 +200,8 @@
       wallet.meta.inNamespace = val.target.checked;
       addOrUpdateWallet(wallet);
       saveWallets();
+
+      // @todo update namespace-data requires signing attempt
     }
 </script>
 

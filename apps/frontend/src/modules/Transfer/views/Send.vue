@@ -21,7 +21,7 @@
                     <div class="flex gap-3">
                         <RadioGroupOption
                             as="template"
-                            v-for="option in ['stellar', 'substrate']"
+                            v-for="option in [ChainTypes.STELLAR, ChainTypes.SUBSTRATE]"
                             :key="option"
                             :value="option"
                             v-slot="{ active, checked }"
@@ -52,73 +52,15 @@
                     >
                         <div class="w-full truncate">
                             <div class="shrink-0 truncate">{{ selectedWallet?.name }}</div>
-                            <div v-if="selectedChain === 'stellar'" class="truncate text-gray-500">
+
+                            <div v-if="selectedChain === ChainTypes.STELLAR" class="truncate text-gray-500">
                                 {{ selectedWallet?.keyPair.getStellarKeyPair().publicKey() }}
                             </div>
-                            <div v-if="selectedChain === 'substrate'" class="truncate text-gray-500">
+                            <div v-if="selectedChain === ChainTypes.SUBSTRATE" class="truncate text-gray-500">
                                 {{ selectedWallet?.keyPair.getSubstrateKeyring().address }}
                             </div>
                         </div>
-                        <!--                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">-->
-                        <!--                            <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />-->
-                        <!--                        </span>-->
                     </ListboxButton>
-
-                    <transition
-                        leave-active-class="transition ease-in duration-100"
-                        leave-from-class="opacity-100"
-                        leave-to-class="opacity-0"
-                    >
-                        <ListboxOptions
-                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                        >
-                            <ListboxOption
-                                v-for="wallet in wallets"
-                                v-slot="{ active, selected }"
-                                :value="wallet"
-                                as="template"
-                            >
-                                <li
-                                    :class="[
-                                        active ? 'bg-primary-600 text-white' : 'text-gray-900',
-                                        'relative cursor-default select-none py-2 pl-3 pr-9',
-                                    ]"
-                                >
-                                    <div class="flex">
-                                        <span
-                                            :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']"
-                                            class="shrink-0"
-                                        >
-                                            {{ wallet?.name }}
-                                        </span>
-                                        <span
-                                            v-if="selectedChain === 'stellar'"
-                                            :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']"
-                                        >
-                                            {{ wallet?.keyPair.getStellarKeyPair().publicKey() }}
-                                        </span>
-
-                                        <span
-                                            v-if="selectedChain === 'substrate'"
-                                            :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']"
-                                        >
-                                            {{ wallet?.keyPair.getSubstrateKeyring().address }}
-                                        </span>
-                                    </div>
-
-                                    <span
-                                        v-if="selected"
-                                        :class="[
-                                            active ? 'text-white' : 'text-primary-600',
-                                            'absolute inset-y-0 right-0 flex items-center pr-4',
-                                        ]"
-                                    >
-                                        <CheckIcon aria-hidden="true" class="h-5 w-5" />
-                                    </span>
-                                </li>
-                            </ListboxOption>
-                        </ListboxOptions>
-                    </transition>
                 </div>
             </Listbox>
             <div class="mt-4">
@@ -170,7 +112,7 @@
                 <div class="block text-sm">
                     <span class="pr-2">Amount</span>
                     <span class="text-xs text-gray-400" @click="setCorrectBalance"
-                        >({{ formatCurrency(selectedAssetBalance) }})</span
+                        >({{ currencyUtil(selectedAssetBalance) }})</span
                     >
                 </div>
                 <div class="relative mt-1 rounded-md shadow-sm">
@@ -211,7 +153,7 @@
                 </div>
                 <div class="text-gray-500">Max {{ assetFee?.toFixed(2) }} {{ selectedAsset?.asset_code }}</div>
             </div>
-            <div v-if="selectedChain === 'stellar'" class="mt-4">
+            <div v-if="selectedChain === ChainTypes.STELLAR" class="mt-4">
                 <label class="block text-sm font-medium text-gray-700" for="message">Memo</label>
                 <div class="mt-1 flex rounded-md shadow-sm">
                     <div class="relative flex grow items-stretch focus-within:z-10">
@@ -248,22 +190,20 @@
 
 <script lang="ts" setup>
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
-    import { ArrowLeftIcon, CheckIcon, QrcodeIcon, SelectorIcon, UserIcon } from '@heroicons/vue/outline';
+    import { ArrowLeftIcon, QrcodeIcon, UserIcon } from '@heroicons/vue/outline';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { useRouter } from 'vue-router';
     import {
         Listbox,
         ListboxButton,
         ListboxLabel,
-        ListboxOption,
-        ListboxOptions,
         RadioGroup,
         RadioGroupLabel,
         RadioGroupOption,
     } from '@headlessui/vue';
     import { computed, nextTick, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
-    import { AssetBalance, Balance, balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, wallets } from '@/modules/Wallet/services/wallet.service';
     import uniq from 'lodash/uniq';
     import {
         isValidMemoOfTransaction,
@@ -271,24 +211,23 @@
         validateSubstrateAddress,
         validateWalletAddress,
     } from '@/modules/Wallet/validate/wallet.validate';
-    import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
     import { toNumber } from 'lodash';
-    import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
+    import { currencyUtil } from '@/modules/Currency/utils/currency.util';
     import Contact from '@/modules/Contact/views/Contact.vue';
-    import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
-    import { ContactType } from '@/modules/Contact/types/contact.types';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { balanceUtil } from '@/modules/Currency/utils/balance.util';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
-    import { getPkidClient } from '@/modules/Core/services/pkidService';
-    import axios from 'axios';
-    import { decodeBase64 } from 'tweetnacl-util';
+    import { ChainTypes, IAssetBalance, IBalance } from 'shared-types';
+    import { IContactType } from 'shared-types/src/interfaces/global/contact.interfaces';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
     const allowedAssets: Asset[] = uniq<Asset>(
         <any[]>JSON.parse(<string>flagsmith.getValue('supported-currencies')).map((a: any) => ({
             asset_code: a.asset_code,
-            type: a.type,
+            type: a.type.toUpperCase(),
             fee: a?.fee,
         }))
     );
@@ -304,7 +243,7 @@
 
     const { from, to, amount: initialAmount, asset } = defineProps<IProps>();
 
-    const selectedWallet = ref<Wallet>();
+    const selectedWallet = ref<IWallet>();
     selectedWallet.value =
         wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0];
 
@@ -316,7 +255,7 @@
             if (!selectedWallet.value) return;
 
             dynamicBalanceCleanUp.value();
-            dynamicBalanceCleanUp.value = useDynamicBalance(selectedWallet.value).cleanUp;
+            dynamicBalanceCleanUp.value = balanceUtil(selectedWallet.value).cleanUp;
         },
         { immediate: true }
     );
@@ -343,9 +282,9 @@
         amount.value = Math.floor(selectedBalanceWithoutFee.value * 100) / 100;
     };
 
-    const selectedChain = ref('stellar');
+    const selectedChain = ref(ChainTypes.STELLAR);
 
-    const chosenContact = (c: ContactType) => {
+    const chosenContact = (c: IContactType) => {
         toAddress.value = c.address;
         showContacts.value = false;
     };
@@ -369,6 +308,7 @@
     const selectedAsset = ref(asset || relevantAssets.value[0]);
 
     const assetFee = computed(() => {
+        console.log(allowedAssets);
         return allowedAssets?.find(
             asset => asset?.asset_code === selectedAsset.value?.asset_code && asset?.type === selectedChain.value
         )?.fee;
@@ -513,8 +453,8 @@
         }
 
         if (currency && relevantAssets.value.findIndex(ra => ra.asset_code === currency) === -1) {
-            const firstBalance = balances.value.find((b: Balance) =>
-                b.assets.find((a: AssetBalance) => a.name === currency?.toUpperCase() && a.amount > 0)
+            const firstBalance = balances.value.find((b: IBalance) =>
+                b.assets.find((a: IAssetBalance) => a.name === currency?.toUpperCase() && a.amount > 0)
             );
 
             selectedWallet.value =

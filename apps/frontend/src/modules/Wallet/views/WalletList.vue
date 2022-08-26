@@ -80,20 +80,21 @@
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import FAB from '@/modules/Misc/components/global/FAB.vue';
     import { SaveIcon, XIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/vue/outline';
-    import { balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, wallets } from '@/modules/Wallet/services/wallet.service';
     import { useRouter } from 'vue-router';
     import { computed, onBeforeUnmount, ref } from 'vue';
     import WalletCard from '../components/WalletCard.vue';
 
-    import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
+    import { balanceUtil } from '@/modules/Currency/utils/balance.util';
     import flagsmith from 'flagsmith';
-    import { useLocalStorage, useToggle } from '@vueuse/core';
-    import { orderAssets } from '@/modules/Currency/utils/order';
+    import { useLocalStorage } from '@vueuse/core';
+    import { orderAssets } from '@/modules/Currency/utils/order.util';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const router = useRouter();
 
-    wallets.value.forEach((wallet: Wallet) => {
-        const { cleanUp } = useDynamicBalance(wallet);
+    wallets.value.forEach((wallet: IWallet) => {
+        const { cleanUp } = balanceUtil(wallet);
         onBeforeUnmount(cleanUp);
     });
 

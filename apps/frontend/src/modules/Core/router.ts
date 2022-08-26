@@ -2,7 +2,7 @@ import Init from '@/modules/Core/views/Init.vue';
 import PathNotFound from '@/modules/Core/views/PathNotFound.vue';
 import { Router } from 'vue-router';
 import FarmerInit from '@/modules/Farm/views/FarmerInit.vue';
-import { userInitialized } from '@/modules/Core/services/cryptoService';
+import { initializedUser } from '@/modules/Core/services/crypto.service';
 import axios from 'axios';
 
 const coreRoutes = [
@@ -10,16 +10,12 @@ const coreRoutes = [
         path: '/404',
         name: '404',
         component: PathNotFound,
-        // Allows props to be passed to the 404 page through route
-        // params, such as `resource` to define what wasn't found.
         props: true,
     },
     {
         path: '/error',
         name: 'error',
         component: PathNotFound,
-        // Allows props to be passed to the 404 page through route
-        // params, such as `resource` to define what wasn't found.
         props: true,
     },
     {
@@ -44,7 +40,7 @@ export default async (router: Router) => {
             return;
         }
 
-        if (to.name !== 'init' && !userInitialized.value) {
+        if (to.name !== 'init' && !initializedUser.value) {
             next({ name: 'init' });
             return;
         }

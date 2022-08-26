@@ -5,7 +5,6 @@
             class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
         >
             <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-                <!-- Notification panel, dynamically insert this into the live region when it needs to be displayed -->
                 <template v-for="notification in filteredNotifications">
                     <transition
                         enter-active-class="transform ease-out duration-300 transition"
@@ -71,14 +70,15 @@
 </template>
 
 <script lang="ts" setup>
-    import { CheckCircleIcon, XCircleIcon, InformationCircleIcon } from '@heroicons/vue/outline';
+    import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/vue/outline';
     import { XIcon } from '@heroicons/vue/solid';
-    import { notifications } from '@/modules/Core/services/notificationService';
+    import { notifications } from '@/modules/Core/services/notification.service';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
     import { Portal } from '@headlessui/vue';
-    import { NotificationType } from '@/modules/Core/services/notificationService';
-    import { computed } from 'vue';
+    import { computed, Ref } from 'vue';
+    import { INotification } from 'shared-types/src/interfaces/global/notification.interfaces';
 
-    const filteredNotifications = computed(() => {
+    const filteredNotifications: Ref<INotification[]> = computed(() => {
         return notifications.value.slice(0, 5).reverse();
     });
 </script>

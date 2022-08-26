@@ -1,0 +1,21 @@
+{
+  "name": "tf-substrate",
+  "version": "0.0.1",
+  "private": true,
+  "description": "TS package to communicate Substrate calls",
+  "main": "src/index.ts",
+  "author": "Lennert Defauw",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "shared-types": "*",
+    "@polkadot/api": "^9.1.1",
+    "@polkadot/extension-dapp": "0.44.4"
+  },
+  "scripts": {
+    "postbuild": "find ../../node_modules/@polkadot -type f -name 'packageInfo.js' | xargs sed -i \"s/String('path'),/URL('.', import.meta.url).pathname,/\"",
+    "prebuild": "rm -rf dist && mkdir dist && find node_modules/@polkadot -type f -name 'packageInfo.js' | xargs sed -i \"s/URL('.', import.meta.url).pathname,/String('path'),/\"",
+    "start": "ts-node src/index.ts",
+    "watch": "tsc --watch",
+    "prepublish": "yarn build"
+  }
+}

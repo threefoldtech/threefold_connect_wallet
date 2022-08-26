@@ -6,7 +6,7 @@
 
         <template #content>
             <div>
-                <div class="pb-2 block text-sm font-medium text-gray-700">{{ $t('contacts.dialog.name') }}</div>
+                <div class="block pb-2 text-sm font-medium text-gray-700">{{ $t('contacts.dialog.name') }}</div>
                 <input
                     v-model="contactName"
                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
@@ -20,7 +20,7 @@
                 </div>
             </div>
             <div class="mt-4">
-                <div class="pb-2 block text-sm font-medium text-gray-700">{{ $t('contacts.dialog.address') }}</div>
+                <div class="block pb-2 text-sm font-medium text-gray-700">{{ $t('contacts.dialog.address') }}</div>
                 <input
                     v-model="contactAddress"
                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
@@ -58,8 +58,9 @@
     import Modal from '@/modules/Misc/components/Modal.vue';
     import { ref } from 'vue';
     import { validateWalletAddress } from '@/modules/Wallet/validate/wallet.validate';
-    import { ContactType, ContactFormValidation } from '@/modules/Contact/types/contact.types';
     import { validateContact } from '@/modules/Contact/validate/contact.validate';
+    import { IContactFormValidation, IContactType } from 'shared-types/src/interfaces/global/contact.interfaces';
+    import { ContactFields } from 'shared-types/src/enums/global/contact.enums';
 
     const emit = defineEmits(['cancel', 'confirm']);
 
@@ -73,13 +74,16 @@
         contactNameError.value = undefined;
         contactAddressError.value = undefined;
 
-        const contactValidation: ContactFormValidation = await validateContact(contactName.value, contactAddress.value);
+        const contactValidation: IContactFormValidation = await validateContact(
+            contactName.value,
+            contactAddress.value
+        );
         if (!contactValidation.valid) {
             return displayErrorMessage(contactValidation);
         }
 
         // Validation passed => create contact and send to parent
-        const contact: ContactType = {
+        const contact: IContactType = {
             name: contactName.value,
             address: contactAddress.value,
             type: validateWalletAddress(contactAddress.value).type,
@@ -88,12 +92,12 @@
         emit('confirm', contact);
     };
 
-    const displayErrorMessage = (contactValidation: ContactFormValidation) => {
+    const displayErrorMessage = (contactValidation: IContactFormValidation) => {
         switch (contactValidation.field) {
-            case 'name':
+            case ContactFields.NAME:
                 contactNameError.value = contactValidation.error;
                 break;
-            case 'address':
+            case ContactFields.ADDRESS:
                 contactAddressError.value = contactValidation.error;
                 break;
         }

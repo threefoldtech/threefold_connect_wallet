@@ -114,16 +114,10 @@
 </template>
 
 <script lang="ts" setup>
-    import {
-        addOrUpdateWallet,
-        deleteWalletFromPkid,
-        saveWallets,
-        Wallet,
-    } from '@/modules/Wallet/services/walletService';
+    import { addOrUpdateWallet } from '@/modules/Wallet/services/wallet.service';
     import { computed, inject, ref } from 'vue';
-    import { getSubstrateApi } from '@/modules/TFChain/services/tfchainService';
     import { ClipboardCopyIcon, PencilIcon, TrashIcon } from '@heroicons/vue/solid';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import CopyToClipboardField from '@/modules/Misc/components/misc/CopyToClipboardField.vue';
     import EditTextField from '@/modules/Misc/components/misc/EditTextField.vue';
     import ChangeWalletNameDialog from '@/modules/Wallet/components/dialogs/ChangeWalletNameDialog.vue';
@@ -132,10 +126,12 @@
     import { translate } from '@/modules/Core/utils/translate';
     import { useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
+    import { getSubstrateApi } from 'tf-substrate';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { deleteWalletFromPkid, saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
 
-    import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
-
-    const wallet: Wallet = <Wallet>inject('wallet');
+    const wallet: IWallet = <IWallet>inject('wallet');
 
     const canSeeDangerZone = flagsmith.hasFeature('can-see-danger-zone');
     const canDeleteWallet = flagsmith.hasFeature('can-delete-wallet');
@@ -171,7 +167,7 @@
 
         wallet.name = `${trimmedName}`;
         addOrUpdateWallet(wallet);
-        saveWallets();
+        saveWalletsToPkid();
 
         showEditWalletName.value = false;
         addNotification(

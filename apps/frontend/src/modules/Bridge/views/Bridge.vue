@@ -27,7 +27,7 @@
                         <div class="pr-3">
                             <span class="pr-2">{{ $t('transfer.bridge.amount') }}</span>
                             <span class="text-xs text-gray-400" @click="amount = stellarBalance ?? 0"
-                                >( {{ formatCurrency(stellarBalance ?? 0) }})</span
+                                >( {{ currencyUtil(stellarBalance ?? 0) }})</span
                             >
                         </div>
                     </label>
@@ -78,23 +78,24 @@
 </template>
 
 <script lang="ts" setup>
-    import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
     import { useRoute, useRouter } from 'vue-router';
     import { computed, onBeforeUnmount, Ref, ref } from 'vue';
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
-    import { ArrowLeftIcon, ArrowDownIcon } from '@heroicons/vue/solid';
-    import LoadingSpinner from '@/modules/Bridge/components/LoadingSpinner.vue';
-    import { AssetsTypes } from '@/modules/Currency/enums/assets.enums';
-    import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
-    import { useAssets } from '@/modules/Currency/utils/useAssets';
+    import { ArrowDownIcon, ArrowLeftIcon } from '@heroicons/vue/solid';
+    import LoadingSpinner from '@/modules/Core/components/LoadingSpinner.vue';
+    import { balanceUtil } from '@/modules/Currency/utils/balance.util';
+    import { assetUtil } from '@/modules/Currency/utils/asset.util.';
     import flagsmith from 'flagsmith';
-    import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
+    import { currencyUtil } from '@/modules/Currency/utils/currency.util';
     import uniq from 'lodash/uniq';
-    import { BridgeFee } from '@/modules/Wallet/types/wallet.types';
-    import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
+    import { ChainTypes } from 'shared-types';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { BridgeFee } from 'shared-types/src/types/global/wallet.types';
+    import { AssetsTypes } from 'shared-types/src/enums/global/asset.enums';
 
-    const selectedWallet = ref<Wallet>() as Ref<Wallet>;
+    const selectedWallet = ref<IWallet>() as Ref<IWallet>;
 
     const isLoading = ref<boolean>(true);
 
@@ -164,14 +165,14 @@
     };
 
     const stellarBalance = computed(() => {
-        return useAssets(selectedWallet.value)
-            .value.filter(asset => asset.name === AssetsTypes.TFT && asset.type === 'stellar')
+        return assetUtil(selectedWallet.value)
+            .value.filter(asset => asset.name === AssetsTypes.TFT && asset.type === ChainTypes.STELLAR)
             .shift()?.amount;
     });
 
     const substrateBalance = computed(() => {
-        return useAssets(selectedWallet.value)
-            .value.filter(asset => asset.name === AssetsTypes.TFT && asset.type === 'substrate')
+        return assetUtil(selectedWallet.value)
+            .value.filter(asset => asset.name === AssetsTypes.TFT && asset.type === ChainTypes.SUBSTRATE)
             .shift()?.amount;
     });
 
@@ -183,11 +184,11 @@
             return;
         }
 
-        selectedWallet.value = <Wallet>(
+        selectedWallet.value = <IWallet>(
             wallets.value.find(wallet => wallet.keyPair.getBasePublicKey() === basePublicKey)
         );
 
-        const { cleanUp } = useDynamicBalance(selectedWallet.value);
+        const { cleanUp } = balanceUtil(selectedWallet.value);
         onBeforeUnmount(cleanUp);
         isLoading.value = false;
     };

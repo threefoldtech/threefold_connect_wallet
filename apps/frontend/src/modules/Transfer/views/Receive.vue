@@ -43,10 +43,10 @@
                 <label class="block text-sm font-medium text-gray-700"> {{ $t(`transfer.receive.to`) }}</label>
                 <div class="relative mt-1 truncate">
                     <span class="shrink-0 truncate">{{ selectedWallet?.name }}</span>
-                    <span v-if="selectedChain === 'stellar'" class="ml-2 truncate text-gray-500">{{
+                    <span v-if="selectedChain === ChainTypes.STELLAR" class="ml-2 truncate text-gray-500">{{
                         selectedWallet?.keyPair.getStellarKeyPair().publicKey()
                     }}</span>
-                    <span v-if="selectedChain === 'substrate'" class="ml-2 truncate text-gray-500">{{
+                    <span v-if="selectedChain === ChainTypes.SUBSTRATE" class="ml-2 truncate text-gray-500">{{
                         selectedWallet?.keyPair.getSubstrateKeyring().address
                     }}</span>
                 </div>
@@ -203,12 +203,13 @@
         RadioGroupOption,
         DialogOverlay,
     } from '@headlessui/vue';
-    import { balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
     import uniq from 'lodash/uniq';
     import flagsmith from 'flagsmith';
     import { isValidMemoOfTransaction } from '@/modules/Wallet/validate/wallet.validate';
-    import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
     import { XIcon, SelectorIcon, CheckIcon } from '@heroicons/vue/solid';
+    import { ChainTypes } from 'shared-types';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const router = useRouter();
 
@@ -228,8 +229,8 @@
     const imageUrl = ref();
     const showImage = ref(false);
     const isValidMemo = ref<boolean>();
-    const selectedWallet = ref<Wallet>(
-        wallets.value?.find((w: Wallet) => w.keyPair.getStellarKeyPair().publicKey() === toAddress) || wallets.value[0]
+    const selectedWallet = ref<IWallet>(
+        wallets.value?.find((w: IWallet) => w.keyPair.getStellarKeyPair().publicKey() === toAddress) || wallets.value[0]
     );
 
     type Asset = { asset_code: string; type: string };

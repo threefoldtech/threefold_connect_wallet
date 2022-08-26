@@ -27,26 +27,24 @@
 </template>
 
 <script lang="ts" setup>
-    import { balances, saveWallets, Wallet, wallets } from '@/modules/Wallet/services/walletService';
-    import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
-    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/WalletKeyPair';
-    import { bytesToHex, hexToBytes } from '@/modules/Core/utils/crypto';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
+    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
+    import { hexToBytes } from '@/modules/Core/utils/crypto';
     import { Keypair } from 'stellar-sdk';
-    import { getPkidClient } from '@/modules/Core/services/pkidService';
+    import { getPkidClient, saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
     import { nanoid } from 'nanoid';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { Keyring } from '@polkadot/api';
-    import {
-        activationServiceForSubstrate,
-        getSubstrateApi,
-        getTwinId,
-        submitExtrensic,
-    } from '@/modules/TFChain/services/tfchainService';
-    import { KeyringPair } from '@polkadot/keyring/types';
     import { toNumber } from 'lodash';
     import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue';
     import CTA from '@/modules/Misc/components/global/CTA.vue';
-    import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
+    import { ChevronUpIcon } from '@heroicons/vue/solid';
+    import { twinIds } from '@/modules/Farm/services/farm.service';
+    import { IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
+    import { getSubstrateApi, submitExtrinsic } from 'tf-substrate';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { PkidNamedKeys, PkidWalletTypes } from 'shared-types/src/enums/global/pkid.enums';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const addWallet = async () => {
         const keyPair = Keypair.random();
@@ -54,7 +52,7 @@
         const walletKeyPairBuilder = new WalletKeyPairBuilder();
         walletKeyPairBuilder.addRandomSeed();
 
-        const wallet: Wallet = {
+        const wallet: IWallet = {
             keyPair: <IWalletKeyPair>walletKeyPairBuilder.build(),
             meta: {
               type: PkidWalletTypes.Native,
@@ -63,17 +61,17 @@
             name: `testWallet-${nanoid()}`,
         };
         wallets.value.push(wallet);
-        await saveWallets();
+        await saveWalletsToPkid();
     };
     const clearPkidPurse = async () => {
         const pkid = getPkidClient();
-        await pkid.setDoc('purse', false, true);
+        await pkid.setDoc(PkidNamedKeys.V3_PURSE, false, true);
         window.location.assign('/');
     };
 
     const clearContacts = async () => {
         const pkid = getPkidClient();
-        await pkid.setDoc('contacts', [], true);
+        await pkid.setDoc(PkidNamedKeys.V3_CONTACTS, [], true);
         addNotification(NotificationType.info, 'Cleared contacts');
     };
 
@@ -100,11 +98,13 @@
 
             const keyringPair = keyring.addFromSeed(bytes);
 
-            const twinId = toNumber(await getTwinId(keyringPair.address));
-            console.log('got twin id', twinId);
-            if (twinId === 0) {
+            const twin = twinIds.value.find((twin: IGqlTwin) => twin.substrateAddress === keyringPair.address);
+            if (!twin) {
                 continue;
             }
+
+            const twinId = twin.twinId;
+            console.log('got twin id', twinId);
 
             //@ts-ignore
             const farm_ids = allFarms.filter(f => toNumber(f.twin_id) === twinId).map(f => f.id);
@@ -115,7 +115,7 @@
 
                 const submittableExtrinsic = api.tx.tfgridModule.deleteFarm(id);
 
-                await submitExtrensic(submittableExtrinsic, keyringPair);
+                await submitExtrinsic(submittableExtrinsic, keyringPair);
 
                 // wait 1 second
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -139,12 +139,13 @@
 
             const keyringPair = keyring.addFromSeed(bytes);
 
-            const twinId = toNumber(await getTwinId(keyringPair.address));
-            console.log('got twin id', twinId);
-            if (twinId === 0) {
+            const twin = twinIds.value.find((twin: IGqlTwin) => twin.substrateAddress === keyringPair.address);
+            if (!twin) {
                 continue;
             }
 
+            const twinId = twin.twinId;
+            console.log('got twin id', twinId);
             //@ts-ignore
             const farm_ids = allFarms.filter(f => toNumber(f.twin_id) === twinId).map(f => f.id);
             console.log({ farm_ids });
@@ -153,7 +154,7 @@
                 addNotification(NotificationType.info, 'Deleting farm', `Farm ${id}`);
                 const submittableExtrinsic = api.tx.tfgridModule.deleteFarm(id);
 
-                await submitExtrensic(submittableExtrinsic, keyringPair);
+                await submitExtrinsic(submittableExtrinsic, keyringPair);
 
                 // wait 1 second
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -180,7 +181,7 @@
         addNotification(NotificationType.success, 'Done', 'Cleared cache');
     };
     const activate = async () => {
-        await activationServiceForSubstrate('5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B');
+        // await activationServiceForSubstrate('5F4Yb9T5B3rkeTCfCCEAg92V9CFPviC3XikeiBcqMWFrNz5B');
         addNotification(NotificationType.success, 'Done', 'Activated');
     };
 </script>

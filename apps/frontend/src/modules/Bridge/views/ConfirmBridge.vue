@@ -119,28 +119,20 @@
     import ArrowLeftIcon from '@heroicons/vue/outline/ArrowLeftIcon';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { useRoute, useRouter } from 'vue-router';
-    import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
     import { ref } from 'vue';
-    import {
-        activationServiceForSubstrate,
-        getSubstrateApi,
-        submitExtrensic,
-    } from '@/modules/TFChain/services/tfchainService';
-    import { userInitialized } from '@/modules/Core/services/cryptoService';
-    import { createEntitySign, getEntity, getEntityIDByAccountId } from '@/modules/TFChain/services/entityService';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { toNumber } from 'lodash';
     import { onBeforeMount } from '@vue/runtime-core';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
     import { translate } from '@/modules/Core/utils/translate';
-    import en from '@/translates/en';
-    import { nanoid } from 'nanoid';
-    import { bridgeToSubstrate } from '@/modules/Bridge/services/bridgeService';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
     const router = useRouter();
     const route = useRoute();
 
-    const selectedWallet = ref<Wallet>();
+    const selectedWallet = ref<IWallet>();
     const amount = toNumber(route.params.amount);
     const fee = toNumber(route.params.fee);
 
@@ -152,6 +144,7 @@
     });
 
     const bridgeTokens = async () => {
+        return addNotification(NotificationType.info, 'Not supported anymore');
         isLoadingTransaction.value = true;
 
         try {
@@ -167,78 +160,76 @@
     };
 
     const submitBridge = async () => {
-        if (!selectedWallet.value) return;
-
-        const substrateAddressTo = selectedWallet.value.keyPair.getSubstrateKeyring().address;
-        const api = await getSubstrateApi();
-
-        loadingSubtitle.value = translate('transfer.confirmBridge.usingActivationService');
-        console.info('Using activation services for substrate');
-        await activationServiceForSubstrate(substrateAddressTo);
-
-        const substrateKeyRing = selectedWallet.value.keyPair.getSubstrateKeyring();
-        const name = `${userInitialized.value}${nanoid()}`;
-
-        if (!name) return;
-
-        loadingSubtitle.value = translate('transfer.confirmBridge.gettingEntityId');
-        console.info('Getting entityId for user ', name);
-        let entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
-
-        if (entityId == 0) {
-            loadingSubtitle.value = translate('transfer.confirmBridge.entityIdNotFound');
-            console.info("Can't find entity, creating one");
-
-            const country = 'Unknown';
-            const city = 'Unknown';
-
-            const signature = createEntitySign(substrateKeyRing, name, country, city);
-
-            const submittableExtrinsic = api.tx.tfgridModule.createEntity(
-                substrateAddressTo,
-                name,
-                country,
-                city,
-                signature
-            );
-            const nonce = await api.rpc.system.accountNextIndex(substrateAddressTo);
-
-            await submitExtrensic(submittableExtrinsic, substrateKeyRing, { nonce });
-
-            let i = 0;
-            while (entityId === 0) {
-                if (i > 10) {
-                    console.error('Entity not found after 10 tries');
-                    addNotification(
-                        NotificationType.error,
-                        translate('transfer.confirmBridge.errorCreateEntity'),
-                        '',
-                        5000
-                    );
-                    throw new Error('Entity not found after 10 tries');
-                }
-                console.info('Entity not found, retrying...');
-                entityId = await getEntityIDByAccountId(api, substrateKeyRing.address);
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                i++;
-            }
-        }
-
-        const entityIdToMakeTheBridge = await getEntityIDByAccountId(api, substrateKeyRing.address);
-
-        if (entityIdToMakeTheBridge == 0) {
-            addNotification(NotificationType.error, translate('transfer.confirmBridge.entityIdNotFound'), '', 5000);
-            return;
-        }
-
-        await bridgeToSubstrate(amount, selectedWallet.value.keyPair.getStellarKeyPair(), entityIdToMakeTheBridge);
-        loadingSubtitle.value = translate('transfer.confirmBridge.finishingUp');
-        isLoadingTransaction.value = false;
-
-        addNotification(NotificationType.success, translate('transfer.confirmBridge.success'), '', 5000);
-        console.log('Transaction done');
-
-        await router.back();
+        // if (!selectedWallet.value) return;
+        //
+        // const substrateAddressTo = selectedWallet.value.keyPair.getSubstrateKeyring().address;
+        // const api = await getSubstrateApi();
+        //
+        // loadingSubtitle.value = translate('transfer.confirmBridge.usingActivationService');
+        // console.info('Using activation services for substrate');
+        // // await activationServiceForSubstrate(substrateAddressTo);
+        //
+        // const substrateKeyRing = selectedWallet.value.keyPair.getSubstrateKeyring();
+        // const name = `${initializedUser.value}${nanoid()}`;
+        //
+        // if (!name) return;
+        //
+        // loadingSubtitle.value = translate('transfer.confirmBridge.gettingEntityId');
+        // console.info('Getting entityId for user ', name);
+        // let entityId = await getEntityIdByAccountId(substrateKeyRing.address);
+        //
+        // if (entityId == 0) {
+        //     loadingSubtitle.value = translate('transfer.confirmBridge.entityIdNotFound');
+        //     console.info("Can't find entity, creating one");
+        //
+        //     const country = 'Unknown';
+        //     const city = 'Unknown';
+        //
+        //     const signature = createEntitySign(substrateKeyRing, name, country, city);
+        //
+        //     const submittableExtrinsic = api.tx.tfgridModule.createEntity(
+        //         substrateAddressTo,
+        //         name,
+        //         country,
+        //         city,
+        //         signature
+        //     );
+        //     const nonce = await api.rpc.system.accountNextIndex(substrateAddressTo);
+        //
+        //     await submitExtrinsic(submittableExtrinsic, substrateKeyRing);
+        //
+        //     let i = 0;
+        //     while (entityId === 0) {
+        //         if (i > 10) {
+        //             console.error('Entity not found after 10 tries');
+        //             addNotification(
+        //                 NotificationType.error,
+        //                 translate('transfer.confirmBridge.errorCreateEntity'),
+        //                 '',
+        //                 5000
+        //             );
+        //             throw new Error('Entity not found after 10 tries');
+        //         }
+        //         console.info('Entity not found, retrying...');
+        //         entityId = await getEntityIdByAccountId(substrateKeyRing.address);
+        //         await new Promise(resolve => setTimeout(resolve, 1000));
+        //         i++;
+        //     }
+        // const entityIdToMakeTheBridge = await getEntityIdByAccountId(substrateKeyRing.address);
+        //
+        // if (entityIdToMakeTheBridge == 0) {
+        //     addNotification(NotificationType.error, translate('transfer.confirmBridge.entityIdNotFound'), '', 5000);
+        //     return;
+        // }
+        //
+        // await bridgeToSubstrate(amount, selectedWallet.value.keyPair.getStellarKeyPair(), entityIdToMakeTheBridge);
+        // loadingSubtitle.value = translate('transfer.confirmBridge.finishingUp');
+        // isLoadingTransaction.value = false;
+        //
+        // addNotification(NotificationType.success, translate('transfer.confirmBridge.success'), '', 5000);
+        // console.log('Transaction done');
+        //
+        // await router.back();
     };
 </script>
 

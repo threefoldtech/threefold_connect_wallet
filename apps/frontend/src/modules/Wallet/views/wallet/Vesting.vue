@@ -1,10 +1,10 @@
 <template>vesting</template>
 
 <script lang="ts" setup>
-    import { Wallet } from '@/modules/Wallet/services/walletService';
     import { inject } from 'vue';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
-    const wallet: Wallet = <Wallet>inject('wallet');
+    const wallet: IWallet = <IWallet>inject('wallet');
 </script>
 
 <style scoped></style>

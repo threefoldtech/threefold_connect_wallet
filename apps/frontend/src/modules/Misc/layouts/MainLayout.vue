@@ -1,4 +1,6 @@
 <template>
+    <BetaBanner v-if="isBeta && !isDev"></BetaBanner>
+
     <div class="flex h-screen flex-col bg-white">
         <header v-if="$slots['header']" class="h-16 shrink-0 border-b">
             <slot name="header" />
@@ -13,14 +15,17 @@
             <slot name="navigation" />
         </nav>
     </div>
+
+    <Notifications />
 </template>
 
 <script lang="ts" setup>
-    import { computed } from 'vue';
+    import { isDev } from '@/modules/Core/utils/environment';
 
-    const location = computed(() => {
-        return window.history.state;
-    });
+    import BetaBanner from '@/modules/Core/components/BetaBanner.vue';
+    import Notifications from '@/modules/Core/components/Notifications.vue';
+
+    const isBeta = globalThis.location.hostname.includes('-beta');
 </script>
 
 <style scoped></style>

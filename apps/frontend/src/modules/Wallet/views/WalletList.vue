@@ -47,6 +47,7 @@
                 v-touch:hold="enableMove"
                 :balance="sortedBalances(wallet.keyPair.getBasePublicKey())"
                 :name="wallet.name"
+                :is-public="wallet.meta.isPublic"
                 @click="
                     router.push({
                         name: 'walletOverview',
@@ -72,6 +73,8 @@
                 </div>
             </div>
         </div>
+
+        <namespace-wallet-dialog />
     </MainLayout>
 </template>
 
@@ -90,6 +93,7 @@
     import { useLocalStorage } from '@vueuse/core';
     import { orderAssets } from '@/modules/Currency/utils/order.util';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import NamespaceWalletDialog from '@/modules/Wallet/components/dialogs/NamespaceWalletDialog.vue';
 
     const router = useRouter();
 

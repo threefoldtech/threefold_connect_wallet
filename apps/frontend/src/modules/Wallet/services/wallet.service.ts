@@ -87,6 +87,7 @@ export const mapToWallet = (wallets: IPkidWallet[]): IWallet[] => {
             meta: {
                 index: wallet.index,
                 type: wallet.type,
+                isPublic: wallet.isPublic,
                 position: wallet.position,
             },
         };

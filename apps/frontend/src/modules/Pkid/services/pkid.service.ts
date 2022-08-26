@@ -21,6 +21,7 @@ export const saveWalletsToPkid = async () => {
         (wallet: IWallet): IPkidWallet => ({
             type: wallet.meta.type,
             name: wallet.name,
+            isPublic: wallet.meta.isPublic,
             index: wallet.meta.index,
             seed: wallet.keyPair.getSeed(),
         })

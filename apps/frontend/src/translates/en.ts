@@ -85,6 +85,11 @@ export default <Translation>{
             balanceInStellar: 'Balance in Stellar',
             balanceInTFChain: 'Balance in TFChain',
             deleteButton: 'Delete',
+            privateButton: 'Make wallet private',
+            publicButton: 'Make wallet public',
+        },
+        namespace: {
+            confirm: 'test',
         },
     },
     dialog: {
@@ -108,6 +113,16 @@ export default <Translation>{
                 subMessage:
                     ' If you delete this wallet you will only be able to recover it with the wallet secret. It will no longer be linked to your ThreeFold Connect account.',
                 confirm: 'Delete',
+                cancel: 'Cancel',
+            },
+            namespace: {
+                title: 'Change Wallet publicity',
+                message: 'You have no public Wallets, do you want to make some of your wallets public?',
+                subMessage:
+                    'If your Wallet is public, other users can send tokens to your Wallet using only your username.',
+                makePublic: 'Make public',
+                makePrivate: 'Make private',
+                confirm: 'confirm',
                 cancel: 'Cancel',
             },
         },

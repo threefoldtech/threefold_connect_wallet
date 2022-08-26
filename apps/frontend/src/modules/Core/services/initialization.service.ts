@@ -37,6 +37,7 @@ export const initFirstWallet = async () => {
         index: 0,
         name: 'Daily',
         position: 0,
+        isPublic: true,
         seed: bytesToHex(keyPair.rawSecretKey()),
         type: PkidWalletTypes.NATIVE,
     };
@@ -60,6 +61,7 @@ export const initFirstWallet = async () => {
             meta: {
                 index: initialWallet.index,
                 type: initialWallet.type,
+                isPublic: initialWallet.isPublic,
                 position: initialWallet.position,
             },
         });
@@ -88,6 +90,7 @@ export const initFirstWallet = async () => {
             meta: {
                 index: initialWallet.index,
                 type: initialWallet.type,
+                isPublic: initialWallet.isPublic,
                 position: initialWallet.position,
             },
         });

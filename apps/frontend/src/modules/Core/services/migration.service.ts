@@ -21,6 +21,7 @@ const mapV2toV3PkidWallet = (wallet: IPkidV2ImportedWallet | IPkidV2AppWallet): 
         index: wallet.index,
         name: wallet.walletName,
         position: wallet.position,
+        isPublic: false,
         seed: bytesToHex(walletKeypair.rawSecretKey()),
         type: isImported ? PkidWalletTypes.IMPORTED : PkidWalletTypes.NATIVE,
     };

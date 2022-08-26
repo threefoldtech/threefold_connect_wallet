@@ -59,13 +59,6 @@
     </div>
 
     <div class="mt-2 px-4">
-      <label>
-        Wallet name space
-      </label>
-      <input :checked="wallet.meta.inNamespace" @click="toggleWalletNameSpace" type="checkbox">
-    </div>
-
-    <div class="mt-2 px-4">
         <EditTextField
             @clickOnField="showEditWalletName = true"
             :labelText="$t('wallet.info.walletName')"
@@ -111,10 +104,22 @@
             </div>
         </div>
     </div>
+    <div class="px-4 font-bold text-black">
+        <div class="py-2">
+            <div class="mt-2 w-full">
+                <button
+                    class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-500 focus:disabled:ring-0"
+                    type="button"
+                    @click="toggleWalletNameSpace"
+                >
+                    {{ wallet.meta.isPublic ? $t('wallet.info.privateButton') : $t('wallet.info.publicButton') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script lang="ts" setup>
-    import { addOrUpdateWallet } from '@/modules/Wallet/services/wallet.service';
     import { computed, inject, ref } from 'vue';
     import { ClipboardCopyIcon, PencilIcon, TrashIcon } from '@heroicons/vue/solid';
     import { addNotification } from '@/modules/Core/services/notification.service';
@@ -127,14 +132,17 @@
     import { useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
     import { getSubstrateApi } from 'tf-substrate';
-    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
-    import { deleteWalletFromPkid, saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
-
-    const wallet: IWallet = <IWallet>inject('wallet');
+    import { deleteWalletFromPkid, getPkidClient, saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { addOrUpdateWallet, wallets } from '@/modules/Wallet/services/wallet.service';
+    import { ChainTypes } from 'shared-types';
+    import { initializedUser } from '@/modules/Core/services/crypto.service';
 
     const canSeeDangerZone = flagsmith.hasFeature('can-see-danger-zone');
     const canDeleteWallet = flagsmith.hasFeature('can-delete-wallet');
+
+    const wallet: IWallet = <IWallet>inject('wallet');
 
     const showEditWalletName = ref<boolean>(false);
     const walletName = ref<string>(wallet?.name);
@@ -192,13 +200,36 @@
         await router.push({ name: 'walletList' });
     };
 
-    const toggleWalletNameSpace = (val) => {
-      wallet.meta.inNamespace = val.target.checked;
-      addOrUpdateWallet(wallet);
-      saveWallets();
+    const toggleWalletNameSpace = event => {
+        if (!initializedUser.value) {
+            return;
+        }
 
-      // @todo update namespace-data requires signing attempt
-    }
+        wallet.meta.isPublic = !wallet.meta.isPublic;
+        addOrUpdateWallet(wallet);
+        saveWalletsToPkid();
+
+        const publicWallets: {
+            chains: { [ChainTypes.STELLAR]: string; [ChainTypes.SUBSTRATE]: string };
+            name: string;
+        }[] = wallets.value.map(
+            (
+                wallet: IWallet
+            ): { chains: { [ChainTypes.STELLAR]: string; [ChainTypes.SUBSTRATE]: string }; name: string } => ({
+                name: wallet.name,
+                chains: {
+                    [ChainTypes.STELLAR]: wallet.keyPair.getStellarKeyPair().publicKey(),
+                    [ChainTypes.SUBSTRATE]: wallet.keyPair.getSubstrateKeyring().address,
+                },
+            })
+        );
+
+        const pkid = getPkidClient();
+
+        pkid.setNamespace(initializedUser.value, JSON.stringify(publicWallets));
+
+        // @todo update namespace-data requires signing attempt
+    };
 </script>
 
 <style scoped></style>

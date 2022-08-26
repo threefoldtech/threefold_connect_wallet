@@ -207,8 +207,8 @@
             name: name.value,
             meta: {
                 index: -1,
-                type: PkidWalletTypes.Imported,
-                inNamespace: false,
+                type: PkidWalletTypes.IMPORTED,
+                isPublic: false,
             },
         });
 

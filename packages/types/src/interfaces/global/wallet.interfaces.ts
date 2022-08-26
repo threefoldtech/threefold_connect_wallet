@@ -7,6 +7,7 @@ export interface IWallet {
     meta: {
         position?: number;
         type: PkidWalletTypes;
+        isPublic: boolean;
         index?: number;
     };
 }

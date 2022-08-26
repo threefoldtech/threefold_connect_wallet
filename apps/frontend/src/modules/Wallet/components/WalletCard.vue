@@ -1,6 +1,11 @@
 <template>
     <div>
-        <h2 class="truncate">{{ name }}</h2>
+        <div class="flex flex-row">
+            <h2 class="truncate mr-1">{{ name }}</h2>
+            <span class="border text-sm border-gray-300 rounded-xl px-4 text-center">{{
+                isPublic ? 'Public' : 'Private'
+            }}</span>
+        </div>
         <div class="mt-2 flex flex-col rounded-2xl border p-4">
             <div v-if="!balance">
                 <div class="flex animate-pulse justify-between text-transparent">
@@ -50,10 +55,11 @@
 
     interface IProps {
         name: string;
+        isPublic: boolean;
         balance?: IBalance;
     }
 
-    const { name, balance } = defineProps<IProps>();
+    const { name, balance, isPublic } = defineProps<IProps>();
 </script>
 
 <style scoped></style>

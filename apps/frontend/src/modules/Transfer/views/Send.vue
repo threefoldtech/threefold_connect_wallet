@@ -221,6 +221,9 @@
     import { IContactType } from 'shared-types/src/interfaces/global/contact.interfaces';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import axios from 'axios';
+    import { decodeBase64 } from 'tweetnacl-util';
+    import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };

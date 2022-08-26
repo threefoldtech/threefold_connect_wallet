@@ -5,6 +5,7 @@ export interface IPkidWallet {
     position?: number;
     seed: string;
     type: PkidWalletTypes;
+    isPublic: boolean;
     index?: number;
 }
 

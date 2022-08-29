@@ -44,7 +44,6 @@ export const getPkidClient: () => PkidClient = () => {
     if (initializedPkidClient) return initializedPkidClient;
 
     const url = 'http://localhost:3001'; //flagsmith.getValue('pkid-url');
-    console.log(Pkid);
     initializedPkidClient = new Pkid(url, appKeyPair.value);
     return initializedPkidClient;
 };

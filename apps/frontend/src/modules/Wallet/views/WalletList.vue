@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <namespace-wallet-dialog />
+        <!--        <namespace-wallet-dialog />-->
     </MainLayout>
 </template>
 

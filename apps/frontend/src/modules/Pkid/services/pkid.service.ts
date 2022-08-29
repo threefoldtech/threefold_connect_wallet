@@ -1,17 +1,21 @@
 import flagsmith from 'flagsmith';
-import Pkid from '@jimber/pkid';
-import { appKeyPair } from '@/modules/Core/services/crypto.service';
+import Pkid, { signEncode } from '@jimber/pkid';
+import { appKeyPair, initializedUser } from '@/modules/Core/services/crypto.service';
 import { PkidClient } from 'shared-types/src/types/global/pkid.types';
 import { IPkidWallet } from 'shared-types/src/interfaces/global/pkid.interfaces';
 import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 import { PkidNamedKeys } from 'shared-types/src/enums/global/pkid.enums';
 import { mapToWallet, wallets } from '@/modules/Wallet/services/wallet.service';
+import { ChainTypes } from 'shared-types';
+import { isDev } from '@/modules/Core/utils/environment';
+import { decodeBase64 } from 'tweetnacl-util';
+import { useLocalStorage } from '@vueuse/core';
 
 let initializedPkidClient: PkidClient;
 export const getPkidClient: () => PkidClient = () => {
     if (initializedPkidClient) return initializedPkidClient;
 
-    const url = flagsmith.getValue('pkid-url');
+    const url = 'http://localhost:3001'; //flagsmith.getValue('pkid-url');
     initializedPkidClient = new Pkid(url, appKeyPair.value);
     return initializedPkidClient;
 };
@@ -29,6 +33,42 @@ export const saveWalletsToPkid = async () => {
 
     const pkid = getPkidClient();
     await pkid.setDoc(PkidNamedKeys.V3_PURSE, pkidWallets, true);
+};
+
+export const saveNamespaceWalletsToPkid = async () => {
+    const publicWallets: {
+        chains: { [ChainTypes.STELLAR]: string; [ChainTypes.SUBSTRATE]: string };
+        name: string;
+    }[] = [];
+
+    wallets.value.forEach((wallet: IWallet) => {
+        console.log(wallet);
+        if (!wallet.meta.isPublic) {
+            return;
+        }
+        publicWallets.push({
+            name: wallet.name,
+            chains: {
+                [ChainTypes.STELLAR]: wallet.keyPair.getStellarKeyPair().publicKey(),
+                [ChainTypes.SUBSTRATE]: wallet.keyPair.getSubstrateKeyring().address,
+            },
+        });
+    });
+
+    console.log(publicWallets);
+
+    const pkid = getPkidClient();
+
+    let signedData: string = await globalThis?.flutter_inappwebview?.callHandler(
+        'SIGNING',
+        JSON.stringify(publicWallets)
+    );
+    if (isDev) {
+        const devMainPriv = useLocalStorage('mainPriv', '');
+        signedData = signEncode(publicWallets, decodeBase64(devMainPriv.value));
+    }
+
+    await pkid.setNamespace(<string>initializedUser.value, signedData);
 };
 
 export const deleteWalletFromPkid = async (seed: string): Promise<boolean> => {

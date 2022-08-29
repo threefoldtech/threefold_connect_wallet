@@ -87,7 +87,7 @@
         :walletName="wallet.name"
     ></DeleteWalletDialog>
     <div
-        v-show="canSeeDangerZone && wallet.meta.type !== PkidWalletTypes.Native"
+        v-show="canSeeDangerZone && wallet.meta.type !== PkidWalletTypes.NATIVE"
         class="px-4 pt-4 font-bold text-black"
     >
         <span> Danger zone </span>
@@ -133,11 +133,15 @@
     import flagsmith from 'flagsmith';
     import { getSubstrateApi } from 'tf-substrate';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
-    import { deleteWalletFromPkid, getPkidClient, saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
+    import {
+        deleteWalletFromPkid,
+        saveNamespaceWalletsToPkid,
+        saveWalletsToPkid,
+    } from '@/modules/Pkid/services/pkid.service';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
-    import { addOrUpdateWallet, wallets } from '@/modules/Wallet/services/wallet.service';
-    import { ChainTypes } from 'shared-types';
+    import { addOrUpdateWallet } from '@/modules/Wallet/services/wallet.service';
     import { initializedUser } from '@/modules/Core/services/crypto.service';
+    import { PkidWalletTypes } from 'shared-types/src/enums/global/pkid.enums';
 
     const canSeeDangerZone = flagsmith.hasFeature('can-see-danger-zone');
     const canDeleteWallet = flagsmith.hasFeature('can-delete-wallet');
@@ -200,35 +204,23 @@
         await router.push({ name: 'walletList' });
     };
 
-    const toggleWalletNameSpace = event => {
+    const toggleWalletNameSpace = async () => {
         if (!initializedUser.value) {
             return;
         }
 
         wallet.meta.isPublic = !wallet.meta.isPublic;
         addOrUpdateWallet(wallet);
-        saveWalletsToPkid();
 
-        const publicWallets: {
-            chains: { [ChainTypes.STELLAR]: string; [ChainTypes.SUBSTRATE]: string };
-            name: string;
-        }[] = wallets.value.map(
-            (
-                wallet: IWallet
-            ): { chains: { [ChainTypes.STELLAR]: string; [ChainTypes.SUBSTRATE]: string }; name: string } => ({
-                name: wallet.name,
-                chains: {
-                    [ChainTypes.STELLAR]: wallet.keyPair.getStellarKeyPair().publicKey(),
-                    [ChainTypes.SUBSTRATE]: wallet.keyPair.getSubstrateKeyring().address,
-                },
-            })
-        );
-
-        const pkid = getPkidClient();
-
-        pkid.setNamespace(initializedUser.value, JSON.stringify(publicWallets));
-
-        // @todo update namespace-data requires signing attempt
+        try {
+            await saveNamespaceWalletsToPkid();
+            await saveWalletsToPkid();
+        } catch (e) {
+            wallet.meta.isPublic = !wallet.meta.isPublic;
+            addOrUpdateWallet(wallet);
+            addNotification(NotificationType.error, 'Error while changing wallet visibility, please contact support');
+            return;
+        }
     };
 </script>
 

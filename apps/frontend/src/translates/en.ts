@@ -116,7 +116,7 @@ export default <Translation>{
                 cancel: 'Cancel',
             },
             namespace: {
-                title: 'Change Wallet publicity',
+                title: 'Change Wallet visibility',
                 message: 'You have no public Wallets, do you want to make some of your wallets public?',
                 subMessage:
                     'If your Wallet is public, other users can send tokens to your Wallet using only your username.',

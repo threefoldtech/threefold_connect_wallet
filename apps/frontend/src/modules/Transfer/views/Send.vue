@@ -71,6 +71,7 @@
                             <input
                                 id="to"
                                 v-model="toAddress"
+                                :disabled="relevantAssets.length <= 0"
                                 @input="findNamespaceAddress"
                                 class="block w-full rounded-l-md border-gray-300 pl-3 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
                                 name="to"
@@ -242,7 +243,7 @@
     import axios from 'axios';
     import { decodeBase64 } from 'tweetnacl-util';
     import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
-    import { IAccount, INamespace, INamespaceData } from 'shared-types/src/interfaces/namespace/namespace.interfaces';
+    import { IAccount, INamespace, INamespaceData } from 'shared-types';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };

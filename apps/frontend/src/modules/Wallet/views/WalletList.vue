@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <!--        <namespace-wallet-dialog />-->
+        <namespace-wallet-dialog v-if="showNamespaceDialog" @close="showNamespaceDialog = false" />
     </MainLayout>
 </template>
 
@@ -102,6 +102,7 @@
         onBeforeUnmount(cleanUp);
     });
 
+    const showNamespaceDialog = useLocalStorage('show-wallet-namespace', true);
     const showMove = ref(false);
 
     const showHint = useLocalStorage('show-import-wallet-hint', true);

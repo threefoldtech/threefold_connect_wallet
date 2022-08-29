@@ -120,6 +120,8 @@ export default <Translation>{
                 message: 'You have no public Wallets, do you want to make some of your wallets public?',
                 subMessage:
                     'If your Wallet is public, other users can send tokens to your Wallet using only your username.',
+                information:
+                    'If your Wallet is public, other users can send tokens to your wallet using only your username.',
                 makePublic: 'Make public',
                 makePrivate: 'Make private',
                 confirm: 'confirm',

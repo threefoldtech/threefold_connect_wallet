@@ -10,10 +10,10 @@
                 <ul class="max-h-60 overflow-y-auto">
                     <li
                         v-for="(wallet, index) of userWallets"
-                        class="flex justify-between my-1"
+                        class="flex justify-between items-center my-1"
                         :key="`${wallet.name}_${index}`"
                     >
-                        <span class="truncate">{{ wallet.name }}</span>
+                        <span class="truncate font-bold text-lg">{{ wallet.name }}</span>
                         <button
                             @click="changeWalletType(index)"
                             type="button"
@@ -27,6 +27,7 @@
                         </button>
                     </li>
                 </ul>
+                <p class="text-xs mt-8">{{ $t('dialog.wallet.namespace.information') }}</p>
             </div>
         </template>
 

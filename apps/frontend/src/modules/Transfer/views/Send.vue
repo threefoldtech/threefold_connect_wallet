@@ -444,7 +444,7 @@
             name: 'confirmSend',
             params: {
                 from: selectedWallet.value?.keyPair.getStellarKeyPair().publicKey(),
-                to: isNamespaceWallet ? namespaceWalletAddress.value : toAddress.value,
+                to: isNamespaceWallet.value ? namespaceWalletAddress.value : toAddress.value,
                 namespace: toAddress.value,
                 amount: amount.value?.toString(),
                 asset: selectedAsset.value?.asset_code,

@@ -15,7 +15,7 @@
         "shared-types" : "*",
         "@headlessui/vue": "1.5.0",
         "@heroicons/vue": "1.0.6",
-        "@jimber/pkid": "*",
+        "@jimber/pkid": "1.0.5",
         "@jimber/simple-bip39": "^1.0.0",
         "@polkadot/api": "^9.1.1",
         "@polkadot/extension-dapp": "0.44.4",

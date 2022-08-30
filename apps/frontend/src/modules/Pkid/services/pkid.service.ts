@@ -1,7 +1,6 @@
 import flagsmith from 'flagsmith';
 import Pkid, { signEncode } from '@jimber/pkid';
 import { appKeyPair, initializedUser } from '@/modules/Core/services/crypto.service';
-import { PkidClient } from 'shared-types/src/types/global/pkid.types';
 import { IPkidWallet } from 'shared-types/src/interfaces/global/pkid.interfaces';
 import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 import { PkidNamedKeys } from 'shared-types/src/enums/global/pkid.enums';
@@ -11,11 +10,11 @@ import { isDev } from '@/modules/Core/utils/environment';
 import { decodeBase64 } from 'tweetnacl-util';
 import { useLocalStorage } from '@vueuse/core';
 
-let initializedPkidClient: PkidClient;
-export const getPkidClient: () => PkidClient = () => {
+let initializedPkidClient: Pkid;
+export const getPkidClient: () => Pkid = () => {
     if (initializedPkidClient) return initializedPkidClient;
 
-    const url = 'http://localhost:3001'; //flagsmith.getValue('pkid-url');
+    const url = <string>flagsmith.getValue('pkid-url');
     initializedPkidClient = new Pkid(url, appKeyPair.value);
     return initializedPkidClient;
 };

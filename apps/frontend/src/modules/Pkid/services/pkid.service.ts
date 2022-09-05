@@ -41,7 +41,6 @@ export const saveNamespaceWalletsToPkid = async () => {
     }[] = [];
 
     wallets.value.forEach((wallet: IWallet) => {
-        console.log(wallet);
         if (!wallet.meta.isPublic) {
             return;
         }
@@ -53,8 +52,6 @@ export const saveNamespaceWalletsToPkid = async () => {
             },
         });
     });
-
-    console.log(publicWallets);
 
     const pkid = getPkidClient();
 

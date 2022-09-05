@@ -5,12 +5,13 @@ import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import SubstrateChainTypes from 'shared-types/src/types/substrate/substrate.chain.types';
 import { ExtrinsicStatus } from 'shared-types/src/enums/substrate/substrate.enums';
+import flagsmith from 'flagsmith';
 
 let apiCache: Promise<ApiPromise>;
 
 export const getSubstrateApi = async (): Promise<ApiPromise> => {
     await cryptoWaitReady();
-    const endpoint = 'wss://tfchain.grid.tf';
+    const endpoint = <string>flagsmith.getValue('tfchain_endpoint');
 
     if (apiCache) {
         const api = await apiCache;

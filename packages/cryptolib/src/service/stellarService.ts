@@ -80,18 +80,6 @@ export const generateActivationCode = async (keyPair: Keypair) => {
         phonenumbers: ['000'],
         address: keyPair.publicKey(),
     };
-    //
-    // no longer used
-    //
-    // const { serviceUrl } = getConfig();
-    //
-    // const response = await axios.post(`${serviceUrl}/activation_service/create_activation_code`, {
-    //   args: {
-    //     address: keyPair.publicKey(),
-    //   }
-    // });
-    //
-    // return {...response.data}
 };
 
 export const migrateAccount: (stellarPair: Keypair, tfchainAddress: String) => Promise<void> = async (
@@ -349,8 +337,15 @@ export const fetchAccountActivationTransaction = async (stellarPair: Keypair) =>
 export const submitAccountActivationTransaction = async (transaction: Transaction, keypair: Keypair) => {
     // @todo: validate transaction
 
+    console.log('Signing the transaction with KeyPair (Public Key: ', keypair.publicKey(), ')');
     transaction.sign(keypair);
 
     const { server } = getConfig();
+
+    //@ts-ignore
+    console.log('Signing to server: ', server.serverURL._parts.hostname);
+
+    console.log('This is the XDR');
+    console.log(transaction.toXDR());
     await server.submitTransaction(transaction);
 };

@@ -74,7 +74,10 @@
             </div>
         </div>
 
-        <namespace-wallet-dialog v-if="showNamespaceDialog" @close="showNamespaceDialog = false" />
+        <namespace-wallet-dialog
+            v-if="showNamespaceDialog && wallets.length > 0"
+            @close="showNamespaceDialog = false"
+        />
     </MainLayout>
 </template>
 

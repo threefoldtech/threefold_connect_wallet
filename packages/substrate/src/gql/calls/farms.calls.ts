@@ -7,15 +7,18 @@ import {
 } from '../queries/farm.queries';
 import axios from 'axios';
 import { IGqlFarm, IGqlNode, IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
+import flagsmith from 'flagsmith';
 
-const gqlEndpoint = 'https://graph.grid.tf/graphql';
+const getGqlUrl = (): string => {
+    return <string>flagsmith.getValue('tfchain_graphql_endpoint');
+};
 
 export const getAllNodesOfFarms = async (farmIds: number[]): Promise<IGqlNode[]> => {
     if (farmIds.length == 0) return [];
 
     const query = gqlGetAllNodesOfFarms;
 
-    const response = await axios.post(gqlEndpoint, {
+    const response = await axios.post(getGqlUrl(), {
         query,
         variables: {
             farmIds: farmIds,
@@ -38,7 +41,7 @@ export const getAllNodesOfFarms = async (farmIds: number[]): Promise<IGqlNode[]>
     });
 
     // Checking uptime
-    const uptimeResponse = await axios.post(gqlEndpoint, {
+    const uptimeResponse = await axios.post(getGqlUrl(), {
         query: gqlUptimeQuery,
         variables: {
             nodes: nodeIds,
@@ -66,7 +69,7 @@ export const getAllFarmsFromWallets = async (twinIds: number[], addresses: strin
 
     const query = gqlGetAllFarms;
 
-    const response = await axios.post(gqlEndpoint, {
+    const response = await axios.post(getGqlUrl(), {
         query,
         variables: {
             twinIds: twinIds,
@@ -90,7 +93,7 @@ export const getAllTwinIds = async (substrateAddresses: string[]): Promise<IGqlT
 
     const query = gqlGetAllTwinIds;
 
-    const response = await axios.post(gqlEndpoint, {
+    const response = await axios.post(getGqlUrl(), {
         query,
         variables: {
             substrateAddresses: substrateAddresses,
@@ -116,7 +119,7 @@ export const doesFarmExistByName = async (name: string): Promise<boolean> => {
 
     const query = gqlDoesFarmExistByName;
 
-    const response = await axios.post(gqlEndpoint, {
+    const response = await axios.post(getGqlUrl(), {
         query,
         variables: {
             name: name,

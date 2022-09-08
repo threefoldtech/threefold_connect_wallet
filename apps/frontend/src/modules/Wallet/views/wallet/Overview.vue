@@ -153,7 +153,6 @@
 
     const init = async () => {
         if (showLockedTokens) {
-            console.log('Coming inside locked tokens flow');
             await lockedTokensFlow();
         }
 

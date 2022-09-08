@@ -27,4 +27,4 @@ jobs:
       - name: Killing old docker
         run: docker rm -f wallet-next || true
       - name: Deploy wallet-next
-        run: docker run -d -it --restart=always --network proxy --name wallet-next --env FLAGSMITH_ENVIROMENT_KEY=${{ secrets.FLAGSMITH_ENV_STAGING }} --env FARMER_ONLY=${{ secrets.FARMER_ONLY_STAGING}} threefoldjimber/wallet-next:${{ github.sha }}
+        run: docker run -d -it --restart=always --network proxy --name wallet-next --env FLAGSMITH_ENVIROMENT_KEY=${{ secrets.FLAGSMITH_ENV_STAGING }} --env FARMER_ONLY=0 threefoldjimber/wallet-next:${{ github.sha }}

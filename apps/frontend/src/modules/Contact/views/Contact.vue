@@ -58,7 +58,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div
                         v-if="selectedTab === Tabs.OTHERS"
                         class="mb-4 rounded-md border-[1px] p-2 text-gray-700"
@@ -114,14 +113,15 @@
     import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue';
     import { computed, Ref, ref } from 'vue';
     import { useLocalStorage } from '@vueuse/core';
-    import { ContactType } from '@/modules/Contact/types/contact.types';
-    import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
-    import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
-    import { onBeforeMount } from '@vue/runtime-core';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
-    import { getContactsFromPkid, saveContactToPkid } from '@/modules/Contact/services/contactService';
+    import { getContactsFromPkid, saveContactToPkid } from '@/modules/Contact/services/contact.service';
     import FAB from '@/modules/Misc/components/global/FAB.vue';
+    import { ChainTypes } from 'shared-types';
+    import { IContactType } from 'shared-types/src/interfaces/global/contact.interfaces';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
 
     enum Tabs {
         'OWN_WALLETS' = 'Own wallets',
@@ -137,11 +137,11 @@
     const selectedTab = ref<Tabs>(Tabs.OWN_WALLETS);
 
     const showAddContact = ref<boolean>(false);
-    const contacts = ref<ContactType[]>([]);
+    const contacts = ref<IContactType[]>([]);
 
     const init = async () => {
         // Load contacts related to chain
-        const pkidContacts: ContactType[] = await getContactsFromPkid();
+        const pkidContacts: IContactType[] = await getContactsFromPkid();
         contacts.value = pkidContacts.filter(c => c.type === chain);
     };
 
@@ -150,8 +150,8 @@
         showHint.value = true;
     };
 
-    const myContacts: Ref<ContactType[]> = computed(() =>
-        wallets.value.map((wallet: Wallet) => {
+    const myContacts: Ref<IContactType[]> = computed(() =>
+        wallets.value.map((wallet: IWallet) => {
             return {
                 address:
                     chain === ChainTypes.STELLAR
@@ -163,18 +163,18 @@
         })
     );
 
-    const selectedContact = (contact: ContactType) => {
+    const selectedContact = (contact: IContactType) => {
         emit('chosenContact', contact);
     };
 
-    const saveNewContact = async (contact: ContactType) => {
+    const saveNewContact = async (contact: IContactType) => {
         await saveContactToPkid(contact);
 
         addNotification(NotificationType.success, translate('contacts.dialog.success'));
         showAddContact.value = false;
 
         // Refresh contacts
-        const pkidContacts: ContactType[] = await getContactsFromPkid();
+        const pkidContacts: IContactType[] = await getContactsFromPkid();
         contacts.value = pkidContacts.filter(c => c.type === chain);
     };
 

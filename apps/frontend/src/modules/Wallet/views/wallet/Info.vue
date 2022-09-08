@@ -87,7 +87,7 @@
         :walletName="wallet.name"
     ></DeleteWalletDialog>
     <div
-        v-show="canSeeDangerZone && wallet.meta.type !== PkidWalletTypes.Native"
+        v-show="canSeeDangerZone && wallet.meta.type !== PkidWalletTypes.NATIVE"
         class="px-4 pt-4 font-bold text-black"
     >
         <span> Danger zone </span>
@@ -104,19 +104,25 @@
             </div>
         </div>
     </div>
+    <div class="px-4 font-bold text-black">
+        <div class="py-2">
+            <div class="mt-2 w-full">
+                <button
+                    class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-500 focus:disabled:ring-0"
+                    type="button"
+                    @click="toggleWalletNameSpace"
+                >
+                    {{ wallet.meta.isPublic ? $t('wallet.info.privateButton') : $t('wallet.info.publicButton') }}
+                </button>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script lang="ts" setup>
-    import {
-        addOrUpdateWallet,
-        deleteWalletFromPkid,
-        saveWallets,
-        Wallet,
-    } from '@/modules/Wallet/services/walletService';
     import { computed, inject, ref } from 'vue';
-    import { getSubstrateApi } from '@/modules/TFChain/services/tfchainService';
     import { ClipboardCopyIcon, PencilIcon, TrashIcon } from '@heroicons/vue/solid';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import CopyToClipboardField from '@/modules/Misc/components/misc/CopyToClipboardField.vue';
     import EditTextField from '@/modules/Misc/components/misc/EditTextField.vue';
     import ChangeWalletNameDialog from '@/modules/Wallet/components/dialogs/ChangeWalletNameDialog.vue';
@@ -125,13 +131,22 @@
     import { translate } from '@/modules/Core/utils/translate';
     import { useRouter } from 'vue-router';
     import flagsmith from 'flagsmith';
-
-    import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
-
-    const wallet: Wallet = <Wallet>inject('wallet');
+    import { getSubstrateApi } from 'tf-substrate';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import {
+        deleteWalletFromPkid,
+        saveNamespaceWalletsToPkid,
+        saveWalletsToPkid,
+    } from '@/modules/Pkid/services/pkid.service';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import { addOrUpdateWallet } from '@/modules/Wallet/services/wallet.service';
+    import { initializedUser } from '@/modules/Core/services/crypto.service';
+    import { PkidWalletTypes } from 'shared-types/src/enums/global/pkid.enums';
 
     const canSeeDangerZone = flagsmith.hasFeature('can-see-danger-zone');
     const canDeleteWallet = flagsmith.hasFeature('can-delete-wallet');
+
+    const wallet: IWallet = <IWallet>inject('wallet');
 
     const showEditWalletName = ref<boolean>(false);
     const walletName = ref<string>(wallet?.name);
@@ -164,7 +179,7 @@
 
         wallet.name = `${trimmedName}`;
         addOrUpdateWallet(wallet);
-        saveWallets();
+        saveWalletsToPkid();
 
         showEditWalletName.value = false;
         addNotification(
@@ -187,6 +202,25 @@
 
         addNotification(NotificationType.success, `Successfully deleted wallet ${wallet.name}`);
         await router.push({ name: 'walletList' });
+    };
+
+    const toggleWalletNameSpace = async () => {
+        if (!initializedUser.value) {
+            return;
+        }
+
+        wallet.meta.isPublic = !wallet.meta.isPublic;
+        addOrUpdateWallet(wallet);
+
+        try {
+            await saveNamespaceWalletsToPkid();
+            await saveWalletsToPkid();
+        } catch (e) {
+            wallet.meta.isPublic = !wallet.meta.isPublic;
+            addOrUpdateWallet(wallet);
+            addNotification(NotificationType.error, 'Error while changing wallet visibility, please contact support');
+            return;
+        }
     };
 </script>
 

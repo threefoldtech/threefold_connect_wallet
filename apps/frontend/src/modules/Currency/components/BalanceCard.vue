@@ -10,7 +10,7 @@
                 </div>
             </div>
             <div>
-                {{ formatCurrency(balance.amount) }}
+                {{ currencyUtil(balance.amount) }}
             </div>
         </div>
         <hr class="my-2 last:hidden" />
@@ -19,11 +19,11 @@
 </template>
 
 <script lang="ts" setup>
-    import { AssetBalance } from '@/modules/Wallet/services/walletService';
     import AssetIcon from '@/modules/Currency/components/AssetIcon.vue';
-    import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
+    import { currencyUtil } from '@/modules/Currency/utils/currency.util';
+    import { IAssetBalance } from 'shared-types';
     interface IProps {
-        balance: AssetBalance;
+        balance: IAssetBalance;
     }
 
     const { balance } = defineProps<IProps>();

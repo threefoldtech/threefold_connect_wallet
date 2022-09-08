@@ -1,12 +1,19 @@
-import { ContactType, ContactFormValidation, ContactValidation } from '@/modules/Contact/types/contact.types';
-import { Wallet, wallets } from '@/modules/Wallet/services/walletService';
-import { getPkidClient } from '@/modules/Core/services/pkidService';
-import { appKeyPair } from '@/modules/Core/services/cryptoService';
-import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
+import { wallets } from '@/modules/Wallet/services/wallet.service';
+import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
+import { appKeyPair } from '@/modules/Core/services/crypto.service';
 import { validateWalletAddress } from '@/modules/Wallet/validate/wallet.validate';
+import { ChainTypes } from 'shared-types';
+import {
+    IContactFormValidation,
+    IContactType,
+    IContactValidation,
+} from 'shared-types/src/interfaces/global/contact.interfaces';
+import { PkidNamedKeys } from 'shared-types/src/enums/global/pkid.enums';
+import { ContactFields } from 'shared-types/src/enums/global/contact.enums';
+import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
 
 export const isContactInMyContacts = (address: string, chain: string): boolean => {
-    const myContacts: ContactType[] = wallets.value.map((wallet: Wallet) => {
+    const myContacts: IContactType[] = wallets.value.map((wallet: IWallet) => {
         return {
             address:
                 chain === ChainTypes.STELLAR
@@ -17,41 +24,41 @@ export const isContactInMyContacts = (address: string, chain: string): boolean =
         };
     });
 
-    const c = myContacts.find((contact: ContactType) => contact.address === address);
+    const c = myContacts.find((contact: IContactType) => contact.address === address);
     return !!c;
 };
 
 export const isContactInPkid = async (address: string): Promise<boolean> => {
     const pkidClient = getPkidClient();
-    const contacts = await pkidClient.getDoc(appKeyPair.value.publicKey, 'contacts');
+    const contacts = await pkidClient.getDoc(appKeyPair.value.publicKey, PkidNamedKeys.V3_CONTACTS);
 
     if (!contacts.success) {
         return false;
     }
 
-    const existingContacts: ContactType[] = contacts.data;
+    const existingContacts: IContactType[] = contacts.data;
     const c = existingContacts.find(c => c.address === address);
     return !!c;
 };
 
-export const validateContact = async (name: string, address: string): Promise<ContactFormValidation> => {
+export const validateContact = async (name: string, address: string): Promise<IContactFormValidation> => {
     // Check if valid name
-    const isValidContactName: ContactValidation = validateContactName(name);
+    const isValidContactName: IContactValidation = validateContactName(name);
     if (!isValidContactName.valid) {
         return {
             valid: false,
             error: isValidContactName.error,
-            field: 'name',
+            field: ContactFields.NAME,
         };
     }
 
     // Check if valid address
-    const isValidContactAddress: ContactValidation = await validateNewContactAddress(address);
+    const isValidContactAddress: IContactValidation = await validateNewContactAddress(address);
     if (!isValidContactAddress.valid) {
         return {
             valid: false,
             error: isValidContactAddress.error,
-            field: 'address',
+            field: ContactFields.ADDRESS,
         };
     }
 
@@ -60,7 +67,7 @@ export const validateContact = async (name: string, address: string): Promise<Co
     };
 };
 
-export const validateContactName = (contactName: string): ContactValidation => {
+export const validateContactName = (contactName: string): IContactValidation => {
     if (contactName.length >= 255) {
         return {
             valid: false,
@@ -90,7 +97,7 @@ export const validateContactName = (contactName: string): ContactValidation => {
     };
 };
 
-export const validateNewContactAddress = async (address: string): Promise<ContactValidation> => {
+export const validateNewContactAddress = async (address: string): Promise<IContactValidation> => {
     // Check if valid address
     const isValidWalletAddress = validateWalletAddress(address);
     if (!isValidWalletAddress.valid || isValidWalletAddress.type === ChainTypes.UNKNOWN) {

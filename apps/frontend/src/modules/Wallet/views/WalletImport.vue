@@ -84,16 +84,17 @@
     import { ref } from 'vue';
     import { useRouter } from 'vue-router';
     import { Keypair } from 'stellar-sdk';
-    import { saveWallets, Wallet, wallets } from '@/modules/Wallet/services/walletService';
-    import { getPkidClient, PkidWallet } from '@/modules/Core/services/pkidService';
-    import { PkidWalletTypes } from '@/modules/Core/services/initializationService';
+    import { wallets } from '@/modules/Wallet/services/wallet.service';
     import { bytesToHex } from '@/modules/Core/utils/crypto';
-    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/WalletKeyPair';
+    import { IWalletKeyPair, WalletKeyPairBuilder } from '@/modules/Core/models/keypair.model';
     import { getEntropyFromPhrase } from 'mnemonicconversion2924';
-    import { entropyToMnemonic, mnemonicToEntropy } from '@jimber/simple-bip39';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { entropyToMnemonic } from '@jimber/simple-bip39';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { calculateWalletEntropyFromAccount } from 'cryptolib';
     import { validateWalletName } from '@/modules/Wallet/validate/wallet.validate';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { PkidWalletTypes } from 'shared-types/src/enums/global/pkid.enums';
+    import { saveWalletsToPkid } from '@/modules/Pkid/services/pkid.service';
 
     const walletIndex = ref(0);
 
@@ -206,11 +207,12 @@
             name: name.value,
             meta: {
                 index: -1,
-                type: PkidWalletTypes.Imported,
+                type: PkidWalletTypes.IMPORTED,
+                isPublic: false,
             },
         });
 
-        await saveWallets();
+        await saveWalletsToPkid();
 
         await router.replace({ name: 'walletList' });
     };

@@ -38,7 +38,7 @@
                                 <MenuButton
                                     class="inline-flex w-full justify-between rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-500"
                                 >
-                                    {{ desiredWallet.name }}
+                                    {{ selectedWallet.name }}
                                     <ChevronDownIcon
                                         class="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"
                                         aria-hidden="true"
@@ -47,14 +47,15 @@
                             </div>
 
                             <MenuItems
-                                class="absolute left-0 z-50 mt-2 w-full origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                class="scrollbar overflow-y-scroll absolute left-0 z-50 mt-2 w-full origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                             >
-                                <div class="max-h-28 w-full divide-y overflow-y-auto">
-                                    <MenuItem v-for="wallet in wallets" v-slot="{ active }">
-                                        <div
-                                            class="flex w-full justify-between gap-2 truncate px-4 py-2 text-sm"
-                                            @click="desiredWallet = wallet"
-                                        >
+                                <div class="max-h-40 w-full divide-y overflow-y-auto">
+                                    <MenuItem
+                                        @click="selectedWallet = wallet"
+                                        v-for="wallet in wallets"
+                                        v-slot="{ active }"
+                                    >
+                                        <div class="flex w-full justify-between gap-2 truncate px-4 py-2 text-sm">
                                             <div class="flex w-full flex-col justify-start truncate">
                                                 <div class="flex flex-row justify-between">
                                                     <div class="font-semibold">Name</div>
@@ -124,7 +125,7 @@
                                 <a
                                     class="inline text-primary-600 decoration-primary-500 decoration-2 focus:font-semibold focus:text-primary-600 focus:outline-none"
                                     tabindex="0"
-                                    @click.stop.prevent="showTerms()"
+                                    @click.stop.prevent="showTermsAndConditions = true"
                                 >
                                     terms and conditions
                                 </a>
@@ -172,8 +173,7 @@
 
 <script lang="ts" setup>
     import SiteModalFrame from '@/modules/Misc/components/SiteModalFrame.vue';
-    import { Farm } from '@/modules/Farm/types/farms.types';
-    import { AssetBalance, balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, wallets } from '@/modules/Wallet/services/wallet.service';
     import {
         Menu,
         MenuButton,
@@ -186,26 +186,28 @@
     } from '@headlessui/vue';
     import { ChevronDownIcon, XIcon } from '@heroicons/vue/solid';
 
-    import { ref, watch } from 'vue';
-    import {
-        activationServiceForSubstrate,
-        allFarms,
-        doesFarmExistByName,
-        getSubstrateApi,
-        getSubstrateAssetBalances,
-        getTwinId,
-        getUsersTermsAndConditions,
-        submitExtrensic,
-    } from '@/modules/TFChain/services/tfchainService';
-    import axios from 'axios';
+    import { ref } from 'vue';
     import flagsmith from 'flagsmith';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
-    import { fetchFarms, v2Farms } from '@/modules/Farm/services/farmService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
+    import { allSubstrateAddresses, v2Farms } from '@/modules/Farm/services/farm.service';
     import { onBeforeMount } from '@vue/runtime-core';
-    import { toNumber } from 'lodash';
-    import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
+    import { IFarmV2, IGqlTwin } from 'shared-types/src/interfaces/substrate/farm.interfaces';
 
-    const desiredWallet = ref<Wallet>(wallets.value[0]);
+    import { validateFarmName } from '@/modules/Farm/validators/farm.validate';
+    import {
+        activateAccount,
+        addStellarPayoutAddress,
+        createFarm,
+        createTwin,
+        signAndAcceptTermsAndConditions,
+        getFarmIdByName,
+        getUsersTermsAndConditionsByAccountId,
+        getAllTwinIds,
+    } from 'tf-substrate';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+
+    const selectedWallet = ref<IWallet>(wallets.value[0]);
     const farmFormErrors = ref<any>({});
     const farmNameToValidate = ref<string>('');
 
@@ -215,326 +217,119 @@
     const showTermsAndConditions = ref<boolean>(false);
     const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
     const termsAndConditionsIsAccepted = ref<boolean>(false);
-    const termsAndConditions = ref<any[]>([]);
-
-    const farms = ref<SubstrateFarmDto[]>([]);
-    const newTwinId = ref();
 
     const emit = defineEmits(['close']);
 
     onBeforeMount(() => {
         if (migrationFarm) {
-            farmNameToValidate.value = migrationFarm?.name;
-            desiredWallet.value = migrationFarm?.wallet as Wallet;
+            farmNameToValidate.value = migrationFarm.name;
+            selectedWallet.value = migrationFarm.wallet;
         }
     });
 
-    // Defining props
     interface Props {
-        migrationFarm?: Farm;
+        migrationFarm?: IFarmV2;
     }
 
     const { migrationFarm } = defineProps<Props>();
 
-    watch(farmNameToValidate, value => {
-        validateFarmName(value, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
-    });
-
     const listenToKeyBindsForValidation = async (e: any) => {
         farmNameToValidate.value = e.target?.value;
-        await validateFarmName(e.target?.value, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
+        const validationError = await validateFarmName(
+            e.target?.value,
+            selectedWallet.value.keyPair.getStellarKeyPair().publicKey()
+        );
+
+        if (!validationError) return (farmFormErrors.value = {});
+
+        farmFormErrors.value = { farmName: validationError['farmName'] };
     };
 
-    const showTerms = () => {
-        showTermsAndConditions.value = true;
-    };
+    const createNewFarm = async () => {
+        const farmName = farmNameToValidate.value;
 
-    const validateFarmName = async (value: string, myStellarAddress: string) => {
-        value = value.toLowerCase().trim();
-        if (migrationFarm) {
-            farmFormErrors.value = {}; //tem
-            return;
-        } // temp fix for migration farm
-
-        const wasFound = v2Farms.value.find(farm => farm.name.toLowerCase() === value.toLowerCase());
-        // console.log({ wasFound: !!wasFound, value, myStellarAddress });
-
-        if (
-            wasFound &&
-            wasFound.wallet?.keyPair.getStellarKeyPair().publicKey() ===
-                desiredWallet.value.keyPair.getStellarKeyPair().publicKey()
-        ) {
-            delete farmFormErrors.value.farmName;
-            return;
-        }
-
-        if (wasFound) {
-            farmFormErrors.value = {
-                ...farmFormErrors.value,
-
-                farmName: 'This name is already taken',
-            };
-            return;
-        }
-
-        if (!value) {
-            farmFormErrors.value = {
-                ...farmFormErrors.value,
-
-                farmName: 'Farm name is required',
-            };
-            return;
-        }
-
-        if (value.length > 50) {
-            farmFormErrors.value = {
-                ...farmFormErrors.value,
-
-                farmName: 'Farm name must be less than 50 characters',
-            };
-            return;
-        }
-
-        // if name found in all farms show error
-        const doesFarmNameExist = await doesFarmExistByName(value);
-        if (doesFarmNameExist) {
-            farmFormErrors.value = {
-                ...farmFormErrors.value,
-
-                farmName: 'This name is already taken',
-            };
-            return;
-        }
-
-        try {
-            const res = await axios.get(`/api/v1/farms/${encodeURIComponent(value)}/${myStellarAddress}`);
-
-            if (res.data?.canuse !== true) {
-                farmFormErrors.value = {
-                    ...farmFormErrors.value,
-                    farmName: 'This name is already taken',
-                };
-                return;
-            }
-        } catch (e) {
-            farmFormErrors.value = {
-                ...farmFormErrors.value,
-                farmName: 'Try again later',
-            };
-            return;
-        }
-
-        delete farmFormErrors.value.farmName;
-    };
-
-    // const validateCreatedFarm = async (evt: Event) => {
-    //     const formData = new FormData(evt.target as HTMLFormElement);
-    //
-    //     const farmName = <string>formData.get('farmName');
-    //
-    //     await validateFarmName(farmName, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
-    //     if (farmFormErrors.value?.farmName) return;
-    // };
-
-    const createNewFarm = async (evt: Event) => {
-        const formData = new FormData(evt.target as HTMLFormElement);
-
-        const farmName = !migrationFarm ? <string>formData.get('farmName') : farmNameToValidate.value;
-        console.log(farmName);
-
-        await validateFarmName(farmName, desiredWallet.value.keyPair.getStellarKeyPair().publicKey());
-        if (migrationFarm) farmFormErrors.value = {}; //temporary fix for migration farm
-
-        if (farmFormErrors.value?.farmName) return;
-
+        const validationError = await validateFarmName(
+            farmName,
+            selectedWallet.value.keyPair.getStellarKeyPair().publicKey()
+        );
+        if (validationError) return;
         if (!termsAndConditionsIsAccepted.value) return;
 
         isLoading.value = true;
         loadingSubtitle.value = 'Starting creation of farm';
 
-        console.log('Going to accept terms and cs');
-
-        const termsAndConditions = await getUsersTermsAndConditions(
-            desiredWallet.value.keyPair.getSubstrateKeyring().address
-        );
-        console.log('These are the terms and conditions', termsAndConditions);
-
-        if (termsAndConditions.length === 0) {
-            await acceptTermsAndConditions();
-        }
-
-        console.log('going to add the farm');
-        await addFarm(farmName, []);
+        const isAdded = await createSubstrateFarm(farmName);
 
         isLoading.value = false;
         emit('close');
 
+        if (!isAdded) {
+            return addNotification(NotificationType.error, 'Farm creation failed', 'Please contact support');
+        }
+
         if (migrationFarm) {
-            addNotification(
+            v2Farms.value = [];
+            return addNotification(
                 NotificationType.info,
                 'Farm creation on v3 successful',
                 'Your farm has been created on Grid v3. Please note that it will take several days for your v2 nodes to be migrated to your v3 farm. Once they have been migrated, you will see them listed under your new v3 farm.'
             );
+        }
 
-            v2Farms.value = [];
-            await fetchFarms();
+        addNotification(
+            NotificationType.success,
+            'Farm Creation Successful',
+            'Once the blockchain has synced it will show up in your farmers, this can take a few minutes.'
+        );
+    };
+
+    const createSubstrateFarm = async (name: string) => {
+        const keyRing = selectedWallet.value.keyPair.getSubstrateKeyring();
+        const stellarAddress = selectedWallet.value.keyPair.getStellarKeyPair().publicKey();
+        const activationUrl = `${flagsmith.getValue('tfchain_activation_base_url')}/activation/activate`;
+        const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
+
+        const doesHaveTermsAndConditions = await getUsersTermsAndConditionsByAccountId(keyRing.address);
+        if (doesHaveTermsAndConditions.length === 0) {
+            loadingSubtitle.value = 'Activating account';
+
+            const isActivated = await activateAccount(keyRing.address, activationUrl);
+            if (!isActivated) return;
+
+            loadingSubtitle.value = 'Signing terms and conditions';
+
+            const isAccepted = await signAndAcceptTermsAndConditions(keyRing, termsAndConditionsUrl);
+            if (!isAccepted) return;
+        }
+
+        loadingSubtitle.value = 'Checking twins';
+        const twinIds = await getAllTwinIds(allSubstrateAddresses.value);
+        const twinId = twinIds.find(
+            (t: IGqlTwin) => t.substrateAddress === selectedWallet.value.keyPair.getSubstrateKeyring().address
+        );
+
+        if (!twinId) {
+            console.info('TwinId is 0, creating twin');
+
+            const isTwinCreated = await createTwin(keyRing);
+            if (!isTwinCreated) return;
+        }
+
+        loadingSubtitle.value = 'Creating farm';
+
+        const isFarmCreated = await createFarm(keyRing, name);
+        if (!isFarmCreated) return;
+
+        const createdFarmId = await getFarmIdByName(name);
+        if (createdFarmId == 0) {
+            console.error('[Cant get farmId by name]');
             return;
         }
 
-        addNotification(NotificationType.success, 'Farm Creation Successful');
-    };
+        loadingSubtitle.value = 'Adding payout address';
+        const isStellarPayoutAddressAdded = addStellarPayoutAddress(keyRing, stellarAddress, createdFarmId);
+        if (!isStellarPayoutAddressAdded) return;
 
-    const addTwin = async () => {
-        isLoading.value = true;
-        loadingSubtitle.value = 'Creating Twin';
-
-        const api = await getSubstrateApi();
-        const submittableExtrinsic = api.tx.tfgridModule.createTwin('127.0.0.1');
-
-        await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
-
-        while (true) {
-            newTwinId.value = await getTwinId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
-            if (newTwinId.value !== 0) {
-                console.log('twinId', newTwinId.value);
-                break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        loadingSubtitle.value = 'Refetching data';
-    };
-
-    const addFarm = async (farmName: string, publicIps: string[]) => {
-        console.log('getting twinId');
-        newTwinId.value = await getTwinId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
-        console.log('twinId', newTwinId.value);
-
-        console.debug('this is the twinid, ', newTwinId.value);
-        if (newTwinId.value === 0) {
-            console.debug('the twin id was 0');
-            await addTwin();
-        }
-
-        isLoading.value = true;
-        loadingSubtitle.value = 'Creating farm';
-        const api = await getSubstrateApi();
-
-        console.debug('this is the provided info', farmName, publicIps);
-        const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, publicIps);
-
-        console.debug(
-            'signing and sending substate address ',
-            desiredWallet.value.keyPair.getSubstrateKeyring().address
-        );
-        try {
-            const res = await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
-            console.log('this is the response', res);
-        } catch (e) {
-            isLoading.value = false;
-            loadingSubtitle.value = '';
-            addNotification(
-                NotificationType.error,
-                'Could not create farm (name already in use)',
-                'Try again with different name.'
-            );
-            emit('close');
-            throw e;
-        }
-
-        console.log('farm created');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        let i = 0;
-        while (true) {
-            // break after 20 seconds
-            if (i > 20) {
-                throw new Error('Timeout');
-            }
-            i++;
-
-            farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === newTwinId.value);
-
-            const myFarm = farms.value.find((farm: SubstrateFarmDto) => farm.name === farmName);
-
-            if (myFarm) {
-                break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        const myFarm = farms.value.find(farm => farm.name === farmName);
-
-        if (!myFarm) {
-            throw new Error('Farm not found, should not happen here');
-        }
-        loadingSubtitle.value = 'Adding stellar payout address';
-
-        const submittableExtrinsic1 = api.tx.tfgridModule.addStellarPayoutV2address(
-            myFarm.id,
-            desiredWallet.value.keyPair.getStellarKeyPair().publicKey()
-        );
-
-        await submitExtrensic(submittableExtrinsic1, desiredWallet.value.keyPair.getSubstrateKeyring());
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // addNotification(NotificationType.success, 'Farm created');
-        loadingSubtitle.value = 'Refetching data';
-    };
-
-    const signTermsAndConditions = async () => {
-        const termsAndConditionsUrl = <string>flagsmith.getValue('farm_terms_and_conditions_url');
-
-        const api = await getSubstrateApi();
-        const submittableExtrinsic = api.tx.tfgridModule.userAcceptTc(termsAndConditionsUrl, 'NO_HASH');
-        await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
-    };
-
-    const acceptTermsAndConditions = async () => {
-        loadingSubtitle.value = 'Accepting terms and conditions';
-        isLoading.value = true;
-
-        const id = desiredWallet.value.keyPair.getSubstrateKeyring().address;
-
-        console.log('Activating services for substrate');
-        await activationServiceForSubstrate(id);
-
-        //While there is no substrate balance, we need to wait
-        while (true) {
-            const substrateBalance = await getSubstrateAssetBalances(id);
-            if (
-                substrateBalance.filter((assetBalance: AssetBalance) => {
-                    return assetBalance.amount >= 0;
-                }).length > 0
-            ) {
-                console.log('Substrate balance is available');
-                break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        while (true) {
-            try {
-                loadingSubtitle.value = 'Signing terms and conditions';
-                console.log('Signging terms and conditions');
-                await signTermsAndConditions();
-                break;
-            } catch (e) {
-                isLoading.value = false;
-                emit('close');
-                addNotification(NotificationType.error, 'Failed', 'Failed Signing Terms Snd Conditions');
-                console.error(e);
-            }
-        }
-
-        do {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            loadingSubtitle.value = 'Getting terms and conditions';
-            termsAndConditions.value = await getUsersTermsAndConditions(id);
-        } while (termsAndConditions.value.filter(t => t.document_link === termsAndConditionsUrl).length === 0);
-
-        console.log('these are the terms and conditions');
-        console.log(termsAndConditions.value);
-        loadingSubtitle.value = 'Reloading data';
+        return true;
     };
 </script>

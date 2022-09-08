@@ -9,6 +9,5 @@ export const i18n = createI18n({
 });
 
 export const translate = (translatePath: string, data?: Record<string, any>) => {
-    // @ts-ignore
-    return i18n.global.t(translatePath, data);
+    return i18n.global.t(translatePath, data as any);
 };

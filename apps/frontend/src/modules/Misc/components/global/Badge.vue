@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-    import { BadgeType } from '@/modules/Misc/enums/badge.enum';
+    import { BadgeType } from 'shared-types/src/enums/global/badge.enums';
 
     interface IProps {
         type: BadgeType;

@@ -10,12 +10,13 @@
 </template>
 
 <script lang="ts" setup>
-    import { initFirstWallet } from '@/modules/Core/services/initializationService';
+    import { initFirstWallet } from '@/modules/Core/services/initialization.service';
     import { useRouter } from 'vue-router';
     import { useCounter } from '@vueuse/core';
     import { watch } from 'vue';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
-    import { userInitialized } from '@/modules/Core/services/cryptoService';
+    import { addNotification } from '@/modules/Core/services/notification.service';
+    import { initializedUser } from '@/modules/Core/services/crypto.service';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
 
     const { count, inc, reset } = useCounter();
     const router = useRouter();
@@ -39,7 +40,7 @@
                 return;
             }
             addNotification(NotificationType.error, 'Failed to init first wallet', 'Please try again later');
-            userInitialized.value = null;
+            initializedUser.value = null;
             await router.push({ name: 'init' });
             return;
         }

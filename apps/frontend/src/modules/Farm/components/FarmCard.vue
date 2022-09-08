@@ -21,7 +21,7 @@
         <Disclosure v-slot="{ open }" as="div" class="relative col-span-1 rounded-lg bg-white">
             <DisclosureButton as="div" class="flex flex-row items-center justify-between">
                 <div class="text-md max-w-90 truncate p-4 font-medium">
-                    {{ farm.name }}
+                    {{ farm.farm.name }}
                 </div>
                 <div>
                     <ChevronUpIcon v-if="open" class="-ml-1 mr-2 h-5 w-5" />
@@ -49,15 +49,12 @@
 </template>
 
 <script lang="ts" setup>
-    import { Farm } from '@/modules/Farm/types/farms.types';
-
     import CreateFarmCard from '@/modules/Farm/components/CreateFarmCard.vue';
     import { DisclosureButton, Disclosure, DisclosurePanel, DialogOverlay, Dialog } from '@headlessui/vue';
     import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/solid';
     import FarmCardDetails from '@/modules/Farm/components/FarmCardDetails.vue';
     import { ref } from 'vue';
 
-    // @TODO: make yarn build work on type: Farm
     interface Props {
         farm: any;
         isV3: boolean;

@@ -21,7 +21,7 @@
                     <div class="flex gap-3">
                         <RadioGroupOption
                             as="template"
-                            v-for="option in ['stellar', 'substrate']"
+                            v-for="option in [ChainTypes.STELLAR, ChainTypes.SUBSTRATE]"
                             :key="option"
                             :value="option"
                             v-slot="{ active, checked }"
@@ -52,77 +52,19 @@
                     >
                         <div class="w-full truncate">
                             <div class="shrink-0 truncate">{{ selectedWallet?.name }}</div>
-                            <div v-if="selectedChain === 'stellar'" class="truncate text-gray-500">
+
+                            <div v-if="selectedChain === ChainTypes.STELLAR" class="truncate text-gray-500">
                                 {{ selectedWallet?.keyPair.getStellarKeyPair().publicKey() }}
                             </div>
-                            <div v-if="selectedChain === 'substrate'" class="truncate text-gray-500">
+                            <div v-if="selectedChain === ChainTypes.SUBSTRATE" class="truncate text-gray-500">
                                 {{ selectedWallet?.keyPair.getSubstrateKeyring().address }}
                             </div>
                         </div>
-                        <!--                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">-->
-                        <!--                            <SelectorIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />-->
-                        <!--                        </span>-->
                     </ListboxButton>
-
-                    <transition
-                        leave-active-class="transition ease-in duration-100"
-                        leave-from-class="opacity-100"
-                        leave-to-class="opacity-0"
-                    >
-                        <ListboxOptions
-                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                        >
-                            <ListboxOption
-                                v-for="wallet in wallets"
-                                v-slot="{ active, selected }"
-                                :value="wallet"
-                                as="template"
-                            >
-                                <li
-                                    :class="[
-                                        active ? 'bg-primary-600 text-white' : 'text-gray-900',
-                                        'relative cursor-default select-none py-2 pl-3 pr-9',
-                                    ]"
-                                >
-                                    <div class="flex">
-                                        <span
-                                            :class="[selected ? 'font-semibold' : 'font-normal', 'truncate']"
-                                            class="shrink-0"
-                                        >
-                                            {{ wallet?.name }}
-                                        </span>
-                                        <span
-                                            v-if="selectedChain === 'stellar'"
-                                            :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']"
-                                        >
-                                            {{ wallet?.keyPair.getStellarKeyPair().publicKey() }}
-                                        </span>
-
-                                        <span
-                                            v-if="selectedChain === 'substrate'"
-                                            :class="[active ? 'text-primary-200' : 'text-gray-500', 'ml-2 truncate']"
-                                        >
-                                            {{ wallet?.keyPair.getSubstrateKeyring().address }}
-                                        </span>
-                                    </div>
-
-                                    <span
-                                        v-if="selected"
-                                        :class="[
-                                            active ? 'text-white' : 'text-primary-600',
-                                            'absolute inset-y-0 right-0 flex items-center pr-4',
-                                        ]"
-                                    >
-                                        <CheckIcon aria-hidden="true" class="h-5 w-5" />
-                                    </span>
-                                </li>
-                            </ListboxOption>
-                        </ListboxOptions>
-                    </transition>
                 </div>
             </Listbox>
             <div class="mt-4">
-                <div>
+                <div class="truncate">
                     <label for="to" class="block text-sm font-medium text-gray-700">To</label>
                     <div class="mt-1 flex rounded-md shadow-sm">
                         <div class="relative flex w-full items-stretch focus-within:z-10">
@@ -130,10 +72,12 @@
                                 id="to"
                                 v-model="toAddress"
                                 :disabled="relevantAssets.length <= 0"
+                                @input="findNamespaceAddress"
                                 class="block w-full rounded-l-md border-gray-300 pl-3 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
                                 name="to"
-                                placeholder="..."
+                                placeholder="address, $username"
                                 type="text"
+                                autocomplete="off"
                             />
                         </div>
                         <button
@@ -141,19 +85,46 @@
                             @click="showContacts = true"
                             class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         >
-                            <div>
+                            <span>
                                 <UserIcon class="h-5" />
-                            </div>
+                            </span>
                         </button>
                     </div>
+                    <span v-show="namespaceWalletAddress" class="text-xs text-gray-500">{{
+                        namespaceWalletAddress
+                    }}</span>
                 </div>
-                <div class="text-sm text-red-500" v-if="isValidToAddress === false">Please enter a valid address</div>
+                <div class="text-sm text-red-500" v-if="isValidToAddress === false && !isNamespaceWallet">
+                    Please enter a valid address
+                </div>
+                <div class="text-sm text-red-500" v-if="isValidNamespace === false">
+                    Couldn't find a public wallet for this user
+                </div>
+                <div class="text-sm text-red-500" v-if="isValidNamespace === true && hasPublicWallets === false">
+                    This user doesn't have any available wallets
+                </div>
+                <div
+                    v-show="namespaceWalletsForSelectedChain.length > 0 && !namespaceWalletAddress"
+                    tabindex="0"
+                    class="relative w-full bg-white border border-gray-300 mt-1 mh-48 overflow-hidden overflow-y-scroll rounded-md shadow-md"
+                >
+                    <ul>
+                        <li
+                            v-for="(item, index) in namespaceWalletsForSelectedChain"
+                            :key="index"
+                            class="flex px-3 py-2 cursor-pointer hover:bg-gray-200"
+                            @click="selectNamespaceWalletAddress(item)"
+                        >
+                            {{ item.name }} <span class="ml-2 truncate">{{ item.address }}</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="mt-4">
                 <div class="block text-sm">
                     <span class="pr-2">Amount</span>
                     <span class="text-xs text-gray-400" @click="setCorrectBalance"
-                        >({{ formatCurrency(selectedAssetBalance) }})</span
+                        >({{ currencyUtil(selectedAssetBalance) }})</span
                     >
                 </div>
                 <div class="relative mt-1 rounded-md shadow-sm">
@@ -194,7 +165,7 @@
                 </div>
                 <div class="text-gray-500">Max {{ assetFee?.toFixed(2) }} {{ selectedAsset?.asset_code }}</div>
             </div>
-            <div v-if="selectedChain === 'stellar'" class="mt-4">
+            <div v-if="selectedChain === ChainTypes.STELLAR" class="mt-4">
                 <label class="block text-sm font-medium text-gray-700" for="message">Memo</label>
                 <div class="mt-1 flex rounded-md shadow-sm">
                     <div class="relative flex grow items-stretch focus-within:z-10">
@@ -214,7 +185,14 @@
             <div class="grow"></div>
             <div class="mt-4 flex">
                 <button
-                    :disabled="!selectedWallet || !toAddress || !amount || amount <= 0 || !selectedAsset"
+                    :disabled="
+                        !selectedWallet ||
+                        (!toAddress && isNamespaceWallet && !namespaceWalletAddress) ||
+                        (!toAddress && !isNamespaceWallet) ||
+                        !amount ||
+                        amount <= 0 ||
+                        !selectedAsset
+                    "
                     class="flex-1 rounded-md bg-blue-600 px-4 py-2 uppercase text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:hover:animate-wiggle"
                     @click="goToConfirm"
                 >
@@ -231,22 +209,20 @@
 
 <script lang="ts" setup>
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
-    import { ArrowLeftIcon, CheckIcon, QrcodeIcon, SelectorIcon, UserIcon } from '@heroicons/vue/outline';
+    import { ArrowLeftIcon, QrcodeIcon, UserIcon } from '@heroicons/vue/outline';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import { useRouter } from 'vue-router';
     import {
         Listbox,
         ListboxButton,
         ListboxLabel,
-        ListboxOption,
-        ListboxOptions,
         RadioGroup,
         RadioGroupLabel,
         RadioGroupOption,
     } from '@headlessui/vue';
     import { computed, nextTick, ref, watch } from 'vue';
     import flagsmith from 'flagsmith';
-    import { AssetBalance, Balance, balances, Wallet, wallets } from '@/modules/Wallet/services/walletService';
+    import { balances, wallets } from '@/modules/Wallet/services/wallet.service';
     import uniq from 'lodash/uniq';
     import {
         isValidMemoOfTransaction,
@@ -254,21 +230,27 @@
         validateSubstrateAddress,
         validateWalletAddress,
     } from '@/modules/Wallet/validate/wallet.validate';
-    import { ChainTypes } from '@/modules/Currency/enums/chains.enums';
     import { toNumber } from 'lodash';
-    import { formatCurrency } from '@/modules/Currency/utils/formatCurrency';
+    import { currencyUtil } from '@/modules/Currency/utils/currency.util';
     import Contact from '@/modules/Contact/views/Contact.vue';
-    import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
-    import { ContactType } from '@/modules/Contact/types/contact.types';
-    import { addNotification, NotificationType } from '@/modules/Core/services/notificationService';
+    import { balanceUtil } from '@/modules/Currency/utils/balance.util';
+    import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
+    import { ChainTypes, IAssetBalance, IBalance } from 'shared-types';
+    import { IContactType } from 'shared-types/src/interfaces/global/contact.interfaces';
+    import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
+    import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
+    import axios from 'axios';
+    import { decodeBase64 } from 'tweetnacl-util';
+    import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
+    import { IAccount, INamespace, INamespaceData } from 'shared-types';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
     const allowedAssets: Asset[] = uniq<Asset>(
         <any[]>JSON.parse(<string>flagsmith.getValue('supported-currencies')).map((a: any) => ({
             asset_code: a.asset_code,
-            type: a.type,
+            type: a.type.toUpperCase(),
             fee: a?.fee,
         }))
     );
@@ -284,7 +266,7 @@
 
     const { from, to, amount: initialAmount, asset } = defineProps<IProps>();
 
-    const selectedWallet = ref<Wallet>();
+    const selectedWallet = ref<IWallet>();
     selectedWallet.value =
         wallets.value?.find(w => w.keyPair.getStellarKeyPair().publicKey() === from) || wallets.value[0];
 
@@ -296,7 +278,7 @@
             if (!selectedWallet.value) return;
 
             dynamicBalanceCleanUp.value();
-            dynamicBalanceCleanUp.value = useDynamicBalance(selectedWallet.value).cleanUp;
+            dynamicBalanceCleanUp.value = balanceUtil(selectedWallet.value).cleanUp;
         },
         { immediate: true }
     );
@@ -323,9 +305,9 @@
         amount.value = Math.floor(selectedBalanceWithoutFee.value * 100) / 100;
     };
 
-    const selectedChain = ref('stellar');
+    const selectedChain = ref(ChainTypes.STELLAR);
 
-    const chosenContact = (c: ContactType) => {
+    const chosenContact = (c: IContactType) => {
         toAddress.value = c.address;
         showContacts.value = false;
     };
@@ -349,14 +331,18 @@
     const selectedAsset = ref(asset || relevantAssets.value[0]);
 
     const assetFee = computed(() => {
+        console.log(allowedAssets);
         return allowedAssets?.find(
             asset => asset?.asset_code === selectedAsset.value?.asset_code && asset?.type === selectedChain.value
         )?.fee;
     });
 
     watch(selectedChain, _ => {
-        toAddress.value = '';
+        if (!isNamespaceWallet.value || !isValidNamespace.value) {
+            toAddress.value = undefined;
+        }
         amount.value = undefined;
+        namespaceWalletAddress.value = undefined;
         transactionMessage.value = '';
 
         isValidToAddress.value = true;
@@ -390,6 +376,8 @@
     const isValidToAddress = ref<boolean>();
     const isValidAmount = ref<boolean>();
     const isValidMessage = ref<boolean>();
+    const isValidNamespace = ref<boolean>();
+    const hasPublicWallets = ref<boolean>();
     const transactionMessage = ref<string | null>('');
 
     const setAmount = (multiplier: number) => {
@@ -450,20 +438,22 @@
         const isValidAmount = validateAmount();
         const isValidMessage = validateMessage();
 
-        if (!isValidAmount || !isValidAddress || !isValidMessage) return;
+        if (!isValidAmount || (!isValidAddress && !isNamespaceWallet) || !isValidMessage) return;
 
         await router.replace({
             name: 'confirmSend',
             params: {
                 from: selectedWallet.value?.keyPair.getStellarKeyPair().publicKey(),
-                to: toAddress.value,
+                to: isNamespaceWallet.value ? namespaceWalletAddress.value : toAddress.value,
+                namespace: toAddress.value,
                 amount: amount.value?.toString(),
-                asset: selectedAsset.value.asset_code,
+                asset: selectedAsset.value?.asset_code,
                 chainName: selectedChain.value,
                 message: transactionMessage.value,
             },
         });
     };
+
     const scanQr = async () => {
         if (!(<any>window).flutter_inappwebview) alert('Not supported in this browser');
 
@@ -491,8 +481,8 @@
         }
 
         if (currency && relevantAssets.value.findIndex(ra => ra.asset_code === currency) === -1) {
-            const firstBalance = balances.value.find((b: Balance) =>
-                b.assets.find((a: AssetBalance) => a.name === currency?.toUpperCase() && a.amount > 0)
+            const firstBalance = balances.value.find((b: IBalance) =>
+                b.assets.find((a: IAssetBalance) => a.name === currency?.toUpperCase() && a.amount > 0)
             );
 
             selectedWallet.value =
@@ -510,6 +500,82 @@
                 translate('errors.noWalletsWithBalance', { asset: selectedAsset.value.asset_code })
             );
         }
+    };
+
+    const namespaceWallets = ref<
+        {
+            name: string;
+            chains: { [ChainTypes.STELLAR]: string; [ChainTypes.SUBSTRATE]: string };
+        }[]
+    >([]);
+
+    const namespaceWalletAddress = ref<string>();
+
+    const namespaceWalletsForSelectedChain = computed(() =>
+        namespaceWallets.value.map(wallet => {
+            return { name: wallet.name, address: wallet.chains[selectedChain.value] };
+        })
+    );
+
+    const debounce = (fn, delay = 300) => {
+        let timeout;
+
+        return (...args) => {
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+
+            timeout = setTimeout(() => {
+                fn(...args);
+            }, delay);
+        };
+    };
+
+    const findNamespaceAddress = debounce(async event => {
+        namespaceWallets.value = [];
+        namespaceWalletAddress.value = undefined;
+        let value = event.target.value.trim();
+
+        if (value.substring(0, 1) !== '$') {
+            return;
+        }
+
+        value = value.substring(1, value.length);
+
+        if (value === '') {
+            isValidNamespace.value = true;
+            return;
+        }
+
+        const accountData = await getAccountData(value);
+
+        if (!accountData) {
+            isValidNamespace.value = false;
+            namespaceWallets.value = [];
+            return;
+        }
+
+        isValidNamespace.value = true;
+
+        const pkidClient = getPkidClient();
+
+        const { data } = await pkidClient.getNamespace<INamespace[]>(value, decodeBase64(accountData.publicKey));
+
+        if (!data || data.length <= 0) {
+            hasPublicWallets.value = false;
+            return;
+        }
+
+        hasPublicWallets.value = true;
+        namespaceWallets.value = data;
+    });
+
+    const selectNamespaceWalletAddress = ({ address }: INamespaceData) => (namespaceWalletAddress.value = address);
+
+    const isNamespaceWallet = computed(() => toAddress.value?.indexOf('$') === 0 && toAddress.value?.length > 1);
+
+    const getAccountData = async (namespace: string): Promise<IAccount> => {
+        return (await axios.get(`${flagsmith.getValue('authenticator_backend')}/${namespace}.3bot`))?.data;
     };
 </script>
 

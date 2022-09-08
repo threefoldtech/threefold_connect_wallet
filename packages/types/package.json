@@ -1,0 +1,15 @@
+{
+  "name": "shared-types",
+  "version": "0.0.1",
+  "private": true,
+  "description": "TS package to communicate Substrate calls",
+  "main": "src/index.ts",
+  "author": "Lennert Defauw",
+  "license": "Apache-2.0",
+  "scripts": {
+    "prebuild": "rm -rf dist && mkdir dist",
+    "start": "ts-node src/index.ts",
+    "watch": "tsc --watch",
+    "prepublish": "yarn build"
+  }
+}

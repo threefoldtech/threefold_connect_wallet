@@ -13,18 +13,18 @@ jobs:
       - uses: actions/checkout@v2
       - name: Log into GitHub Container Registry
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Building wallet-next for production
-        run: docker build . -t threefoldjimber/wallet-next:${{ github.sha }}
+      - name: Building wallet-staging for production
+        run: docker build . -t threefoldjimber/wallet-staging:${{ github.sha }}
       - name: Push the Docker image
-        run: docker push threefoldjimber/wallet-next:${{ github.sha }}
+        run: docker push threefoldjimber/wallet-staging:${{ github.sha }}
 
   deploy:
     needs: build
     runs-on: jimber-staging-server
     steps:
       - name: Pull the Docker image
-        run: docker pull threefoldjimber/wallet-next:${{ github.sha }}
+        run: docker pull threefoldjimber/wallet-staging:${{ github.sha }}
       - name: Killing old docker
-        run: docker rm -f wallet-next || true
-      - name: Deploy wallet-next
-        run: docker run -d -it --restart=always --network proxy --name wallet-next --env FLAGSMITH_ENVIROMENT_KEY=${{ secrets.FLAGSMITH_ENV_STAGING }} --env FARMER_ONLY=0 threefoldjimber/wallet-next:${{ github.sha }}
+        run: docker rm -f wallet-staging || true
+      - name: Deploy wallet-staging
+        run: docker run -d -it --restart=always --network proxy --name wallet-staging --env FLAGSMITH_ENVIROMENT_KEY=${{ secrets.FLAGSMITH_ENV_STAGING }} --env FARMER_ONLY=0 threefoldjimber/wallet-staging:${{ github.sha }}

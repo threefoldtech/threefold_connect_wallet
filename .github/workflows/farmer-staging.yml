@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Log into GitHub Container Registry
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Building wallet-next for production
+      - name: Building farmer-staging for production
         run: docker build . -t threefoldjimber/farmer-staging:${{ github.sha }}
       - name: Push the Docker image
         run: docker push threefoldjimber/farmer-staging:${{ github.sha }}

@@ -1,4 +1,4 @@
-name: staging
+name: farmer-staging
 
 on:
   push:

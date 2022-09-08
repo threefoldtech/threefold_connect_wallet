@@ -1,4 +1,4 @@
-name: staging
+name: wallet-staging
 
 on:
   push:

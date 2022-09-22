@@ -30,15 +30,10 @@
         router.push({ name: 'devLogs' });
     });
 
-    const init = async (retries = 0) => {
+    const init = async () => {
         try {
             await initFirstWallet();
         } catch (e) {
-            if (retries < 3) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                await init(retries + 1);
-                return;
-            }
             addNotification(NotificationType.error, 'Failed to init first wallet', 'Please try again later');
             initializedUser.value = null;
             await router.push({ name: 'init' });

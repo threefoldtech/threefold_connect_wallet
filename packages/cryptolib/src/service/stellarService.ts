@@ -71,15 +71,13 @@ export const getConfig: () => {
     };
 };
 
-export const generateActivationCode = async (keyPair: Keypair) => {
-    const transaction = await fetchAccountActivationTransaction(keyPair);
-    await submitAccountActivationTransaction(transaction, keyPair);
-
-    return {
-        activation_code: '000',
-        phonenumbers: ['000'],
-        address: keyPair.publicKey(),
-    };
+export const generateActivationCode = async (keyPair: Keypair): Promise<boolean> => {
+    try {
+        const transaction = await fetchAccountActivationTransaction(keyPair);
+        return await submitAccountActivationTransaction(transaction, keyPair);
+    } catch (e) {
+        return false;
+    }
 };
 
 export const migrateAccount: (stellarPair: Keypair, tfchainAddress: String) => Promise<void> = async (
@@ -347,5 +345,11 @@ export const submitAccountActivationTransaction = async (transaction: Transactio
 
     console.log('This is the XDR');
     console.log(transaction.toXDR());
-    await server.submitTransaction(transaction);
+
+    try {
+        await server.submitTransaction(transaction);
+        return true;
+    } catch (e) {
+        return false;
+    }
 };

@@ -110,8 +110,7 @@ export const initFirstWallet = async () => {
         success = await initializeMainnetWallet(kp);
     }
 
-    console.log('Success of making wallet:');
-    console.log(success);
+    console.log('Success of making wallet:', success);
 
     if (!success) {
         loadingText.value = { title: 'walletCreationFailed' };

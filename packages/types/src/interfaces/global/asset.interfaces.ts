@@ -13,3 +13,8 @@ export interface IAllowedAsset {
     asset_code: string;
     issuer?: string;
 }
+
+export interface IAsset {
+    issuer: string;
+    assetCode: string;
+}

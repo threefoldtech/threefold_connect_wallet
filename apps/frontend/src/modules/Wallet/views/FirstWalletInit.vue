@@ -39,7 +39,7 @@
             await router.push({ name: 'init' });
             return;
         }
-        await router.push({ name: 'walletList' });
+        await router.push({ name: 'walletList', query: { firstWalletInit: 1 } });
     };
 
     init();

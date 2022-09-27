@@ -85,9 +85,9 @@
     import MainLayout from '@/modules/Misc/layouts/MainLayout.vue';
     import PageHeader from '@/modules/Misc/components/header/PageHeader.vue';
     import FAB from '@/modules/Misc/components/global/FAB.vue';
-    import { SaveIcon, XIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/vue/outline';
+    import { ArrowDownIcon, ArrowUpIcon, SaveIcon, XIcon } from '@heroicons/vue/outline';
     import { balances, wallets } from '@/modules/Wallet/services/wallet.service';
-    import { useRouter } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import { computed, onBeforeUnmount, ref } from 'vue';
     import WalletCard from '../components/WalletCard.vue';
 
@@ -97,15 +97,24 @@
     import { orderAssets } from '@/modules/Currency/utils/order.util';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
     import NamespaceWalletDialog from '@/modules/Wallet/components/dialogs/NamespaceWalletDialog.vue';
+    import { toNumber } from 'lodash';
 
     const router = useRouter();
+    const route = useRoute();
+
+    const showNamespaceDialog = useLocalStorage('show-wallet-namespace', true);
+
+    const query = route.query;
+
+    if (query.firstWalletInit && toNumber(query.firstWalletInit) === 1) {
+        showNamespaceDialog.value = false;
+    }
 
     wallets.value.forEach((wallet: IWallet) => {
         const { cleanUp } = balanceUtil(wallet);
         onBeforeUnmount(cleanUp);
     });
 
-    const showNamespaceDialog = useLocalStorage('show-wallet-namespace', true);
     const showMove = ref(false);
 
     const showHint = useLocalStorage('show-import-wallet-hint', true);

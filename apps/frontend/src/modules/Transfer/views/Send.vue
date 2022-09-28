@@ -75,7 +75,7 @@
                                 @input="findNamespaceAddress"
                                 class="block w-full rounded-l-md border-gray-300 pl-3 focus:border-primary-500 focus:ring-primary-500 disabled:border-gray-300 disabled:bg-gray-50 sm:text-sm"
                                 name="to"
-                                placeholder="address, $username"
+                                placeholder="address / username"
                                 type="text"
                                 autocomplete="off"
                             />
@@ -94,14 +94,12 @@
                         namespaceWalletAddress
                     }}</span>
                 </div>
-                <div class="text-sm text-red-500" v-if="isValidToAddress === false && !isNamespaceWallet">
+                <div class="text-sm text-red-500 pt-1" v-if="isValidToAddress === false && !isNamespaceWallet">
                     Please enter a valid address
                 </div>
-                <div class="text-sm text-red-500" v-if="isValidNamespace === false">
-                    Couldn't find a public wallet for this user
-                </div>
-                <div class="text-sm text-red-500" v-if="isValidNamespace === true && hasPublicWallets === false">
-                    This user doesn't have any available wallets
+                <div class="text-sm text-red-500 pt-1" v-if="isValidNamespace === false">Wallet or user not found</div>
+                <div class="text-sm text-red-500 pt-1" v-if="isValidNamespace === true && hasPublicWallets === false">
+                    User has no public wallets
                 </div>
                 <div
                     v-show="namespaceWalletsForSelectedChain.length > 0 && !namespaceWalletAddress"
@@ -236,14 +234,14 @@
     import { balanceUtil } from '@/modules/Currency/utils/balance.util';
     import { addNotification } from '@/modules/Core/services/notification.service';
     import { translate } from '@/modules/Core/utils/translate';
-    import { ChainTypes, IAssetBalance, IBalance } from 'shared-types';
+    import { ChainTypes, IAccount, IAssetBalance, IBalance, INamespace, INamespaceData } from 'shared-types';
     import { IContactType } from 'shared-types/src/interfaces/global/contact.interfaces';
     import { NotificationType } from 'shared-types/src/enums/global/notification.enums';
     import { IWallet } from 'shared-types/src/interfaces/global/wallet.interfaces';
     import axios from 'axios';
     import { decodeBase64 } from 'tweetnacl-util';
     import { getPkidClient } from '@/modules/Pkid/services/pkid.service';
-    import { IAccount, INamespace, INamespaceData } from 'shared-types';
+    import { useDebounceFn } from '@vueuse/core';
 
     const router = useRouter();
     type Asset = { asset_code: string; type: string; fee?: number };
@@ -462,6 +460,11 @@
 
         console.log('Received QR Data');
         console.log(url);
+
+        if (!url.hostname || !url.searchParams.get('amount') || !url.protocol) {
+            addNotification(NotificationType.error, 'This format of QR code is not supported.');
+        }
+
         const address = url.hostname === '' ? url.pathname.replace('//', '') : url.hostname;
 
         const validatedAddress = await validateWalletAddress(address);
@@ -517,33 +520,20 @@
         })
     );
 
-    const debounce = (fn, delay = 300) => {
-        let timeout;
-
-        return (...args) => {
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-
-            timeout = setTimeout(() => {
-                fn(...args);
-            }, delay);
-        };
-    };
-
-    const findNamespaceAddress = debounce(async event => {
+    const findNamespaceAddress = useDebounceFn(async event => {
         namespaceWallets.value = [];
         namespaceWalletAddress.value = undefined;
+
         let value = event.target.value.trim();
 
-        if (value.substring(0, 1) !== '$') {
+        if (value.length < 3) {
+            hasPublicWallets.value = true;
+            isValidNamespace.value = true;
+
             return;
         }
 
-        value = value.substring(1, value.length);
-
-        if (value === '') {
-            isValidNamespace.value = true;
+        if (validateWalletAddress(value).type !== ChainTypes.UNKNOWN) {
             return;
         }
 
@@ -568,7 +558,7 @@
 
         hasPublicWallets.value = true;
         namespaceWallets.value = data;
-    });
+    }, 300);
 
     const selectNamespaceWalletAddress = ({ address }: INamespaceData) => (namespaceWalletAddress.value = address);
 

@@ -3,7 +3,7 @@
         <template #header>
             <PageHeader>
                 <template #before>
-                    <ArrowLeftIcon @click="router.push({ name: 'walletList' })" />
+                    <ArrowLeftIcon @click="router.push({ name: 'walletList', query: { firstWalletInit: 1 } })" />
                 </template>
                 <h1>{{ $t('walletImport.title') }}</h1>
             </PageHeader>
@@ -38,6 +38,21 @@
                         name="secret"
                         rows="4"
                     />
+                </div>
+            </div>
+            <div class="pt-4">
+                <div class="flex items-center mb-4">
+                    <input
+                        @change="importWalletAsPublic = !importWalletAsPublic"
+                        id="default-checkbox"
+                        type="checkbox"
+                        :value="importWalletAsPublic"
+                        :checked="importWalletAsPublic"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    />
+                    <label for="default-checkbox" class="ml-2 text-sm text-gray-900 dark:text-gray-300"
+                        >Import as public wallet</label
+                    >
                 </div>
             </div>
             <Disclosure v-slot="{ open }">
@@ -99,6 +114,8 @@
     const walletIndex = ref(0);
 
     const router = useRouter();
+
+    const importWalletAsPublic = ref<boolean>(true);
 
     const name = ref<string>('');
     const secret = ref();
@@ -208,7 +225,7 @@
             meta: {
                 index: -1,
                 type: PkidWalletTypes.IMPORTED,
-                isPublic: false,
+                isPublic: importWalletAsPublic.value,
             },
         });
 

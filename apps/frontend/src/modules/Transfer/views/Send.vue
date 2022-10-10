@@ -524,7 +524,7 @@
         namespaceWallets.value = [];
         namespaceWalletAddress.value = undefined;
 
-        let value = event.target.value.trim();
+        let value = event.target.value.trim().toLowerCase();
 
         if (value.length < 3) {
             hasPublicWallets.value = true;
@@ -562,7 +562,7 @@
 
     const selectNamespaceWalletAddress = ({ address }: INamespaceData) => (namespaceWalletAddress.value = address);
 
-    const isNamespaceWallet = computed(() => toAddress.value?.indexOf('$') === 0 && toAddress.value?.length > 1);
+    const isNamespaceWallet = computed(() => hasPublicWallets.value === true);
 
     const getAccountData = async (namespace: string): Promise<IAccount> => {
         return (await axios.get(`${flagsmith.getValue('authenticator_backend')}/${namespace}.3bot`))?.data;

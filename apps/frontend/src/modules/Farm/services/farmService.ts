@@ -25,9 +25,6 @@ export const v3PortalFarms = ref<any>([]);
 // export const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
 const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
-    const api = await getSubstrateApi();
-    // const bcNodes = await api.query.tfgridModule.nodes.entries();
-
     for (const v3Wallet of v3Wallets) {
         const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
         const twinId = await getTwinId(substrateAddress);

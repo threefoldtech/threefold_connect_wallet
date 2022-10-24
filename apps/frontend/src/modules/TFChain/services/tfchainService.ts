@@ -4,7 +4,6 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { ref } from 'vue';
 import { AssetBalance } from '@/modules/Wallet/services/walletService';
 import { IKeyringPair } from '@polkadot/types/types/interfaces';
-import { bin2String } from '@/modules/Core/utils/crypto';
 import flagsmith from 'flagsmith';
 import axios from 'axios';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
@@ -102,9 +101,6 @@ export const allFarms = ref<SubstrateFarmDto[]>([]);
 export const twinIds = ref<Set<number>>(new Set());
 
 export const fetchAllFarms = async () => {
-    // const api = await getSubstrateApi();
-    // const farmEntries = await api.query.tfgridModule.farms.entries();
-
     const query = `query farmQuery($twinIds: [Int!]) {
   farms(where: {twinID_in: $twinIds}) {
     name
@@ -118,7 +114,7 @@ export const fetchAllFarms = async () => {
   }
 }
 `;
-    const ids = [...twinIds.value.values()];
+    const ids = [...twinIds.value.values()].filter(t => t != null);
 
     const response = await axios.post(<string>flagsmith.getValue('tfchain_graphql_endpoint'), {
         query,

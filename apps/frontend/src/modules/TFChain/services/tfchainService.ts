@@ -83,13 +83,17 @@ export const getUsersTermsAndConditions = async (
 ): Promise<{ document_link: string; account_id: string; document_hash: string; timestamp: number }[]> => {
     const api = await getSubstrateApi();
     // @ts-ignore
-    const arr: any[] = await api.query.tfgridModule.usersTermsAndConditions(id);
-    return <any>arr.map((term: any) => {
+    const arr = (await api.query.tfgridModule.usersTermsAndConditions(id)).toHuman();
+
+    if (!arr) return [];
+
+    // @ts-ignore
+    return arr.map((term: any) => {
         const newTerm = JSON.parse(JSON.stringify(term));
         //@ts-ignore
-        newTerm.document_link = bin2String(term.document_link);
+        newTerm.documentLink = term.documentLink;
         //@ts-ignore
-        newTerm.document_hash = bin2String(term.document_hash);
+        newTerm.documentHash = term.documentHash;
         return newTerm;
     });
 };

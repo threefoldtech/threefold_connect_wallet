@@ -37,7 +37,7 @@ const prepareWalletKeyPairBuilder = (): false | IWalletKeyPair => {
     return walletKeyPairBuilder.build();
 };
 
-export const initializeTestnetWallet = async (kp: StellarKeyPair): Promise<boolean> => {
+export const initializeTestnetWalletWithFriendBot = async (kp: StellarKeyPair): Promise<boolean> => {
     try {
         const server = getStellarClient();
 
@@ -57,7 +57,6 @@ export const initializeMainnetWallet = async (kp: StellarKeyPair): Promise<boole
 
     try {
         const account = await server.loadAccount(kp.publicKey());
-
         if (account) {
             return true;
         }
@@ -103,7 +102,7 @@ export const initFirstWallet = async () => {
     let success: boolean | undefined = false;
 
     if (network === Networks.TESTNET) {
-        success = await initializeTestnetWallet(kp);
+        success = await initializeMainnetWallet(kp);
     }
 
     if (network === Networks.PUBLIC) {

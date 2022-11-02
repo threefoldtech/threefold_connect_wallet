@@ -52,7 +52,7 @@ export const initializeTestnetWalletWithFriendBot = async (kp: StellarKeyPair): 
     }
 };
 
-export const initializeMainnetWallet = async (kp: StellarKeyPair): Promise<boolean | undefined> => {
+export const initializeWallet = async (kp: StellarKeyPair): Promise<boolean | undefined> => {
     const server = getStellarClient();
 
     try {
@@ -102,11 +102,11 @@ export const initFirstWallet = async () => {
     let success: boolean | undefined = false;
 
     if (network === Networks.TESTNET) {
-        success = await initializeMainnetWallet(kp);
+        success = await initializeWallet(kp);
     }
 
     if (network === Networks.PUBLIC) {
-        success = await initializeMainnetWallet(kp);
+        success = await initializeWallet(kp);
     }
 
     console.log('Success of making wallet:', success);

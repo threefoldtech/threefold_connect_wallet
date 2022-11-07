@@ -114,7 +114,10 @@
     import { Dialog, DialogOverlay } from '@headlessui/vue';
 
     import {
+        allStellarAddresses,
+        allSubstrateAddresses,
         fetchAllFarms,
+        twinIds,
         v2Farms,
         v3Farms,
         v3OtherFarms,
@@ -128,6 +131,8 @@
     import CreateFarmCard from '@/modules/Farm/components/CreateFarmCard.vue';
     import { useRouter } from 'vue-router';
     import { isDev } from '@/modules/Core/utils/environment';
+    import { IFarm } from 'shared-types/src/interfaces/substrate/farm.interfaces';
+
     const canCreateFarms: boolean = isDev || <boolean>flagsmith.hasFeature('can_create_farms_for_farmer');
     const showCreateNewFarm = ref<boolean>(false);
 
@@ -138,7 +143,37 @@
         await fetchAllFarms();
     }, 5000);
 
+    const logInterval = setInterval(() => {
+        console.log('Logging: ');
+        console.log('All Stellar Addresses: ', allStellarAddresses.value);
+        console.log('All Substrate Addresses: ', allSubstrateAddresses.value);
+        console.log('Twin IDs: ', twinIds.value);
+        console.log('Mapped Twin IDs: ', twinIds.value);
+        console.log('All farms on V3: ', v3Farms.value);
+
+        console.log(
+            'All V3 linked wallet farms: ',
+            v3PersonalFarms.value.map((f: IFarm) => {
+                return {
+                    farm: f.farm,
+                    nodes: f.nodes,
+                };
+            })
+        );
+
+        console.log(
+            'All V3 linked wallet farms: ',
+            v3OtherFarms.value.map((f: IFarm) => {
+                return {
+                    farm: f.farm,
+                    nodes: f.nodes,
+                };
+            })
+        );
+    }, 30000);
+
     onBeforeUnmount(() => {
+        clearInterval(logInterval);
         clearInterval(fetchInterval);
     });
 

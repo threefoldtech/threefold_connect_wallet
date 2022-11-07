@@ -23,18 +23,24 @@ export const fetchAllFarms = async () => {
     await getAllV2Farms();
 
     allStellarAddresses.value = wallets.value.map((w: IWallet) => w.keyPair.getStellarKeyPair().publicKey());
+    console.log('All Stellar Addresses: ', allStellarAddresses.value);
     allSubstrateAddresses.value = wallets.value.map((w: IWallet) => w.keyPair.getSubstrateKeyring().address);
+    console.log('All Substrate Addresses: ', allSubstrateAddresses.value);
 
     twinIds.value = await getAllTwinIds(allSubstrateAddresses.value);
+    console.log('Twin IDs: ', twinIds.value);
 
     const allTwinIds = twinIds.value.map((twinId: IGqlTwin) => twinId.twinId);
+    console.log('Mapped Twin IDs: ', twinIds.value);
 
     v3Farms.value = await getAllFarmsFromWallets(allTwinIds, allStellarAddresses.value);
+    console.log('All farms on V3: ', v3Farms.value);
 
     const allFarmIds = v3Farms.value.map((farm: IGqlFarm) => farm.farmId);
     if (allFarmIds.length <= 0) return;
 
     const allNodes = await getAllNodesOfFarms(allFarmIds);
+    console.log('All nodes: ', allNodes);
 
     allDetailedFarms.value = v3Farms.value.map((farm: IGqlFarm) => {
         const nodes = allNodes.filter((node: IGqlNode) => node.farmId === farm.farmId);
@@ -53,7 +59,9 @@ export const fetchAllFarms = async () => {
     });
 
     v3PersonalFarms.value = allDetailedFarms.value.filter((farm: IFarm) => farm.wallet != null);
+    console.log('All V3 linked wallet farms: ', v3PersonalFarms.value);
     v3OtherFarms.value = allDetailedFarms.value.filter((farm: IFarm) => farm.wallet == null);
+    console.log('All V3 other farms: ', v3OtherFarms.value);
 };
 
 const getAllV2Farms = async () => {

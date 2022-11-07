@@ -143,7 +143,7 @@
         await fetchAllFarms();
     }, 5000);
 
-    const logInterval = setInterval(() => {
+    const addLogs = () => {
         console.log('Logging: ');
         console.log('All Stellar Addresses: ', allStellarAddresses.value);
         console.log('All Substrate Addresses: ', allSubstrateAddresses.value);
@@ -170,7 +170,9 @@
                 };
             })
         );
-    }, 30000);
+    };
+
+    const logInterval = setInterval(addLogs, 30000);
 
     onBeforeUnmount(() => {
         clearInterval(logInterval);
@@ -183,6 +185,7 @@
         }
 
         await fetchAllFarms();
+        addLogs();
         isLoading.value = false;
     };
 

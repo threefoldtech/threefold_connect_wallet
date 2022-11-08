@@ -92,6 +92,11 @@ export const getAllFarmsFromWallets = async (twinIds: number[], addresses: strin
     });
 
     const farms = response?.data?.data?.farms;
+
+    if (!farms) {
+        return [];
+    }
+
     return farms.map((farm: any) => {
         return {
             name: farm.name,

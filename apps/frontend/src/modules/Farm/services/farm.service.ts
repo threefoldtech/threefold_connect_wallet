@@ -22,6 +22,8 @@ export const allDetailedFarms = ref<IFarm[]>([]);
 export const fetchAllFarms = async () => {
     await getAllV2Farms();
 
+    if (!wallets.value) return;
+
     allStellarAddresses.value = wallets.value.map((w: IWallet) => w.keyPair.getStellarKeyPair().publicKey());
     allSubstrateAddresses.value = wallets.value.map((w: IWallet) => w.keyPair.getSubstrateKeyring().address);
 
@@ -30,6 +32,7 @@ export const fetchAllFarms = async () => {
     const allTwinIds = twinIds.value.map((twinId: IGqlTwin) => twinId.twinId);
 
     v3Farms.value = await getAllFarmsFromWallets(allTwinIds, allStellarAddresses.value);
+    if (!v3Farms.value) return;
 
     const allFarmIds = v3Farms.value.map((farm: IGqlFarm) => farm.farmId);
     if (allFarmIds.length <= 0) return;

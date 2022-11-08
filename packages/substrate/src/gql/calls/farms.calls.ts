@@ -1,6 +1,8 @@
 import {
     gqlDoesFarmExistByName,
     gqlGetAllFarms,
+    gqlGetAllFarmsBasedOnStellar,
+    gqlGetAllFarmsBasedOnTwinIds,
     gqlGetAllNodesOfFarms,
     gqlGetAllTwinIds,
     gqlUptimeQuery,
@@ -65,9 +67,21 @@ export const getAllNodesOfFarms = async (farmIds: number[]): Promise<IGqlNode[]>
 };
 
 export const getAllFarmsFromWallets = async (twinIds: number[], addresses: string[]): Promise<IGqlFarm[]> => {
-    if (addresses.length == 0 || twinIds.length == 0) return [];
+    if (addresses.length == 0 && twinIds.length == 0) return [];
 
-    const query = gqlGetAllFarms;
+    let query;
+
+    if (addresses.length != 0) {
+        query = gqlGetAllFarmsBasedOnTwinIds;
+    }
+
+    if (twinIds.length != 0) {
+        query = gqlGetAllFarmsBasedOnStellar;
+    }
+
+    if (twinIds.length != 0 && addresses.length != 0) {
+        query = gqlGetAllFarms;
+    }
 
     const response = await axios.post(getGqlUrl(), {
         query,

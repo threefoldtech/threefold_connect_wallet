@@ -7,6 +7,24 @@ export const gqlGetAllFarms = `query MyQuery($twinIds: [Int!], $stellarAddresses
   }
 }`;
 
+export const gqlGetAllFarmsBasedOnStellar = `query MyQuery($stellarAddresses: [String!]) {
+  farms(where: { stellarAddress_in: $stellarAddresses}) {
+    name
+    farmID
+    stellarAddress
+    twinID
+  }
+}`;
+
+export const gqlGetAllFarmsBasedOnTwinIds = `query MyQuery($twinIds: [Int!]) {
+  farms(where: {twinID_in: $twinIds}) {
+    name
+    farmID
+    stellarAddress
+    twinID
+  }
+}`;
+
 export const gqlGetAllNodesOfFarms = `query MyQuery($farmIds: [Int!]) {
   nodes(where: {farmID_in: $farmIds}) {
     nodeID

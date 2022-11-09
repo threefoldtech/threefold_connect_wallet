@@ -72,11 +72,11 @@ export const getAllFarmsFromWallets = async (twinIds: number[], addresses: strin
     let query;
 
     if (addresses.length != 0) {
-        query = gqlGetAllFarmsBasedOnTwinIds;
+        query = gqlGetAllFarmsBasedOnStellar;
     }
 
     if (twinIds.length != 0) {
-        query = gqlGetAllFarmsBasedOnStellar;
+        query = gqlGetAllFarmsBasedOnTwinIds;
     }
 
     if (twinIds.length != 0 && addresses.length != 0) {

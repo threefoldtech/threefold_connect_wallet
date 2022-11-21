@@ -7,13 +7,9 @@ import {
     twinIds,
 } from '@/modules/TFChain/services/tfchainService';
 import toNumber from 'lodash/toNumber';
-import { BCFarm, Farm, StellarPayoutResponse } from '@/modules/Farm/types/farms.types';
-import { useDynamicBalance } from '@/modules/Currency/utils/useDynamicBalance';
+import { Farm, StellarPayoutResponse } from '@/modules/Farm/types/farms.types';
 import axios from 'axios';
 import { ref } from 'vue';
-import { crypto_sign_keypair } from 'libsodium-wrappers';
-import { parseBCInt } from '@/modules/Farm/utils/farm';
-import { useLocalStorage } from '@vueuse/core';
 import { SubstrateFarmDto } from '@/modules/Core/types/substrate.types';
 import flagsmith from 'flagsmith';
 
@@ -25,6 +21,16 @@ export const v3PortalFarms = ref<any>([]);
 // export const showInformationDialog = useLocalStorage('landingFarmInformationDialog', true);
 
 const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
+    console.log(
+        'All substrate addresses of wallets: ',
+        v3Wallets.map((w: Wallet) => w.keyPair.getSubstrateKeyring().address)
+    );
+
+    console.log(
+        'All stellar addresses of wallets: ',
+        v3Wallets.map((w: Wallet) => w.keyPair.getStellarKeyPair().publicKey())
+    );
+
     for (const v3Wallet of v3Wallets) {
         const substrateAddress = v3Wallet.keyPair.getSubstrateKeyring().address;
         const twinId = await getTwinId(substrateAddress);
@@ -32,12 +38,15 @@ const checkV3FarmsForWallets = async (v3Wallets: Wallet[]) => {
             continue; // can't have farm without twin id
         }
 
+        if (!allFarms.value) return;
+
         const allV3Farms = allFarms.value.filter((farm: { twin_id: Number }) => toNumber(farm.twin_id) === twinId);
+        console.log('these are all v3 farms');
+        console.log(allV3Farms);
 
         for (const farm of allV3Farms) {
             const allNodes = await getNodesByFarmId(farm.id);
 
-            console.log(allNodes, farm.id);
             const f: Farm = {
                 name: farm.name,
                 wallet_id: v3Wallet.keyPair.getBasePublicKey(),
@@ -121,6 +130,7 @@ export const getAllStellarPayoutAddresses = async () => {
     );
 
     const v3FarmIds = v3Farms.value.map(farm => farm.farmId);
+    console.log('All V3 Farm ids: ', v3FarmIds);
 
     v3SpecialFarms.value = allStellarPayoutAddresses.value
         .filter((address: StellarPayoutResponse) => myStellarAddresses.includes(address.stellarAddress))

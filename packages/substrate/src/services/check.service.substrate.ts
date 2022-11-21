@@ -7,7 +7,7 @@ import { ITermsAndConditions } from 'shared-types/src/interfaces/substrate/tac.i
 import { allSubstrateAddresses } from 'wallet-frontend/src/modules/Farm/services/farm.service';
 
 const maxRetries = 20;
-const timeout = 1000;
+const timeout = 2000;
 
 export const isTwinCreated = async (keyRing: IKeyringPair, retries = 0): Promise<boolean> => {
     const allTwinIds = await getAllTwinIds(allSubstrateAddresses.value);

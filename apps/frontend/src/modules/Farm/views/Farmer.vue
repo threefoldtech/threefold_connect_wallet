@@ -117,6 +117,7 @@
         allStellarAddresses,
         allSubstrateAddresses,
         fetchAllFarms,
+        getAllV2Farms,
         twinIds,
         v2Farms,
         v3Farms,
@@ -183,6 +184,8 @@
         if (wallets.value.length <= 0) {
             return await router.push({ name: 'noWalletsScreen' });
         }
+
+        await getAllV2Farms();
 
         await fetchAllFarms();
         addLogs();

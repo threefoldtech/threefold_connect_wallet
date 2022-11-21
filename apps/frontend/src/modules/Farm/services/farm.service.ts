@@ -20,8 +20,6 @@ export const v3OtherFarms = ref<IFarm[]>([]);
 export const allDetailedFarms = ref<IFarm[]>([]);
 
 export const fetchAllFarms = async () => {
-    await getAllV2Farms();
-
     if (!wallets.value) return;
 
     allStellarAddresses.value = wallets.value.map((w: IWallet) => w.keyPair.getStellarKeyPair().publicKey());
@@ -59,7 +57,7 @@ export const fetchAllFarms = async () => {
     v3OtherFarms.value = allDetailedFarms.value.filter((farm: IFarm) => farm.wallet == null);
 };
 
-const getAllV2Farms = async () => {
+export const getAllV2Farms = async () => {
     for (const wallet of wallets.value) {
         const address = wallet.keyPair.getStellarKeyPair().publicKey();
         const result = await axios.get(`/api/v1/farms/address/${address}`);

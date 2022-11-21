@@ -389,7 +389,7 @@
         loadingSubtitle.value = 'Creating Twin';
 
         const api = await getSubstrateApi();
-        const submittableExtrinsic = api.tx.tfgridModule.createTwin('127.0.0.1');
+        const submittableExtrinsic = api.tx.tfgridModule.createTwin('::1');
 
         await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
 

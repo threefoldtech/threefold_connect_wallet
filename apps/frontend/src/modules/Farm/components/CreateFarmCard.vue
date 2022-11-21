@@ -364,7 +364,7 @@
         }
 
         console.log('going to add the farm');
-        await addFarm(farmName, []);
+        await addFarm(farmName);
 
         isLoading.value = false;
         emit('close');
@@ -405,13 +405,13 @@
         loadingSubtitle.value = 'Refetching data';
     };
 
-    const addFarm = async (farmName: string, publicIps: string[]) => {
+    const addFarm = async (farmName: string) => {
         console.log('getting twinId');
         newTwinId.value = await getTwinId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
         console.log('twinId', newTwinId.value);
 
         console.debug('this is the twinid, ', newTwinId.value);
-        if (newTwinId.value === 0) {
+        if (newTwinId.value === null || newTwinId.value === 0) {
             console.debug('the twin id was 0');
             await addTwin();
         }
@@ -420,8 +420,8 @@
         loadingSubtitle.value = 'Creating farm';
         const api = await getSubstrateApi();
 
-        console.debug('this is the provided info', farmName, publicIps);
-        const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, publicIps);
+        console.debug('this is the provided info', farmName, []);
+        const submittableExtrinsic = api.tx.tfgridModule.createFarm(farmName, []);
 
         console.debug(
             'signing and sending substate address ',
@@ -448,16 +448,19 @@
         while (true) {
             // break after 20 seconds
             if (i > 20) {
+                addNotification(NotificationType.error, 'Could not create farm', 'Please contact support.');
+                emit('close');
                 throw new Error('Timeout');
             }
             i++;
 
-            farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === newTwinId.value);
+            if (allFarms.value) {
+                farms.value = allFarms.value.filter(farm => toNumber(farm.twin_id) === newTwinId.value);
+                const myFarm = farms.value.find((farm: SubstrateFarmDto) => farm.name === farmName);
 
-            const myFarm = farms.value.find((farm: SubstrateFarmDto) => farm.name === farmName);
-
-            if (myFarm) {
-                break;
+                if (myFarm) {
+                    break;
+                }
             }
             await new Promise(resolve => setTimeout(resolve, 1000));
         }

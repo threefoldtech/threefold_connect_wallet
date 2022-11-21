@@ -115,9 +115,9 @@ export const fetchAllFarms = async () => {
 }
 `;
 
-    console.log('Getting all twinIds: ');
+    // console.log('Getting all twinIds: ');
     const ids = [...twinIds.value.values()].filter(t => t != null);
-    console.log('TwinIds: ', ids);
+    // console.log('TwinIds: ', ids);
 
     const response = await axios.post(<string>flagsmith.getValue('tfchain_graphql_endpoint'), {
         query,

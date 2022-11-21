@@ -61,7 +61,6 @@
                         <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
                             Create farm on grid v3
                         </h1>
-                        wallet-frontend:dev: 22 ms -> 208 ms -> 0 ms -> 0 ms
                         <div class="mt-6">
                             <a
                                 href="#"

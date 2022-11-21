@@ -114,7 +114,10 @@ export const fetchAllFarms = async () => {
   }
 }
 `;
+
+    console.log('Getting all twinIds: ');
     const ids = [...twinIds.value.values()].filter(t => t != null);
+    console.log('TwinIds: ', ids);
 
     const response = await axios.post(<string>flagsmith.getValue('tfchain_graphql_endpoint'), {
         query,
@@ -123,11 +126,13 @@ export const fetchAllFarms = async () => {
         },
     });
 
+    console.log('Getting all farms from GQL');
     const farms = response?.data?.data?.farms.map((farm: any) => {
         const newFarm = JSON.parse(JSON.stringify(farm));
         newFarm.public_ips = farm.public_ips.map((ip: any) => ip.ip);
         return newFarm;
     });
+    console.log('All farms of user in GQL: ', farms);
     // const farms = farmEntries.map(([, farm]) => {
     //     const newFarm = JSON.parse(JSON.stringify(farm));
     //     newFarm.name = bin2String((<any>farm)?.name);
@@ -135,7 +140,6 @@ export const fetchAllFarms = async () => {
     // });
     allFarms.value = farms;
 };
-
 export const activationServiceForSubstrate = async (id: string) => {
     const headers = { 'Content-Type': 'application/json' };
 

@@ -205,5 +205,11 @@ export const fetchFarms = async () => {
     await fetchAllFarms();
     await checkV3FarmsForWallets(wallets.value);
     await getAllStellarPayoutAddresses();
-    await checkV2FarmsForWallets(wallets.value);
+
+    const enableV2Farms = flagsmith.hasFeature('can-see-v2-farms');
+
+    if (enableV2Farms) {
+        await checkV2FarmsForWallets(wallets.value);
+    }
+
 };

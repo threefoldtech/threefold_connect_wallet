@@ -25,18 +25,18 @@
                     </div>
                 </div>
 
-                <div class="pt-3 font-medium">Farms on v3</div>
+                <div class="pt-3 font-medium">Your TF Farms</div>
                 <div v-if="v3Farms.length > 0">
-                    <h2 class="pb-2 text-xs">Farms connected to existing wallets should be migrated</h2>
+                    <h2 class="pb-2 text-xs">Farms connected to existing wallets</h2>
                     <ul role="list" class="grid grid-cols-1 gap-3">
                         <FarmCard :showSecrets="true" :isV3="true" :farm="farm" v-for="farm in v3Farms" />
                     </ul>
                 </div>
                 <div v-else>
-                    <h2 class="pb-2 text-xs">No farms connected to existing wallets in TF Grid v3</h2>
+                    <h2 class="pb-2 text-xs">No farms connected to existing wallets</h2>
                 </div>
 
-                <div v-if="v3PortalFarms.length > 0" class="pt-3 font-medium">Other v3 farms</div>
+                <div v-if="v3PortalFarms.length > 0" class="pt-3 font-medium">Other farms</div>
                 <div v-if="v3PortalFarms.length > 0">
                     <h2 class="pb-2 text-xs">
                         Farms created with other platforms that have a payout to your TF Connect wallet

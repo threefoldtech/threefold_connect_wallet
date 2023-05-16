@@ -389,6 +389,8 @@
         loadingSubtitle.value = 'Creating Twin';
 
         const api = await getSubstrateApi();
+        const urls = api.tx.tfgridModule.getDefaultUrls(window.config.network as NetworkEnv)
+        console.log('urls: ', urls);
         const submittableExtrinsic = api.tx.tfgridModule.createTwin('::1');
 
         await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());

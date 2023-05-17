@@ -352,7 +352,7 @@
         isLoading.value = true;
         loadingSubtitle.value = 'Starting creation of farm';
 
-        console.log('Going to accept terms and cs');
+        console.log('Going to accept terms and cs2222');
 
         const termsAndConditions = await getUsersTermsAndConditions(
             desiredWallet.value.keyPair.getSubstrateKeyring().address
@@ -389,9 +389,8 @@
         loadingSubtitle.value = 'Creating Twin';
 
         const api = await getSubstrateApi();
-        const urls = api.tx.tfgridModule.getDefaultUrls(window.config.network as NetworkEnv)
-        console.log('urls: ', urls);
-        const submittableExtrinsic = api.tx.tfgridModule.createTwin('::1');
+        const submittableExtrinsic = api.tx.tfgridModule.createTwin('relay.dev.grid.tf', '::1');
+        console.log("submittableExtrinsic ::::::::::::::::: ", submittableExtrinsic)
 
         await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
 
@@ -410,9 +409,7 @@
     const addFarm = async (farmName: string) => {
         console.log('getting twinId');
         newTwinId.value = await getTwinId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
-        console.log('twinId', newTwinId.value);
 
-        console.debug('this is the twinid, ', newTwinId.value);
         if (newTwinId.value === null || newTwinId.value === 0) {
             console.debug('the twin id was 0');
             await addTwin();
@@ -498,9 +495,11 @@
     const acceptTermsAndConditions = async () => {
         loadingSubtitle.value = 'Accepting terms and conditions';
         isLoading.value = true;
-
+        console.log('Is Loading...');
+        
         const id = desiredWallet.value.keyPair.getSubstrateKeyring().address;
-
+        console.log('id, ', id);
+        
         console.log('Activating services for substrate');
         await activationServiceForSubstrate(id);
 
@@ -535,6 +534,7 @@
         do {
             await new Promise(resolve => setTimeout(resolve, 1000));
             loadingSubtitle.value = 'Getting terms and conditions';
+            console.log(id);
             termsAndConditions.value = await getUsersTermsAndConditions(id);
         } while (termsAndConditions.value.filter(t => t.document_link === termsAndConditionsUrl).length === 0);
 

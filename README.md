@@ -68,6 +68,32 @@ For support, got to support in the threefold connect app.
 
 ![Threefold](https://threefold.io/assets/static/footer_logo2.7a5182b.f5242b4436c182c40f7f53a060a6422e.png)
 
+
+## Guide to Running this Project Locally
+
+To run this project locally, please follow these steps:
+
+1. Ensure you have all the necessary environment variables set before running the server. The following variables need to be exported:
+
+- NODE_ENV: This variable determines the environment in which you'll run the project.
+- FARMER_ONLY: Use this variable if you want to run the farm screen only.
+- FLAGSMITH_ENVIRONMENT_KEY: This key is obtained from the Flagsmith platform and informs the server to work against the production environment.
+
+2. Set the environment variables by exporting them in your local development environment. For example, in a UNIX-based system, you can use the following command:
+
+```bash
+Copy code
+export NODE_ENV=development
+export FARMER_ONLY=1
+export FLAGSMITH_ENVIRONMENT_KEY=<your-key-value>
+```
+
+Adjust the values accordingly based on your specific requirements.
+
+3. Once the environment variables are set, you can proceed to run the server locally. Refer to the project's documentation or README file for specific instructions on how to start the server.
+
+By following these steps, you should be able to run the project locally with the necessary environment variables configured. If you encounter any issues or need further assistance, please don't hesitate to reach out.
+
 ## Acceptance testing
 
 - Fully new 3bot account => Open wallet, create daily wallet.

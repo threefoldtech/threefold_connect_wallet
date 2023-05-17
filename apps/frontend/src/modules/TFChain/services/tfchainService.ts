@@ -162,8 +162,10 @@ export const submitExtrensic = async (
     keyringPair: IKeyringPair,
     options = {}
 ) => {
+    console.log("Submit transaction");
     const promise = new Promise((resolve, reject) => {
         submittableExtrinsic.signAndSend(keyringPair, options, (result: ISubmittableResult) => {
+            
             if (result.isFinalized) {
                 resolve(result.toHuman(true));
                 return;

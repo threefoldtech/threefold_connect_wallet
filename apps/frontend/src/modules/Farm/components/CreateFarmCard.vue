@@ -349,7 +349,8 @@ const addTwin = async () => {
     loadingSubtitle.value = 'Creating Twin';
 
     const api = await getSubstrateApi();
-    const submittableExtrinsic = api.tx.tfgridModule.createTwin('relay.grid.tf', '::1');
+    const relay = <string>flagsmith.getValue('relay_link');
+    const submittableExtrinsic = api.tx.tfgridModule.createTwin(relay, null);
 
     await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
 

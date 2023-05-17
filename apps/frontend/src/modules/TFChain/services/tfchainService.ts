@@ -162,28 +162,25 @@ export const submitExtrensic = async (
     keyringPair: IKeyringPair,
     options = {}
 ) => {
-    const promise = new Promise(async (resolve, reject) => {
-        function callback(res) {
-            if (res instanceof Error) {
-                console.error(res);
-                reject(res);
+    console.log("Submit transaction");
+    const promise = new Promise((resolve, reject) => {
+        submittableExtrinsic.signAndSend(keyringPair, options, (result: ISubmittableResult) => {
+            
+            if (result.isFinalized) {
+                resolve(result.toHuman(true));
+                return;
             }
-            const { events = [], status } = res;
-            if (status.isInBlock) {
-                events.forEach(({ phase, event: { data, method, section } }) => {
-                    console.log(`phase: ${phase}, section: ${section}, method: ${method}`);
-                    if (section === "system" && method === "ExtrinsicFailed") {
-                        const errorIndex = parseInt(data.toJSON()[0].module.error.replace(/0+$/g, ""));
-                        // const errorType = ErrorsMap[resultSection][errorIndex];
-                        reject(
-                            `Failed to apply in module with due to error: `,
-                        );
-                    } else if (section === 'system' && method === 'ExtrinsicSuccess') {
-                        resolve(data.toJSON()[0]);
-                    }
-                });
+            if (result.isError) {
+                reject(result.toHuman(true));
+                return;
             }
-        }
+
+            // @ts-ignore
+            if (result.status === 'Finalized' || result.status === 'Ready') {
+                resolve(result.toHuman(true));
+                return;
+            }
+        });
     });
 
     return await promise;

@@ -85,7 +85,7 @@ To run this project locally, please follow these steps:
 Copy code
 export NODE_ENV=development
 export FARMER_ONLY=1
-export FLAGSMITH_ENVIRONMENT_KEY=<your-key-value>
+export FLAGSMITH_ENVIROMENT_KEY=<your-key-value>
 ```
 
 Adjust the values accordingly based on your specific requirements.

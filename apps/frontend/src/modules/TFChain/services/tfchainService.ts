@@ -164,21 +164,32 @@ export const submitExtrensic = async (
 ) => {
     console.log("Submit transaction");
     const promise = new Promise((resolve, reject) => {
-        submittableExtrinsic.signAndSend(keyringPair, options, (result: ISubmittableResult) => {
-            
-            if (result.isFinalized) {
-                resolve(result.toHuman(true));
-                return;
+        submittableExtrinsic.signAndSend(keyringPair, options, (res: ISubmittableResult) => {
+            if (res instanceof Error) {
+                console.error(res);
+                reject(res);
             }
-            if (result.isError) {
-                reject(result.toHuman(true));
-                return;
-            }
-
-            // @ts-ignore
-            if (result.status === 'Finalized' || result.status === 'Ready') {
-                resolve(result.toHuman(true));
-                return;
+            const { events = [], status } = res;
+            const resultData: any[] = []
+            const resultSections: string[] = []
+            resultSections.push(submittableExtrinsic.method.section);
+            if (status.isInBlock) {
+                events.forEach(async ({ phase, event: { data, method, section } }) => {
+                    console.log(`phase: ${phase}, section: ${section}, method: ${method}, data: ${data}`);
+                    const resData: any = data.toJSON()
+                    if (section === "system" && method === "ExtrinsicFailed") {
+                        if (resData) {
+                            const api = await getSubstrateApi();
+                            const errorIndex = parseInt(resData[0].module.error.replace(/0+$/g, ""));
+                            reject(`${Object.keys(api.errors[submittableExtrinsic.method.section])[+errorIndex]}`);
+                        }
+                    } else if (resultSections.includes(section)) {
+                        if (resData)
+                            resultData.push(resData[0]);
+                    } else if (section === "system" && method === "ExtrinsicSuccess") {
+                        resolve(resultData);
+                    }
+                });
             }
         });
     });

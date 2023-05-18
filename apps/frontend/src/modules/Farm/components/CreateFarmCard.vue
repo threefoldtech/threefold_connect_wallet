@@ -352,8 +352,19 @@ const addTwin = async () => {
     const relay = <string>flagsmith.getValue('relay_link');
     const submittableExtrinsic = api.tx.tfgridModule.createTwin(relay, null);
 
-    await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
-
+    try {
+        const res = await submitExtrensic(submittableExtrinsic, desiredWallet.value.keyPair.getSubstrateKeyring());
+        console.log('this is the response', res);
+    } catch (e) {
+        isLoading.value = false;
+        loadingSubtitle.value = '';
+        addNotification(
+            NotificationType.error,
+            `Could not create Twin (${e})`,
+        );
+        emit('close');
+        throw e;
+    }
     while (true) {
         newTwinId.value = await getTwinId(desiredWallet.value.keyPair.getSubstrateKeyring().address);
         if (newTwinId.value !== 0) {

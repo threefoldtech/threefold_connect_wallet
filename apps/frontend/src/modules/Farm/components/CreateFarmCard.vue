@@ -507,7 +507,7 @@ const acceptTermsAndConditions = async () => {
         loadingSubtitle.value = 'Getting terms and conditions';
         console.log(id);
         termsAndConditions.value = await getUsersTermsAndConditions(id);
-    } while (termsAndConditions.value.filter(t => t.document_link === termsAndConditionsUrl).length === 0);
+    } while (termsAndConditions.value.filter(t => t.documentLink === termsAndConditionsUrl).length === 0);
 
     console.log('these are the terms and conditions');
     console.log(termsAndConditions.value);

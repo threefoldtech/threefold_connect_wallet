@@ -22,9 +22,9 @@ jobs:
           replace: ${{ github.ref_name }}
           regex: false
       - name: Building wallet-next for staging
-        run: docker build . -t threefolddev/wallet-next:${{ github.sha }}
+        run: docker build . -t threefolddev/staging-wallet-next:${{ github.sha }}
       - name: Push the Docker image
-        run: docker push threefolddev/wallet-next:${{ github.sha }}
+        run: docker push threefolddev/staging-wallet-next:${{ github.sha }}
 
   deploy:
     needs: [build]

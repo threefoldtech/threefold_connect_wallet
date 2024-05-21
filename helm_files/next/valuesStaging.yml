@@ -1,10 +1,10 @@
 replicaCount: 1
 
-environment: prod
+environment: staging
 
 image:
         name: wallet-next
-        repo: threefolddev/wallet-next
+        repo: threefolddev/staging-wallet-next
         tag: 19022765a78b7482f97ab15b4ab914835e1c7e02 
         containerPort: 80
 
@@ -14,9 +14,9 @@ service:
 
 ingress:
         hosts:
-                - name: farmer.threefold.me
+                - name: wallet-next.staging.threefold.me
                   path: /
-                  service: wallet-farmer-prod
+                  service: wallet-next-staging
                   port: 80
 
 
@@ -24,3 +24,7 @@ ingress:
 
 acme:
         email: operations@threefold.io
+
+secrets:
+        FLAGSMITH_ENVIROMENT_KEY: "S5j22oQHTzUk7y4khnBxdaaa"
+        FARMER_ONLY: "0"

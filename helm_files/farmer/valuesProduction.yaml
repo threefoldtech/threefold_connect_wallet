@@ -14,7 +14,7 @@ service:
 
 ingress:
         hosts:
-                - name: 1farmer.threefold.me
+                - name: farmer.threefold.me
                   path: /
                   service: wallet-farmer-prod
                   port: 80
@@ -24,3 +24,7 @@ ingress:
 
 acme:
         email: operations@threefold.io
+
+secrets:
+        FLAGSMITH_ENVIROMENT_KEY: "gj4ChyGUn6woyvXKhhBf4s"
+        FARMER_ONLY: "1"

@@ -1,0 +1,39 @@
+name: farmer-staging
+
+on:
+  push:
+    tags:
+      - "farmer-v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Log into Docker Hub Registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.TFDOCKERHUB_USERNAME }}
+          password: ${{ secrets.TFDOCKERHUB_PASSWORD }}
+
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "{{version}}"
+          replace: ${{ github.ref_name }}
+          regex: false
+      - name: Building wallet-next for staging
+        run: docker build . -t threefolddev/wallet-next:${{ github.sha }}
+      - name: Push the Docker image
+        run: docker push threefolddev/wallet-next:${{ github.sha }}
+
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create kubeconfig
+        run: |
+          mkdir ${HOME}/.kube
+          echo ${{ secrets.TF_KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
+      - name: Deploy or Upgrade to kubernetes threefoldconnect-staging ns
+        run: helm upgrade --install -n threefoldconnect-staging wallet-farmer helm_files/farmer -f helm_files/farmer/valuesStaging.yaml --set image.tag=${{ github.sha }}

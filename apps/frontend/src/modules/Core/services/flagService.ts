@@ -10,7 +10,7 @@ export const initFlags = async (name: string) => {
 
     await flagsmith.init({
         environmentID,
-        api: 'https://flagsmith.jimber.io/api/v1/',
+        api: 'https://flagsmith.threefold.me/api/v1/',
     });
 
     await flagsmith.identify(name);

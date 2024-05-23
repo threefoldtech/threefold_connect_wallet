@@ -26,5 +26,5 @@ acme:
         email: operations@threefold.io
 
 secrets:
-        FLAGSMITH_ENVIROMENT_KEY: "S5j22oQHTzUk7y4khnBxdaaa"
+        FLAGSMITH_ENVIROMENT_KEY: "gj4ChyGUn6woyvXKhhBf4s"
         FARMER_ONLY: "0"
